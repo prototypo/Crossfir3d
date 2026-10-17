@@ -119,6 +119,8 @@ fn main() {
         .insert_resource(settings)
         .add_plugins(graphics::GraphicsPlugin)
         .add_plugins(EguiPlugin::default())
+        // egui goes on the window camera (graphics.rs), not the 3D camera that draws into an image.
+        .insert_resource(bevy_egui::EguiGlobalSettings { auto_create_primary_context: false, ..default() })
         .init_state::<AppState>()
         .init_resource::<Status>()
         .init_resource::<NcomSeq>()
