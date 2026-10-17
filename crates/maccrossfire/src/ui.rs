@@ -34,8 +34,10 @@ pub fn login_screen(
     status: Res<Status>,
     mut settings_open: ResMut<crate::settings_ui::SettingsOpen>,
     mut commands: Commands,
+    session: Option<NonSend<Session>>,
 ) -> Result {
-    if settings_open.0 {
+    // Connected: the character screens show instead.
+    if settings_open.0 || session.is_some() {
         return Ok(());
     }
     let mut connect = false;
@@ -96,7 +98,7 @@ fn connect(world: &mut World, server: &str, creds: Creds) {
 }
 
 /// Developer shortcut: MACCROSSFIRE_LOGIN="account:password:character[:new]" logs in to
-/// localhost at startup.
+/// localhost at startup; with an empty character it stops at the character list.
 pub fn auto_login(mut commands: Commands) {
     let Ok(v) = std::env::var("MACCROSSFIRE_LOGIN") else { return };
     let parts: Vec<&str> = v.split(':').collect();
@@ -108,7 +110,8 @@ pub fn auto_login(mut commands: Commands) {
         account: account.to_string(),
         password: password.to_string(),
         new_account: rest.first() == Some(&"new"),
-        quick_character: Some(character.to_string()),
+        // An empty character name stops at the character list.
+        quick_character: (!character.is_empty()).then(|| character.to_string()),
     };
     queue_connect(&mut commands, LoginForm::default().server, creds);
 }

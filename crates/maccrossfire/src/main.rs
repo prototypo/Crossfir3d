@@ -10,6 +10,7 @@ use maccrossfire::slots::{default_slots_path, load_slots, QuickSlots};
 use maccrossfire::net::{Net, NetEvent};
 
 mod audio;
+mod characters_ui;
 mod graphics;
 mod hud;
 mod input;
@@ -147,9 +148,13 @@ fn main() {
         .add_systems(Startup, ui::auto_login)
         .add_systems(Update, pump_network)
         .add_systems(Update, (input::send_moves, input::world_keys).run_if(in_state(AppState::InGame)))
-        .add_systems(Update, dev_screenshot.run_if(in_state(AppState::InGame)))
+        .add_systems(Update, dev_screenshot)
+        .add_systems(OnEnter(AppState::InGame), load_character_slots)
         .init_resource::<settings_ui::SettingsOpen>()
-        .add_systems(EguiPrimaryContextPass, ui::login_screen.run_if(in_state(AppState::Login)))
+        .add_systems(
+            EguiPrimaryContextPass,
+            (ui::login_screen, characters_ui::characters_screen).run_if(in_state(AppState::Login)),
+        )
         .add_systems(EguiPrimaryContextPass, settings_ui::settings_screen)
         .add_systems(EguiPrimaryContextPass, ui::command_line.run_if(in_state(AppState::InGame)))
         .run();
@@ -157,11 +162,16 @@ fn main() {
 
 /// Starts a session after a successful connect.
 pub fn start_session(world: &mut World, net: Net, login: LoginFlow, first: Vec<ClientMsg>) {
-    let slots = load_slots(&default_slots_path(), login.character());
     let session = Session { net, login };
     session.send(first);
     world.insert_non_send(session);
     world.insert_resource(Faces(FaceStore::new(maccrossfire::faces::default_cache_dir())));
+    reset_play_state(world);
+}
+
+/// Everything about the character being played; reset per session and when going back
+/// to the character list.
+fn reset_play_state(world: &mut World) {
     world.insert_resource(View::default());
     world.insert_resource(ViewSize(11, 11));
     world.insert_resource(LastComc { time_ms: 200, packet: 0 });
@@ -177,13 +187,13 @@ pub fn start_session(world: &mut World, net: Net, login: LoginFlow, first: Vec<C
     world.insert_resource(PlayerStats::default());
     world.insert_resource(Inv::default());
     world.insert_resource(Spells::default());
-    world.insert_resource(Slots(slots));
+    world.insert_resource(Slots::default());
     world.insert_resource(inventory_ui::InvSel::default());
     world.insert_resource(input::Facing::default());
     *world.resource_mut::<ui::CommandLine>() = ui::CommandLine::default();
 }
 
-fn end_session(world: &mut World, status: String) {
+pub fn end_session(world: &mut World, status: String) {
     info!("{status}");
     world.remove_non_send::<Session>();
     world.resource_mut::<Status>().0 = status;
@@ -205,10 +215,12 @@ fn pump_network(world: &mut World) {
             NetEvent::Disconnected(reason) => return end_session(world, format!("Disconnected: {reason}")),
         };
 
-        if *world.resource::<State<AppState>>().get() == AppState::InGame {
-            if let Some(reason) = maccrossfire::messages::in_game_reset(&msg) {
-                return end_session(world, reason.to_string());
-            }
+        // On a permadeath server the character list comes back after death.
+        let in_game = *world.resource::<State<AppState>>().get() == AppState::InGame;
+        if let (true, Some(reason)) = (in_game, maccrossfire::messages::in_game_reset(&msg)) {
+            world.resource_mut::<Status>().0 = reason.to_string();
+            world.resource_mut::<NextState<AppState>>().set(AppState::Login);
+            reset_play_state(world);
         }
         let mut session = world.non_send_mut::<Session>();
         let out = session.login.on_message(&msg);
@@ -285,8 +297,15 @@ fn pump_network(world: &mut World) {
     }
 }
 
+/// Quick slots belong to the character actually being played.
+fn load_character_slots(mut slots: ResMut<Slots>, session: Option<NonSend<Session>>) {
+    if let Some(s) = session {
+        slots.0 = load_slots(&default_slots_path(), s.login.character());
+    }
+}
+
 /// Developer check: MACCROSSFIRE_SCREENSHOT=file.png saves one screenshot after
-/// MACCROSSFIRE_SCREENSHOT_AT seconds in game (default 8), then quits.
+/// MACCROSSFIRE_SCREENSHOT_AT seconds after start (default 8), then quits.
 fn dev_screenshot(
     mut commands: Commands,
     time: Res<Time>,
