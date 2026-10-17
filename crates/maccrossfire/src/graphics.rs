@@ -13,7 +13,6 @@ use maccrossfire::settings::{
     default_settings_path, load_settings, save_settings, AntiAlias, FrameRate, Quality, Settings, WindowPlace,
 };
 
-use crate::world::Sun;
 
 #[derive(Resource)]
 pub struct CurrentSettings(pub Settings);
@@ -73,7 +72,6 @@ fn apply_settings(
     mut applied: Local<Option<Settings>>,
     mut window: Single<&mut Window, With<PrimaryWindow>>,
     cameras: Query<Entity, With<Camera3d>>,
-    mut suns: Query<&mut DirectionalLight, With<Sun>>,
     mut shadow_map: ResMut<DirectionalLightShadowMap>,
 ) {
     let s = look(&settings.0);
@@ -101,9 +99,6 @@ fn apply_settings(
             midtones: section,
             highlights: section,
         });
-    }
-    for mut sun in &mut suns {
-        sun.shadow_maps_enabled = s.shadows != Quality::Off;
     }
     shadow_map.size = match s.shadows {
         Quality::Off | Quality::Low => 1024,
