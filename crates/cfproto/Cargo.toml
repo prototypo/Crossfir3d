@@ -1,0 +1,6 @@
+[package]
+name = "cfproto"
+description = "Crossfire client/server protocol"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
