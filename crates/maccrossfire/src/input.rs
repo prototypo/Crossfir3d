@@ -81,9 +81,42 @@ pub fn send_moves(
     session.send([ClientMsg::Ncom { packet, repeat: 0, command: command.into() }]);
 }
 
+/// One-key commands, like the old clients' key bindings. The server only knows full words.
+pub fn key_command(key: KeyCode) -> Option<&'static str> {
+    match key {
+        KeyCode::KeyE => Some("apply"),
+        KeyCode::KeyG => Some("get"),
+        _ => None,
+    }
+}
+
+/// Sends the command for each command key pressed this frame.
+pub fn send_key_commands(
+    keys: Res<ButtonInput<KeyCode>>,
+    line: Res<CommandLine>,
+    mut seq: ResMut<NcomSeq>,
+    session: Option<NonSend<Session>>,
+) {
+    let Some(session) = session else { return };
+    if line.open {
+        return;
+    }
+    for command in keys.get_just_pressed().filter_map(|k| key_command(*k)) {
+        session.send([ClientMsg::Ncom { packet: seq.next(), repeat: 0, command: command.into() }]);
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use super::{direction, may_send, wants_step};
+    use super::{direction, key_command, may_send, wants_step};
+    use bevy::prelude::KeyCode;
+
+    #[test]
+    fn command_keys() {
+        assert_eq!(key_command(KeyCode::KeyE), Some("apply"));
+        assert_eq!(key_command(KeyCode::KeyG), Some("get"));
+        assert_eq!(key_command(KeyCode::KeyA), None); // a is a movement key
+    }
 
     #[test]
     fn tap_is_one_step() {

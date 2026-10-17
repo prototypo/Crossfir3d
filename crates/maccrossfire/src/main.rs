@@ -75,7 +75,7 @@ fn main() {
         .add_plugins(world::WorldPlugin)
         .add_systems(Startup, ui::auto_login)
         .add_systems(Update, pump_network)
-        .add_systems(Update, input::send_moves.run_if(in_state(AppState::InGame)))
+        .add_systems(Update, (input::send_moves, input::send_key_commands).run_if(in_state(AppState::InGame)))
         .add_systems(Update, dev_screenshot.run_if(in_state(AppState::InGame)))
         .add_systems(EguiPrimaryContextPass, ui::login_screen.run_if(in_state(AppState::Login)))
         .add_systems(EguiPrimaryContextPass, ui::command_line.run_if(in_state(AppState::InGame)))
