@@ -1,0 +1,9 @@
+[package]
+name = "maccrossfire"
+description = "3D client for Crossfire"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+
+[dependencies]
+cfproto = { path = "../cfproto" }
