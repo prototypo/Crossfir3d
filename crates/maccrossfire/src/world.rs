@@ -429,7 +429,10 @@ fn sync_visuals(
         let middle = tile + Vec3::new(1.0 - fw as f32 / 2.0, 0.0, 1.0 - fh as f32 / 2.0);
         let (built, sign) = match models.map.lookup(name) {
             Visual::Wall { style } => (Some(wall_parts(style, join)).filter(|p| !p.is_empty()), None),
-            Visual::Building { recipe, sign } => (parts(recipe, fw, fh), sign.as_deref().map(|t| sign_material(t, shade, &mut images, &mut materials))),
+            Visual::Building { recipe, sign, icon } => {
+                let sign = sign.as_deref().map(|t| sign_material(t, icon.as_deref(), shade, &mut images, &mut materials));
+                (parts(recipe, fw, fh), sign)
+            }
             _ => (None, None),
         };
         if let Some(parts) = built {
@@ -500,14 +503,15 @@ fn other_look(kind: PlayerFace) -> Look {
     }
 }
 
-/// Pixel text for a building's sign: its material and its width / height.
+/// Pixel text (and icon) for a building's sign: its material and its width / height.
 fn sign_material(
     text: &str,
+    icon: Option<&str>,
     shade: f32,
     images: &mut Assets<Image>,
     materials: &mut Assets<StandardMaterial>,
 ) -> (Handle<StandardMaterial>, f32) {
-    let (w, h, px) = maccrossfire::signs::sign_pixels(text);
+    let (w, h, px) = maccrossfire::signs::sign_pixels(text, icon);
     let size = Extent3d { width: w, height: h, depth_or_array_layers: 1 };
     let mut image = Image::new(size, TextureDimension::D2, px, TextureFormat::Rgba8UnormSrgb, RenderAssetUsages::RENDER_WORLD);
     image.sampler = ImageSampler::nearest();

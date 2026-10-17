@@ -36,11 +36,11 @@ look at your character's face. **A** or **E** applies. The mouse wheel, a trackp
 pinch, and two-finger scroll zoom (the top view has its own zoom). When a wall or
 house is in the way, the camera moves closer.
 
-Shops are one-storey houses with a painted sign (JEWELS, BANK, MAGIC, ...). Houses,
-walls, gates, trees, rocks, wells, fountains, and signs are 3D. Players are one 3D
-body (with a "Broad" or "Slim" build, chosen on the new-character screen), sized and
-coloured for their race. Your character holds the weapon, bow, and shield in use.
-Everything else is still a picture card.
+Shops are one-storey houses with a painted sign and icon (JEWELS, BANK, MAGIC, ...).
+Houses, walls, gates, trees, rocks, wells, fountains, and signs are 3D. Players are
+one 3D body (with a "Broad" or "Slim" build, chosen on the new-character screen),
+sized and coloured for their race. Your character holds the weapon, bow, and shield
+in use. Everything else is still a picture card.
 
 The models are CC0 (Quaternius, Kenney), free tiers, in `assets/models/` with their
 licences. `assets/models.txt` says which picture becomes which model.
