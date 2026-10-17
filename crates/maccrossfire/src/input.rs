@@ -143,7 +143,8 @@ pub fn world_keys(
             Act::Get => command("get"),
             Act::CloseBox => msgs.0.close_box(),
             Act::OpenInventory => mode.0 = Mode::Inventory,
-            Act::CloseInventory => mode.0 = Mode::World,
+            Act::CloseInventory | Act::CloseSettings => mode.0 = Mode::World,
+            Act::OpenSettings => mode.0 = Mode::Settings,
             Act::ToggleLog => hud.tall_log = !hud.tall_log,
             Act::Slot(i) => {
                 let Some(slot) = &slots.0 .0[i] else { continue };

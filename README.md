@@ -21,6 +21,15 @@ plays sounds and music from there (or from `$MACCROSSFIRE_SOUNDS`).
 cargo run --release -p maccrossfire
 ```
 
+## Settings
+
+Escape in game (or "Settings" on the login screen) opens the video settings:
+window/full screen, render scale, frame rate, ambient occlusion, shadows,
+anti-aliasing, brightness, contrast, gamma. They are saved to
+`~/Library/Application Support/MacCrossfire/settings.txt` (override with
+`MACCROSSFIRE_SETTINGS`). The sun follows the server's game clock
+(`MACCROSSFIRE_HOUR=14` forces an hour, for screenshots).
+
 ## Tests
 
 ```sh

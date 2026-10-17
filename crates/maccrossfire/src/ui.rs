@@ -5,7 +5,7 @@ use bevy_egui::{egui, EguiContexts};
 use cfproto::ClientMsg;
 use maccrossfire::login::{Creds, LoginFlow};
 
-use maccrossfire::modes::Mode;
+use maccrossfire::modes::{command_line_allowed, Mode};
 
 use crate::{KeyMode, LastAction, NcomSeq, PendingQuery, Session, Status};
 
@@ -34,8 +34,12 @@ pub fn login_screen(
     mut contexts: EguiContexts,
     mut form: ResMut<LoginForm>,
     status: Res<Status>,
+    mut settings_open: ResMut<crate::settings_ui::SettingsOpen>,
     mut commands: Commands,
 ) -> Result {
+    if settings_open.0 {
+        return Ok(());
+    }
     let mut connect = false;
     egui::Window::new("MacCrossfire").collapsible(false).resizable(false).show(contexts.ctx_mut()?, |ui| {
         egui::Grid::new("login").num_columns(2).show(ui, |ui| {
@@ -53,7 +57,12 @@ pub fn login_screen(
             ui.end_row();
         });
         ui.checkbox(&mut form.new_account, "New account");
-        connect = ui.button("Connect").clicked();
+        ui.horizontal(|ui| {
+            connect = ui.button("Connect").clicked();
+            if ui.button("Settings").clicked() {
+                settings_open.0 = true;
+            }
+        });
         if !status.0.is_empty() {
             ui.label(&status.0);
         }
@@ -146,7 +155,7 @@ pub fn command_line(
     mut query: ResMut<PendingQuery>,
     session: Option<NonSend<Session>>,
 ) -> Result {
-    if mode.0 == Mode::Inventory {
+    if !command_line_allowed(mode.0) {
         return Ok(());
     }
     match line_action(line.open, keys.just_pressed(KeyCode::Enter), keys.just_pressed(KeyCode::Escape)) {
