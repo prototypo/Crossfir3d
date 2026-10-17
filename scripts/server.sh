@@ -14,6 +14,7 @@ SF=https://git.code.sf.net/p/crossfire
 SERVER_PIN=2f5be027b95a5d9b21c3038b677434963d000fe7
 ARCH_PIN=b14b3f7e72e40bd6ac871e317e85aa6defc7ccff
 MAPS_PIN=479644efa97b6d4469c3c751f20d374e71fe4d42
+SOUNDS_PIN=8d136fbf62928c765af3aac62b48845fa01c5359
 
 fetch() { # repo pin
     [ -d "$UP/$1" ] || git clone "$SF/$1" "$UP/$1"
@@ -28,6 +29,7 @@ build() {
     fetch crossfire-server "$SERVER_PIN"
     fetch crossfire-arch "$ARCH_PIN"
     fetch crossfire-maps "$MAPS_PIN"
+    fetch crossfire-sounds "$SOUNDS_PIN"
     ln -sfn "$UP/crossfire-arch" "$UP/crossfire-server/lib/arch"
     ln -sfn "$UP/crossfire-maps" "$UP/crossfire-server/lib/maps"
 

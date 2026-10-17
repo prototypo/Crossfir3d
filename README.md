@@ -12,6 +12,9 @@ scripts/server.sh build   # once: clones server, arch, maps into upstream/ and b
 scripts/server.sh run     # listens on localhost:13327
 ```
 
+`build` also clones the Crossfire sound pack to `upstream/crossfire-sounds`; the client
+plays sounds and music from there (or from `$MACCROSSFIRE_SOUNDS`).
+
 ## Run the client
 
 ```sh

@@ -3,8 +3,20 @@
 use bevy::prelude::*;
 use cfproto::ClientMsg;
 
-use crate::ui::CommandLine;
-use crate::{LastComc, NcomSeq, Session};
+use maccrossfire::modes::{act, Act, KeyName, Mode};
+use maccrossfire::slots::{dir_number, slot_commands};
+
+use crate::{HudState, Inv, KeyMode, LastAction, LastComc, Msgs, NcomSeq, PlayerStats, Session, Slots, Spells};
+
+/// The direction of the last step or step attempt (1 = north .. 8 = northwest).
+#[derive(Resource)]
+pub struct Facing(pub u8);
+
+impl Default for Facing {
+    fn default() -> Self {
+        Facing(5) // south, towards the camera
+    }
+}
 
 /// Opposite keys cancel out.
 pub fn direction(up: bool, down: bool, left: bool, right: bool) -> Option<&'static str> {
@@ -51,7 +63,9 @@ pub fn wants_step(held_secs: Option<f32>) -> bool {
 #[allow(clippy::too_many_arguments)]
 pub fn send_moves(
     keys: Res<ButtonInput<KeyCode>>,
-    line: Res<CommandLine>,
+    mode: Res<KeyMode>,
+    mut msgs: ResMut<Msgs>,
+    mut facing: ResMut<Facing>,
     comc: Res<LastComc>,
     time: Res<Time>,
     mut seq: ResMut<NcomSeq>,
@@ -61,14 +75,15 @@ pub fn send_moves(
 ) {
     let Some(session) = session else { return };
     let now = time.elapsed_secs();
-    let held = |a, b| keys.pressed(a) || keys.pressed(b);
+    // just_pressed too: a press and release in one frame (a very fast tap) still steps.
+    let held = |a, b| keys.any_pressed([a, b]) || keys.any_just_pressed([a, b]);
     let dir = direction(
         held(KeyCode::ArrowUp, KeyCode::KeyW),
         held(KeyCode::ArrowDown, KeyCode::KeyS),
         held(KeyCode::ArrowLeft, KeyCode::KeyA),
         held(KeyCode::ArrowRight, KeyCode::KeyD),
     );
-    let (Some(command), false) = (dir, line.open) else {
+    let (Some(command), Mode::World) = (dir, mode.0) else {
         *first_step_at = None; // key released: the next press is a new tap
         return;
     };
@@ -76,47 +91,74 @@ pub fn send_moves(
         return;
     }
     first_step_at.get_or_insert(now);
+    msgs.0.close_box(); // walking away closes the parchment box
+    facing.0 = dir_number(command).unwrap_or(facing.0);
     let packet = seq.next();
     wait.0 = Some((packet, now));
     session.send([ClientMsg::Ncom { packet, repeat: 0, command: command.into() }]);
 }
 
-/// One-key commands, like the old clients' key bindings. The server only knows full words.
-pub fn key_command(key: KeyCode) -> Option<&'static str> {
+fn key_name(key: KeyCode) -> KeyName {
     match key {
-        KeyCode::KeyE => Some("apply"),
-        KeyCode::KeyG => Some("get"),
-        _ => None,
+        KeyCode::KeyE => KeyName::E,
+        KeyCode::KeyG => KeyName::G,
+        KeyCode::KeyD => KeyName::D,
+        KeyCode::KeyX => KeyName::X,
+        KeyCode::KeyI => KeyName::I,
+        KeyCode::KeyL => KeyName::L,
+        KeyCode::KeyM => KeyName::M,
+        KeyCode::Escape => KeyName::Escape,
+        KeyCode::Enter => KeyName::Enter,
+        KeyCode::Digit1 => KeyName::Digit(1),
+        KeyCode::Digit2 => KeyName::Digit(2),
+        KeyCode::Digit3 => KeyName::Digit(3),
+        KeyCode::Digit4 => KeyName::Digit(4),
+        _ => KeyName::Other,
     }
 }
 
-/// Sends the command for each command key pressed this frame.
-pub fn send_key_commands(
+/// One-key actions (the spec's key table, via `modes::act`). Enter is handled by the
+/// command line, M by the audio plugin.
+#[allow(clippy::too_many_arguments)]
+pub fn world_keys(
     keys: Res<ButtonInput<KeyCode>>,
-    line: Res<CommandLine>,
+    time: Res<Time>,
+    mut mode: ResMut<KeyMode>,
+    mut msgs: ResMut<Msgs>,
+    mut hud: ResMut<HudState>,
+    mut last: ResMut<LastAction>,
     mut seq: ResMut<NcomSeq>,
+    (facing, slots, inv, spells, stats): (Res<Facing>, Res<Slots>, Res<Inv>, Res<Spells>, Res<PlayerStats>),
     session: Option<NonSend<Session>>,
 ) {
     let Some(session) = session else { return };
-    if line.open {
-        return;
-    }
-    for command in keys.get_just_pressed().filter_map(|k| key_command(*k)) {
-        session.send([ClientMsg::Ncom { packet: seq.next(), repeat: 0, command: command.into() }]);
+    let pressed: Vec<KeyName> = keys.get_just_pressed().map(|k| key_name(*k)).collect();
+    for key in pressed {
+        let mut command = |c: &str| {
+            last.0 = Some(time.elapsed_secs());
+            session.send([ClientMsg::Ncom { packet: seq.next(), repeat: 0, command: c.into() }]);
+        };
+        match act(mode.0, key, msgs.0.boxed.is_some()) {
+            Act::Apply => command("apply"),
+            Act::Get => command("get"),
+            Act::CloseBox => msgs.0.close_box(),
+            Act::OpenInventory => mode.0 = Mode::Inventory,
+            Act::CloseInventory => mode.0 = Mode::World,
+            Act::ToggleLog => hud.tall_log = !hud.tall_log,
+            Act::Slot(i) => {
+                let Some(slot) = &slots.0 .0[i] else { continue };
+                for c in slot_commands(slot, &inv.0, &spells.0, facing.0, &stats.0.range) {
+                    command(&c);
+                }
+            }
+            Act::ToggleMute | Act::OpenCommand | Act::Nothing => {}
+        }
     }
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{direction, key_command, may_send, wants_step};
-    use bevy::prelude::KeyCode;
-
-    #[test]
-    fn command_keys() {
-        assert_eq!(key_command(KeyCode::KeyE), Some("apply"));
-        assert_eq!(key_command(KeyCode::KeyG), Some("get"));
-        assert_eq!(key_command(KeyCode::KeyA), None); // a is a movement key
-    }
+    use super::{direction, may_send, wants_step};
 
     #[test]
     fn tap_is_one_step() {

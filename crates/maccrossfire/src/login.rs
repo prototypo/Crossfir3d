@@ -37,6 +37,8 @@ impl LoginFlow {
             ("tick", "1"),
             ("beat", "1"),
             ("faceset", "0"),
+            ("spellmon", "1"),
+            ("sound2", "3"),
         ]
         .map(|(k, v)| (k.to_string(), v.to_string()));
         let flow = LoginFlow { creds, state: LoginState::Handshake, race: None, class: None };
@@ -97,6 +99,10 @@ impl LoginFlow {
         }
     }
 
+    pub fn character(&self) -> &str {
+        &self.creds.character
+    }
+
     pub fn state(&self) -> &LoginState {
         &self.state
     }
@@ -129,6 +135,8 @@ mod tests {
             ("tick", "1"),
             ("beat", "1"),
             ("faceset", "0"),
+            ("spellmon", "1"),
+            ("sound2", "3"),
         ];
         assert_eq!(opts.len(), want.len());
         for (k, v) in want {
