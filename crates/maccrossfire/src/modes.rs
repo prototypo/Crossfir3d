@@ -68,9 +68,22 @@ pub fn mute_key_allowed(in_game: bool, mode: Mode) -> bool {
     in_game && mode == Mode::World
 }
 
+/// Enter may open (or use) the command box only from the world or the box itself.
+pub fn command_line_allowed(mode: Mode) -> bool {
+    matches!(mode, Mode::World | Mode::CommandLine)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn enter_does_not_open_command_box_over_screens() {
+        assert!(command_line_allowed(Mode::World));
+        assert!(command_line_allowed(Mode::CommandLine));
+        assert!(!command_line_allowed(Mode::Settings));
+        assert!(!command_line_allowed(Mode::Inventory));
+    }
 
     #[test]
     fn m_on_login_form_does_not_mute() {

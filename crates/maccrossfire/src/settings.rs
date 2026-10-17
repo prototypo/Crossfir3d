@@ -196,9 +196,31 @@ pub fn save_settings(path: &Path, s: &Settings) -> io::Result<()> {
     std::fs::rename(&tmp, path)
 }
 
+/// Window positions are saved in logical points (`physical / scale` of the screen the
+/// window was on); at start they are placed using the main screen's scale, because
+/// that is what winit uses to read a window's starting position.
+pub fn to_logical(physical: (i32, i32), scale: f64) -> (i32, i32) {
+    ((physical.0 as f64 / scale).round() as i32, (physical.1 as f64 / scale).round() as i32)
+}
+
+pub fn to_main_screen_physical(logical: (i32, i32), main_scale: f64) -> (i32, i32) {
+    ((logical.0 as f64 * main_scale).round() as i32, (logical.1 as f64 * main_scale).round() as i32)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn window_place_survives_mixed_density_screens() {
+        // Left at physical x=2000 on a 1x external screen; the main screen is Retina 2x.
+        let saved = to_logical((2000, 100), 1.0);
+        assert_eq!(saved, (2000, 100));
+        assert_eq!(to_main_screen_physical(saved, 2.0), (4000, 200));
+        // Left on the 2x screen.
+        assert_eq!(to_logical((800, 300), 2.0), (400, 150));
+        assert_eq!(to_main_screen_physical((-600, 50), 2.0), (-1200, 100));
+    }
 
     fn temp(tag: &str) -> PathBuf {
         let d = std::env::temp_dir().join(format!("mcf-settings-{tag}-{}", std::process::id()));

@@ -13,14 +13,15 @@ const SUNSET: f32 = 23.0; // night starts
 /// Used until the clock is synced (morning).
 pub const FALLBACK_HOUR: f32 = 10.0;
 
-/// "It is 12 minutes past 3 o'clock pm, on ..." -> (hour 0..27, minute 0..57).
+/// "It is 12 minutes past 3 o'clock pm, on ..." -> (hour 0..27, minute 0..58).
 pub fn parse_time_reply(text: &str) -> Option<(u8, u8)> {
     let rest = text.strip_prefix("It is ")?;
     let (minute, rest) = rest.split_once(' ')?;
     let (_, rest) = rest.split_once("past ")?;
     let (hour, rest) = rest.split_once(" o'clock ")?;
     let (minute, hour): (u8, u8) = (minute.parse().ok()?, hour.parse().ok()?);
-    if !(1..=58).contains(&minute) || !(1..=14).contains(&hour) {
+    // Shown minute = (pticks % 1500) / 25 + 1, so 1..=59.
+    if !(1..=59).contains(&minute) || !(1..=14).contains(&hour) {
         return None;
     }
     let half = if rest.starts_with("pm") {
@@ -106,6 +107,12 @@ mod tests {
     #[test]
     fn fourteen_pm_is_hour_14() {
         assert_eq!(parse_time_reply("It is 58 minutes past 14 o'clock pm, on x"), Some((14, 57)));
+    }
+
+    #[test]
+    fn fifty_nine_minutes_is_valid() {
+        // The server's minute is (pticks % 1500) / 25, which reaches 58; shown as 59.
+        assert_eq!(parse_time_reply("It is 59 minutes past 3 o'clock pm, on x"), Some((17, 58)));
     }
 
     #[test]

@@ -11,9 +11,10 @@ use bevy::light::DirectionalLightShadowMap;
 use bevy::pbr::{ScreenSpaceAmbientOcclusion, ScreenSpaceAmbientOcclusionQualityLevel};
 use bevy::prelude::*;
 use bevy::render::view::{ColorGrading, ColorGradingGlobal, ColorGradingSection};
-use bevy::window::{Monitor, MonitorSelection, PresentMode, PrimaryWindow, WindowMode, WindowMoved, WindowPosition, WindowResized};
+use bevy::window::{Monitor, MonitorSelection, PrimaryMonitor, PresentMode, PrimaryWindow, WindowMode, WindowMoved, WindowPosition, WindowResized};
 use maccrossfire::settings::{
-    default_settings_path, load_settings, save_settings, AntiAlias, FrameRate, Quality, Settings, WindowPlace,
+    default_settings_path, load_settings, save_settings, to_logical, to_main_screen_physical, AntiAlias, FrameRate,
+    Quality, Settings, WindowPlace,
 };
 
 
@@ -38,8 +39,8 @@ pub fn initial_window(s: &Settings) -> Window {
     let mut w = Window { title: "MacCrossfire".into(), ..default() };
     w.mode = window_mode(s);
     w.present_mode = present_mode(s.frame_rate);
+    // The position is set once the monitors are known (`place_window`).
     if let Some(p) = s.window {
-        w.position = WindowPosition::At(IVec2::new(p.x, p.y));
         w.resolution.set(p.width as f32, p.height as f32);
     }
     w
@@ -117,24 +118,33 @@ fn apply_settings(
     }
 }
 
-/// A saved window position on a monitor that is gone: centre on the main screen.
+/// Puts the window where it was saved (logical points), converted with the main
+/// screen's scale as winit expects. A place on a monitor that is gone: main screen.
 fn keep_window_on_screen(
     mut done: Local<bool>,
-    monitors: Query<&Monitor>,
+    settings: Res<CurrentSettings>,
+    monitors: Query<(&Monitor, Has<PrimaryMonitor>)>,
     mut window: Single<&mut Window, With<PrimaryWindow>>,
 ) {
     if *done || monitors.is_empty() {
         return;
     }
     *done = true;
-    let WindowPosition::At(p) = window.position else { return };
-    let visible = monitors.iter().any(|m| {
-        let (min, size) = (m.physical_position, IVec2::new(m.physical_width as i32, m.physical_height as i32));
-        p.x >= min.x && p.y >= min.y && p.x < min.x + size.x && p.y < min.y + size.y
+    let Some(place) = settings.0.window else { return };
+    let (x, y) = (place.x as f64, place.y as f64);
+    let visible = monitors.iter().any(|(m, _)| {
+        let s = m.scale_factor;
+        let (mx, my) = (m.physical_position.x as f64 / s, m.physical_position.y as f64 / s);
+        let (mw, mh) = (m.physical_width as f64 / s, m.physical_height as f64 / s);
+        x >= mx && y >= my && x < mx + mw && y < my + mh
     });
-    if !visible {
-        window.position = WindowPosition::Centered(MonitorSelection::Primary);
-    }
+    let main_scale = monitors.iter().find(|(_, primary)| *primary).map_or(1.0, |(m, _)| m.scale_factor);
+    window.position = if visible {
+        let (px, py) = to_main_screen_physical((place.x, place.y), main_scale);
+        WindowPosition::At(IVec2::new(px, py))
+    } else {
+        WindowPosition::Centered(MonitorSelection::Primary)
+    };
 }
 
 fn remember_window(
@@ -155,7 +165,9 @@ fn remember_window(
         (Some(p), _) | (None, WindowPosition::At(p)) => p,
         _ => return,
     };
-    let place = WindowPlace { x: p.x, y: p.y, width: window.width() as u32, height: window.height() as u32 };
+    // Saved in logical points: the screen the window is on may have another density.
+    let (x, y) = to_logical((p.x, p.y), window.scale_factor() as f64);
+    let place = WindowPlace { x, y, width: window.width() as u32, height: window.height() as u32 };
     if settings.0.window != Some(place) {
         settings.0.window = Some(place);
     }

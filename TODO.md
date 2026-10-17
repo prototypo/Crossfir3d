@@ -15,7 +15,15 @@ Known problems left for later. Each line says what goes wrong and where to look.
 - [ ] An unknown stat code is logged once per `stats` packet (`cfproto/src/server.rs`). A newer server could fill the log; log it once.
 - [ ] Unknown server commands are ignored silently (`ServerMsg::Unknown` in `main.rs`). The design says "logged and ignored"; add a `debug!`.
 
-- [ ] The window comes back about one title-bar height (32 pt) higher than where it was left: winit's `WindowMoved` reports the frame position, while `WindowPosition::At` places the content (`graphics.rs` `remember_window` / `initial_window`).
+
+- [ ] The last settings change can be lost if the game quits within 1 s of the previous save (`graphics.rs` `save_settings_later`); save on exit too.
+- [ ] `NaN` (or 0-size window) in a hand-edited settings file is not rejected (`settings.rs` `from_text` / `parse_window`).
+- [ ] The scene image keeps a full-size zeroed copy in RAM (~59 MB at 5K) and reallocates while the window is drag-resized (`graphics.rs`); set `image.data = None`.
+- [ ] macOS green-button full screen is saved as a screen-sized window place (`graphics.rs` `remember_window`).
+- [ ] Turning TAA off leaves `MipBias`/`TemporalJitter` on the camera (sharper, shimmering textures); slider drags reset TAA history.
+- [ ] The settings screen has no scroll area; in a short window the bottom buttons can be cut off (Escape still works).
+- [ ] A player's own `time` command within 10 s of login is hidden (the clock request stays open 10 s).
+- [ ] `MACCROSSFIRE_HOUR` is read from the environment every frame (`world.rs` `lighting`).
 
 ## Missing
 
