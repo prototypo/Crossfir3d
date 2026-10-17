@@ -113,7 +113,26 @@ pub struct CommandLine {
     text: String,
 }
 
-/// Enter opens a one-line box; Enter again sends the text as a command.
+#[derive(Debug, PartialEq)]
+pub enum LineAction {
+    Open,
+    Submit,
+    Cancel,
+    Nothing,
+}
+
+/// Enter opens the box and, when open, sends it. Escape closes it without sending.
+/// Uses Bevy's key state: egui's text box swallows its own Enter key event.
+pub fn line_action(open: bool, enter: bool, escape: bool) -> LineAction {
+    match (open, enter, escape) {
+        (false, true, _) => LineAction::Open,
+        (true, true, _) => LineAction::Submit,
+        (true, false, true) => LineAction::Cancel,
+        _ => LineAction::Nothing,
+    }
+}
+
+/// Enter opens a one-line box; Enter again sends the text as a command; Escape cancels.
 pub fn command_line(
     mut contexts: EguiContexts,
     mut line: ResMut<CommandLine>,
@@ -121,23 +140,49 @@ pub fn command_line(
     mut seq: ResMut<NcomSeq>,
     session: Option<NonSend<Session>>,
 ) -> Result {
-    if !line.open {
-        line.open = keys.just_pressed(KeyCode::Enter);
-        return Ok(());
-    }
-    let mut submit = false;
-    let bottom = egui::Window::new("command").title_bar(false).resizable(false);
-    bottom.anchor(egui::Align2::CENTER_BOTTOM, [0.0, -10.0]).show(contexts.ctx_mut()?, |ui| {
-        let edit = ui.text_edit_singleline(&mut line.text);
-        edit.request_focus();
-        submit = edit.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter));
-    });
-    if submit {
-        let command = std::mem::take(&mut line.text);
-        line.open = false;
-        if let (Some(session), false) = (session, command.trim().is_empty()) {
-            session.send([ClientMsg::Ncom { packet: seq.next(), repeat: 0, command }]);
+    match line_action(line.open, keys.just_pressed(KeyCode::Enter), keys.just_pressed(KeyCode::Escape)) {
+        LineAction::Open => line.open = true,
+        LineAction::Cancel => {
+            line.open = false;
+            line.text.clear();
         }
+        LineAction::Submit => {
+            let command = std::mem::take(&mut line.text);
+            line.open = false;
+            if let (Some(session), false) = (session, command.trim().is_empty()) {
+                session.send([ClientMsg::Ncom { packet: seq.next(), repeat: 0, command }]);
+            }
+        }
+        LineAction::Nothing => {}
+    }
+    if line.open {
+        let bottom = egui::Window::new("command").title_bar(false).resizable(false);
+        bottom.anchor(egui::Align2::CENTER_BOTTOM, [0.0, -10.0]).show(contexts.ctx_mut()?, |ui| {
+            ui.text_edit_singleline(&mut line.text).request_focus();
+        });
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{line_action, LineAction};
+
+    #[test]
+    fn enter_opens_then_submits() {
+        assert_eq!(line_action(false, true, false), LineAction::Open);
+        assert_eq!(line_action(true, true, false), LineAction::Submit);
+    }
+
+    #[test]
+    fn escape_cancels_only_when_open() {
+        assert_eq!(line_action(true, false, true), LineAction::Cancel);
+        assert_eq!(line_action(false, false, true), LineAction::Nothing);
+    }
+
+    #[test]
+    fn no_keys_nothing() {
+        assert_eq!(line_action(true, false, false), LineAction::Nothing);
+        assert_eq!(line_action(false, false, false), LineAction::Nothing);
+    }
 }

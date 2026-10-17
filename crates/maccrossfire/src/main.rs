@@ -157,8 +157,8 @@ fn pump_network(world: &mut World) {
     }
 }
 
-/// Developer check: MACCROSSFIRE_SCREENSHOT=file.png saves one screenshot after some
-/// seconds in game, then quits.
+/// Developer check: MACCROSSFIRE_SCREENSHOT=file.png saves one screenshot after
+/// MACCROSSFIRE_SCREENSHOT_AT seconds in game (default 8), then quits.
 fn dev_screenshot(
     mut commands: Commands,
     time: Res<Time>,
@@ -169,9 +169,10 @@ fn dev_screenshot(
     let Ok(path) = std::env::var("MACCROSSFIRE_SCREENSHOT") else { return };
     let start = *since.get_or_insert(time.elapsed_secs());
     let t = time.elapsed_secs() - start;
-    if (8.0..8.0 + time.delta_secs()).contains(&t) {
+    let at: f32 = std::env::var("MACCROSSFIRE_SCREENSHOT_AT").ok().and_then(|v| v.parse().ok()).unwrap_or(8.0);
+    if (at..at + time.delta_secs()).contains(&t) {
         commands.spawn(Screenshot::primary_window()).observe(save_to_disk(path));
-    } else if t > 10.0 {
+    } else if t > at + 2.0 {
         exit.write(AppExit::Success);
     }
 }
