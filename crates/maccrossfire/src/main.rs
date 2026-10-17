@@ -145,6 +145,7 @@ fn main() {
         .init_resource::<inventory_ui::InvSel>()
         .init_resource::<input::Facing>()
         .init_resource::<input::CameraHeading>()
+        .init_resource::<input::CameraView>()
         .add_systems(EguiPrimaryContextPass, (hud::hud, inventory_ui::inventory_screen).chain().run_if(in_state(AppState::InGame)))
         .add_plugins(world::WorldPlugin)
         .add_plugins(characters3d::CharactersPlugin)
@@ -195,6 +196,7 @@ fn reset_play_state(world: &mut World) {
     world.insert_resource(inventory_ui::InvSel::default());
     world.insert_resource(input::Facing::default());
     world.insert_resource(input::CameraHeading::default());
+    world.insert_resource(input::CameraView::default());
     *world.resource_mut::<ui::CommandLine>() = ui::CommandLine::default();
 }
 
@@ -345,10 +347,16 @@ fn time_reply_expected(world: &World, text: &str) -> bool {
 /// Asks the server for the game time once per login.
 /// Developer check: MACCROSSFIRE_COMMANDS="cmd1;cmd2" sends these game commands on
 /// entering the game (e.g. a local-server teleport for screenshots).
-fn dev_commands(mut seq: ResMut<NcomSeq>, mut facing: ResMut<input::Facing>, session: Option<NonSend<Session>>) {
+fn dev_commands(
+    mut seq: ResMut<NcomSeq>,
+    mut facing: ResMut<input::Facing>,
+    mut heading: ResMut<input::CameraHeading>,
+    session: Option<NonSend<Session>>,
+) {
     let (Ok(cmds), Some(session)) = (std::env::var("MACCROSSFIRE_COMMANDS"), session) else { return };
     for c in cmds.split(';').map(str::trim).filter(|c| !c.is_empty()) {
         facing.0 = maccrossfire::slots::dir_number(c).unwrap_or(facing.0);
+        heading.0 = maccrossfire::camera::heading_of(facing.0);
         session.send([ClientMsg::Ncom { packet: seq.next(), repeat: 0, command: c.into() }]);
     }
 }

@@ -9,8 +9,10 @@ use std::collections::{HashMap, HashSet};
 use bevy::asset::{RecursiveDependencyLoadState, RenderAssetUsages};
 use bevy::gltf::GltfAssetLabel;
 use bevy::image::{CompressedImageFormats, ImageSampler, ImageType};
-use bevy::input::mouse::AccumulatedMouseScroll;
+use bevy::input::gestures::PinchGesture;
+use bevy::input::mouse::{AccumulatedMouseScroll, MouseScrollUnit};
 use bevy::prelude::*;
+use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat};
 use bevy::world_serialization::{WorldAsset, WorldAssetRoot, WorldInstanceReady};
 use maccrossfire::buildings::{footprint, parts, wall_parts, Part, Shape};
 use maccrossfire::models::{all_loaded, Load, ModelMap, Visual};
@@ -23,21 +25,32 @@ use maccrossfire::settings::Quality;
 
 use crate::characters3d::{character_files, spawn_character, Character, OwnCharacter, OwnLook};
 use crate::graphics::CurrentSettings;
-use crate::input::{CameraHeading, Facing};
-use maccrossfire::camera::{pull_in, sight_blocked};
+use crate::input::{CameraHeading, CameraView, Facing};
+use maccrossfire::camera::{pull_in, sight_blocked, zoom, PIXELS_PER_LINE};
 use crate::{AppState, Clock, Faces, LastComc, Session, View, ViewSize};
 
 const TILE_PX: f32 = 32.0;
 const MAX_FACE_PX: u32 = 2048;
-/// Ocarina-style: low and close behind the player's back (owner: lower and closer).
-const PITCH_DEG: f32 = 12.0;
-/// When even the closest camera spot is behind a wall or house, look down from above.
-const HIGH_PITCH_DEG: f32 = 65.0;
-const ZOOM_MIN: f32 = 2.0;
+/// Over the shoulder: just above the head, close behind (owner: torso and head in view).
+const PITCH_DEG: f32 = 10.0;
+const ZOOM_MIN: f32 = 1.0;
 const ZOOM_MAX: f32 = 12.0;
 /// The camera looks at this point above the player's feet (about shoulder height;
 /// the character is about 1.1 tall).
-const LOOK_HEIGHT: f32 = 0.9;
+const LOOK_HEIGHT: f32 = 0.95;
+/// The camera sits this far to the right of the player and looks this far ahead,
+/// so the player stands left of the middle, FPS-like.
+const SHOULDER: f32 = 0.35;
+const AHEAD: f32 = 4.0;
+/// Tab: high above, looking almost straight down (straight down has no "up").
+const TOP_PITCH_DEG: f32 = 80.0;
+const TOP_DISTANCE: f32 = 14.0;
+/// The mouse wheel zooms the top view between these.
+const TOP_ZOOM_MIN: f32 = 5.0;
+const TOP_ZOOM_MAX: f32 = 30.0;
+/// F: in front of the player, looking at their face.
+const FACE_PITCH_DEG: f32 = 5.0;
+const FACE_DISTANCE: f32 = 1.3;
 const SUN_LUX: f32 = 10_000.0;
 const MOON_LUX: f32 = 2_500.0;
 const FOG_COLOR: Color = Color::srgb(0.05, 0.06, 0.08);
@@ -89,9 +102,11 @@ pub(crate) struct Glide {
 struct CameraRig {
     focus: Vec3,
     distance: f32,
+    /// The top view's own zoom.
+    top_distance: f32,
     /// Radians clockwise from north (seen from above), eased toward the heading.
     yaw: f32,
-    /// Radians down from level, eased between the low and the high view.
+    /// Radians down from level, eased toward the view's pitch.
     pitch: f32,
 }
 
@@ -168,20 +183,25 @@ struct Textures {
     cube: Handle<Mesh>,
     card: Handle<Mesh>,
     cylinder: Handle<Mesh>,
+    wedge: Handle<Mesh>,
 }
 
 fn setup(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>, mut textures: ResMut<Textures>) {
     textures.ground = meshes.add(Plane3d::default().mesh().size(1.0, 1.0));
     textures.cube = meshes.add(Cuboid::new(1.0, 1.0, 1.0));
     textures.cylinder = meshes.add(Cylinder::new(1.0, 1.0));
+    // Unit wedge: base on y = 0 along x, peak at y = 1, running along z.
+    let triangle = Triangle2d::new(Vec2::new(-0.5, 0.0), Vec2::new(0.5, 0.0), Vec2::new(0.0, 1.0));
+    textures.wedge = meshes.add(Extrusion::new(triangle, 1.0));
     // Unit card with its origin at the bottom middle, so scaling grows it up and sideways.
     textures.card = meshes.add(Rectangle::new(1.0, 1.0).mesh().build().translated_by(Vec3::Y * 0.5));
 
-    let distance = 3.5;
+    // About a metre further back than close-up: the back of the head and shoulders show.
+    let distance = 2.3;
     commands.spawn((
         Camera3d::default(),
-        camera_transform(Vec3::ZERO, distance, 0.0, PITCH_DEG.to_radians()),
-        CameraRig { focus: Vec3::ZERO, distance, yaw: 0.0, pitch: PITCH_DEG.to_radians() },
+        camera_transform(Vec3::ZERO, distance, 0.0, PITCH_DEG.to_radians(), SHOULDER, AHEAD),
+        CameraRig { focus: Vec3::ZERO, distance, top_distance: TOP_DISTANCE, yaw: 0.0, pitch: PITCH_DEG.to_radians() },
         Glide { target: Vec3::ZERO },
         DistanceFog { color: FOG_COLOR, falloff: FogFalloff::Linear { start: 15.0, end: 25.0 }, ..default() },
     ));
@@ -197,12 +217,19 @@ fn look_dir(yaw: f32) -> Vec3 {
     Vec3::new(yaw.sin(), 0.0, -yaw.cos())
 }
 
-fn camera_eye(focus: Vec3, distance: f32, yaw: f32, pitch: f32) -> Vec3 {
-    focus + Vec3::Y * LOOK_HEIGHT - look_dir(yaw) * pitch.cos() * distance + Vec3::Y * pitch.sin() * distance
+/// Above the player's feet and `side` to the right.
+fn shoulder(focus: Vec3, yaw: f32, side: f32) -> Vec3 {
+    focus + Vec3::Y * LOOK_HEIGHT + look_dir(yaw + std::f32::consts::FRAC_PI_2) * side
 }
 
-fn camera_transform(focus: Vec3, distance: f32, yaw: f32, pitch: f32) -> Transform {
-    Transform::from_translation(camera_eye(focus, distance, yaw, pitch)).looking_at(focus + Vec3::Y * LOOK_HEIGHT, Vec3::Y)
+fn camera_eye(focus: Vec3, distance: f32, yaw: f32, pitch: f32, side: f32) -> Vec3 {
+    shoulder(focus, yaw, side) - look_dir(yaw) * pitch.cos() * distance + Vec3::Y * pitch.sin() * distance
+}
+
+/// Looks `ahead` past the shoulder point.
+fn camera_transform(focus: Vec3, distance: f32, yaw: f32, pitch: f32, side: f32, ahead: f32) -> Transform {
+    let target = shoulder(focus, yaw, side) + look_dir(yaw) * ahead;
+    Transform::from_translation(camera_eye(focus, distance, yaw, pitch, side)).looking_at(target, Vec3::Y)
 }
 
 /// Turns newly arrived face PNGs into GPU images.
@@ -277,7 +304,7 @@ fn sync_visuals(
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut existing: Query<(Entity, &mut TileVisual, Option<&mut Glide>, Has<Character>)>,
     mut solid: ResMut<Solid>,
-    (view_size, own): (Res<ViewSize>, Res<OwnLook>),
+    (view_size, own, mut images): (Res<ViewSize>, Res<OwnLook>, ResMut<Assets<Image>>),
 ) {
     if !view.is_changed() && !textures.is_changed() {
         return;
@@ -400,10 +427,10 @@ fn sync_visuals(
         // Big pictures are sent at their bottom-right square; models stand in the middle.
         let (fw, fh) = footprint(size.x as u32, size.y as u32);
         let middle = tile + Vec3::new(1.0 - fw as f32 / 2.0, 0.0, 1.0 - fh as f32 / 2.0);
-        let built = match models.map.lookup(name) {
-            Visual::Wall { style } => Some(wall_parts(style, join)).filter(|p| !p.is_empty()),
-            Visual::Building { recipe } => parts(recipe, fw, fh),
-            _ => None,
+        let (built, sign) = match models.map.lookup(name) {
+            Visual::Wall { style } => (Some(wall_parts(style, join)).filter(|p| !p.is_empty()), None),
+            Visual::Building { recipe, sign } => (parts(recipe, fw, fh), sign.as_deref().map(|t| sign_material(t, shade, &mut images, &mut materials))),
+            _ => (None, None),
         };
         if let Some(parts) = built {
             let at = if layer == 0 || wall { tile + Vec3::new(0.5, 0.0, 0.5) } else { middle };
@@ -412,7 +439,7 @@ fn sync_visuals(
                 parts.iter().filter_map(|p| if let Shape::Model(f) = p.shape { Some(f.to_string()) } else { None }).collect();
             let parent = commands.spawn((tv, span, Assembled(files), Transform::from_translation(at), Visibility::default())).id();
             for p in &parts {
-                let child = spawn_part(&mut commands, p, shade, &textures, &server, &mut models, &mut materials);
+                let child = spawn_part(&mut commands, p, shade, &textures, sign.as_ref(), &server, &mut models, &mut materials);
                 commands.entity(parent).add_child(child);
             }
             stand_in(&mut commands, parent, at);
@@ -473,12 +500,35 @@ fn other_look(kind: PlayerFace) -> Look {
     }
 }
 
+/// Pixel text for a building's sign: its material and its width / height.
+fn sign_material(
+    text: &str,
+    shade: f32,
+    images: &mut Assets<Image>,
+    materials: &mut Assets<StandardMaterial>,
+) -> (Handle<StandardMaterial>, f32) {
+    let (w, h, px) = maccrossfire::signs::sign_pixels(text);
+    let size = Extent3d { width: w, height: h, depth_or_array_layers: 1 };
+    let mut image = Image::new(size, TextureDimension::D2, px, TextureFormat::Rgba8UnormSrgb, RenderAssetUsages::RENDER_WORLD);
+    image.sampler = ImageSampler::nearest();
+    let material = materials.add(StandardMaterial {
+        base_color: Color::srgb(shade, shade, shade),
+        base_color_texture: Some(images.add(image)),
+        alpha_mode: AlphaMode::Mask(0.5),
+        perceptual_roughness: 0.9,
+        ..default()
+    });
+    (material, w as f32 / h as f32)
+}
+
 /// One part of a building or wall, as a child entity.
+#[allow(clippy::too_many_arguments)]
 fn spawn_part(
     commands: &mut Commands,
     p: &Part,
     shade: f32,
     textures: &Textures,
+    sign: Option<&(Handle<StandardMaterial>, f32)>,
     server: &AssetServer,
     models: &mut Models,
     materials: &mut Assets<StandardMaterial>,
@@ -495,6 +545,14 @@ fn spawn_part(
         }
         Shape::Box(size) => (textures.cube.clone(), Vec3::from(size)),
         Shape::Cylinder { radius, height } => (textures.cylinder.clone(), Vec3::new(radius, height, radius)),
+        Shape::Wedge(size) => (textures.wedge.clone(), Vec3::from(size)),
+        Shape::Sign([w, h]) => {
+            let Some((material, aspect)) = sign else { return commands.spawn((t, Visibility::Hidden)).id() };
+            // Fit the text inside the board, keeping its shape, centred top to bottom.
+            let (sw, sh) = if w / h > *aspect { (h * aspect, h) } else { (w, w / aspect) };
+            let t = Transform { translation: t.translation + Vec3::Y * (h - sh) / 2.0, scale: t.scale * Vec3::new(sw, sh, 1.0), ..t };
+            return commands.spawn((Mesh3d(textures.card.clone()), MeshMaterial3d(material.clone()), t, Visibility::Hidden)).id();
+        }
     };
     let material = materials.add(StandardMaterial { base_color: color, perceptual_roughness: 0.9, ..default() });
     commands.spawn((Mesh3d(mesh), MeshMaterial3d(material), Transform { scale: t.scale * size, ..t }, Visibility::Hidden)).id()
@@ -623,33 +681,51 @@ fn follow_player(
     view: Res<View>,
     size: Res<ViewSize>,
     heading: Res<CameraHeading>,
+    cam: Res<CameraView>,
     solid: Res<Solid>,
     scroll: Res<AccumulatedMouseScroll>,
+    mut pinch: MessageReader<PinchGesture>,
     rig: Single<(&mut Transform, &mut CameraRig, &mut DistanceFog)>,
 ) {
     let (mut t, mut rig, mut fog) = rig.into_inner();
-    rig.distance = (rig.distance - scroll.delta.y).clamp(ZOOM_MIN, ZOOM_MAX);
+    // A trackpad's two-finger scroll comes in pixels, a mouse wheel in lines.
+    let lines = match scroll.unit {
+        MouseScrollUnit::Line => scroll.delta.y,
+        MouseScrollUnit::Pixel => scroll.delta.y / PIXELS_PER_LINE,
+    };
+    let pinched: f32 = pinch.read().map(|p| p.0).sum();
+    if cam.top {
+        rig.top_distance = zoom(rig.top_distance, lines, pinched, TOP_ZOOM_MIN, TOP_ZOOM_MAX);
+    } else {
+        rig.distance = zoom(rig.distance, lines, pinched, ZOOM_MIN, ZOOM_MAX);
+    }
     let (px, py) = view.0.world((size.0 / 2) as i8, (size.1 / 2) as i8);
     let target = Vec3::new(px as f32 + 0.5, 0.0, py as f32 + 0.5);
     let step_secs = comc.time_ms.clamp(100, 400) as f32 / 1000.0;
     let d = target - rig.focus;
     rig.focus = if d.length() > 2.0 { target } else { rig.focus + d.clamp_length_max(time.delta_secs() / step_secs) };
-    // Ease the yaw the short way round toward the heading (about 0.4 s per 45°).
-    let goal = heading.0 as f32 * std::f32::consts::FRAC_PI_4;
+    let behind = heading.0 as f32 * std::f32::consts::FRAC_PI_4;
+    let (goal, pitch, want, side, ahead) = if cam.top {
+        (0.0, TOP_PITCH_DEG, rig.top_distance, 0.0, 0.0)
+    } else if cam.face {
+        (behind + std::f32::consts::PI, FACE_PITCH_DEG, FACE_DISTANCE, 0.0, 0.0)
+    } else {
+        (behind, PITCH_DEG, rig.distance, SHOULDER, AHEAD)
+    };
+    // Ease the yaw the short way round toward the goal (about 0.4 s per 45°).
     let diff = (goal - rig.yaw + std::f32::consts::PI).rem_euclid(std::f32::consts::TAU) - std::f32::consts::PI;
     rig.yaw += diff.clamp(-1.0, 1.0) * (time.delta_secs() * 4.0).min(1.0);
-    // Like Ocarina: pull in while a wall or building stands between player and camera.
+    // Pull in while a wall or building stands between player and camera; never rise
+    // above them (that looked into upper floors).
     let (focus, yaw) = (rig.focus, rig.yaw);
     let blocked = |dist: f32| {
-        let eye = camera_eye(focus, dist, yaw, PITCH_DEG.to_radians());
+        let eye = camera_eye(focus, dist, yaw, pitch.to_radians(), side);
         sight_blocked((focus.x, focus.z), (eye.x, eye.z), |x, y| solid.0.contains(&(x, y)))
     };
-    let low = pull_in(rig.distance, blocked);
-    let stuck = blocked(low);
-    let (distance, goal) = if stuck { (rig.distance, HIGH_PITCH_DEG) } else { (low, PITCH_DEG) };
-    let step = goal.to_radians() - rig.pitch;
+    let distance = if cam.top { want } else { pull_in(want, blocked) };
+    let step = pitch.to_radians() - rig.pitch;
     rig.pitch += step * (time.delta_secs() * 4.0).min(1.0);
-    *t = camera_transform(rig.focus, distance, rig.yaw, rig.pitch);
+    *t = camera_transform(rig.focus, distance, rig.yaw, rig.pitch, side, ahead);
     // Hide the edge of what the server sends: fog from 40% of the view radius to the edge.
     let radius = size.0.min(size.1) as f32 / 2.0;
     fog.falloff = FogFalloff::Linear { start: distance + radius * 0.4, end: distance + radius };

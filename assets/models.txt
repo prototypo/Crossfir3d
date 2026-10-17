@@ -2,7 +2,8 @@
 # pattern[*] kind args...   (`*` = prefix; exact beats prefix; a full name with its
 # frame, like grate_1.118, beats the base name). Unlisted pictures stay picture cards.
 #   model <file under assets/models> <scale> <rot_deg> <dy> [r,g,b tint]
-#   building <recipe>   (assembled in code; well, fountain, signpost are built from shapes)
+#   building <recipe> [SIGN]   (assembled in code; well, fountain, signpost are built from
+#                       shapes; SIGN is shop text, `_` for a space)
 #   wall <style>        (joined pieces; styles: stone brick plaster wood hedge rock)
 #   flat                (lies on the ground)
 #   card                (keep the picture card)
@@ -25,6 +26,18 @@ farmhouse building house
 woodhouse building house
 building* building house
 tavern building tavern
+# Shops: one storey with a sign (`_` is a space).
+store_alch* building shop ALCHEMY
+store_armo* building shop ARMOUR
+store_bow* building shop BOWS
+store_food* building shop FOOD
+store_gems* building shop JEWELS
+store_gene* building shop GENERAL_STORE
+store_magi* building shop MAGIC
+store_weap* building shop WEAPONS
+bank* building shop BANK
+smith building shop SMITH
+trading-post building shop TRADING_POST
 inn* building tavern
 s_inn building tavern
 l_shop1 building tavern
