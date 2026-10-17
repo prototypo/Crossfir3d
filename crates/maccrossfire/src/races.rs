@@ -91,7 +91,7 @@ pub enum PlayerFace {
 
 /// What a map picture name ("wizard.171", "dwarf_p.151") says about a player.
 pub fn classify_player_face(face_name: &str) -> Option<PlayerFace> {
-    const RACE_FACES: [(&str, &str); 14] = [
+    const RACE_FACES: [(&str, &str); 15] = [
         ("dwarf_p", "dwarf_player"),
         ("elf", "elf_player"),
         ("fenx", "fenx_player"),
@@ -106,8 +106,18 @@ pub fn classify_player_face(face_name: &str) -> Option<PlayerFace> {
         ("serpentman", "serpentman_player"),
         ("troll_p", "troll_player"),
         ("wraithp", "wraith_player"),
+        ("mountain_dwarf", "dwarf_player"),
     ];
-    const CLASS_FACES: [(&str, &str); 16] = [
+    // Action and race+class pictures: dwarf_player_class_barbarian, fenx_sword,
+    // pl_dragon_bl_spellcasting, wraith_player_feeding.
+    const RACE_PREFIXES: [(&str, &str); 5] = [
+        ("dwarf_player_", "dwarf_player"),
+        ("elf_player_", "elf_player"),
+        ("fenx_", "fenx_player"),
+        ("pl_dragon_", "pl_dragon"),
+        ("wraith_player_", "wraith_player"),
+    ];
+    const CLASS_FACES: [(&str, &str); 22] = [
         ("alchemist", "alchemist_class"),
         ("barbarian", "barbarian_class"),
         ("wizard_white", "devotee_class"),
@@ -124,10 +134,20 @@ pub fn classify_player_face(face_name: &str) -> Option<PlayerFace> {
         ("mage", "warlock_class"),
         ("warrior", "warrior_class"),
         ("wizard", "wizard_class"),
+        ("cleric", "priest_class"),
+        ("priest", "priest_class"),
+        ("sorcerer_hat", "sorcerer_class"),
+        ("wizard_blue", "wizard_class"),
+        ("wizard_green", "wizard_class"),
+        ("wizard_purple", "wizard_class"),
     ];
     let base = face_name.split('.').next().unwrap_or(face_name);
     let find = |table: &[(&str, &'static str)]| table.iter().find(|(f, _)| *f == base).map(|(_, a)| *a);
-    find(&RACE_FACES).map(PlayerFace::Race).or_else(|| find(&CLASS_FACES).map(PlayerFace::Class))
+    let prefixed = || RACE_PREFIXES.iter().find(|(p, _)| base.starts_with(p)).map(|(_, a)| *a);
+    find(&RACE_FACES)
+        .or_else(prefixed)
+        .map(PlayerFace::Race)
+        .or_else(|| find(&CLASS_FACES).map(PlayerFace::Class))
 }
 
 /// A clothes colour per class, so other players look different by class.
@@ -236,6 +256,26 @@ mod tests {
         assert_eq!(classify_player_face("wizard_white.171"), Some(PlayerFace::Class("devotee_class")));
         assert_eq!(classify_player_face("swashbuckl.151"), Some(PlayerFace::Class("swashbuckler_class")));
         assert_eq!(classify_player_face("goblin.111"), None);
+    }
+
+    #[test]
+    fn every_stock_player_picture_is_known() {
+        let race = |f| classify_player_face(f);
+        assert_eq!(race("dwarf_player_class_barbarian.151"), Some(PlayerFace::Race("dwarf_player")));
+        assert_eq!(race("elf_player_class_ranger.151"), Some(PlayerFace::Race("elf_player")));
+        assert_eq!(race("fenx_spellcasting.151"), Some(PlayerFace::Race("fenx_player")));
+        assert_eq!(race("fenx_class_warrior.151"), Some(PlayerFace::Race("fenx_player")));
+        assert_eq!(race("pl_dragon_bl_spellcasting.151"), Some(PlayerFace::Race("pl_dragon")));
+        assert_eq!(race("pl_dragon_g.151"), Some(PlayerFace::Race("pl_dragon")));
+        assert_eq!(race("wraith_player_feeding.151"), Some(PlayerFace::Race("wraith_player")));
+        assert_eq!(race("mountain_dwarf.151"), Some(PlayerFace::Race("dwarf_player")));
+        assert_eq!(race("cleric.151"), Some(PlayerFace::Class("priest_class")));
+        assert_eq!(race("priest.151"), Some(PlayerFace::Class("priest_class")));
+        assert_eq!(race("sorcerer_hat.151"), Some(PlayerFace::Class("sorcerer_class")));
+        assert_eq!(race("wizard_purple.151"), Some(PlayerFace::Class("wizard_class")));
+        // Statues of players stay pictures.
+        assert_eq!(race("dwarf_stoned.151"), None);
+        assert_eq!(race("dragon_stoned.151"), None);
     }
 
     #[test]

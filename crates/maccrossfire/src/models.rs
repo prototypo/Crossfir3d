@@ -80,6 +80,27 @@ fn parse_visual(words: &[&str]) -> Option<Visual> {
     })
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Load {
+    Loading,
+    Loaded,
+    Failed,
+}
+
+/// A thing made of several model files: failed if any failed, loaded when all are.
+/// Its picture shows until then, and stays if a file failed.
+pub fn all_loaded(states: impl IntoIterator<Item = Load>) -> Load {
+    let mut out = Load::Loaded;
+    for s in states {
+        match s {
+            Load::Failed => return Load::Failed,
+            Load::Loading => out = Load::Loading,
+            Load::Loaded => {}
+        }
+    }
+    out
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -147,6 +168,15 @@ bad model x.glb notanumber 0 0
             &Visual::Model { file: "nature/oak.glb".into(), scale: 1.2, rot_deg: 90.0, dy: 0.1, tint: None }
         );
         assert!(matches!(m.lookup("signpost_e"), Visual::Model { tint: Some(t), .. } if *t == [0.6, 0.4, 0.2]));
+    }
+
+    #[test]
+    fn several_files_load_as_one() {
+        use Load::*;
+        assert_eq!(all_loaded([Loaded, Loaded]), Loaded);
+        assert_eq!(all_loaded([Loaded, Loading]), Loading);
+        assert_eq!(all_loaded([Loading, Failed]), Failed);
+        assert_eq!(all_loaded([]), Loaded);
     }
 
     #[test]
