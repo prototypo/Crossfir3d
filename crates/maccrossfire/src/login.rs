@@ -99,6 +99,10 @@ impl LoginFlow {
         }
     }
 
+    pub fn character(&self) -> &str {
+        &self.creds.character
+    }
+
     pub fn state(&self) -> &LoginState {
         &self.state
     }
