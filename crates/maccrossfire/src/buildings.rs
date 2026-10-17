@@ -15,6 +15,10 @@ pub enum Shape {
     Box([f32; 3]),
     /// An upright cylinder, centred on `pos`.
     Cylinder { radius: f32, height: f32 },
+    /// A wedge (triangle running north-south) this wide, tall and long, its base on `pos`.
+    Wedge([f32; 3]),
+    /// The building's sign text, fitted inside this width and height, its bottom middle on `pos`.
+    Sign([f32; 2]),
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -39,9 +43,15 @@ const STONE_TINT: [f32; 3] = [0.62, 0.74, 0.9];
 const WOOD: [f32; 3] = [0.45, 0.3, 0.18];
 const BOARD: [f32; 3] = [0.65, 0.5, 0.3];
 const WATER: [f32; 3] = [0.15, 0.3, 0.5];
+/// The dark inside of a house, seen through windows and doors.
+const INSIDE: [f32; 3] = [0.1, 0.08, 0.06];
+/// Village walls are this thick inside the footprint edge.
+const WALL_INSET: f32 = 0.05;
+/// Under the squashed roof: fills the open ends without poking through the tiles.
+const GABLE_Y: f32 = 0.75;
 
-pub const RECIPES: [&str; 10] =
-    ["cottage", "house", "tavern", "barn", "temple", "tower", "castle", "well", "fountain", "signpost"];
+pub const RECIPES: [&str; 11] =
+    ["cottage", "house", "tavern", "barn", "temple", "tower", "castle", "shop", "well", "fountain", "signpost"];
 pub const WALL_STYLES: [&str; 6] = ["stone", "brick", "plaster", "wood", "hedge", "rock"];
 
 /// Squares a picture covers (32 px each), at least 1 by 1.
@@ -114,6 +124,7 @@ pub fn parts(recipe: &str, w: u32, h: u32) -> Option<Vec<Part>> {
         "fountain" => Some(fountain()),
         "signpost" => Some(signpost()),
         "castle" => Some(castle(w, h)),
+        "shop" => Some(shop(w, h)),
         _ => style(recipe).map(|s| village(&s, w, h)),
     }
 }
@@ -153,11 +164,26 @@ fn village(s: &Style, w: u32, h: u32) -> Vec<Part> {
         }
     }
     let top = s.stories as f32 * STORY;
+    // Fill the hollow pieces: a solid inside behind windows and a wedge under the roof.
+    let (iw, ih) = (fw - 2.0 * WALL_INSET, fh - 2.0 * WALL_INSET);
+    out.push(cube([iw, top, ih], [0.0, top / 2.0, 0.0], INSIDE));
+    out.push(part(Shape::Wedge([iw, GABLE_Y, ih]), [0.0, top, 0.0], 0.0, [1.0; 3], Some(INSIDE)));
     // The 4x4 roof covers 2 by 2 squares at village scale; stretch it to the footprint.
     out.push(part(Shape::Model(s.roof), [0.0, top, 0.0], 0.0, [fw / 4.0, ROOF_Y, fh / 4.0], None));
     if s.chimney {
         out.push(model("buildings/Prop_Chimney.gltf", [fw / 4.0, top, 0.0], 0.0, VILLAGE));
     }
+    out
+}
+
+/// A one-storey house with a sign board high on the front (south) wall, over the door.
+fn shop(w: u32, h: u32) -> Vec<Part> {
+    let mut out = village(&style("cottage").expect("cottage style"), w, h);
+    let fh = h as f32;
+    let (wide, tall) = if w >= 2 { ((w as f32 - 1.1).clamp(0.7, 2.0), 0.3) } else { (0.7, 0.22) };
+    let (y, z) = (STORY - 0.08 - tall, fh / 2.0 + 0.17);
+    out.push(cube([wide, tall, 0.02], [0.0, y + tall / 2.0, z - 0.015], BOARD));
+    out.push(part(Shape::Sign([wide, tall]), [0.0, y, z], 0.0, [1.0; 3], None));
     out
 }
 
@@ -287,6 +313,27 @@ mod tests {
         assert_eq!(walls, 8);
         let roof = parts.iter().find(|p| matches!(p.shape, Shape::Model(f) if f.contains("Roof"))).unwrap();
         assert_eq!(roof.pos[1], STORY);
+    }
+
+    #[test]
+    fn houses_are_filled() {
+        let parts = parts("cottage", 2, 3).unwrap();
+        let inside = parts.iter().find(|p| matches!(p.shape, Shape::Box(_))).expect("solid inside");
+        assert_eq!(inside.shape, Shape::Box([1.9, STORY, 2.9]));
+        assert!(parts.iter().any(|p| matches!(p.shape, Shape::Wedge(_)) && p.pos[1] == STORY), "roof wedge");
+    }
+
+    #[test]
+    fn shop_is_one_storey_with_a_sign_on_the_front() {
+        let sign = |w| parts("shop", w, 2).unwrap().into_iter().find(|p| matches!(p.shape, Shape::Sign(_))).expect("sign");
+        let shop = parts("shop", 2, 2).unwrap();
+        assert!(shop.iter().all(|p| p.pos[1] <= STORY), "one storey");
+        let s = sign(2);
+        let Shape::Sign([w, h]) = s.shape else { unreachable!() };
+        assert!(s.pos[2] > 1.0, "on the south wall");
+        assert!(s.pos[1] + h < STORY && w < 2.0, "on the wall, inside the front");
+        let Shape::Sign([wide, _]) = sign(5).shape else { unreachable!() };
+        assert!(wide > w, "a wider front gets a wider board");
     }
 
     #[test]

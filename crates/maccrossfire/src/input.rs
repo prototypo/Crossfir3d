@@ -1,9 +1,9 @@
-//! Arrow keys / WASD to ncom move commands.
+//! Arrow keys to ncom move commands, and one-key actions.
 
 use bevy::prelude::*;
 use cfproto::ClientMsg;
 
-use maccrossfire::camera::{compass, heading_of, screen_dir, swing, Heading, SWING_SECS};
+use maccrossfire::camera::{compass, heading_of, screen_dir, Heading};
 use maccrossfire::modes::{act, Act, KeyName, Mode};
 use maccrossfire::anim::event_for_command;
 use maccrossfire::slots::{dir_number, slot_commands};
@@ -13,8 +13,16 @@ use crate::characters3d::PlayerAnimEvents;
 use crate::{HudState, Inv, KeyMode, LastAction, LastComc, Msgs, NcomSeq, PlayerStats, Session, Slots, Spells};
 
 /// Where the camera looks (45° steps); the world rig eases its yaw toward it.
+/// It follows the player's facing, so the camera stays behind them.
 #[derive(Resource, Default)]
 pub struct CameraHeading(pub Heading);
+
+/// Tab: the top view, north up. F (held): looking at the player's face.
+#[derive(Resource, Default)]
+pub struct CameraView {
+    pub top: bool,
+    pub face: bool,
+}
 
 /// The direction of the last step or step attempt (1 = north .. 8 = northwest).
 #[derive(Resource)]
@@ -22,7 +30,7 @@ pub struct Facing(pub u8);
 
 impl Default for Facing {
     fn default() -> Self {
-        Facing(5) // south, towards the camera
+        Facing(1) // north, away from the camera
     }
 }
 
@@ -51,8 +59,8 @@ pub fn wants_step(held_secs: Option<f32>) -> bool {
 }
 
 /// A tap sends one move. A held key repeats after a short delay, one move per `comc`.
-/// Directions are camera-relative; the compass direction is fixed at key-down so a
-/// swinging camera does not bend a held walk.
+/// Directions are camera-relative (north up in the top view); the compass direction
+/// is fixed at key-down so the camera turning behind the player does not bend a held walk.
 #[allow(clippy::too_many_arguments)]
 pub fn send_moves(
     keys: Res<ButtonInput<KeyCode>>,
@@ -60,43 +68,37 @@ pub fn send_moves(
     mut msgs: ResMut<Msgs>,
     mut facing: ResMut<Facing>,
     mut heading: ResMut<CameraHeading>,
+    view: Res<CameraView>,
     comc: Res<LastComc>,
     time: Res<Time>,
     mut seq: ResMut<NcomSeq>,
     mut wait: ResMut<MoveWait>,
-    mut held: Local<Option<(f32, (i8, i8), Heading, f32)>>, // (first step, screen dir, locked heading, last swing)
+    mut held: Local<Option<(f32, (i8, i8), Heading)>>, // (first step, screen dir, locked heading)
     session: Option<NonSend<Session>>,
 ) {
     let Some(session) = session else { return };
     let now = time.elapsed_secs();
     // just_pressed too: a press and release in one frame (a very fast tap) still steps.
-    let key = |a, b| keys.any_pressed([a, b]) || keys.any_just_pressed([a, b]);
-    let screen = screen_dir(
-        key(KeyCode::ArrowUp, KeyCode::KeyW),
-        key(KeyCode::ArrowDown, KeyCode::KeyS),
-        key(KeyCode::ArrowLeft, KeyCode::KeyA),
-        key(KeyCode::ArrowRight, KeyCode::KeyD),
-    );
+    let key = |k| keys.pressed(k) || keys.just_pressed(k);
+    let screen = screen_dir(key(KeyCode::ArrowUp), key(KeyCode::ArrowDown), key(KeyCode::ArrowLeft), key(KeyCode::ArrowRight));
     let (Some(screen), Mode::World) = (screen, mode.0) else {
         *held = None; // key released: the next press is a new tap
         return;
     };
     // A new key combination locks the camera heading of this moment.
-    if held.is_none_or(|(_, s, _, _)| s != screen) {
+    if held.is_none_or(|(_, s, _)| s != screen) {
         *held = None;
     }
     let first = held.map(|(t, ..)| t);
     if !may_send(wait.0, comc.packet, now) || !wants_step(first.map(|t| now - t)) {
         return;
     }
-    let (first, _, locked, last_swing) = *held.get_or_insert((now, screen, heading.0, now));
+    let base = if view.top { 0 } else { heading.0 };
+    let (_, _, locked) = *held.get_or_insert((now, screen, base));
     let command = compass(screen, locked);
     msgs.0.close_box(); // walking away closes the parchment box
     facing.0 = dir_number(command).unwrap_or(facing.0);
-    if now - last_swing >= SWING_SECS {
-        heading.0 = swing(heading.0, facing.0, screen);
-        *held = Some((first, screen, locked, now));
-    }
+    heading.0 = heading_of(facing.0);
     let packet = seq.next();
     wait.0 = Some((packet, now));
     session.send([ClientMsg::Ncom { packet, repeat: 0, command: command.into() }]);
@@ -104,6 +106,7 @@ pub fn send_moves(
 
 fn key_name(key: KeyCode) -> KeyName {
     match key {
+        KeyCode::KeyA => KeyName::A,
         KeyCode::KeyE => KeyName::E,
         KeyCode::KeyG => KeyName::G,
         KeyCode::KeyD => KeyName::D,
@@ -112,6 +115,7 @@ fn key_name(key: KeyCode) -> KeyName {
         KeyCode::KeyL => KeyName::L,
         KeyCode::KeyM => KeyName::M,
         KeyCode::KeyC => KeyName::C,
+        KeyCode::Tab => KeyName::Tab,
         KeyCode::Escape => KeyName::Escape,
         KeyCode::Enter => KeyName::Enter,
         KeyCode::Digit1 => KeyName::Digit(1),
@@ -135,10 +139,12 @@ pub fn world_keys(
     mut seq: ResMut<NcomSeq>,
     (facing, slots, inv, spells, stats): (Res<Facing>, Res<Slots>, Res<Inv>, Res<Spells>, Res<PlayerStats>),
     mut heading: ResMut<CameraHeading>,
+    mut view: ResMut<CameraView>,
     mut anim: ResMut<PlayerAnimEvents>,
     session: Option<NonSend<Session>>,
 ) {
     let Some(session) = session else { return };
+    view.face = mode.0 == Mode::World && keys.pressed(KeyCode::KeyF);
     let pressed: Vec<KeyName> = keys.get_just_pressed().map(|k| key_name(*k)).collect();
     for key in pressed {
         let mut command = |c: &str| {
@@ -160,7 +166,11 @@ pub fn world_keys(
                     command(&c);
                 }
             }
-            Act::CameraBehind => heading.0 = heading_of(facing.0),
+            Act::CameraBehind => {
+                heading.0 = heading_of(facing.0);
+                view.top = false;
+            }
+            Act::TopView => view.top = !view.top,
             Act::ToggleMute | Act::OpenCommand | Act::Nothing => {}
         }
     }
