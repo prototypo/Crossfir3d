@@ -94,6 +94,10 @@ pub fn parse(payload: &[u8]) -> Result<ServerMsg, ParseError> {
             let count = r.u8()?;
             let mut chars = Vec::new();
             for _ in 0..count {
+                // The count includes dead characters, which have no record.
+                if r.0.is_empty() {
+                    break;
+                }
                 let mut c = CharacterInfo::default();
                 loop {
                     let len = r.u8()? as usize;
@@ -303,6 +307,17 @@ mod tests {
             CharacterInfo { name: "Ann".into(), race: "dwarf".into(), class: "wizard".into(), level: 12, face: Some(258) }
         );
         assert_eq!(c[1].name, "Bob");
+    }
+
+    #[test]
+    fn accountplayers_count_includes_dead_without_records() {
+        // The server counts dead characters but sends no record for them.
+        let mut b = b"accountplayers \x02".to_vec();
+        b.extend_from_slice(&[4, 1, b'A', b'n', b'n']);
+        b.push(0);
+        let ServerMsg::AccountPlayers(c) = p(&b) else { panic!() };
+        assert_eq!(c.len(), 1);
+        assert_eq!(c[0].name, "Ann");
     }
 
     #[test]

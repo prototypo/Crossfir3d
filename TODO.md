@@ -25,6 +25,10 @@ Known problems left for later. Each line says what goes wrong and where to look.
 - [ ] A player's own `time` command within 10 s of login is hidden (the clock request stays open 10 s).
 - [ ] `MACCROSSFIRE_HOUR` is read from the environment every frame (`world.rs` `lighting`).
 
+- [ ] A refused `accountplay` (e.g. "Character X is already playing" after a crash) ends the session instead of showing the reason on the character list; the screen is blank between Play and the first map (`login.rs`, `characters_ui.rs`).
+- [ ] "Connecting..." is cleared as soon as a session exists, so a slow account login shows a blank screen (`characters_ui.rs`).
+- [ ] A kept race/class choice is not re-checked against the newly offered options after changing race or class (`newchar.rs` `refresh_choices`); a choice with no options sends an empty value. Stock data has only one choice, so this cannot happen today.
+
 ## Missing
 
 - [ ] Item pictures (icons) in the inventory.

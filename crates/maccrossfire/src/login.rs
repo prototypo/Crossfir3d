@@ -33,6 +33,10 @@ pub struct LoginFlow {
     characters: Vec<CharacterInfo>,
     playing: String,
     pub newchar: NewChar,
+    /// The highlighted row of the character list.
+    pub selected: Option<usize>,
+    /// A `createplayer` was sent and has no answer yet.
+    create_pending: bool,
 }
 
 impl LoginFlow {
@@ -55,6 +59,8 @@ impl LoginFlow {
             characters: vec![],
             playing: String::new(),
             newchar: NewChar::default(),
+            selected: None,
+            create_pending: false,
         };
         (flow, vec![ClientMsg::Version, ClientMsg::Setup(setup.to_vec())])
     }
@@ -63,8 +69,11 @@ impl LoginFlow {
         match (&self.state, msg) {
             (LoginState::Creating, ServerMsg::Failure { command, reason }) if command == "createplayer" => {
                 self.newchar.error = Some(reason.clone());
+                self.create_pending = false;
                 vec![]
             }
+            // A late answer to a repeated Create after the game started: not a failure.
+            (LoginState::Playing, ServerMsg::Failure { command, .. }) if command == "createplayer" => vec![],
             (_, ServerMsg::Failure { reason, .. }) => {
                 self.state = LoginState::Failed(reason.clone());
                 vec![]
@@ -80,6 +89,7 @@ impl LoginFlow {
             }
             (LoginState::Account | LoginState::Playing, ServerMsg::AccountPlayers(chars)) => {
                 self.characters = chars.clone();
+                self.selected = None;
                 self.state = LoginState::Characters;
                 match self.creds.quick_character.clone() {
                     Some(q) if self.playing.is_empty() && chars.iter().any(|c| c.name == q) => self.play(&q),
@@ -92,6 +102,7 @@ impl LoginFlow {
             }
             (LoginState::Creating, ServerMsg::AddmeSuccess | ServerMsg::Map2(_)) => {
                 self.state = LoginState::Playing;
+                self.create_pending = false;
                 vec![]
             }
             (LoginState::Creating, ServerMsg::ReplyInfo { kind, data }) => {
@@ -126,15 +137,28 @@ impl LoginFlow {
 
     /// Sends the new character from the form; nothing if the form has a problem.
     pub fn create(&mut self) -> Vec<ClientMsg> {
+        if self.create_pending {
+            return vec![];
+        }
         let Some(msg) = self.newchar.create_msg(&self.creds.password) else { return vec![] };
+        self.create_pending = true;
         self.newchar.error = None;
         self.playing = self.newchar.name.trim().to_string();
         // Stay on the form until the game starts: the server may still refuse.
         vec![msg]
     }
 
-    pub fn back_to_list(&mut self) {
+    /// Back to the character list; not while a create waits for the server's answer.
+    pub fn back_to_list(&mut self) -> bool {
+        if self.create_pending {
+            return false;
+        }
         self.state = LoginState::Characters;
+        true
+    }
+
+    pub fn create_pending(&self) -> bool {
+        self.create_pending
     }
 
     pub fn password(&self) -> &str {
@@ -269,6 +293,58 @@ mod tests {
         // The game starting means play has begun.
         f.on_message(&ServerMsg::AddmeSuccess);
         assert_eq!(f.state(), &LoginState::Playing);
+    }
+
+    fn creating_ready() -> LoginFlow {
+        let mut f = logged_in(None);
+        f.on_message(&ServerMsg::AccountPlayers(vec![]));
+        f.start_creating();
+        f.on_message(&ServerMsg::ReplyInfo { kind: "race_list".into(), data: b"|dwarf_player".to_vec() });
+        f.on_message(&ServerMsg::ReplyInfo { kind: "class_list".into(), data: b"|wizard_class".to_vec() });
+        f.newchar.name = "Zed".into();
+        f
+    }
+
+    #[test]
+    fn create_twice_sends_once() {
+        let mut f = creating_ready();
+        assert_eq!(f.create().len(), 1);
+        assert!(f.create().is_empty());
+        assert!(f.create_pending());
+        // The game starts; a late refusal of the second click must not end the session.
+        f.on_message(&ServerMsg::AddmeSuccess);
+        f.on_message(&ServerMsg::Failure { command: "createplayer".into(), reason: "Not allowed right now".into() });
+        assert_eq!(f.state(), &LoginState::Playing);
+    }
+
+    #[test]
+    fn refusal_reenables_create() {
+        let mut f = creating_ready();
+        f.create();
+        f.on_message(&ServerMsg::Failure { command: "createplayer".into(), reason: "name in use".into() });
+        assert!(!f.create_pending());
+        assert_eq!(f.create().len(), 1);
+    }
+
+    #[test]
+    fn back_ignored_while_create_pending() {
+        let mut f = creating_ready();
+        f.create();
+        assert!(!f.back_to_list());
+        assert_eq!(f.state(), &LoginState::Creating);
+        f.on_message(&ServerMsg::Failure { command: "createplayer".into(), reason: "x".into() });
+        assert!(f.back_to_list());
+        assert_eq!(f.state(), &LoginState::Characters);
+    }
+
+    #[test]
+    fn new_list_clears_selection() {
+        let mut f = logged_in(None);
+        f.on_message(&ServerMsg::AccountPlayers(vec![named("Ann"), named("Bob")]));
+        f.selected = Some(1);
+        f.play("Bob");
+        f.on_message(&ServerMsg::AccountPlayers(vec![named("Ann")]));
+        assert_eq!(f.selected, None);
     }
 
     #[test]
