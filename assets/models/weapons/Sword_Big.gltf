@@ -1,0 +1,374 @@
+{
+ "asset": {
+  "version": "2.0",
+  "generator": "MacCrossfire scripts/obj2gltf.py"
+ },
+ "scene": 0,
+ "scenes": [
+  {
+   "nodes": [
+    0
+   ]
+  }
+ ],
+ "nodes": [
+  {
+   "name": "Sword_Big",
+   "mesh": 0
+  }
+ ],
+ "meshes": [
+  {
+   "name": "Sword_Big",
+   "primitives": [
+    {
+     "attributes": {
+      "POSITION": 0,
+      "NORMAL": 1
+     },
+     "indices": 2,
+     "material": 0
+    },
+    {
+     "attributes": {
+      "POSITION": 3,
+      "NORMAL": 4
+     },
+     "indices": 5,
+     "material": 1
+    },
+    {
+     "attributes": {
+      "POSITION": 6,
+      "NORMAL": 7
+     },
+     "indices": 8,
+     "material": 2
+    },
+    {
+     "attributes": {
+      "POSITION": 9,
+      "NORMAL": 10
+     },
+     "indices": 11,
+     "material": 3
+    },
+    {
+     "attributes": {
+      "POSITION": 12,
+      "NORMAL": 13
+     },
+     "indices": 14,
+     "material": 4
+    }
+   ]
+  }
+ ],
+ "materials": [
+  {
+   "name": "Steel",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.30101,
+     0.321582,
+     0.351726,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  },
+  {
+   "name": "LightWood",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.190718,
+     0.083693,
+     0.041016,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  },
+  {
+   "name": "DarkWood",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.13011,
+     0.058112,
+     0.029076,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  },
+  {
+   "name": "LightSteel",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.369662,
+     0.392817,
+     0.431584,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  },
+  {
+   "name": "DarkSteel",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.213085,
+     0.213085,
+     0.178582,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  }
+ ],
+ "accessors": [
+  {
+   "bufferView": 0,
+   "componentType": 5126,
+   "count": 96,
+   "type": "VEC3",
+   "min": [
+    -0.365235,
+    1.46236,
+    -0.033838
+   ],
+   "max": [
+    0.365235,
+    6.004538,
+    0.033838
+   ]
+  },
+  {
+   "bufferView": 1,
+   "componentType": 5126,
+   "count": 96,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 2,
+   "componentType": 5125,
+   "count": 420,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 3,
+   "componentType": 5126,
+   "count": 672,
+   "type": "VEC3",
+   "min": [
+    -0.108855,
+    -0.139023,
+    -0.108855
+   ],
+   "max": [
+    0.108855,
+    1.144777,
+    0.108855
+   ]
+  },
+  {
+   "bufferView": 4,
+   "componentType": 5126,
+   "count": 672,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 5,
+   "componentType": 5125,
+   "count": 1008,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 6,
+   "componentType": 5126,
+   "count": 256,
+   "type": "VEC3",
+   "min": [
+    -0.115667,
+    -0.158283,
+    -0.115666
+   ],
+   "max": [
+    0.115667,
+    1.189023,
+    0.115666
+   ]
+  },
+  {
+   "bufferView": 7,
+   "componentType": 5126,
+   "count": 256,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 8,
+   "componentType": 5125,
+   "count": 384,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 9,
+   "componentType": 5126,
+   "count": 172,
+   "type": "VEC3",
+   "min": [
+    -0.431781,
+    1.46236,
+    -0.033838
+   ],
+   "max": [
+    0.431781,
+    6.088071,
+    0.033838
+   ]
+  },
+  {
+   "bufferView": 10,
+   "componentType": 5126,
+   "count": 172,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 11,
+   "componentType": 5125,
+   "count": 252,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 12,
+   "componentType": 5126,
+   "count": 248,
+   "type": "VEC3",
+   "min": [
+    -0.510227,
+    -0.354648,
+    -0.119291
+   ],
+   "max": [
+    0.510227,
+    1.531804,
+    0.119291
+   ]
+  },
+  {
+   "bufferView": 13,
+   "componentType": 5126,
+   "count": 248,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 14,
+   "componentType": 5125,
+   "count": 426,
+   "type": "SCALAR"
+  }
+ ],
+ "bufferViews": [
+  {
+   "buffer": 0,
+   "byteOffset": 0,
+   "byteLength": 1152,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 1152,
+   "byteLength": 1152,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 2304,
+   "byteLength": 1680,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 3984,
+   "byteLength": 8064,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 12048,
+   "byteLength": 8064,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 20112,
+   "byteLength": 4032,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 24144,
+   "byteLength": 3072,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 27216,
+   "byteLength": 3072,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 30288,
+   "byteLength": 1536,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 31824,
+   "byteLength": 2064,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 33888,
+   "byteLength": 2064,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 35952,
+   "byteLength": 1008,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 36960,
+   "byteLength": 2976,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 39936,
+   "byteLength": 2976,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 42912,
+   "byteLength": 1704,
+   "target": 34963
+  }
+ ],
+ "buffers": [
+  {
+   "uri": "Sword_Big.bin",
+   "byteLength": 44616
+  }
+ ]
+}

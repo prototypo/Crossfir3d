@@ -13,6 +13,7 @@ use bevy::render::render_resource::TextureFormat;
 use bevy::world_serialization::{WorldAsset, WorldAssetRoot, WorldInstanceReady};
 use maccrossfire::login::LoginState;
 use maccrossfire::anim::{clip_name, looping, Anim, AnimEvent, AnimState};
+use maccrossfire::held::{held, Hand};
 use maccrossfire::races::{default_body_path, head_triangles, load_body, look_for_race, tints, Body, Look};
 use std::collections::HashMap;
 
@@ -21,7 +22,7 @@ use bevy::mesh::{Indices, VertexAttributeValues};
 
 use crate::input::Facing;
 use crate::world::{Glide, ModelTint, SkinTint};
-use crate::{AppState, Session};
+use crate::{AppState, Inv, Session};
 
 const ANIMS_FILE: &str = "models/animations/UAL1_Standard.glb";
 /// The model is about 1.8 units tall; a person should fit one square.
@@ -31,6 +32,9 @@ const ALL: [Anim; 5] = [Anim::Idle, Anim::Walk, Anim::Attack, Anim::Cast, Anim::
 const PREVIEW_LAYER: usize = 1;
 const PREVIEW_AT: Vec3 = Vec3::new(0.0, -500.0, 0.0);
 pub const PREVIEW_PX: u32 = 256;
+/// The weapons pack is about 5 times the size of the body models. Its models (grip at
+/// the origin) sit in the hand bone unturned (checked by screenshot).
+const WEAPON_SCALE: f32 = 0.18;
 
 pub struct CharactersPlugin;
 
@@ -41,7 +45,7 @@ impl Plugin for CharactersPlugin {
             .init_resource::<Preview>()
             .add_observer(bind_bones)
             .add_systems(Startup, (load_anims, setup_preview))
-            .add_systems(Update, (build_graph, animate))
+            .add_systems(Update, (build_graph, animate, hold_items))
             .add_systems(Update, update_preview.run_if(in_state(AppState::Login)))
             .add_systems(OnEnter(AppState::InGame), set_own_look)
             .add_systems(OnExit(AppState::Login), clear_preview);
@@ -97,6 +101,14 @@ struct PartOf(Entity);
 
 #[derive(Component)]
 struct PreviewBody;
+
+/// What the own character has in its hands now (set once the models are attached).
+#[derive(Component, PartialEq)]
+struct Holding(Vec<(&'static str, Hand)>);
+
+/// A weapon or shield model in a hand.
+#[derive(Component)]
+struct HeldModel;
 
 /// Body, hair, and outfit files for a Body choice.
 pub fn character_files(body: Body) -> [&'static str; 3] {
@@ -220,6 +232,50 @@ fn head_only(mesh: &Mesh, is_head: &[bool]) -> Option<Mesh> {
     let mut head = mesh.clone();
     head.insert_indices(Indices::U32(head_triangles(&indices, joints, weights, is_head)));
     Some(head)
+}
+
+/// Puts the applied weapon and shield (see `maccrossfire::held`) in the own character's
+/// hands, on the hand bones, so they follow the animations.
+#[allow(clippy::too_many_arguments)]
+fn hold_items(
+    mut commands: Commands,
+    inv: Res<Inv>,
+    server: Res<AssetServer>,
+    own: Query<(Entity, Option<&Holding>), With<OwnCharacter>>,
+    children: Query<&Children>,
+    names: Query<&Name>,
+    parents: Query<(&ChildOf, &Transform)>,
+    parts: Query<(), With<PartOf>>,
+    held_models: Query<Entity, With<HeldModel>>,
+) {
+    let Ok((root, holding)) = own.single() else { return };
+    let want = held(&inv.0.carried());
+    if holding.is_some_and(|h| h.0 == want) {
+        return;
+    }
+    let bone = |name: &str| children.iter_descendants(root).find(|e| names.get(*e).is_ok_and(|n| n.as_str() == name));
+    // The body scenes spawn a little later than the character: try again next frame.
+    let (Some(right), Some(left)) = (bone("hand_r"), bone("hand_l")) else { return };
+    for e in children.iter_descendants(root).filter(|e| held_models.contains(*e)) {
+        commands.entity(e).despawn();
+    }
+    for (file, hand) in &want {
+        let hand = if *hand == Hand::Right { right } else { left };
+        // The bone's own scale inside its body part (the armature may be scaled).
+        let mut scale = 1.0;
+        let mut e = hand;
+        while let Ok((ChildOf(parent), t)) = parents.get(e) {
+            if parts.contains(e) {
+                break;
+            }
+            scale *= t.scale.x;
+            e = *parent;
+        }
+        let t = Transform::from_scale(Vec3::splat(WEAPON_SCALE / scale));
+        let scene = server.load(GltfAssetLabel::Scene(0).from_asset(format!("models/{file}")));
+        commands.spawn((WorldAssetRoot(scene), t, HeldModel, ChildOf(hand)));
+    }
+    commands.entity(root).insert(Holding(want));
 }
 
 /// Facing 1 = north .. 8 = northwest, clockwise. The model looks along +Z unturned.

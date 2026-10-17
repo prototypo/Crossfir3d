@@ -17,3 +17,4 @@ pub mod races;
 pub mod anim;
 pub mod buildings;
 pub mod signs;
+pub mod held;

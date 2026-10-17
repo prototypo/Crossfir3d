@@ -1,0 +1,307 @@
+{
+ "asset": {
+  "version": "2.0",
+  "generator": "MacCrossfire scripts/obj2gltf.py"
+ },
+ "scene": 0,
+ "scenes": [
+  {
+   "nodes": [
+    0
+   ]
+  }
+ ],
+ "nodes": [
+  {
+   "name": "Hammer_Double",
+   "mesh": 0
+  }
+ ],
+ "meshes": [
+  {
+   "name": "Hammer_Double",
+   "primitives": [
+    {
+     "attributes": {
+      "POSITION": 0,
+      "NORMAL": 1
+     },
+     "indices": 2,
+     "material": 0
+    },
+    {
+     "attributes": {
+      "POSITION": 3,
+      "NORMAL": 4
+     },
+     "indices": 5,
+     "material": 1
+    },
+    {
+     "attributes": {
+      "POSITION": 6,
+      "NORMAL": 7
+     },
+     "indices": 8,
+     "material": 2
+    },
+    {
+     "attributes": {
+      "POSITION": 9,
+      "NORMAL": 10
+     },
+     "indices": 11,
+     "material": 3
+    }
+   ]
+  }
+ ],
+ "materials": [
+  {
+   "name": "Steel",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.30101,
+     0.321582,
+     0.351726,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  },
+  {
+   "name": "LightWood",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.190718,
+     0.083693,
+     0.041016,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  },
+  {
+   "name": "DarkWood",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.13011,
+     0.058112,
+     0.029076,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  },
+  {
+   "name": "LightSteel",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.369662,
+     0.392817,
+     0.431584,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  }
+ ],
+ "accessors": [
+  {
+   "bufferView": 0,
+   "componentType": 5126,
+   "count": 1641,
+   "type": "VEC3",
+   "min": [
+    -1.088095,
+    -1.777273,
+    -0.402435
+   ],
+   "max": [
+    1.128996,
+    3.193692,
+    0.403272
+   ]
+  },
+  {
+   "bufferView": 1,
+   "componentType": 5126,
+   "count": 1641,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 2,
+   "componentType": 5125,
+   "count": 2682,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 3,
+   "componentType": 5126,
+   "count": 960,
+   "type": "VEC3",
+   "min": [
+    -0.355747,
+    -0.580945,
+    -0.323961
+   ],
+   "max": [
+    0.394242,
+    3.03021,
+    0.323961
+   ]
+  },
+  {
+   "bufferView": 4,
+   "componentType": 5126,
+   "count": 960,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 5,
+   "componentType": 5125,
+   "count": 1440,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 6,
+   "componentType": 5126,
+   "count": 320,
+   "type": "VEC3",
+   "min": [
+    -0.106715,
+    -1.3844,
+    -0.12033
+   ],
+   "max": [
+    0.140307,
+    2.181893,
+    0.120329
+   ]
+  },
+  {
+   "bufferView": 7,
+   "componentType": 5126,
+   "count": 320,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 8,
+   "componentType": 5125,
+   "count": 480,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 9,
+   "componentType": 5126,
+   "count": 720,
+   "type": "VEC3",
+   "min": [
+    -0.000466,
+    1.532493,
+    -0.339141
+   ],
+   "max": [
+    0.038995,
+    2.608474,
+    0.33914
+   ]
+  },
+  {
+   "bufferView": 10,
+   "componentType": 5126,
+   "count": 720,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 11,
+   "componentType": 5125,
+   "count": 1152,
+   "type": "SCALAR"
+  }
+ ],
+ "bufferViews": [
+  {
+   "buffer": 0,
+   "byteOffset": 0,
+   "byteLength": 19692,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 19692,
+   "byteLength": 19692,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 39384,
+   "byteLength": 10728,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 50112,
+   "byteLength": 11520,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 61632,
+   "byteLength": 11520,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 73152,
+   "byteLength": 5760,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 78912,
+   "byteLength": 3840,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 82752,
+   "byteLength": 3840,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 86592,
+   "byteLength": 1920,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 88512,
+   "byteLength": 8640,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 97152,
+   "byteLength": 8640,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 105792,
+   "byteLength": 4608,
+   "target": 34963
+  }
+ ],
+ "buffers": [
+  {
+   "uri": "Hammer_Double.bin",
+   "byteLength": 110400
+  }
+ ]
+}

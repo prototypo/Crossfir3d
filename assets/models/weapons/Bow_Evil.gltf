@@ -1,0 +1,240 @@
+{
+ "asset": {
+  "version": "2.0",
+  "generator": "MacCrossfire scripts/obj2gltf.py"
+ },
+ "scene": 0,
+ "scenes": [
+  {
+   "nodes": [
+    0
+   ]
+  }
+ ],
+ "nodes": [
+  {
+   "name": "Bow_Evil",
+   "mesh": 0
+  }
+ ],
+ "meshes": [
+  {
+   "name": "Bow_Evil",
+   "primitives": [
+    {
+     "attributes": {
+      "POSITION": 0,
+      "NORMAL": 1
+     },
+     "indices": 2,
+     "material": 0
+    },
+    {
+     "attributes": {
+      "POSITION": 3,
+      "NORMAL": 4
+     },
+     "indices": 5,
+     "material": 1
+    },
+    {
+     "attributes": {
+      "POSITION": 6,
+      "NORMAL": 7
+     },
+     "indices": 8,
+     "material": 2
+    }
+   ]
+  }
+ ],
+ "materials": [
+  {
+   "name": "Red",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.351726,
+     0.033849,
+     0.048997,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  },
+  {
+   "name": "Black",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.024849,
+     0.019733,
+     0.018331,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  },
+  {
+   "name": "White",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.64,
+     0.64,
+     0.64,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  }
+ ],
+ "accessors": [
+  {
+   "bufferView": 0,
+   "componentType": 5126,
+   "count": 1222,
+   "type": "VEC3",
+   "min": [
+    -0.359681,
+    -2.844571,
+    -0.0947
+   ],
+   "max": [
+    1.108241,
+    2.844571,
+    0.094701
+   ]
+  },
+  {
+   "bufferView": 1,
+   "componentType": 5126,
+   "count": 1222,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 2,
+   "componentType": 5125,
+   "count": 1884,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 3,
+   "componentType": 5126,
+   "count": 228,
+   "type": "VEC3",
+   "min": [
+    -0.447992,
+    -0.451246,
+    -0.115391
+   ],
+   "max": [
+    0.204329,
+    0.451246,
+    0.115393
+   ]
+  },
+  {
+   "bufferView": 4,
+   "componentType": 5126,
+   "count": 228,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 5,
+   "componentType": 5125,
+   "count": 360,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 6,
+   "componentType": 5126,
+   "count": 36,
+   "type": "VEC3",
+   "min": [
+    1.029033,
+    -2.548703,
+    -0.012509
+   ],
+   "max": [
+    1.052276,
+    2.548703,
+    0.014329
+   ]
+  },
+  {
+   "bufferView": 7,
+   "componentType": 5126,
+   "count": 36,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 8,
+   "componentType": 5125,
+   "count": 72,
+   "type": "SCALAR"
+  }
+ ],
+ "bufferViews": [
+  {
+   "buffer": 0,
+   "byteOffset": 0,
+   "byteLength": 14664,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 14664,
+   "byteLength": 14664,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 29328,
+   "byteLength": 7536,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 36864,
+   "byteLength": 2736,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 39600,
+   "byteLength": 2736,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 42336,
+   "byteLength": 1440,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 43776,
+   "byteLength": 432,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 44208,
+   "byteLength": 432,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 44640,
+   "byteLength": 288,
+   "target": 34963
+  }
+ ],
+ "buffers": [
+  {
+   "uri": "Bow_Evil.bin",
+   "byteLength": 44928
+  }
+ ]
+}
