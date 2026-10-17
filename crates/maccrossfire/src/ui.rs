@@ -5,7 +5,7 @@ use bevy_egui::{egui, EguiContexts};
 use cfproto::ClientMsg;
 use maccrossfire::login::{Creds, LoginFlow};
 
-use maccrossfire::modes::Mode;
+use maccrossfire::modes::{command_line_allowed, Mode};
 
 use crate::{KeyMode, LastAction, NcomSeq, PendingQuery, Session, Status};
 
@@ -155,7 +155,7 @@ pub fn command_line(
     mut query: ResMut<PendingQuery>,
     session: Option<NonSend<Session>>,
 ) -> Result {
-    if mode.0 == Mode::Inventory {
+    if !command_line_allowed(mode.0) {
         return Ok(());
     }
     match line_action(line.open, keys.just_pressed(KeyCode::Enter), keys.just_pressed(KeyCode::Escape)) {
