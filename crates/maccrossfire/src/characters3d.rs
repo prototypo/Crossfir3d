@@ -10,7 +10,7 @@ use bevy::camera::RenderTarget;
 use bevy::gltf::{Gltf, GltfAssetLabel};
 use bevy::prelude::*;
 use bevy::render::render_resource::TextureFormat;
-use bevy::world_serialization::{WorldAssetRoot, WorldInstanceReady};
+use bevy::world_serialization::{WorldAsset, WorldAssetRoot, WorldInstanceReady};
 use maccrossfire::login::LoginState;
 use maccrossfire::anim::{clip_name, looping, Anim, AnimEvent, AnimState};
 use maccrossfire::races::{default_body_path, head_triangles, load_body, look_for_race, tints, Body, Look};
@@ -99,7 +99,7 @@ struct PartOf(Entity);
 struct PreviewBody;
 
 /// Body, hair, and outfit files for a Body choice.
-fn files(body: Body) -> [&'static str; 3] {
+pub fn character_files(body: Body) -> [&'static str; 3] {
     match body {
         Body::Regular => [
             "characters/Superhero_Male_FullBody.gltf",
@@ -114,19 +114,24 @@ fn files(body: Body) -> [&'static str; 3] {
     }
 }
 
-pub fn body_file(body: Body) -> &'static str {
-    files(body)[0]
-}
-
-/// Spawns a character standing at `at`; `extra` goes on its root entity.
-pub fn spawn_character(commands: &mut Commands, server: &AssetServer, look: &Look, body: Body, at: Transform, extra: impl Bundle) -> Entity {
+/// Spawns a character standing at `at` from its scene files (body, hair, outfit; see
+/// `character_files`); `parts` is the parts' visibility, `extra` goes on the root.
+pub fn spawn_character(
+    commands: &mut Commands,
+    mut load: impl FnMut(&str) -> Handle<WorldAsset>,
+    files: [&str; 3],
+    look: &Look,
+    at: Transform,
+    parts: Visibility,
+    extra: impl Bundle,
+) -> Entity {
     let t = tints(look);
     let root = commands.spawn((at, Visibility::default(), Character::default(), AnimationPlayer::default(), extra)).id();
     let inner = Transform::from_scale(Vec3::splat(BODY_SCALE * look.scale));
     let color = |[r, g, b]: [f32; 3]| Color::srgb(r, g, b);
-    for (file, tint) in files(body).into_iter().zip([t.skin, t.hair, t.clothes]) {
-        let scene = server.load(GltfAssetLabel::Scene(0).from_asset(format!("models/{file}")));
-        commands.spawn((WorldAssetRoot(scene), inner, ModelTint(color(tint)), SkinTint(color(t.skin)), PartOf(root), ChildOf(root)));
+    for (file, tint) in files.into_iter().zip([t.skin, t.hair, t.clothes]) {
+        let scene = load(file);
+        commands.spawn((WorldAssetRoot(scene), inner, parts, ModelTint(color(tint)), SkinTint(color(t.skin)), PartOf(root), ChildOf(root)));
     }
     root
 }
@@ -319,7 +324,10 @@ fn update_preview(
         }
         if want.is_some() {
             let at = Transform::from_translation(PREVIEW_AT);
-            spawn_character(&mut commands, &server, &look_for_race(&race), preview.body, at, (PreviewBody, RenderLayers::layer(PREVIEW_LAYER)));
+            let load = |f: &str| server.load(GltfAssetLabel::Scene(0).from_asset(format!("models/{f}")));
+            let files = character_files(preview.body);
+            let extra = (PreviewBody, RenderLayers::layer(PREVIEW_LAYER));
+            spawn_character(&mut commands, load, files, &look_for_race(&race), at, Visibility::Inherited, extra);
         }
         preview.shown = want;
     }

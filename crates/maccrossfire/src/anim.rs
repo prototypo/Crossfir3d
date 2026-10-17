@@ -37,6 +37,8 @@ impl AnimState {
     pub fn on_event(&mut self, ev: AnimEvent, now: f32) {
         match ev {
             AnimEvent::StepStarted => {
+                // The server only moves a living player (an arena death keeps the map).
+                self.dead = false;
                 self.stepping = true;
                 self.walking_until = None;
             }
@@ -68,10 +70,11 @@ impl AnimState {
     }
 }
 
-/// MSG_TYPE 14 (attack) means the player hit something; 19/5 (victim, died) is death.
+/// MSG_TYPE 14 (attack) subtypes 1 hit, 3 fumble, 4 kill, 9 miss are the player's own
+/// swing (not a pet's, not a refused attack); 19/5 (victim, died) is death.
 pub fn event_for_message(kind: u8, subtype: u8) -> Option<AnimEvent> {
     match (kind, subtype) {
-        (14, _) => Some(AnimEvent::Attacked),
+        (14, 1 | 3 | 4 | 9) => Some(AnimEvent::Attacked),
         (19, 5) => Some(AnimEvent::Died),
         _ => None,
     }
@@ -102,12 +105,29 @@ mod tests {
 
     #[test]
     fn messages_and_commands_start_animations() {
-        assert_eq!(event_for_message(14, 1), Some(AnimEvent::Attacked));
         assert_eq!(event_for_message(19, 5), Some(AnimEvent::Died));
         assert_eq!(event_for_message(19, 1), None);
         assert_eq!(event_for_message(1, 0), None);
         assert_eq!(event_for_command("cast 77"), Some(AnimEvent::Cast));
         assert_eq!(event_for_command("fire 3"), None);
+    }
+
+    #[test]
+    fn only_the_players_own_attacks_swing() {
+        for sub in [1, 3, 4, 9] {
+            assert_eq!(event_for_message(14, sub), Some(AnimEvent::Attacked), "subtype {sub}");
+        }
+        for sub in [2, 5, 6, 7, 8] {
+            assert_eq!(event_for_message(14, sub), None, "pet or non-attack subtype {sub}");
+        }
+    }
+
+    #[test]
+    fn a_step_after_death_means_alive_again() {
+        let mut a = AnimState::default();
+        a.on_event(AnimEvent::Died, 0.0);
+        a.on_event(AnimEvent::StepStarted, 5.0);
+        assert_eq!(a.current(5.1), Anim::Walk);
     }
 
     #[test]
@@ -153,7 +173,6 @@ mod tests {
     fn death_holds_until_revived() {
         let mut a = AnimState::default();
         a.on_event(AnimEvent::Died, 0.0);
-        a.on_event(AnimEvent::StepStarted, 1.0);
         a.on_event(AnimEvent::Attacked, 1.0);
         assert_eq!(a.current(5.0), Anim::Death);
         a.on_event(AnimEvent::Revived, 6.0);

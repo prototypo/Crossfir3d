@@ -13,7 +13,7 @@ use bevy::input::mouse::AccumulatedMouseScroll;
 use bevy::prelude::*;
 use bevy::world_serialization::{WorldAsset, WorldAssetRoot, WorldInstanceReady};
 use maccrossfire::buildings::{footprint, parts, wall_parts, Part, Shape};
-use maccrossfire::models::{ModelMap, Visual};
+use maccrossfire::models::{all_loaded, Load, ModelMap, Visual};
 use maccrossfire::races::{classify_player_face, clothes_for_class, look_for_race, Body, Look, PlayerFace};
 use maccrossfire::terrain::{ground_height, is_wall};
 use maccrossfire::walls::wall_masks;
@@ -21,7 +21,7 @@ use maccrossfire::walls::wall_masks;
 use maccrossfire::clock::{sun_pose, FALLBACK_HOUR};
 use maccrossfire::settings::Quality;
 
-use crate::characters3d::{body_file, spawn_character, Character, OwnCharacter, OwnLook};
+use crate::characters3d::{character_files, spawn_character, Character, OwnCharacter, OwnLook};
 use crate::graphics::CurrentSettings;
 use crate::input::{CameraHeading, Facing};
 use maccrossfire::camera::{pull_in, sight_blocked};
@@ -58,7 +58,7 @@ impl Plugin for WorldPlugin {
             .add_systems(Startup, setup)
             .add_systems(
                 Update,
-                (load_textures, sync_visuals, check_models, swap_models, glide, follow_player, face_camera, hide_entered, place_arrow, lighting)
+                (load_textures, sync_visuals, check_models, swap_models, reveal_assembled, glide, follow_player, face_camera, hide_entered, place_arrow, lighting)
                     .chain()
                     .run_if(in_state(AppState::InGame)),
             )
@@ -143,6 +143,15 @@ struct PendingModel {
 /// are entrances: the player steps onto them, and then that building is hidden.
 #[derive(Component)]
 struct Span(i32, i32, i32, i32);
+
+/// A thing put together from model files (building, wall, character): its parts are
+/// hidden and its picture stands in until every file has loaded.
+#[derive(Component)]
+struct Assembled(Vec<String>);
+
+/// The picture standing in for an `Assembled` thing.
+#[derive(Component)]
+struct StandIn;
 
 /// Colour a model's materials are multiplied by once it is spawned (tint and darkness).
 #[derive(Component)]
@@ -341,38 +350,6 @@ fn sync_visuals(
         }
 
         let tv = TileVisual { x, y, layer, face, darkness, join };
-        // Players (a race or class picture) are 3D characters; the own one in the middle.
-        if glides(layer) && let Some(kind) = classify_player_face(name) {
-            let own_tile = (x, y) == player;
-            let (look, body) = if own_tile { (own.look, own.body) } else { (other_look(kind), Body::Regular) };
-            if !models.failed.contains(body_file(body)) {
-                let pos = tile + Vec3::new(0.5, 0.0, 0.5);
-                let e = spawn_character(&mut commands, &server, &look, body, Transform::from_translation(pos), (tv, Glide { target: pos }));
-                if own_tile {
-                    commands.entity(e).insert(OwnCharacter);
-                }
-                continue;
-            }
-        }
-        // Big pictures are sent at their bottom-right square; models stand in the middle.
-        let (fw, fh) = footprint(size.x as u32, size.y as u32);
-        let middle = tile + Vec3::new(1.0 - fw as f32 / 2.0, 0.0, 1.0 - fh as f32 / 2.0);
-        let built = match models.map.lookup(name) {
-            Visual::Wall { style } => Some(wall_parts(style, join)).filter(|p| !p.is_empty()),
-            Visual::Building { recipe } => parts(recipe, fw, fh),
-            _ => None,
-        };
-        if let Some(parts) = built {
-            let at = if layer == 0 || is_wall(name) { tile + Vec3::new(0.5, 0.0, 0.5) } else { middle };
-            let span = Span(x + 1 - fw as i32, y + 1 - fh as i32, x, y);
-            let parent = commands.spawn((tv, span, Transform::from_translation(at), Visibility::default())).id();
-            for p in &parts {
-                let child = spawn_part(&mut commands, p, shade, &textures, &server, &mut models, &mut materials);
-                commands.entity(parent).add_child(child);
-            }
-            continue;
-        }
-
         let wall = is_wall(name);
         let flat = matches!(models.map.lookup(name), Visual::Flat);
         let material = materials.add(StandardMaterial {
@@ -385,6 +362,63 @@ fn sync_visuals(
             cull_mode: None,
             ..default()
         });
+        // The picture (a block for walls, else a card) stands in while a 3D thing loads,
+        // and stays if it fails: never nothing.
+        let picture = if wall {
+            Transform::from_translation(tile + Vec3::new(0.5, 0.5, 0.5))
+        } else {
+            Transform::from_translation(card_position(tile, *size, layer))
+                .with_scale(Vec3::new(size.x / TILE_PX, size.y / TILE_PX, 1.0))
+        };
+        let stand_in = |commands: &mut Commands, parent: Entity, at: Vec3| {
+            let t = Transform { translation: picture.translation - at, ..picture };
+            let mesh = if wall { textures.cube.clone() } else { textures.card.clone() };
+            let mut e = commands.spawn((StandIn, Mesh3d(mesh), MeshMaterial3d(material.clone()), t, ChildOf(parent)));
+            if !wall {
+                e.insert(Card);
+            }
+        };
+
+        // Players (a race or class picture) are 3D characters; the own one in the middle.
+        if glides(layer) && let Some(kind) = classify_player_face(name) {
+            let own_tile = (x, y) == player;
+            let (look, body) = if own_tile { (own.look, own.body) } else { (other_look(kind), Body::Regular) };
+            let files = character_files(body);
+            if !files.iter().any(|f| models.failed.contains(*f)) {
+                let pos = tile + Vec3::new(0.5, 0.0, 0.5);
+                let load = |f: &str| models.scene(&server, f);
+                let at = Transform::from_translation(pos);
+                let e = spawn_character(&mut commands, load, files, &look, at, Visibility::Hidden, (tv, Glide { target: pos }));
+                commands.entity(e).insert(Assembled(files.iter().map(|f| f.to_string()).collect()));
+                if own_tile {
+                    commands.entity(e).insert(OwnCharacter);
+                }
+                stand_in(&mut commands, e, pos);
+                continue;
+            }
+        }
+        // Big pictures are sent at their bottom-right square; models stand in the middle.
+        let (fw, fh) = footprint(size.x as u32, size.y as u32);
+        let middle = tile + Vec3::new(1.0 - fw as f32 / 2.0, 0.0, 1.0 - fh as f32 / 2.0);
+        let built = match models.map.lookup(name) {
+            Visual::Wall { style } => Some(wall_parts(style, join)).filter(|p| !p.is_empty()),
+            Visual::Building { recipe } => parts(recipe, fw, fh),
+            _ => None,
+        };
+        if let Some(parts) = built {
+            let at = if layer == 0 || wall { tile + Vec3::new(0.5, 0.0, 0.5) } else { middle };
+            let span = Span(x + 1 - fw as i32, y + 1 - fh as i32, x, y);
+            let files: Vec<String> =
+                parts.iter().filter_map(|p| if let Shape::Model(f) = p.shape { Some(f.to_string()) } else { None }).collect();
+            let parent = commands.spawn((tv, span, Assembled(files), Transform::from_translation(at), Visibility::default())).id();
+            for p in &parts {
+                let child = spawn_part(&mut commands, p, shade, &textures, &server, &mut models, &mut materials);
+                commands.entity(parent).add_child(child);
+            }
+            stand_in(&mut commands, parent, at);
+            continue;
+        }
+
         let model = match models.map.lookup(name) {
             Visual::Model { file, scale, rot_deg, dy, tint } if !models.failed.contains(file) => {
                 let t = Transform::from_xyz(0.0, *dy, 0.0)
@@ -457,13 +491,13 @@ fn spawn_part(
     let (mesh, size) = match p.shape {
         Shape::Model(file) => {
             let handle = models.scene(server, file);
-            return commands.spawn((WorldAssetRoot(handle), t, ModelTint(color))).id();
+            return commands.spawn((WorldAssetRoot(handle), t, ModelTint(color), Visibility::Hidden)).id();
         }
         Shape::Box(size) => (textures.cube.clone(), Vec3::from(size)),
         Shape::Cylinder { radius, height } => (textures.cylinder.clone(), Vec3::new(radius, height, radius)),
     };
     let material = materials.add(StandardMaterial { base_color: color, perceptual_roughness: 0.9, ..default() });
-    commands.spawn((Mesh3d(mesh), MeshMaterial3d(material), Transform { scale: t.scale * size, ..t })).id()
+    commands.spawn((Mesh3d(mesh), MeshMaterial3d(material), Transform { scale: t.scale * size, ..t }, Visibility::Hidden)).id()
 }
 
 /// Logs each model file that fails to load, once.
@@ -477,6 +511,43 @@ fn check_models(server: Res<AssetServer>, mut models: ResMut<Models>) {
             warn!("model {file}: {e}; showing the picture instead");
             failed.insert(file.clone());
         }
+    }
+}
+
+impl Models {
+    fn load_state(&self, server: &AssetServer, file: &str) -> Load {
+        match self.scenes.get(file) {
+            _ if self.failed.contains(file) => Load::Failed,
+            Some(h) if server.is_loaded_with_dependencies(h) => Load::Loaded,
+            _ => Load::Loading,
+        }
+    }
+}
+
+/// Shows an assembled thing once all its files have loaded (its picture goes); if one
+/// fails, its parts go and the picture stays.
+fn reveal_assembled(
+    mut commands: Commands,
+    server: Res<AssetServer>,
+    models: Res<Models>,
+    things: Query<(Entity, &Assembled, &Children)>,
+    stand_ins: Query<(), With<StandIn>>,
+) {
+    for (e, Assembled(files), children) in &things {
+        let state = all_loaded(files.iter().map(|f| models.load_state(&server, f)));
+        if state == Load::Loading {
+            continue;
+        }
+        for &c in children {
+            match (state, stand_ins.contains(c)) {
+                (Load::Loaded, true) | (Load::Failed, false) => commands.entity(c).try_despawn(),
+                (Load::Loaded, false) => {
+                    commands.entity(c).try_insert(Visibility::Inherited);
+                }
+                _ => {}
+            }
+        }
+        commands.entity(e).try_remove::<Assembled>();
     }
 }
 

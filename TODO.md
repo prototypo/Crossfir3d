@@ -44,6 +44,14 @@ Known problems left for later. Each line says what goes wrong and where to look.
 - [ ] Gates show only open or closed: frames between (a gate opening) show as open.
 - [ ] The camera ignores trees and rocks when pulling in (`Solid` holds walls and buildings only), so it can sit inside a big tree.
 
+- [ ] A darkness change on a square rebuilds a whole building or wall (new scenes and material copies) instead of re-tinting it (`world.rs` `sync_visuals` keep check).
+- [ ] 3D characters ignore square darkness; only race colours tint them (`characters3d.rs`).
+- [ ] Some committed model files are not used (Ranger outfits, Hair_Beard, Eyebrows, Floor_Brick, larger roofs, fences, some trees, several castle pieces): trim `PICK` in `scripts/pick_models.py` and re-run.
+- [ ] `scripts/get-models.sh` still holds unused wizard helpers (`ask_secret`, `write_env`, `set_secret`, ...).
+- [ ] `assets/models.txt` lists `guild_*` and `guild2*` twice (harmless).
+- [ ] Clippy: `walls.rs:11` operator precedence, `anim.rs` collapsible if, `input.rs` complex `Local` tuple in `send_moves` (a small named struct would also make the key-down lock testable).
+- [ ] Animation changes cut instead of blending (`player.stop_all()` then `play`).
+
 ## Not checked yet
 
 - [ ] Wooden gates (`gate.glb`) and the garden gate in 3D: only portcullis gates were screenshot-checked.
