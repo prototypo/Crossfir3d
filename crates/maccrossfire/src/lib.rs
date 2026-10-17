@@ -13,3 +13,5 @@ pub mod newchar;
 pub mod camera;
 pub mod models;
 pub mod walls;
+pub mod races;
+pub mod anim;
