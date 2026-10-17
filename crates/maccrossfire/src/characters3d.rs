@@ -256,8 +256,10 @@ fn hold_items(
     let bone = |name: &str| children.iter_descendants(root).find(|e| names.get(*e).is_ok_and(|n| n.as_str() == name));
     // The body scenes spawn a little later than the character: try again next frame.
     let (Some(right), Some(left)) = (bone("hand_r"), bone("hand_l")) else { return };
+    // The character may be despawned (and remade) this frame: every command here is
+    // skipped quietly if its entity is gone.
     for e in children.iter_descendants(root).filter(|e| held_models.contains(*e)) {
-        commands.entity(e).despawn();
+        commands.entity(e).try_despawn();
     }
     for (file, hand) in &want {
         let hand = if *hand == Hand::Right { right } else { left };
@@ -273,9 +275,11 @@ fn hold_items(
         }
         let t = Transform::from_scale(Vec3::splat(WEAPON_SCALE / scale));
         let scene = server.load(GltfAssetLabel::Scene(0).from_asset(format!("models/{file}")));
-        commands.spawn((WorldAssetRoot(scene), t, HeldModel, ChildOf(hand)));
+        commands.entity(hand).queue_silenced(move |mut e: EntityWorldMut| {
+            e.with_child((WorldAssetRoot(scene), t, HeldModel));
+        });
     }
-    commands.entity(root).insert(Holding(want));
+    commands.entity(root).try_insert(Holding(want));
 }
 
 /// Facing 1 = north .. 8 = northwest, clockwise. The model looks along +Z unturned.
