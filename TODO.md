@@ -34,6 +34,8 @@ Known problems left for later. Each line says what goes wrong and where to look.
 
 ## Not checked yet
 
+- [ ] Character list with real characters (needs a saved character, i.e. one with experience), and a race/class choice drop-down (no stock race or class offered one on the test server).
+
 - [ ] The "Settings" button on the login screen (only the in-game screen was screenshot-checked).
 
 - [ ] Arrow keys in the inventory after a mouse click: egui's own focus movement may fight the custom selection.
