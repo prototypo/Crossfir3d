@@ -12,6 +12,11 @@ pub enum ClientMsg {
     AskFace(u32),
     Ncom { packet: u16, repeat: i32, command: String },
     Beat,
+    Apply(u32),
+    /// Move `count` of item `tag` into `to` (0 = ground, player tag, or a container tag).
+    Move { to: u32, tag: u32, count: u32 },
+    Examine(u32),
+    Reply(String),
 }
 
 impl ClientMsg {
@@ -49,6 +54,10 @@ impl ClientMsg {
                 b
             }
             ClientMsg::Beat => b"beat".to_vec(),
+            ClientMsg::Apply(tag) => format!("apply {tag}").into_bytes(),
+            ClientMsg::Move { to, tag, count } => format!("move {to} {tag} {count}").into_bytes(),
+            ClientMsg::Examine(tag) => format!("examine {tag}").into_bytes(),
+            ClientMsg::Reply(text) => format!("reply {text}").into_bytes(),
         }
     }
 }
@@ -125,6 +134,14 @@ mod tests {
     #[test]
     fn encode_askface() {
         assert_eq!(ClientMsg::AskFace(42).encode(), b"askface 42");
+    }
+
+    #[test]
+    fn encode_apply_move_examine_reply() {
+        assert_eq!(ClientMsg::Apply(12).encode(), b"apply 12");
+        assert_eq!(ClientMsg::Move { to: 0, tag: 12, count: 3 }.encode(), b"move 0 12 3");
+        assert_eq!(ClientMsg::Examine(12).encode(), b"examine 12");
+        assert_eq!(ClientMsg::Reply("y".into()).encode(), b"reply y");
     }
 
     #[test]
