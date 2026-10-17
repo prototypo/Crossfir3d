@@ -4,3 +4,4 @@ pub mod login;
 pub mod faces;
 pub mod terrain;
 pub mod messages;
+pub mod slots;
