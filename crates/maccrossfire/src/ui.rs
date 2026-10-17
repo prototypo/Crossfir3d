@@ -34,8 +34,12 @@ pub fn login_screen(
     mut contexts: EguiContexts,
     mut form: ResMut<LoginForm>,
     status: Res<Status>,
+    mut settings_open: ResMut<crate::settings_ui::SettingsOpen>,
     mut commands: Commands,
 ) -> Result {
+    if settings_open.0 {
+        return Ok(());
+    }
     let mut connect = false;
     egui::Window::new("MacCrossfire").collapsible(false).resizable(false).show(contexts.ctx_mut()?, |ui| {
         egui::Grid::new("login").num_columns(2).show(ui, |ui| {
@@ -53,7 +57,12 @@ pub fn login_screen(
             ui.end_row();
         });
         ui.checkbox(&mut form.new_account, "New account");
-        connect = ui.button("Connect").clicked();
+        ui.horizontal(|ui| {
+            connect = ui.button("Connect").clicked();
+            if ui.button("Settings").clicked() {
+                settings_open.0 = true;
+            }
+        });
         if !status.0.is_empty() {
             ui.label(&status.0);
         }

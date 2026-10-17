@@ -13,6 +13,7 @@ mod audio;
 mod graphics;
 mod hud;
 mod input;
+mod settings_ui;
 mod inventory_ui;
 mod ui;
 mod world;
@@ -147,7 +148,9 @@ fn main() {
         .add_systems(Update, pump_network)
         .add_systems(Update, (input::send_moves, input::world_keys).run_if(in_state(AppState::InGame)))
         .add_systems(Update, dev_screenshot.run_if(in_state(AppState::InGame)))
+        .init_resource::<settings_ui::SettingsOpen>()
         .add_systems(EguiPrimaryContextPass, ui::login_screen.run_if(in_state(AppState::Login)))
+        .add_systems(EguiPrimaryContextPass, settings_ui::settings_screen)
         .add_systems(EguiPrimaryContextPass, ui::command_line.run_if(in_state(AppState::InGame)))
         .run();
 }
