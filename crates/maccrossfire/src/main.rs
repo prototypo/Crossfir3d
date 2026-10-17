@@ -151,7 +151,7 @@ fn pump_network(world: &mut World) {
             }
             ServerMsg::NewMap => world.resource_mut::<View>().0.clear(),
             ServerMsg::Comc { packet, time_ms } => world.insert_resource(LastComc { time_ms, packet }),
-            ServerMsg::Text(t) => info!("server: {t}"),
+            ServerMsg::Text { text, .. } => info!("server: {text}"),
             _ => {}
         }
     }

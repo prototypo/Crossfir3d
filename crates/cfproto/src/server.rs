@@ -2,6 +2,7 @@
 
 use crate::map2::{parse_map2, Map2Item};
 use crate::items::{parse_item2, parse_upditem, Item, ItemChange};
+use crate::spells::{parse_addspell, parse_updspell, Spell};
 use crate::stats::{parse_stats, StatValue};
 
 #[derive(Debug, PartialEq)]
@@ -32,7 +33,14 @@ pub enum ServerMsg {
     /// Delete everything inside this tag (0 = the ground).
     DelInv(u32),
     Player { tag: u32, weight: u32, face: u32, name: String },
-    Text(String),
+    /// drawextinfo / drawinfo. `kind` and `subtype` are the MSG_TYPE values (0 for drawinfo).
+    Text { kind: u8, subtype: u8, text: String },
+    AddSpell(Vec<Spell>),
+    UpdSpell { tag: u32, mana: Option<i16>, grace: Option<i16>, damage: Option<i16> },
+    DelSpell(u32),
+    Sound { x: i8, y: i8, dir: u8, volume: u8, kind: u8, action: String, source: String },
+    Music(String),
+    Query { flags: u32, text: String },
     Goodbye,
     /// A command this client does not handle. Holds the command word.
     Unknown(String),
@@ -146,8 +154,35 @@ pub fn parse(payload: &[u8]) -> Result<ServerMsg, ParseError> {
             }
             ServerMsg::Stats(updates)
         }
-        "drawinfo" => ServerMsg::Text(r.text().splitn(2, ' ').nth(1).unwrap_or("").into()),
-        "drawextinfo" => ServerMsg::Text(r.text().splitn(4, ' ').nth(3).unwrap_or("").into()),
+        "drawinfo" => ServerMsg::Text { kind: 0, subtype: 0, text: r.text().splitn(2, ' ').nth(1).unwrap_or("").into() },
+        "drawextinfo" => {
+            let text = r.text();
+            let mut parts = text.splitn(4, ' ');
+            let _color = parts.next();
+            let kind = parts.next().and_then(|v| v.parse().ok()).unwrap_or(0);
+            let subtype = parts.next().and_then(|v| v.parse().ok()).unwrap_or(0);
+            ServerMsg::Text { kind, subtype, text: parts.next().unwrap_or("").into() }
+        }
+        "addspell" => ServerMsg::AddSpell(parse_addspell(data)?),
+        "updspell" => {
+            let (tag, mana, grace, damage) = parse_updspell(data)?;
+            ServerMsg::UpdSpell { tag, mana, grace, damage }
+        }
+        "delspell" => ServerMsg::DelSpell(r.u32()?),
+        "sound2" => {
+            let (x, y, dir, volume, kind) = (r.u8()? as i8, r.u8()? as i8, r.u8()?, r.u8()?, r.u8()?);
+            let len = r.u8()? as usize;
+            let action = String::from_utf8_lossy(r.take(len)?).into_owned();
+            let len = r.u8()? as usize;
+            let source = String::from_utf8_lossy(r.take(len)?).into_owned();
+            ServerMsg::Sound { x, y, dir, volume, kind, action, source }
+        }
+        "music" => ServerMsg::Music(r.text().trim().to_string()),
+        "query" => {
+            let text = r.text();
+            let (flags, rest) = text.split_once(' ').unwrap_or((&text, ""));
+            ServerMsg::Query { flags: flags.trim().parse().unwrap_or(0), text: rest.to_string() }
+        }
         other => ServerMsg::Unknown(other.into()),
     })
 }
@@ -297,8 +332,8 @@ mod tests {
 
     #[test]
     fn parse_drawextinfo() {
-        assert_eq!(p(b"drawextinfo 0 1 2 hello world"), ServerMsg::Text("hello world".into()));
-        assert_eq!(p(b"drawinfo 0 hi"), ServerMsg::Text("hi".into()));
+        assert_eq!(p(b"drawextinfo 0 1 2 hello world"), ServerMsg::Text { kind: 1, subtype: 2, text: "hello world".into() });
+        assert_eq!(p(b"drawinfo 0 hi"), ServerMsg::Text { kind: 0, subtype: 0, text: "hi".into() });
     }
 
     #[test]
@@ -324,8 +359,45 @@ mod tests {
     }
 
     #[test]
+    fn parse_spell_messages() {
+        let mut b = b"addspell ".to_vec();
+        b.extend(crate::spells::tests::spell_bytes(7, 1, "light"));
+        let ServerMsg::AddSpell(s) = p(&b) else { panic!() };
+        assert_eq!(s[0].name, "light");
+        let mut b = b"updspell \x04\x00\x00\x00\x07".to_vec();
+        b.extend_from_slice(&30i16.to_be_bytes());
+        assert_eq!(p(&b), ServerMsg::UpdSpell { tag: 7, mana: None, grace: None, damage: Some(30) });
+        assert_eq!(p(b"delspell \x00\x00\x00\x07"), ServerMsg::DelSpell(7));
+    }
+
+    #[test]
+    fn parse_sound2() {
+        let mut b = b"sound2 \xff\x02\x03\x50\x01".to_vec();
+        b.push(4);
+        b.extend_from_slice(b"miss");
+        b.push(4);
+        b.extend_from_slice(b"bird");
+        assert_eq!(
+            p(&b),
+            ServerMsg::Sound { x: -1, y: 2, dir: 3, volume: 80, kind: 1, action: "miss".into(), source: "bird".into() }
+        );
+    }
+
+    #[test]
+    fn parse_music_and_query() {
+        assert_eq!(p(b"music scorn"), ServerMsg::Music("scorn".into()));
+        assert_eq!(p(b"query 4 Play again?"), ServerMsg::Query { flags: 4, text: "Play again?".into() });
+        assert_eq!(p(b"query 0"), ServerMsg::Query { flags: 0, text: "".into() });
+    }
+
+    #[test]
+    fn drawextinfo_keeps_type() {
+        assert_eq!(p(b"drawextinfo 0 4 1 Hello"), ServerMsg::Text { kind: 4, subtype: 1, text: "Hello".into() });
+    }
+
+    #[test]
     fn parse_unknown() {
-        assert_eq!(p(b"music NONE"), ServerMsg::Unknown("music".into()));
+        assert_eq!(p(b"magicmap 1 1 0 0 x"), ServerMsg::Unknown("magicmap".into()));
         assert!(parse(b"\xff\xfe").is_err());
     }
 
