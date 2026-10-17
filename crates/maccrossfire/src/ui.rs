@@ -5,7 +5,9 @@ use bevy_egui::{egui, EguiContexts};
 use cfproto::ClientMsg;
 use maccrossfire::login::{Creds, LoginFlow};
 
-use crate::{NcomSeq, Session, Status};
+use maccrossfire::modes::Mode;
+
+use crate::{KeyMode, LastAction, NcomSeq, Session, Status};
 
 #[derive(Resource)]
 pub struct LoginForm {
@@ -137,18 +139,30 @@ pub fn command_line(
     mut contexts: EguiContexts,
     mut line: ResMut<CommandLine>,
     keys: Res<ButtonInput<KeyCode>>,
+    time: Res<Time>,
+    mut mode: ResMut<KeyMode>,
+    mut last: ResMut<LastAction>,
     mut seq: ResMut<NcomSeq>,
     session: Option<NonSend<Session>>,
 ) -> Result {
+    if mode.0 == Mode::Inventory {
+        return Ok(());
+    }
     match line_action(line.open, keys.just_pressed(KeyCode::Enter), keys.just_pressed(KeyCode::Escape)) {
-        LineAction::Open => line.open = true,
+        LineAction::Open => {
+            line.open = true;
+            mode.0 = Mode::CommandLine;
+        }
         LineAction::Cancel => {
             line.open = false;
             line.text.clear();
+            mode.0 = Mode::World;
         }
         LineAction::Submit => {
             let command = std::mem::take(&mut line.text);
             line.open = false;
+            mode.0 = Mode::World;
+            last.0 = Some(time.elapsed_secs());
             if let (Some(session), false) = (session, command.trim().is_empty()) {
                 session.send([ClientMsg::Ncom { packet: seq.next(), repeat: 0, command }]);
             }

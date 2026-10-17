@@ -3,6 +3,8 @@ use bevy_egui::{EguiPlugin, EguiPrimaryContextPass};
 use cfproto::{ClientMsg, MapView, ServerMsg};
 use maccrossfire::faces::FaceStore;
 use maccrossfire::login::{LoginFlow, LoginState};
+use maccrossfire::messages::Messages;
+use maccrossfire::modes::Mode;
 use maccrossfire::net::{Net, NetEvent};
 
 mod audio;
@@ -61,6 +63,23 @@ impl NcomSeq {
 #[derive(Resource, Default)]
 pub struct Status(pub String);
 
+/// Which part of the screen owns the keyboard.
+#[derive(Resource, Default)]
+pub struct KeyMode(pub Mode);
+
+/// When the player last did something (apply, slot, inventory action, command), in
+/// seconds of game time. Decides whether a sign or NPC message opens the box.
+#[derive(Resource, Default)]
+pub struct LastAction(pub Option<f32>);
+
+#[derive(Resource, Default)]
+pub struct Msgs(pub Messages);
+
+#[derive(Resource, Default)]
+pub struct HudState {
+    pub tall_log: bool,
+}
+
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(WindowPlugin {
@@ -73,11 +92,15 @@ fn main() {
         .init_resource::<NcomSeq>()
         .init_resource::<ui::LoginForm>()
         .init_resource::<ui::CommandLine>()
+        .init_resource::<KeyMode>()
+        .init_resource::<LastAction>()
+        .init_resource::<Msgs>()
+        .init_resource::<HudState>()
         .add_plugins(world::WorldPlugin)
         .add_plugins(audio::AudioPlugin)
         .add_systems(Startup, ui::auto_login)
         .add_systems(Update, pump_network)
-        .add_systems(Update, (input::send_moves, input::send_key_commands).run_if(in_state(AppState::InGame)))
+        .add_systems(Update, (input::send_moves, input::world_keys).run_if(in_state(AppState::InGame)))
         .add_systems(Update, dev_screenshot.run_if(in_state(AppState::InGame)))
         .add_systems(EguiPrimaryContextPass, ui::login_screen.run_if(in_state(AppState::Login)))
         .add_systems(EguiPrimaryContextPass, ui::command_line.run_if(in_state(AppState::InGame)))
@@ -95,6 +118,11 @@ pub fn start_session(world: &mut World, net: Net, login: LoginFlow, first: Vec<C
     world.insert_resource(LastComc { time_ms: 200, packet: 0 });
     world.insert_resource(NcomSeq::default());
     world.insert_resource(input::MoveWait::default());
+    world.insert_resource(KeyMode::default());
+    world.insert_resource(LastAction::default());
+    world.insert_resource(Msgs::default());
+    world.insert_resource(HudState::default());
+    *world.resource_mut::<ui::CommandLine>() = ui::CommandLine::default();
 }
 
 fn end_session(world: &mut World, status: String) {
