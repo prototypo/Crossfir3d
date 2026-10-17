@@ -1,0 +1,307 @@
+{
+ "asset": {
+  "version": "2.0",
+  "generator": "MacCrossfire scripts/obj2gltf.py"
+ },
+ "scene": 0,
+ "scenes": [
+  {
+   "nodes": [
+    0
+   ]
+  }
+ ],
+ "nodes": [
+  {
+   "name": "Axe_Double",
+   "mesh": 0
+  }
+ ],
+ "meshes": [
+  {
+   "name": "Axe_Double",
+   "primitives": [
+    {
+     "attributes": {
+      "POSITION": 0,
+      "NORMAL": 1
+     },
+     "indices": 2,
+     "material": 0
+    },
+    {
+     "attributes": {
+      "POSITION": 3,
+      "NORMAL": 4
+     },
+     "indices": 5,
+     "material": 1
+    },
+    {
+     "attributes": {
+      "POSITION": 6,
+      "NORMAL": 7
+     },
+     "indices": 8,
+     "material": 2
+    },
+    {
+     "attributes": {
+      "POSITION": 9,
+      "NORMAL": 10
+     },
+     "indices": 11,
+     "material": 3
+    }
+   ]
+  }
+ ],
+ "materials": [
+  {
+   "name": "Steel",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.30101,
+     0.321582,
+     0.351726,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  },
+  {
+   "name": "LightWood",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.190718,
+     0.083693,
+     0.041016,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  },
+  {
+   "name": "DarkWood",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.13011,
+     0.058112,
+     0.029076,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  },
+  {
+   "name": "LightSteel",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.369662,
+     0.392817,
+     0.431584,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  }
+ ],
+ "accessors": [
+  {
+   "bufferView": 0,
+   "componentType": 5126,
+   "count": 784,
+   "type": "VEC3",
+   "min": [
+    -0.370312,
+    0.697495,
+    -0.124145
+   ],
+   "max": [
+    1.586339,
+    3.123754,
+    0.124145
+   ]
+  },
+  {
+   "bufferView": 1,
+   "componentType": 5126,
+   "count": 784,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 2,
+   "componentType": 5125,
+   "count": 2310,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 3,
+   "componentType": 5126,
+   "count": 1472,
+   "type": "VEC3",
+   "min": [
+    0.322485,
+    -2.257499,
+    -0.130439
+   ],
+   "max": [
+    0.871318,
+    2.165806,
+    0.130439
+   ]
+  },
+  {
+   "bufferView": 4,
+   "componentType": 5126,
+   "count": 1472,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 5,
+   "componentType": 5125,
+   "count": 2208,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 6,
+   "componentType": 5126,
+   "count": 526,
+   "type": "VEC3",
+   "min": [
+    0.450086,
+    -3.176555,
+    -0.120074
+   ],
+   "max": [
+    0.881509,
+    1.410451,
+    0.120074
+   ]
+  },
+  {
+   "bufferView": 7,
+   "componentType": 5126,
+   "count": 526,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 8,
+   "componentType": 5125,
+   "count": 786,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 9,
+   "componentType": 5126,
+   "count": 252,
+   "type": "VEC3",
+   "min": [
+    -0.423131,
+    0.644694,
+    -0.026858
+   ],
+   "max": [
+    1.639158,
+    3.176555,
+    0.026858
+   ]
+  },
+  {
+   "bufferView": 10,
+   "componentType": 5126,
+   "count": 252,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 11,
+   "componentType": 5125,
+   "count": 372,
+   "type": "SCALAR"
+  }
+ ],
+ "bufferViews": [
+  {
+   "buffer": 0,
+   "byteOffset": 0,
+   "byteLength": 9408,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 9408,
+   "byteLength": 9408,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 18816,
+   "byteLength": 9240,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 28056,
+   "byteLength": 17664,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 45720,
+   "byteLength": 17664,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 63384,
+   "byteLength": 8832,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 72216,
+   "byteLength": 6312,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 78528,
+   "byteLength": 6312,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 84840,
+   "byteLength": 3144,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 87984,
+   "byteLength": 3024,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 91008,
+   "byteLength": 3024,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 94032,
+   "byteLength": 1488,
+   "target": 34963
+  }
+ ],
+ "buffers": [
+  {
+   "uri": "Axe_Double.bin",
+   "byteLength": 95520
+  }
+ ]
+}

@@ -1,0 +1,307 @@
+{
+ "asset": {
+  "version": "2.0",
+  "generator": "MacCrossfire scripts/obj2gltf.py"
+ },
+ "scene": 0,
+ "scenes": [
+  {
+   "nodes": [
+    0
+   ]
+  }
+ ],
+ "nodes": [
+  {
+   "name": "Spear",
+   "mesh": 0
+  }
+ ],
+ "meshes": [
+  {
+   "name": "Spear",
+   "primitives": [
+    {
+     "attributes": {
+      "POSITION": 0,
+      "NORMAL": 1
+     },
+     "indices": 2,
+     "material": 0
+    },
+    {
+     "attributes": {
+      "POSITION": 3,
+      "NORMAL": 4
+     },
+     "indices": 5,
+     "material": 1
+    },
+    {
+     "attributes": {
+      "POSITION": 6,
+      "NORMAL": 7
+     },
+     "indices": 8,
+     "material": 2
+    },
+    {
+     "attributes": {
+      "POSITION": 9,
+      "NORMAL": 10
+     },
+     "indices": 11,
+     "material": 3
+    }
+   ]
+  }
+ ],
+ "materials": [
+  {
+   "name": "Steel",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.30101,
+     0.321582,
+     0.351726,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  },
+  {
+   "name": "LightWood",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.190718,
+     0.083693,
+     0.041016,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  },
+  {
+   "name": "DarkWood",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.13011,
+     0.058112,
+     0.029076,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  },
+  {
+   "name": "LightSteel",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.369662,
+     0.392817,
+     0.431584,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  }
+ ],
+ "accessors": [
+  {
+   "bufferView": 0,
+   "componentType": 5126,
+   "count": 188,
+   "type": "VEC3",
+   "min": [
+    -0.164908,
+    5.652327,
+    -0.058524
+   ],
+   "max": [
+    0.217875,
+    7.498421,
+    0.058524
+   ]
+  },
+  {
+   "bufferView": 1,
+   "componentType": 5126,
+   "count": 188,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 2,
+   "componentType": 5125,
+   "count": 276,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 3,
+   "componentType": 5126,
+   "count": 1344,
+   "type": "VEC3",
+   "min": [
+    -0.142246,
+    -1.236139,
+    -0.162442
+   ],
+   "max": [
+    0.194988,
+    5.654391,
+    0.162442
+   ]
+  },
+  {
+   "bufferView": 4,
+   "componentType": 5126,
+   "count": 1344,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 5,
+   "componentType": 5125,
+   "count": 2016,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 6,
+   "componentType": 5126,
+   "count": 686,
+   "type": "VEC3",
+   "min": [
+    -0.139571,
+    -2.155195,
+    -0.120074
+   ],
+   "max": [
+    0.310596,
+    5.47707,
+    0.120074
+   ]
+  },
+  {
+   "bufferView": 7,
+   "componentType": 5126,
+   "count": 686,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 8,
+   "componentType": 5125,
+   "count": 1026,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 9,
+   "componentType": 5126,
+   "count": 192,
+   "type": "VEC3",
+   "min": [
+    -0.219519,
+    5.651487,
+    -0.041383
+   ],
+   "max": [
+    0.272239,
+    7.561881,
+    0.041383
+   ]
+  },
+  {
+   "bufferView": 10,
+   "componentType": 5126,
+   "count": 192,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 11,
+   "componentType": 5125,
+   "count": 288,
+   "type": "SCALAR"
+  }
+ ],
+ "bufferViews": [
+  {
+   "buffer": 0,
+   "byteOffset": 0,
+   "byteLength": 2256,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 2256,
+   "byteLength": 2256,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 4512,
+   "byteLength": 1104,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 5616,
+   "byteLength": 16128,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 21744,
+   "byteLength": 16128,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 37872,
+   "byteLength": 8064,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 45936,
+   "byteLength": 8232,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 54168,
+   "byteLength": 8232,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 62400,
+   "byteLength": 4104,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 66504,
+   "byteLength": 2304,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 68808,
+   "byteLength": 2304,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 71112,
+   "byteLength": 1152,
+   "target": 34963
+  }
+ ],
+ "buffers": [
+  {
+   "uri": "Spear.bin",
+   "byteLength": 72264
+  }
+ ]
+}

@@ -1,0 +1,307 @@
+{
+ "asset": {
+  "version": "2.0",
+  "generator": "MacCrossfire scripts/obj2gltf.py"
+ },
+ "scene": 0,
+ "scenes": [
+  {
+   "nodes": [
+    0
+   ]
+  }
+ ],
+ "nodes": [
+  {
+   "name": "Shield_Heater_2",
+   "mesh": 0
+  }
+ ],
+ "meshes": [
+  {
+   "name": "Shield_Heater_2",
+   "primitives": [
+    {
+     "attributes": {
+      "POSITION": 0,
+      "NORMAL": 1
+     },
+     "indices": 2,
+     "material": 0
+    },
+    {
+     "attributes": {
+      "POSITION": 3,
+      "NORMAL": 4
+     },
+     "indices": 5,
+     "material": 1
+    },
+    {
+     "attributes": {
+      "POSITION": 6,
+      "NORMAL": 7
+     },
+     "indices": 8,
+     "material": 2
+    },
+    {
+     "attributes": {
+      "POSITION": 9,
+      "NORMAL": 10
+     },
+     "indices": 11,
+     "material": 3
+    }
+   ]
+  }
+ ],
+ "materials": [
+  {
+   "name": "DarkWood",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.13011,
+     0.058112,
+     0.029076,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  },
+  {
+   "name": "Steel",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.30101,
+     0.321582,
+     0.351726,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  },
+  {
+   "name": "LightWood",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.190718,
+     0.083693,
+     0.041016,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  },
+  {
+   "name": "LightSteel",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.369662,
+     0.392817,
+     0.431584,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  }
+ ],
+ "accessors": [
+  {
+   "bufferView": 0,
+   "componentType": 5126,
+   "count": 178,
+   "type": "VEC3",
+   "min": [
+    -0.815511,
+    -1.261747,
+    -0.150709
+   ],
+   "max": [
+    0.815511,
+    0.872478,
+    0.246353
+   ]
+  },
+  {
+   "bufferView": 1,
+   "componentType": 5126,
+   "count": 178,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 2,
+   "componentType": 5125,
+   "count": 336,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 3,
+   "componentType": 5126,
+   "count": 150,
+   "type": "VEC3",
+   "min": [
+    -1.002508,
+    -1.499769,
+    0.119659
+   ],
+   "max": [
+    1.002508,
+    1.063956,
+    0.355677
+   ]
+  },
+  {
+   "bufferView": 4,
+   "componentType": 5126,
+   "count": 150,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 5,
+   "componentType": 5125,
+   "count": 444,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 6,
+   "componentType": 5126,
+   "count": 834,
+   "type": "VEC3",
+   "min": [
+    -0.888535,
+    -1.372501,
+    0.172188
+   ],
+   "max": [
+    0.888535,
+    0.953273,
+    0.44795
+   ]
+  },
+  {
+   "bufferView": 7,
+   "componentType": 5126,
+   "count": 834,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 8,
+   "componentType": 5125,
+   "count": 1368,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 9,
+   "componentType": 5126,
+   "count": 1080,
+   "type": "VEC3",
+   "min": [
+    -0.936383,
+    -1.402264,
+    0.305712
+   ],
+   "max": [
+    0.936383,
+    0.990653,
+    0.402473
+   ]
+  },
+  {
+   "bufferView": 10,
+   "componentType": 5126,
+   "count": 1080,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 11,
+   "componentType": 5125,
+   "count": 1728,
+   "type": "SCALAR"
+  }
+ ],
+ "bufferViews": [
+  {
+   "buffer": 0,
+   "byteOffset": 0,
+   "byteLength": 2136,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 2136,
+   "byteLength": 2136,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 4272,
+   "byteLength": 1344,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 5616,
+   "byteLength": 1800,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 7416,
+   "byteLength": 1800,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 9216,
+   "byteLength": 1776,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 10992,
+   "byteLength": 10008,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 21000,
+   "byteLength": 10008,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 31008,
+   "byteLength": 5472,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 36480,
+   "byteLength": 12960,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 49440,
+   "byteLength": 12960,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 62400,
+   "byteLength": 6912,
+   "target": 34963
+  }
+ ],
+ "buffers": [
+  {
+   "uri": "Shield_Heater_2.bin",
+   "byteLength": 69312
+  }
+ ]
+}

@@ -1,0 +1,307 @@
+{
+ "asset": {
+  "version": "2.0",
+  "generator": "MacCrossfire scripts/obj2gltf.py"
+ },
+ "scene": 0,
+ "scenes": [
+  {
+   "nodes": [
+    0
+   ]
+  }
+ ],
+ "nodes": [
+  {
+   "name": "Axe_Small",
+   "mesh": 0
+  }
+ ],
+ "meshes": [
+  {
+   "name": "Axe_Small",
+   "primitives": [
+    {
+     "attributes": {
+      "POSITION": 0,
+      "NORMAL": 1
+     },
+     "indices": 2,
+     "material": 0
+    },
+    {
+     "attributes": {
+      "POSITION": 3,
+      "NORMAL": 4
+     },
+     "indices": 5,
+     "material": 1
+    },
+    {
+     "attributes": {
+      "POSITION": 6,
+      "NORMAL": 7
+     },
+     "indices": 8,
+     "material": 2
+    },
+    {
+     "attributes": {
+      "POSITION": 9,
+      "NORMAL": 10
+     },
+     "indices": 11,
+     "material": 3
+    }
+   ]
+  }
+ ],
+ "materials": [
+  {
+   "name": "Steel",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.30101,
+     0.321582,
+     0.351726,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  },
+  {
+   "name": "LightWood",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.190718,
+     0.083693,
+     0.041016,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  },
+  {
+   "name": "DarkWood",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.13011,
+     0.058112,
+     0.029076,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  },
+  {
+   "name": "LightSteel",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.369662,
+     0.392817,
+     0.431584,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  }
+ ],
+ "accessors": [
+  {
+   "bufferView": 0,
+   "componentType": 5126,
+   "count": 419,
+   "type": "VEC3",
+   "min": [
+    -0.13672,
+    0.308412,
+    -0.124145
+   ],
+   "max": [
+    1.030701,
+    1.725503,
+    0.124145
+   ]
+  },
+  {
+   "bufferView": 1,
+   "componentType": 5126,
+   "count": 419,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 2,
+   "componentType": 5125,
+   "count": 1053,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 3,
+   "componentType": 5126,
+   "count": 864,
+   "type": "VEC3",
+   "min": [
+    -0.127717,
+    -0.534994,
+    -0.119149
+   ],
+   "max": [
+    0.268774,
+    1.695537,
+    0.119149
+   ]
+  },
+  {
+   "bufferView": 4,
+   "componentType": 5126,
+   "count": 864,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 5,
+   "componentType": 5125,
+   "count": 1296,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 6,
+   "componentType": 5126,
+   "count": 302,
+   "type": "VEC3",
+   "min": [
+    -0.112564,
+    -1.230855,
+    -0.120074
+   ],
+   "max": [
+    0.276444,
+    1.021368,
+    0.120074
+   ]
+  },
+  {
+   "bufferView": 7,
+   "componentType": 5126,
+   "count": 302,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 8,
+   "componentType": 5125,
+   "count": 450,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 9,
+   "componentType": 5126,
+   "count": 67,
+   "type": "VEC3",
+   "min": [
+    0.226718,
+    0.255611,
+    -0.026858
+   ],
+   "max": [
+    1.034093,
+    1.664152,
+    0.026858
+   ]
+  },
+  {
+   "bufferView": 10,
+   "componentType": 5126,
+   "count": 67,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 11,
+   "componentType": 5125,
+   "count": 99,
+   "type": "SCALAR"
+  }
+ ],
+ "bufferViews": [
+  {
+   "buffer": 0,
+   "byteOffset": 0,
+   "byteLength": 5028,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 5028,
+   "byteLength": 5028,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 10056,
+   "byteLength": 4212,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 14268,
+   "byteLength": 10368,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 24636,
+   "byteLength": 10368,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 35004,
+   "byteLength": 5184,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 40188,
+   "byteLength": 3624,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 43812,
+   "byteLength": 3624,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 47436,
+   "byteLength": 1800,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 49236,
+   "byteLength": 804,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 50040,
+   "byteLength": 804,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 50844,
+   "byteLength": 396,
+   "target": 34963
+  }
+ ],
+ "buffers": [
+  {
+   "uri": "Axe_Small.bin",
+   "byteLength": 51240
+  }
+ ]
+}
