@@ -6,7 +6,7 @@ use cfproto::ClientMsg;
 use maccrossfire::modes::{act, Act, KeyName, Mode};
 use maccrossfire::slots::{dir_number, slot_commands};
 
-use crate::{HudState, Inv, KeyMode, LastAction, LastComc, Msgs, NcomSeq, Session, Slots, Spells};
+use crate::{HudState, Inv, KeyMode, LastAction, LastComc, Msgs, NcomSeq, PlayerStats, Session, Slots, Spells};
 
 /// The direction of the last step or step attempt (1 = north .. 8 = northwest).
 #[derive(Resource)]
@@ -128,7 +128,7 @@ pub fn world_keys(
     mut hud: ResMut<HudState>,
     mut last: ResMut<LastAction>,
     mut seq: ResMut<NcomSeq>,
-    (facing, slots, inv, spells): (Res<Facing>, Res<Slots>, Res<Inv>, Res<Spells>),
+    (facing, slots, inv, spells, stats): (Res<Facing>, Res<Slots>, Res<Inv>, Res<Spells>, Res<PlayerStats>),
     session: Option<NonSend<Session>>,
 ) {
     let Some(session) = session else { return };
@@ -147,7 +147,7 @@ pub fn world_keys(
             Act::ToggleLog => hud.tall_log = !hud.tall_log,
             Act::Slot(i) => {
                 let Some(slot) = &slots.0 .0[i] else { continue };
-                for c in slot_commands(slot, &inv.0, &spells.0, facing.0) {
+                for c in slot_commands(slot, &inv.0, &spells.0, facing.0, &stats.0.range) {
                     command(&c);
                 }
             }

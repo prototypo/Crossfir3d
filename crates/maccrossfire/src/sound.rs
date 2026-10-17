@@ -46,9 +46,49 @@ impl SoundTable {
     }
 }
 
+/// The music file for a server song name, if it exists. Names that could leave the
+/// music folder are rejected (the name comes from the server).
+pub fn music_file(dir: &Path, name: &str) -> Option<PathBuf> {
+    let safe = !name.is_empty() && name.chars().all(|c| c.is_ascii_alphanumeric() || c == '_' || c == '-');
+    if !safe {
+        return None;
+    }
+    ["ogg", "mp3"].iter().map(|ext| dir.join("music").join(format!("{name}.{ext}"))).find(|p| p.exists())
+}
+
+/// The server resends the song on every map change; only a different song restarts.
+pub fn music_changes(current: Option<&str>, new: &str) -> bool {
+    match current {
+        Some(c) => c != new,
+        None => new != "NONE",
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn music_name_cannot_leave_folder() {
+        let dir = std::env::temp_dir().join(format!("mcf-music-{}", std::process::id()));
+        std::fs::create_dir_all(dir.join("music")).unwrap();
+        std::fs::write(dir.join("music/scorn.mp3"), b"x").unwrap();
+        std::fs::write(dir.join("secret.ogg"), b"x").unwrap();
+        assert_eq!(music_file(&dir, "scorn"), Some(dir.join("music/scorn.mp3")));
+        assert_eq!(music_file(&dir, "../secret"), None);
+        assert_eq!(music_file(&dir, "/etc/x"), None);
+        assert_eq!(music_file(&dir, ""), None);
+        assert_eq!(music_file(&dir, "navar"), None);
+    }
+
+    #[test]
+    fn same_song_does_not_restart() {
+        assert!(!music_changes(Some("scorn"), "scorn"));
+        assert!(music_changes(Some("scorn"), "navar"));
+        assert!(music_changes(None, "scorn"));
+        assert!(music_changes(Some("scorn"), "NONE"));
+        assert!(!music_changes(None, "NONE"));
+    }
 
     #[test]
     fn parse_conf_lines() {
