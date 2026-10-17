@@ -14,7 +14,6 @@ pub struct LoginForm {
     server: String,
     account: String,
     password: String,
-    character: String,
     new_account: bool,
 }
 
@@ -24,7 +23,6 @@ impl Default for LoginForm {
             server: "localhost:13327".into(),
             account: String::new(),
             password: String::new(),
-            character: String::new(),
             new_account: false,
         }
     }
@@ -52,9 +50,6 @@ pub fn login_screen(
             ui.label("Password");
             ui.add(egui::TextEdit::singleline(&mut form.password).password(true));
             ui.end_row();
-            ui.label("Character");
-            ui.text_edit_singleline(&mut form.character);
-            ui.end_row();
         });
         ui.checkbox(&mut form.new_account, "New account");
         ui.horizontal(|ui| {
@@ -71,8 +66,8 @@ pub fn login_screen(
         let creds = Creds {
             account: form.account.clone(),
             password: form.password.clone(),
-            character: form.character.clone(),
             new_account: form.new_account,
+            quick_character: None,
         };
         queue_connect(&mut commands, form.server.clone(), creds);
     }
@@ -112,8 +107,8 @@ pub fn auto_login(mut commands: Commands) {
     let creds = Creds {
         account: account.to_string(),
         password: password.to_string(),
-        character: character.to_string(),
         new_account: rest.first() == Some(&"new"),
+        quick_character: Some(character.to_string()),
     };
     queue_connect(&mut commands, LoginForm::default().server, creds);
 }

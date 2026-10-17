@@ -34,7 +34,7 @@ fn walk_one_step() {
     let net = connect("localhost:13327").expect("is the server running? scripts/server.sh run");
     let stamp = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_millis() % 1_000_000;
     let name = format!("walk{stamp}");
-    let creds = Creds { account: name.clone(), password: "testpw".into(), character: name, new_account: true };
+    let creds = Creds { account: name.clone(), password: "testpw".into(), new_account: true, quick_character: Some(name) };
     let (mut flow, first) = LoginFlow::start(creds);
     for m in first {
         net.tx.send(m).unwrap();
@@ -78,7 +78,7 @@ fn pick_up_and_drop() {
     let net = connect("localhost:13327").expect("is the server running? scripts/server.sh run");
     let stamp = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_millis() % 1_000_000;
     let name = format!("drop{stamp}");
-    let creds = Creds { account: name.clone(), password: "testpw".into(), character: name, new_account: true };
+    let creds = Creds { account: name.clone(), password: "testpw".into(), new_account: true, quick_character: Some(name) };
     let (mut flow, first) = LoginFlow::start(creds);
     for m in first {
         net.tx.send(m).unwrap();
