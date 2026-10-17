@@ -107,3 +107,31 @@ fn pick_up_and_drop() {
         _ => None,
     });
 }
+
+#[test]
+#[ignore]
+fn creation_data_parses() {
+    use cfproto::newchar::{parse_arch_info, parse_newcharinfo, parse_starting_maps};
+    let net = connect("localhost:13327").expect("is the server running? scripts/server.sh run");
+    net.tx.send(ClientMsg::Version).unwrap();
+    net.tx.send(ClientMsg::Setup(vec![("loginmethod".into(), "2".into())])).unwrap();
+    for q in ["newcharinfo", "race_list", "startingmap", "race_info dwarf_player", "class_info wizard_class"] {
+        net.tx.send(ClientMsg::RequestInfo(q.into())).unwrap();
+    }
+    let mut seen = 0;
+    while let Ok(NetEvent::Msg(m)) = net.rx.recv_timeout(Duration::from_secs(3)) {
+        let ServerMsg::ReplyInfo { kind, data } = m else { continue };
+        seen += 1;
+        match kind.as_str() {
+            "newcharinfo" => assert!(parse_newcharinfo(&data).points >= 60),
+            "race_list" => assert!(String::from_utf8_lossy(&data).contains("dwarf_player")),
+            "startingmap" => assert!(parse_starting_maps(&data).unwrap().iter().any(|m| m.arch == "map_scorn" && m.name == "Scorn")),
+            "race_info" | "class_info" => {
+                let info = parse_arch_info(&data).unwrap();
+                assert!(!info.name.is_empty() && !info.message.is_empty(), "{kind}: {info:?}");
+            }
+            other => panic!("unexpected reply {other}"),
+        }
+    }
+    assert_eq!(seen, 5);
+}
