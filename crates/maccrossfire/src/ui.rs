@@ -14,7 +14,6 @@ pub struct LoginForm {
     server: String,
     account: String,
     password: String,
-    character: String,
     new_account: bool,
 }
 
@@ -24,7 +23,6 @@ impl Default for LoginForm {
             server: "localhost:13327".into(),
             account: String::new(),
             password: String::new(),
-            character: String::new(),
             new_account: false,
         }
     }
@@ -36,8 +34,10 @@ pub fn login_screen(
     status: Res<Status>,
     mut settings_open: ResMut<crate::settings_ui::SettingsOpen>,
     mut commands: Commands,
+    session: Option<NonSend<Session>>,
 ) -> Result {
-    if settings_open.0 {
+    // Connected: the character screens show instead.
+    if settings_open.0 || session.is_some() {
         return Ok(());
     }
     let mut connect = false;
@@ -51,9 +51,6 @@ pub fn login_screen(
             ui.end_row();
             ui.label("Password");
             ui.add(egui::TextEdit::singleline(&mut form.password).password(true));
-            ui.end_row();
-            ui.label("Character");
-            ui.text_edit_singleline(&mut form.character);
             ui.end_row();
         });
         ui.checkbox(&mut form.new_account, "New account");
@@ -71,8 +68,8 @@ pub fn login_screen(
         let creds = Creds {
             account: form.account.clone(),
             password: form.password.clone(),
-            character: form.character.clone(),
             new_account: form.new_account,
+            quick_character: None,
         };
         queue_connect(&mut commands, form.server.clone(), creds);
     }
@@ -101,7 +98,7 @@ fn connect(world: &mut World, server: &str, creds: Creds) {
 }
 
 /// Developer shortcut: MACCROSSFIRE_LOGIN="account:password:character[:new]" logs in to
-/// localhost at startup.
+/// localhost at startup; with an empty character it stops at the character list.
 pub fn auto_login(mut commands: Commands) {
     let Ok(v) = std::env::var("MACCROSSFIRE_LOGIN") else { return };
     let parts: Vec<&str> = v.split(':').collect();
@@ -112,8 +109,9 @@ pub fn auto_login(mut commands: Commands) {
     let creds = Creds {
         account: account.to_string(),
         password: password.to_string(),
-        character: character.to_string(),
         new_account: rest.first() == Some(&"new"),
+        // An empty character name stops at the character list.
+        quick_character: (!character.is_empty()).then(|| character.to_string()),
     };
     queue_connect(&mut commands, LoginForm::default().server, creds);
 }
