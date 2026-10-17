@@ -36,7 +36,19 @@ Known problems left for later. Each line says what goes wrong and where to look.
 - [ ] Torches and other wall-mounted things are hidden inside the solid wall blocks (`world.rs`).
 - [ ] Live tests for "read a sign → parchment box" and "cast a known spell".
 
+- [ ] Monsters are still picture cards. The Bestiary Dungeon Monsters Kit is downloaded (`upstream/packs/dungeon-monsters-kit`) but not used yet.
+- [ ] Shops drawn as map buildings (`mapbuilding/`, e.g. `store_gems`) stay picture cards (they show the shop name).
+- [ ] Walking by typed direction words (`north` in the command line) does not turn the character; only movement keys set `Facing` (`input.rs`).
+- [ ] Each tinted or darkened model instance gets its own material copies (`world.rs` `tint_model`); share copies per (material, tint) if draw calls hurt.
+- [ ] Models are found in the source tree (`world.rs` `ASSET_DIR`); a packaged app needs them next to it (M7).
+- [ ] Gates show only open or closed: frames between (a gate opening) show as open.
+- [ ] The camera ignores trees and rocks when pulling in (`Solid` holds walls and buildings only), so it can sit inside a big tree.
+
 ## Not checked yet
+
+- [ ] Wooden gates (`gate.glb`) and the garden gate in 3D: only portcullis gates were screenshot-checked.
+- [ ] The attack, cast, and death animations in play (only idle and walk were screenshot-checked).
+- [ ] Other players as 3D characters (only one player was online in tests).
 
 - [ ] Character list with real characters (needs a saved character, i.e. one with experience), and a race/class choice drop-down (no stock race or class offered one on the test server).
 
