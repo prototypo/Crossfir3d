@@ -37,6 +37,14 @@ pub fn is_time_reply(text: &str) -> bool {
     text.starts_with("It is ") && text.contains(" o'clock ")
 }
 
+/// Any line of the server's reply to `time` ("It is ...", "The 3rd Day of the ...",
+/// "Time of Year: ..."), so our own request can be hidden from the player.
+pub fn is_time_reply_line(text: &str) -> bool {
+    is_time_reply(text)
+        || (text.starts_with("The ") && text.contains(" Day of the ") && text.contains(", Year "))
+        || text.starts_with("Time of Year: ")
+}
+
 #[derive(Default)]
 pub struct GameClock {
     /// (hour at sync, tick at sync)
@@ -105,6 +113,15 @@ mod tests {
         assert_eq!(parse_time_reply("It is late."), None);
         assert_eq!(parse_time_reply("It is 99 minutes past 3 o'clock pm"), None);
         assert_eq!(parse_time_reply("It is 5 minutes past 15 o'clock am"), None);
+    }
+
+    #[test]
+    fn all_time_reply_lines_recognised() {
+        assert!(is_time_reply_line("It is 1 minute past 2 o'clock am, on the Day of the Bull"));
+        assert!(is_time_reply_line("The 3rd Day of the Month of Winter, Year 1"));
+        assert!(is_time_reply_line("Time of Year: The Season of New Year"));
+        assert!(!is_time_reply_line("The house is being over run with monsters!"));
+        assert!(!is_time_reply_line("You miss bird!"));
     }
 
     #[test]
