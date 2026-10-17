@@ -5,6 +5,7 @@ use maccrossfire::faces::FaceStore;
 use maccrossfire::login::{LoginFlow, LoginState};
 use maccrossfire::net::{Net, NetEvent};
 
+mod audio;
 mod input;
 mod ui;
 mod world;
@@ -73,6 +74,7 @@ fn main() {
         .init_resource::<ui::LoginForm>()
         .init_resource::<ui::CommandLine>()
         .add_plugins(world::WorldPlugin)
+        .add_plugins(audio::AudioPlugin)
         .add_systems(Startup, ui::auto_login)
         .add_systems(Update, pump_network)
         .add_systems(Update, (input::send_moves, input::send_key_commands).run_if(in_state(AppState::InGame)))
@@ -152,6 +154,10 @@ fn pump_network(world: &mut World) {
             ServerMsg::NewMap => world.resource_mut::<View>().0.clear(),
             ServerMsg::Comc { packet, time_ms } => world.insert_resource(LastComc { time_ms, packet }),
             ServerMsg::Text { text, .. } => info!("server: {text}"),
+            ServerMsg::Sound { action, volume, x, y, .. } => {
+                world.resource_mut::<audio::AudioQueue>().sounds.push((action, volume, x, y))
+            }
+            ServerMsg::Music(name) => world.resource_mut::<audio::AudioQueue>().music = Some(name),
             _ => {}
         }
     }
