@@ -1,6 +1,7 @@
 //! Server-to-client messages.
 
 use crate::map2::{parse_map2, Map2Item};
+use crate::stats::{parse_stats, StatValue};
 
 #[derive(Debug, PartialEq)]
 pub struct ParseError(pub String);
@@ -22,6 +23,8 @@ pub enum ServerMsg {
     Smooth { face: u16, smooth: u16 },
     Comc { packet: u16, time_ms: u32 },
     Tick(u32),
+    /// Stat updates read before any unknown code (the rest of that packet is dropped).
+    Stats(Vec<(u8, StatValue)>),
     Text(String),
     Goodbye,
     /// A command this client does not handle. Holds the command word.
@@ -108,6 +111,13 @@ pub fn parse(payload: &[u8]) -> Result<ServerMsg, ParseError> {
         "smooth" => ServerMsg::Smooth { face: r.u16()?, smooth: r.u16()? },
         "comc" => ServerMsg::Comc { packet: r.u16()?, time_ms: r.u32()? },
         "tick" => ServerMsg::Tick(r.u32()?),
+        "stats" => {
+            let (updates, err) = parse_stats(data);
+            if let Some(e) = err {
+                eprintln!("{}", e.0);
+            }
+            ServerMsg::Stats(updates)
+        }
         "drawinfo" => ServerMsg::Text(r.text().splitn(2, ' ').nth(1).unwrap_or("").into()),
         "drawextinfo" => ServerMsg::Text(r.text().splitn(4, ' ').nth(3).unwrap_or("").into()),
         other => ServerMsg::Unknown(other.into()),
@@ -261,6 +271,11 @@ mod tests {
     fn parse_drawextinfo() {
         assert_eq!(p(b"drawextinfo 0 1 2 hello world"), ServerMsg::Text("hello world".into()));
         assert_eq!(p(b"drawinfo 0 hi"), ServerMsg::Text("hi".into()));
+    }
+
+    #[test]
+    fn parse_stats_msg() {
+        assert_eq!(p(b"stats \x01\x00\x05"), ServerMsg::Stats(vec![(1, StatValue::Int(5))]));
     }
 
     #[test]
