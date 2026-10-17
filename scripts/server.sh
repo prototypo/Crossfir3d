@@ -53,6 +53,9 @@ build() {
     # IPv6 listener also grabs IPv4 and the IPv4 bind is retried forever (log spam).
     grep -q '__APPLE__) ||' socket/init.cpp ||
         sed -i '' 's/defined(__FreeBSD__) || defined(__OpenBSD__) ||/defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__APPLE__) ||/' socket/init.cpp
+    # Upstream never saves a character with no experience, so a new character is gone
+    # (and missing from its account) after the next run. Save it anyway.
+    sed -i '' 's|return 0; /\* no experience, no save \*/|; /* MacCrossfire: save new characters too */|' server/login.cpp
     # No metaserver: a dev server must not be listed publicly, and its thread code is Linux-only.
     sh ./autogen.sh --prefix="$PREFIX" --without-libcurl
     make -j"$(sysctl -n hw.ncpu)"

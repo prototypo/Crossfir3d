@@ -1,11 +1,10 @@
-//! Ocarina-style camera rules: camera-relative directions, swinging behind the
-//! player, and pulling in when something solid is in the way.
+//! Camera rules: camera-relative directions and pulling in when something solid is
+//! in the way.
 
 /// 45° steps, 0..8: 0 = camera looking north, 2 = east, 4 = south, 6 = west.
 pub type Heading = u8;
 
-pub const SWING_SECS: f32 = 1.0;
-pub const MIN_DISTANCE: f32 = 1.5;
+pub const MIN_DISTANCE: f32 = 0.75;
 
 const COMPASS: [&str; 8] = ["north", "northeast", "east", "southeast", "south", "southwest", "west", "northwest"];
 
@@ -39,18 +38,15 @@ pub fn heading_of(dir: u8) -> Heading {
     (dir.clamp(1, 8) - 1) % 8
 }
 
-/// One 45° step toward behind the player, only when walking forward or diagonally
-/// forward (away from the camera), like Ocarina.
-pub fn swing(heading: Heading, facing: u8, screen: (i8, i8)) -> Heading {
-    if screen.1 >= 0 {
-        return heading;
-    }
-    let ahead = (heading_of(facing) + 8 - heading) % 8;
-    match ahead {
-        0 => heading,
-        1..=4 => (heading + 1) % 8,
-        _ => (heading + 7) % 8,
-    }
+/// Trackpad tuning: how strongly a pinch zooms, and pixels of two-finger scroll
+/// per wheel line.
+const PINCH_SPEED: f32 = 1.5;
+pub const PIXELS_PER_LINE: f32 = 20.0;
+
+/// The camera distance after wheel `lines` (+ = in) and a `pinch` (+ = fingers
+/// apart = in). A pinch scales the distance, so it feels the same near and far.
+pub fn zoom(distance: f32, lines: f32, pinch: f32, min: f32, max: f32) -> f32 {
+    (distance * (1.0 - pinch * PINCH_SPEED) - lines).clamp(min, max)
 }
 
 /// The largest camera distance (≤ `distance`, in 0.25 steps) where `blocked` is
@@ -133,19 +129,12 @@ mod tests {
     }
 
     #[test]
-    fn swing_only_when_walking_forward() {
-        // Facing east (3) while the camera looks north (0).
-        assert_eq!(swing(0, 3, RIGHT), 0); // sidestep: no swing
-        assert_eq!(swing(0, 3, DOWN), 0); // walking back: no swing
-        assert_eq!(swing(0, 2, (1, -1)), 1); // diagonal forward: one step toward northeast
-    }
-
-    #[test]
-    fn swing_one_step_toward_facing() {
-        assert_eq!(swing(0, 1, UP), 0); // already behind
-        assert_eq!(swing(0, 8, UP), 7); // northwest: shortest way is back past 0
-        assert_eq!(swing(7, 2, UP), 0); // facing northeast from northwest: wraps forward
-        assert_eq!(swing(2, 5, UP), 3); // facing south from east
+    fn wheel_and_pinch_zoom() {
+        assert_eq!(zoom(5.0, 1.0, 0.0, 1.0, 12.0), 4.0); // wheel up: closer
+        assert!(zoom(5.0, 0.0, 0.1, 1.0, 12.0) < 5.0); // fingers apart: closer
+        assert!(zoom(5.0, 0.0, -0.1, 1.0, 12.0) > 5.0); // fingers together: further
+        assert_eq!(zoom(5.0, 0.0, -10.0, 1.0, 12.0), 12.0);
+        assert_eq!(zoom(5.0, 9.0, 0.0, 1.0, 12.0), 1.0);
     }
 
     #[test]
@@ -158,6 +147,6 @@ mod tests {
     #[test]
     fn pull_in_never_below_min() {
         assert_eq!(pull_in(6.0, |_| true), MIN_DISTANCE);
-        assert_eq!(pull_in(1.0, |_| false), MIN_DISTANCE);
+        assert_eq!(pull_in(0.5, |_| false), MIN_DISTANCE);
     }
 }

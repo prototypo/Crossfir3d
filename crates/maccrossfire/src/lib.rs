@@ -16,3 +16,4 @@ pub mod walls;
 pub mod races;
 pub mod anim;
 pub mod buildings;
+pub mod signs;
