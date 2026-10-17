@@ -15,6 +15,8 @@ Known problems left for later. Each line says what goes wrong and where to look.
 - [ ] An unknown stat code is logged once per `stats` packet (`cfproto/src/server.rs`). A newer server could fill the log; log it once.
 - [ ] Unknown server commands are ignored silently (`ServerMsg::Unknown` in `main.rs`). The design says "logged and ignored"; add a `debug!`.
 
+- [ ] The window comes back about one title-bar height (32 pt) higher than where it was left: winit's `WindowMoved` reports the frame position, while `WindowPosition::At` places the content (`graphics.rs` `remember_window` / `initial_window`).
+
 ## Missing
 
 - [ ] Item pictures (icons) in the inventory.

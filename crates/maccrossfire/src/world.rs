@@ -27,7 +27,8 @@ pub struct WorldPlugin;
 impl Plugin for WorldPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(ClearColor(FOG_COLOR))
-            .insert_resource(GlobalAmbientLight { brightness: 150.0, ..default() })
+            // 4x the M1 value: shadows were almost black (owner, M3 lighting test).
+            .insert_resource(GlobalAmbientLight { brightness: 600.0, ..default() })
             .init_resource::<Textures>()
             .add_systems(Startup, setup)
             .add_systems(
@@ -64,7 +65,7 @@ struct CameraRig {
 }
 
 #[derive(Component)]
-struct Sun;
+pub struct Sun;
 
 #[derive(Resource, Default)]
 struct Textures {

@@ -9,6 +9,7 @@ use maccrossfire::slots::{default_slots_path, load_slots, QuickSlots};
 use maccrossfire::net::{Net, NetEvent};
 
 mod audio;
+mod graphics;
 mod hud;
 mod input;
 mod inventory_ui;
@@ -100,11 +101,14 @@ pub struct HudState {
 }
 
 fn main() {
+    let settings = graphics::startup_settings();
     App::new()
         .add_plugins(DefaultPlugins.set(WindowPlugin {
-            primary_window: Some(Window { title: "MacCrossfire".into(), ..default() }),
+            primary_window: Some(graphics::initial_window(&settings.0)),
             ..default()
         }))
+        .insert_resource(settings)
+        .add_plugins(graphics::GraphicsPlugin)
         .add_plugins(EguiPlugin::default())
         .init_state::<AppState>()
         .init_resource::<Status>()
