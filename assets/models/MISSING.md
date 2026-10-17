@@ -13,5 +13,5 @@ copies them from `upstream/packs/` and shrinks textures to 1024 px.
 | Big mountain rocks | `Rock_Medium_*`, scaled | Stylized Nature MegaKit **Source** tier has more rocks |
 | Head-only body part (to wear under outfits) | The full body, with everything below the neck hidden in code | Universal Base Characters **Pro/Source** |
 | Regular (non-hero) body build, teen build | Superhero body, scaled per race | Universal Base Characters **Pro/Source** |
-| More outfits (wizard robe, plate armour) | Peasant and Ranger outfits, tinted per class | Modular Character Outfits – Fantasy **Pro/Source** |
+| More outfits (wizard robe, plate armour) | Peasant outfit, tinted per race or class | Modular Character Outfits – Fantasy **Pro/Source** |
 | Monster models | Picture cards | Bestiary Dungeon Monsters Kit (downloaded, not used yet) |
