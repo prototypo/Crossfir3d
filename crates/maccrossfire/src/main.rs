@@ -114,10 +114,11 @@ pub struct HudState {
 fn main() {
     let settings = graphics::startup_settings();
     App::new()
-        .add_plugins(DefaultPlugins.set(WindowPlugin {
-            primary_window: Some(graphics::initial_window(&settings.0)),
-            ..default()
-        }))
+        .add_plugins(
+            DefaultPlugins
+                .set(WindowPlugin { primary_window: Some(graphics::initial_window(&settings.0)), ..default() })
+                .set(AssetPlugin { file_path: world::ASSET_DIR.into(), ..default() }),
+        )
         .insert_resource(settings)
         .add_plugins(graphics::GraphicsPlugin)
         .add_plugins(EguiPlugin::default())
@@ -134,7 +135,7 @@ fn main() {
         .init_resource::<PendingQuery>()
         .init_resource::<Clock>()
         .init_resource::<TimeRequest>()
-        .add_systems(OnEnter(AppState::InGame), ask_time)
+        .add_systems(OnEnter(AppState::InGame), (ask_time, dev_commands))
         .init_resource::<HudState>()
         .init_resource::<PlayerStats>()
         .init_resource::<Inv>()
@@ -333,6 +334,15 @@ fn time_reply_expected(world: &World, text: &str) -> bool {
 }
 
 /// Asks the server for the game time once per login.
+/// Developer check: MACCROSSFIRE_COMMANDS="cmd1;cmd2" sends these game commands on
+/// entering the game (e.g. a local-server teleport for screenshots).
+fn dev_commands(mut seq: ResMut<NcomSeq>, session: Option<NonSend<Session>>) {
+    let (Ok(cmds), Some(session)) = (std::env::var("MACCROSSFIRE_COMMANDS"), session) else { return };
+    for c in cmds.split(';').map(str::trim).filter(|c| !c.is_empty()) {
+        session.send([ClientMsg::Ncom { packet: seq.next(), repeat: 0, command: c.into() }]);
+    }
+}
+
 fn ask_time(time: Res<Time>, mut request: ResMut<TimeRequest>, mut seq: ResMut<NcomSeq>, session: Option<NonSend<Session>>) {
     let Some(session) = session else { return };
     session.send([ClientMsg::Ncom { packet: seq.next(), repeat: 0, command: "time".into() }]);

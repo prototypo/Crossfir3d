@@ -63,9 +63,32 @@ pub fn pull_in(distance: f32, blocked: impl Fn(f32) -> bool) -> f32 {
     d.max(MIN_DISTANCE)
 }
 
+/// True if a solid square lies on the ground line from the player (`from`) to the
+/// camera (`to`), checked every quarter square. The player's own square never counts.
+pub fn sight_blocked(from: (f32, f32), to: (f32, f32), solid: impl Fn(i32, i32) -> bool) -> bool {
+    let square = |(x, y): (f32, f32)| (x.floor() as i32, y.floor() as i32);
+    let own = square(from);
+    let steps = ((to.0 - from.0).hypot(to.1 - from.1) / 0.25).ceil() as i32;
+    (1..=steps).any(|i| {
+        let t = i as f32 / steps as f32;
+        let sq = square((from.0 + (to.0 - from.0) * t, from.1 + (to.1 - from.1) * t));
+        sq != own && solid(sq.0, sq.1)
+    })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn line_blocked_by_any_solid_square_between() {
+        let wall = |x: i32, y: i32| (x, y) == (0, 3);
+        // From the player at (0.5, 0.5) back to a camera at (0.5, 5.5): the wall is between.
+        assert!(sight_blocked((0.5, 0.5), (0.5, 5.5), wall));
+        assert!(!sight_blocked((0.5, 0.5), (0.5, 2.5), wall));
+        // The player's own square never blocks (the player may stand in a doorway).
+        assert!(!sight_blocked((0.5, 3.5), (0.5, 3.9), wall));
+    }
 
     const UP: (i8, i8) = (0, -1);
     const RIGHT: (i8, i8) = (1, 0);

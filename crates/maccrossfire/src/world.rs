@@ -1,28 +1,36 @@
-//! The 3D scene: ground tiles, wall blocks, upright picture cards, light, fog, and camera.
+//! The 3D scene: ground tiles, walls, buildings, models, upright picture cards, light,
+//! fog, and camera. `assets/models.txt` says which picture becomes which model.
 //!
 //! 1 tile = 1 world unit. Map x is world +X, map y is world +Z (north is -Z).
 //! World tile coords = MapView origin + view coords, so they stay put when the map scrolls.
 
 use std::collections::{HashMap, HashSet};
 
-use bevy::asset::RenderAssetUsages;
+use bevy::asset::{RecursiveDependencyLoadState, RenderAssetUsages};
+use bevy::gltf::GltfAssetLabel;
 use bevy::image::{CompressedImageFormats, ImageSampler, ImageType};
 use bevy::input::mouse::AccumulatedMouseScroll;
 use bevy::prelude::*;
+use bevy::world_serialization::{WorldAsset, WorldAssetRoot, WorldInstanceReady};
+use maccrossfire::buildings::{footprint, parts, wall_parts, Part, Shape};
+use maccrossfire::models::{ModelMap, Visual};
 use maccrossfire::terrain::{ground_height, is_wall};
+use maccrossfire::walls::wall_masks;
 
 use maccrossfire::clock::{sun_pose, FALLBACK_HOUR};
 use maccrossfire::settings::Quality;
 
 use crate::graphics::CurrentSettings;
 use crate::input::{CameraHeading, Facing};
-use maccrossfire::camera::pull_in;
+use maccrossfire::camera::{pull_in, sight_blocked};
 use crate::{AppState, Clock, Faces, LastComc, Session, View, ViewSize};
 
 const TILE_PX: f32 = 32.0;
 const MAX_FACE_PX: u32 = 2048;
 /// Ocarina-style: low and behind the player.
 const PITCH_DEG: f32 = 20.0;
+/// When even the closest camera spot is behind a wall or house, look down from above.
+const HIGH_PITCH_DEG: f32 = 65.0;
 const ZOOM_MIN: f32 = 3.0;
 const ZOOM_MAX: f32 = 12.0;
 /// The camera looks at this point above the player's feet.
@@ -30,6 +38,8 @@ const LOOK_HEIGHT: f32 = 1.2;
 const SUN_LUX: f32 = 10_000.0;
 const MOON_LUX: f32 = 2_500.0;
 const FOG_COLOR: Color = Color::srgb(0.05, 0.06, 0.08);
+/// Models and `models.txt`. ponytail: the source tree; next to the app when packaged (M7).
+pub const ASSET_DIR: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../assets");
 
 pub struct WorldPlugin;
 
@@ -40,10 +50,12 @@ impl Plugin for WorldPlugin {
             .insert_resource(GlobalAmbientLight { brightness: 600.0, ..default() })
             .init_resource::<Textures>()
             .init_resource::<Solid>()
+            .insert_resource(Models::load())
+            .add_observer(tint_model)
             .add_systems(Startup, setup)
             .add_systems(
                 Update,
-                (load_textures, sync_visuals, glide, follow_player, face_camera, place_arrow, lighting)
+                (load_textures, sync_visuals, check_models, swap_models, glide, follow_player, face_camera, hide_entered, place_arrow, lighting)
                     .chain()
                     .run_if(in_state(AppState::InGame)),
             )
@@ -60,6 +72,8 @@ pub struct TileVisual {
     pub layer: u8,
     face: u16,
     darkness: u8,
+    /// Wall squares: the sides that join a neighbour (it changes the piece).
+    join: u8,
 }
 
 /// Moves toward `target` over the current step time. Used for creatures and the camera.
@@ -74,18 +88,62 @@ struct CameraRig {
     distance: f32,
     /// Radians clockwise from north (seen from above), eased toward the heading.
     yaw: f32,
+    /// Radians down from level, eased between the low and the high view.
+    pitch: f32,
 }
 
 /// Flat picture cards, which always turn to face the camera.
 #[derive(Component)]
 struct Card;
 
-/// Tiles the camera must not sit in (walls now; buildings and big models later).
+/// Tiles the camera must not sit in: walls and buildings.
 #[derive(Resource, Default)]
 pub struct Solid(pub HashSet<(i32, i32)>);
 
 #[derive(Component)]
 pub struct Sun;
+
+/// The mapping file and one loaded scene per model file.
+#[derive(Resource)]
+struct Models {
+    map: ModelMap,
+    scenes: HashMap<String, Handle<WorldAsset>>,
+    failed: HashSet<String>,
+}
+
+impl Models {
+    fn load() -> Models {
+        let path = format!("{ASSET_DIR}/models.txt");
+        let text = std::fs::read_to_string(&path).unwrap_or_else(|e| {
+            warn!("{path}: {e}; every picture stays a card");
+            String::new()
+        });
+        Models { map: ModelMap::parse(&text), scenes: HashMap::new(), failed: HashSet::new() }
+    }
+
+    fn scene(&mut self, server: &AssetServer, file: &str) -> Handle<WorldAsset> {
+        let load = || server.load(GltfAssetLabel::Scene(0).from_asset(format!("models/{file}")));
+        self.scenes.entry(file.to_string()).or_insert_with(load).clone()
+    }
+}
+
+/// A model waiting to load; its picture card shows until then (and stays if it fails).
+#[derive(Component)]
+struct PendingModel {
+    file: String,
+    handle: Handle<WorldAsset>,
+    transform: Transform,
+    tint: Color,
+}
+
+/// The squares a building covers (min x, min y, max x, max y). Buildings on town maps
+/// are entrances: the player steps onto them, and then that building is hidden.
+#[derive(Component)]
+struct Span(i32, i32, i32, i32);
+
+/// Colour a model's materials are multiplied by once it is spawned (tint and darkness).
+#[derive(Component)]
+struct ModelTint(Color);
 
 #[derive(Resource, Default)]
 struct Textures {
@@ -93,19 +151,21 @@ struct Textures {
     ground: Handle<Mesh>,
     cube: Handle<Mesh>,
     card: Handle<Mesh>,
+    cylinder: Handle<Mesh>,
 }
 
 fn setup(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>, mut textures: ResMut<Textures>) {
     textures.ground = meshes.add(Plane3d::default().mesh().size(1.0, 1.0));
     textures.cube = meshes.add(Cuboid::new(1.0, 1.0, 1.0));
+    textures.cylinder = meshes.add(Cylinder::new(1.0, 1.0));
     // Unit card with its origin at the bottom middle, so scaling grows it up and sideways.
     textures.card = meshes.add(Rectangle::new(1.0, 1.0).mesh().build().translated_by(Vec3::Y * 0.5));
 
     let distance = 6.0;
     commands.spawn((
         Camera3d::default(),
-        camera_transform(Vec3::ZERO, distance, 0.0),
-        CameraRig { focus: Vec3::ZERO, distance, yaw: 0.0 },
+        camera_transform(Vec3::ZERO, distance, 0.0, PITCH_DEG.to_radians()),
+        CameraRig { focus: Vec3::ZERO, distance, yaw: 0.0, pitch: PITCH_DEG.to_radians() },
         Glide { target: Vec3::ZERO },
         DistanceFog { color: FOG_COLOR, falloff: FogFalloff::Linear { start: 15.0, end: 25.0 }, ..default() },
     ));
@@ -121,13 +181,12 @@ fn look_dir(yaw: f32) -> Vec3 {
     Vec3::new(yaw.sin(), 0.0, -yaw.cos())
 }
 
-fn camera_eye(focus: Vec3, distance: f32, yaw: f32) -> Vec3 {
-    let pitch = PITCH_DEG.to_radians();
+fn camera_eye(focus: Vec3, distance: f32, yaw: f32, pitch: f32) -> Vec3 {
     focus + Vec3::Y * LOOK_HEIGHT - look_dir(yaw) * pitch.cos() * distance + Vec3::Y * pitch.sin() * distance
 }
 
-fn camera_transform(focus: Vec3, distance: f32, yaw: f32) -> Transform {
-    Transform::from_translation(camera_eye(focus, distance, yaw)).looking_at(focus + Vec3::Y * LOOK_HEIGHT, Vec3::Y)
+fn camera_transform(focus: Vec3, distance: f32, yaw: f32, pitch: f32) -> Transform {
+    Transform::from_translation(camera_eye(focus, distance, yaw, pitch)).looking_at(focus + Vec3::Y * LOOK_HEIGHT, Vec3::Y)
 }
 
 /// Turns newly arrived face PNGs into GPU images.
@@ -169,8 +228,8 @@ fn usable_size(size: UVec2) -> bool {
     size.x > 0 && size.y > 0 && size.max_element() <= MAX_FACE_PX
 }
 
-/// What should be on screen, keyed by (world x, world y, layer).
-type Wanted = HashMap<(i32, i32, u8), (u16, u8)>;
+/// What should be on screen, keyed by (world x, world y, layer): face, darkness, join.
+type Wanted = HashMap<(i32, i32, u8), (u16, u8, u8)>;
 
 fn wanted(view: &View, faces: &Faces, textures: &Textures) -> Wanted {
     let mut out = Wanted::new();
@@ -179,7 +238,7 @@ fn wanted(view: &View, faces: &Faces, textures: &Textures) -> Wanted {
         for (layer, raw) in cell.layers.iter().enumerate() {
             let face = faces.0.resolve(*raw);
             if face != 0 && textures.images.contains_key(&face) {
-                out.insert((wx, wy, layer as u8), (face, cell.darkness));
+                out.insert((wx, wy, layer as u8), (face, cell.darkness, 0));
             }
         }
     }
@@ -197,6 +256,8 @@ fn sync_visuals(
     view: Res<View>,
     faces: Res<Faces>,
     textures: Res<Textures>,
+    server: Res<AssetServer>,
+    mut models: ResMut<Models>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut existing: Query<(Entity, &mut TileVisual, Option<&mut Glide>)>,
     mut solid: ResMut<Solid>,
@@ -206,13 +267,29 @@ fn sync_visuals(
     }
     // ponytail: full diff per change; incremental dirty cells if profiling says so.
     let mut want = wanted(&view, &faces, &textures);
-    solid.0 = want
+    let name_of = |face: u16| faces.0.name(face).unwrap_or("");
+    let walls: HashSet<(i32, i32)> = want
         .iter()
-        .filter(|(_, (face, _))| faces.0.name(*face).is_some_and(is_wall))
+        .filter(|(_, (f, _, _))| is_wall(name_of(*f)) || matches!(models.map.lookup(name_of(*f)), Visual::Wall { .. }))
         .map(|((x, y, _), _)| (*x, *y))
         .collect();
+    let joins = wall_masks(&walls);
+    solid.0 = walls;
+    for ((x, y, _), (face, _, join)) in want.iter_mut() {
+        if let Some(m) = joins.get(&(*x, *y)) {
+            *join = *m;
+        }
+        if let Visual::Building { .. } = models.map.lookup(name_of(*face)) {
+            let (w, h) = textures.images.get(face).map_or((1, 1), |(_, s)| footprint(s.x as u32, s.y as u32));
+            for dy in 0..h as i32 {
+                for dx in 0..w as i32 {
+                    solid.0.insert((x - dx, y - dy));
+                }
+            }
+        }
+    }
     let floor_height = |x: i32, y: i32, want: &Wanted| {
-        want.get(&(x, y, 0)).and_then(|(f, _)| faces.0.name(*f)).map_or(0.0, ground_height)
+        want.get(&(x, y, 0)).and_then(|(f, _, _)| faces.0.name(*f)).map_or(0.0, ground_height)
     };
     let heights: HashMap<(i32, i32), f32> =
         want.keys().map(|&(x, y, _)| ((x, y), floor_height(x, y, &want))).collect();
@@ -221,7 +298,7 @@ fn sync_visuals(
     let mut orphans = Vec::new();
     for (entity, tv, _) in &existing {
         match want.get(&(tv.x, tv.y, tv.layer)) {
-            Some(&(face, dark)) if face == tv.face && dark == tv.darkness => {
+            Some(&(face, dark, join)) if face == tv.face && dark == tv.darkness && join == tv.join => {
                 want.remove(&(tv.x, tv.y, tv.layer));
             }
             _ if glides(tv.layer) => orphans.push(entity),
@@ -229,9 +306,9 @@ fn sync_visuals(
         }
     }
 
-    for ((x, y, layer), (face, darkness)) in want {
+    for ((x, y, layer), (face, darkness, join)) in want {
         let Some((image, size)) = textures.images.get(&face) else { continue };
-        let name = faces.0.name(face).unwrap_or("");
+        let name = name_of(face);
         let h = heights.get(&(x, y)).copied().unwrap_or(0.0);
         let shade = darkness as f32 / 255.0;
         let tile = Vec3::new(x as f32, h, y as f32);
@@ -254,7 +331,28 @@ fn sync_visuals(
             }
         }
 
+        let tv = TileVisual { x, y, layer, face, darkness, join };
+        // Big pictures are sent at their bottom-right square; models stand in the middle.
+        let (fw, fh) = footprint(size.x as u32, size.y as u32);
+        let middle = tile + Vec3::new(1.0 - fw as f32 / 2.0, 0.0, 1.0 - fh as f32 / 2.0);
+        let built = match models.map.lookup(name) {
+            Visual::Wall { style } => Some(wall_parts(style, join)).filter(|p| !p.is_empty()),
+            Visual::Building { recipe } => parts(recipe, fw, fh),
+            _ => None,
+        };
+        if let Some(parts) = built {
+            let at = if layer == 0 || is_wall(name) { tile + Vec3::new(0.5, 0.0, 0.5) } else { middle };
+            let span = Span(x + 1 - fw as i32, y + 1 - fh as i32, x, y);
+            let parent = commands.spawn((tv, span, Transform::from_translation(at), Visibility::default())).id();
+            for p in &parts {
+                let child = spawn_part(&mut commands, p, shade, &textures, &server, &mut models, &mut materials);
+                commands.entity(parent).add_child(child);
+            }
+            continue;
+        }
+
         let wall = is_wall(name);
+        let flat = matches!(models.map.lookup(name), Visual::Flat);
         let material = materials.add(StandardMaterial {
             base_color: Color::srgb(shade, shade, shade),
             base_color_texture: Some(image.clone()),
@@ -265,24 +363,132 @@ fn sync_visuals(
             cull_mode: None,
             ..default()
         });
-        let tv = TileVisual { x, y, layer, face, darkness };
+        let model = match models.map.lookup(name) {
+            Visual::Model { file, scale, rot_deg, dy, tint } if !models.failed.contains(file) => {
+                let t = Transform::from_xyz(0.0, *dy, 0.0)
+                    .with_rotation(Quat::from_rotation_y(-rot_deg.to_radians()))
+                    .with_scale(Vec3::splat(*scale));
+                let [r, g, b] = tint.unwrap_or([1.0; 3]);
+                Some((file.clone(), t, Color::srgb(r * shade, g * shade, b * shade)))
+            }
+            _ => None,
+        };
         if wall {
             let t = Transform::from_translation(tile + Vec3::new(0.5, 0.5, 0.5));
             commands.spawn((tv, Mesh3d(textures.cube.clone()), MeshMaterial3d(material), t));
-        } else if layer == 0 {
-            let t = Transform::from_translation(tile + Vec3::new(0.5, 0.0, 0.5));
-            commands.spawn((tv, Mesh3d(textures.ground.clone()), MeshMaterial3d(material), t));
+        } else if layer == 0 || flat {
+            // Flat decorations lie just above the ground, as big as their picture.
+            let (pos, scale) = if flat {
+                (middle + Vec3::Y * (0.01 + layer as f32 * 0.001), Vec3::new(fw as f32, 1.0, fh as f32))
+            } else {
+                (tile + Vec3::new(0.5, 0.0, 0.5), Vec3::ONE)
+            };
+            let t = Transform::from_translation(pos).with_scale(scale);
+            let mut e = commands.spawn((tv, Mesh3d(textures.ground.clone()), MeshMaterial3d(material), t));
+            // Trees and rocks on ground squares stand on the ground tile.
+            if let (Some((file, t, tint)), false) = (model, flat) {
+                let handle = models.scene(&server, &file);
+                e.with_child((WorldAssetRoot(handle), t, ModelTint(tint)));
+            }
         } else {
             let pos = card_position(tile, *size, layer);
             let t = Transform::from_translation(pos).with_scale(Vec3::new(size.x / TILE_PX, size.y / TILE_PX, 1.0));
             let mut e = commands.spawn((tv, Card, Mesh3d(textures.card.clone()), MeshMaterial3d(material), t));
             if glides(layer) {
                 e.insert(Glide { target: pos });
+            } else if let Some((file, t, tint)) = model {
+                let handle = models.scene(&server, &file);
+                let transform = Transform { translation: middle + t.translation, ..t };
+                e.insert(PendingModel { file, handle, transform, tint });
             }
         }
     }
     for e in orphans {
         commands.entity(e).despawn();
+    }
+}
+
+/// One part of a building or wall, as a child entity.
+fn spawn_part(
+    commands: &mut Commands,
+    p: &Part,
+    shade: f32,
+    textures: &Textures,
+    server: &AssetServer,
+    models: &mut Models,
+    materials: &mut Assets<StandardMaterial>,
+) -> Entity {
+    let t = Transform::from_translation(Vec3::from(p.pos))
+        .with_rotation(Quat::from_rotation_y(-p.yaw_deg.to_radians()))
+        .with_scale(Vec3::from(p.scale));
+    let [r, g, b] = p.color.unwrap_or([1.0; 3]);
+    let color = Color::srgb(r * shade, g * shade, b * shade);
+    let (mesh, size) = match p.shape {
+        Shape::Model(file) => {
+            let handle = models.scene(server, file);
+            return commands.spawn((WorldAssetRoot(handle), t, ModelTint(color))).id();
+        }
+        Shape::Box(size) => (textures.cube.clone(), Vec3::from(size)),
+        Shape::Cylinder { radius, height } => (textures.cylinder.clone(), Vec3::new(radius, height, radius)),
+    };
+    let material = materials.add(StandardMaterial { base_color: color, perceptual_roughness: 0.9, ..default() });
+    commands.spawn((Mesh3d(mesh), MeshMaterial3d(material), Transform { scale: t.scale * size, ..t })).id()
+}
+
+/// Logs each model file that fails to load, once.
+fn check_models(server: Res<AssetServer>, mut models: ResMut<Models>) {
+    let Models { scenes, failed, .. } = &mut *models;
+    for (file, handle) in scenes.iter() {
+        if failed.contains(file) {
+            continue;
+        }
+        if let RecursiveDependencyLoadState::Failed(e) = server.recursive_dependency_load_state(handle) {
+            warn!("model {file}: {e}; showing the picture instead");
+            failed.insert(file.clone());
+        }
+    }
+}
+
+/// A loaded model takes the place of its picture card; a failed one leaves the card.
+fn swap_models(
+    mut commands: Commands,
+    server: Res<AssetServer>,
+    models: Res<Models>,
+    pending: Query<(Entity, &PendingModel)>,
+) {
+    for (e, p) in &pending {
+        if models.failed.contains(&p.file) {
+            commands.entity(e).remove::<PendingModel>();
+        } else if server.is_loaded_with_dependencies(&p.handle) {
+            commands
+                .entity(e)
+                .remove::<(PendingModel, Card, Mesh3d, MeshMaterial3d<StandardMaterial>)>()
+                .insert((WorldAssetRoot(p.handle.clone()), p.transform, ModelTint(p.tint)));
+        }
+    }
+}
+
+/// Multiplies a spawned model's materials by its tint (each instance gets its own copy).
+/// ponytail: one material copy per instance; share copies per (material, tint) if draw calls hurt.
+fn tint_model(
+    ready: On<WorldInstanceReady>,
+    mut commands: Commands,
+    tints: Query<&ModelTint>,
+    children: Query<&Children>,
+    meshes: Query<&MeshMaterial3d<StandardMaterial>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+) {
+    let Ok(ModelTint(tint)) = tints.get(ready.entity) else { return };
+    if *tint == Color::WHITE {
+        return;
+    }
+    let tint = tint.to_linear();
+    for d in children.iter_descendants(ready.entity) {
+        let Ok(m) = meshes.get(d) else { continue };
+        let Some(mut copy) = materials.get(&m.0).cloned() else { continue };
+        let c = copy.base_color.to_linear();
+        copy.base_color = LinearRgba::new(c.red * tint.red, c.green * tint.green, c.blue * tint.blue, c.alpha).into();
+        commands.entity(d).insert(MeshMaterial3d(materials.add(copy)));
     }
 }
 
@@ -325,17 +531,29 @@ fn follow_player(
     let goal = heading.0 as f32 * std::f32::consts::FRAC_PI_4;
     let diff = (goal - rig.yaw + std::f32::consts::PI).rem_euclid(std::f32::consts::TAU) - std::f32::consts::PI;
     rig.yaw += diff.clamp(-1.0, 1.0) * (time.delta_secs() * 4.0).min(1.0);
-    // Never sit inside a wall: pull in while the camera's ground tile is solid.
+    // Like Ocarina: pull in while a wall or building stands between player and camera.
     let (focus, yaw) = (rig.focus, rig.yaw);
     let blocked = |dist: f32| {
-        let eye = camera_eye(focus, dist, yaw);
-        solid.0.contains(&(eye.x.floor() as i32, eye.z.floor() as i32))
+        let eye = camera_eye(focus, dist, yaw, PITCH_DEG.to_radians());
+        sight_blocked((focus.x, focus.z), (eye.x, eye.z), |x, y| solid.0.contains(&(x, y)))
     };
-    let distance = pull_in(rig.distance, blocked);
-    *t = camera_transform(rig.focus, distance, rig.yaw);
+    let low = pull_in(rig.distance, blocked);
+    let stuck = blocked(low);
+    let (distance, goal) = if stuck { (rig.distance, HIGH_PITCH_DEG) } else { (low, PITCH_DEG) };
+    let step = goal.to_radians() - rig.pitch;
+    rig.pitch += step * (time.delta_secs() * 4.0).min(1.0);
+    *t = camera_transform(rig.focus, distance, rig.yaw, rig.pitch);
     // Hide the edge of what the server sends: fog from 40% of the view radius to the edge.
     let radius = size.0.min(size.1) as f32 / 2.0;
     fog.falloff = FogFalloff::Linear { start: distance + radius * 0.4, end: distance + radius };
+}
+
+fn hide_entered(view: Res<View>, size: Res<ViewSize>, mut q: Query<(&Span, &mut Visibility)>) {
+    let (px, py) = view.0.world((size.0 / 2) as i8, (size.1 / 2) as i8);
+    for (Span(x0, y0, x1, y1), mut vis) in &mut q {
+        let inside = (*x0..=*x1).contains(&px) && (*y0..=*y1).contains(&py);
+        vis.set_if_neq(if inside { Visibility::Hidden } else { Visibility::Inherited });
+    }
 }
 
 /// Cards turn about the vertical axis to face the camera.
