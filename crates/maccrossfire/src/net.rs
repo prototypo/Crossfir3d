@@ -37,6 +37,7 @@ pub fn connect(addr: &str) -> io::Result<Net> {
         let reason = loop {
             let payload = match cfproto::read_frame(&mut reader) {
                 Ok(p) => p,
+                Err(e) if e.kind() == io::ErrorKind::UnexpectedEof => break "server closed the connection".into(),
                 Err(e) => break format!("connection lost: {e}"),
             };
             if let Some(dir) = &dump {
