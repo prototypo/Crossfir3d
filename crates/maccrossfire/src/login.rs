@@ -74,6 +74,13 @@ impl LoginFlow {
             }
             // A late answer to a repeated Create after the game started: not a failure.
             (LoginState::Playing, ServerMsg::Failure { command, .. }) if command == "createplayer" => vec![],
+            // Developer login with `:new` on a later run: the account is there, so log in.
+            (LoginState::Account, ServerMsg::Failure { command, reason })
+                if command == "accountnew" && reason.contains("already exists") && self.creds.quick_character.is_some() =>
+            {
+                self.creds.new_account = false;
+                vec![ClientMsg::AccountLogin { name: self.creds.account.clone(), password: self.creds.password.clone() }]
+            }
             (_, ServerMsg::Failure { reason, .. }) => {
                 self.state = LoginState::Failed(reason.clone());
                 vec![]
@@ -375,6 +382,20 @@ mod tests {
         assert!(stats.iter().all(|(_, v)| *v == 12));
         f.on_message(&ServerMsg::AddmeSuccess);
         assert_eq!(f.state(), &LoginState::Playing);
+    }
+
+    #[test]
+    fn quick_new_account_that_exists_logs_in() {
+        let exists = ServerMsg::Failure { command: "accountnew".into(), reason: "That account already exists on this server".into() };
+        let (mut f, _) = LoginFlow::start(creds(true, Some("Bob")));
+        f.on_message(&ServerMsg::Setup(vec![]));
+        assert_eq!(f.on_message(&exists), vec![ClientMsg::AccountLogin { name: "acct".into(), password: "pw".into() }]);
+        assert_eq!(f.state(), &LoginState::Account);
+        // The login form keeps showing the refusal.
+        let (mut f, _) = LoginFlow::start(creds(true, None));
+        f.on_message(&ServerMsg::Setup(vec![]));
+        assert!(f.on_message(&exists).is_empty());
+        assert!(matches!(f.state(), LoginState::Failed(_)));
     }
 
     #[test]

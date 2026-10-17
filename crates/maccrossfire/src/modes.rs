@@ -11,6 +11,7 @@ pub enum Mode {
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum KeyName {
+    A,
     E,
     G,
     D,
@@ -19,6 +20,7 @@ pub enum KeyName {
     L,
     M,
     C,
+    Tab,
     Escape,
     Enter,
     Digit(u8),
@@ -39,6 +41,8 @@ pub enum Act {
     ToggleMute,
     /// Snap the camera straight behind the player.
     CameraBehind,
+    /// Tab: the top view on or off.
+    TopView,
     CloseBox,
     OpenCommand,
     Nothing,
@@ -55,13 +59,14 @@ pub fn act(mode: Mode, key: KeyName, box_open: bool) -> Act {
         (Mode::Settings, _) => Act::Nothing,
         (Mode::World, KeyName::E | KeyName::Escape) if box_open => Act::CloseBox,
         (Mode::World, KeyName::Escape) => Act::OpenSettings,
-        (Mode::World, KeyName::E) => Act::Apply,
+        (Mode::World, KeyName::A | KeyName::E) => Act::Apply,
         (Mode::World, KeyName::G) => Act::Get,
         (Mode::World, KeyName::Digit(n @ 1..=4)) => Act::Slot(n as usize - 1),
         (Mode::World, KeyName::I) => Act::OpenInventory,
         (Mode::World, KeyName::L) => Act::ToggleLog,
         (Mode::World, KeyName::M) => Act::ToggleMute,
         (Mode::World, KeyName::C) => Act::CameraBehind,
+        (Mode::World, KeyName::Tab) => Act::TopView,
         (Mode::World, KeyName::Enter) => Act::OpenCommand,
         (Mode::World, _) => Act::Nothing,
     }
@@ -131,6 +136,13 @@ mod tests {
         assert_eq!(act(Mode::Inventory, KeyName::C, false), Act::Nothing);
         assert_eq!(act(Mode::CommandLine, KeyName::C, false), Act::Nothing);
         assert_eq!(act(Mode::Settings, KeyName::C, false), Act::Nothing);
+    }
+
+    #[test]
+    fn a_applies_and_tab_toggles_top_view() {
+        assert_eq!(act(Mode::World, KeyName::A, false), Act::Apply);
+        assert_eq!(act(Mode::World, KeyName::Tab, false), Act::TopView);
+        assert_eq!(act(Mode::Inventory, KeyName::Tab, false), Act::Nothing);
     }
 
     #[test]

@@ -25,19 +25,21 @@ cargo run --release -p maccrossfire
 
 Log in with an account, then pick a character from the list or press "New character"
 to choose race, class, rolled stats, and where to start (Scorn by default). The server
-saves a character once it has some experience.
+(as patched by `scripts/server.sh`) saves new characters too.
 
 ## Playing in 3D
 
-The camera sits low behind your character, like *Ocarina of Time*. Arrow keys (or
-WASD) move relative to the camera: Up walks the way the camera looks. Walking forward
-slowly swings the camera behind you; **C** puts it straight behind you at once. The
-mouse wheel zooms. When a wall or house is in the way, the camera moves closer, or
-looks down from above.
+The camera sits over your character's shoulder and turns to stay behind them. Arrow
+keys move relative to the camera: Up walks the way the camera looks. **Tab** turns a
+top view (north up) on and off; **C** goes back to the view behind you. Hold **F** to
+look at your character's face. **A** or **E** applies. The mouse wheel, a trackpad
+pinch, and two-finger scroll zoom (the top view has its own zoom). When a wall or
+house is in the way, the camera moves closer.
 
-Houses, walls, gates, trees, rocks, wells, fountains, and signs are 3D. Players are
-one 3D body (with a "Broad" or "Slim" build, chosen on the new-character screen),
-sized and coloured for their race. Everything else is still a picture card.
+Shops are one-storey houses with a painted sign (JEWELS, BANK, MAGIC, ...). Houses,
+walls, gates, trees, rocks, wells, fountains, and signs are 3D. Players are one 3D
+body (with a "Broad" or "Slim" build, chosen on the new-character screen), sized and
+coloured for their race. Everything else is still a picture card.
 
 The models are CC0 (Quaternius, Kenney), free tiers, in `assets/models/` with their
 licences. `assets/models.txt` says which picture becomes which model.
@@ -57,7 +59,8 @@ anti-aliasing, brightness, contrast, gamma. They are saved to
 ## Developer switches
 
 - `MACCROSSFIRE_LOGIN=account:password:character[:new]` logs in at start (creates
-  the character in Scorn if it does not exist).
+  the character in Scorn if it does not exist; `:new` creates the account if it
+  does not exist).
 - `MACCROSSFIRE_COMMANDS="cmd1;cmd2"` sends game commands on entering the game.
 - `MACCROSSFIRE_SCREEN=newchar[:race_arch]` opens the new-character screen.
 - `MACCROSSFIRE_SCREENSHOT=file.png` (with `MACCROSSFIRE_SCREENSHOT_AT=seconds`)
