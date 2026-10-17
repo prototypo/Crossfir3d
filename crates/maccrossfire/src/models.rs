@@ -3,7 +3,7 @@
 //! Lines: `pattern kind args...`; `#` starts a comment; a pattern ending in `*` is a
 //! prefix. Kinds:
 //! - `model <file> <scale> <rot_deg> <dy> [r,g,b]`
-//! - `building <recipe> [SIGN_TEXT]` (`_` in the sign is a space)
+//! - `building <recipe> [SIGN_TEXT [icon]]` (`_` in the sign is a space; icons in signs.rs)
 //! - `wall <style>`
 //! - `flat` (a floor decoration lying on the ground)
 //! - `card` (keep the picture card)
@@ -11,7 +11,7 @@
 #[derive(Clone, Debug, PartialEq)]
 pub enum Visual {
     Model { file: String, scale: f32, rot_deg: f32, dy: f32, tint: Option<[f32; 3]> },
-    Building { recipe: String, sign: Option<String> },
+    Building { recipe: String, sign: Option<String>, icon: Option<String> },
     Wall { style: String },
     Flat,
     Card,
@@ -72,8 +72,12 @@ fn parse_visual(words: &[&str]) -> Option<Visual> {
                 _ => return None,
             },
         },
-        ["building", recipe] => Visual::Building { recipe: recipe.to_string(), sign: None },
-        ["building", recipe, sign] => Visual::Building { recipe: recipe.to_string(), sign: Some(sign.replace('_', " ")) },
+        ["building", recipe] => Visual::Building { recipe: recipe.to_string(), sign: None, icon: None },
+        ["building", recipe, sign, ref icon @ ..] if icon.len() <= 1 => Visual::Building {
+            recipe: recipe.to_string(),
+            sign: Some(sign.replace('_', " ")),
+            icon: icon.first().map(|i| i.to_string()),
+        },
         ["wall", style] => Visual::Wall { style: style.to_string() },
         ["flat"] => Visual::Flat,
         ["card"] => Visual::Card,
@@ -123,8 +127,14 @@ bad model x.glb notanumber 0 0
 
     #[test]
     fn building_sign_text() {
-        let m = ModelMap::parse("trading-post building shop TRADING_POST\n");
-        assert_eq!(m.lookup("trading-post"), &Visual::Building { recipe: "shop".into(), sign: Some("TRADING POST".into()) });
+        let m = ModelMap::parse("trading-post building shop TRADING_POST\nstore_gems building shop JEWELS gem\n");
+        let shop = |sign: &str, icon: Option<&str>| Visual::Building {
+            recipe: "shop".into(),
+            sign: Some(sign.into()),
+            icon: icon.map(String::from),
+        };
+        assert_eq!(m.lookup("trading-post"), &shop("TRADING POST", None));
+        assert_eq!(m.lookup("store_gems"), &shop("JEWELS", Some("gem")));
     }
 
     #[test]
@@ -148,7 +158,7 @@ bad model x.glb notanumber 0 0
     #[test]
     fn suffix_stripped() {
         let m = ModelMap::parse(TEXT);
-        assert_eq!(m.lookup("house_1.111"), &Visual::Building { recipe: "small_house".into(), sign: None });
+        assert_eq!(m.lookup("house_1.111"), &Visual::Building { recipe: "small_house".into(), sign: None, icon: None });
         assert_eq!(m.lookup("stwall_A.111"), &Visual::Wall { style: "stone".into() });
         assert_eq!(m.lookup("pentagram.111"), &Visual::Flat);
     }
