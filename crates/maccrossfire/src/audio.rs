@@ -8,7 +8,9 @@ use bevy::audio::Volume;
 use bevy::prelude::*;
 use maccrossfire::sound::{sounds_dir, SoundTable};
 
-use crate::ui::CommandLine;
+use maccrossfire::modes::Mode;
+
+use crate::KeyMode;
 
 /// Sounds and music the network pump received this frame.
 #[derive(Resource, Default)]
@@ -71,11 +73,11 @@ impl Sounds {
 
 fn toggle_mute(
     keys: Res<ButtonInput<KeyCode>>,
-    line: Res<CommandLine>,
+    mode: Res<KeyMode>,
     mut sounds: ResMut<Sounds>,
     music: Query<&AudioSink, With<Music>>,
 ) {
-    if line.open || !keys.just_pressed(KeyCode::KeyM) {
+    if mode.0 != Mode::World || !keys.just_pressed(KeyCode::KeyM) {
         return;
     }
     sounds.muted = !sounds.muted;

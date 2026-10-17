@@ -6,3 +6,4 @@ pub mod terrain;
 pub mod messages;
 pub mod slots;
 pub mod sound;
+pub mod modes;
