@@ -1,11 +1,17 @@
 use bevy::prelude::*;
 use bevy_egui::{EguiPlugin, EguiPrimaryContextPass};
-use cfproto::{ClientMsg, MapView, ServerMsg};
+use cfproto::{ClientMsg, Inventory, MapView, ServerMsg, SpellBook, Stats};
 use maccrossfire::faces::FaceStore;
 use maccrossfire::login::{LoginFlow, LoginState};
+use maccrossfire::messages::Messages;
+use maccrossfire::modes::Mode;
+use maccrossfire::slots::{default_slots_path, load_slots, QuickSlots};
 use maccrossfire::net::{Net, NetEvent};
 
+mod audio;
+mod hud;
 mod input;
+mod inventory_ui;
 mod ui;
 mod world;
 
@@ -60,6 +66,39 @@ impl NcomSeq {
 #[derive(Resource, Default)]
 pub struct Status(pub String);
 
+/// Which part of the screen owns the keyboard.
+#[derive(Resource, Default)]
+pub struct KeyMode(pub Mode);
+
+/// When the player last did something (apply, slot, inventory action, command), in
+/// seconds of game time. Decides whether a sign or NPC message opens the box.
+#[derive(Resource, Default)]
+pub struct LastAction(pub Option<f32>);
+
+#[derive(Resource, Default)]
+pub struct Msgs(pub Messages);
+
+/// The server asked a question; the next command box line is the answer.
+#[derive(Resource, Default)]
+pub struct PendingQuery(pub bool);
+
+#[derive(Resource, Default)]
+pub struct PlayerStats(pub Stats);
+
+#[derive(Resource, Default)]
+pub struct Inv(pub Inventory);
+
+#[derive(Resource, Default)]
+pub struct Spells(pub SpellBook);
+
+#[derive(Resource, Default)]
+pub struct Slots(pub QuickSlots);
+
+#[derive(Resource, Default)]
+pub struct HudState {
+    pub tall_log: bool,
+}
+
 fn main() {
     App::new()
         .add_plugins(DefaultPlugins.set(WindowPlugin {
@@ -72,10 +111,23 @@ fn main() {
         .init_resource::<NcomSeq>()
         .init_resource::<ui::LoginForm>()
         .init_resource::<ui::CommandLine>()
+        .init_resource::<KeyMode>()
+        .init_resource::<LastAction>()
+        .init_resource::<Msgs>()
+        .init_resource::<PendingQuery>()
+        .init_resource::<HudState>()
+        .init_resource::<PlayerStats>()
+        .init_resource::<Inv>()
+        .init_resource::<Spells>()
+        .init_resource::<Slots>()
+        .init_resource::<inventory_ui::InvSel>()
+        .init_resource::<input::Facing>()
+        .add_systems(EguiPrimaryContextPass, (hud::hud, inventory_ui::inventory_screen).chain().run_if(in_state(AppState::InGame)))
         .add_plugins(world::WorldPlugin)
+        .add_plugins(audio::AudioPlugin)
         .add_systems(Startup, ui::auto_login)
         .add_systems(Update, pump_network)
-        .add_systems(Update, (input::send_moves, input::send_key_commands).run_if(in_state(AppState::InGame)))
+        .add_systems(Update, (input::send_moves, input::world_keys).run_if(in_state(AppState::InGame)))
         .add_systems(Update, dev_screenshot.run_if(in_state(AppState::InGame)))
         .add_systems(EguiPrimaryContextPass, ui::login_screen.run_if(in_state(AppState::Login)))
         .add_systems(EguiPrimaryContextPass, ui::command_line.run_if(in_state(AppState::InGame)))
@@ -84,6 +136,7 @@ fn main() {
 
 /// Starts a session after a successful connect.
 pub fn start_session(world: &mut World, net: Net, login: LoginFlow, first: Vec<ClientMsg>) {
+    let slots = load_slots(&default_slots_path(), login.character());
     let session = Session { net, login };
     session.send(first);
     world.insert_non_send(session);
@@ -93,6 +146,18 @@ pub fn start_session(world: &mut World, net: Net, login: LoginFlow, first: Vec<C
     world.insert_resource(LastComc { time_ms: 200, packet: 0 });
     world.insert_resource(NcomSeq::default());
     world.insert_resource(input::MoveWait::default());
+    world.insert_resource(KeyMode::default());
+    world.insert_resource(LastAction::default());
+    world.insert_resource(Msgs::default());
+    world.insert_resource(PendingQuery::default());
+    world.insert_resource(HudState::default());
+    world.insert_resource(PlayerStats::default());
+    world.insert_resource(Inv::default());
+    world.insert_resource(Spells::default());
+    world.insert_resource(Slots(slots));
+    world.insert_resource(inventory_ui::InvSel::default());
+    world.insert_resource(input::Facing::default());
+    *world.resource_mut::<ui::CommandLine>() = ui::CommandLine::default();
 }
 
 fn end_session(world: &mut World, status: String) {
@@ -117,6 +182,11 @@ fn pump_network(world: &mut World) {
             NetEvent::Disconnected(reason) => return end_session(world, format!("Disconnected: {reason}")),
         };
 
+        if *world.resource::<State<AppState>>().get() == AppState::InGame {
+            if let Some(reason) = maccrossfire::messages::in_game_reset(&msg) {
+                return end_session(world, reason.to_string());
+            }
+        }
         let mut session = world.non_send_mut::<Session>();
         let out = session.login.on_message(&msg);
         session.send(out);
@@ -151,7 +221,29 @@ fn pump_network(world: &mut World) {
             }
             ServerMsg::NewMap => world.resource_mut::<View>().0.clear(),
             ServerMsg::Comc { packet, time_ms } => world.insert_resource(LastComc { time_ms, packet }),
-            ServerMsg::Text(t) => info!("server: {t}"),
+            ServerMsg::Text { kind, subtype, text } => {
+                info!("server: {text}");
+                let (now, last) = (world.resource::<Time>().elapsed_secs(), world.resource::<LastAction>().0);
+                world.resource_mut::<Msgs>().0.push(kind, subtype, &text, now, last);
+            }
+            ServerMsg::Query { text, .. } => {
+                world.resource_mut::<PendingQuery>().0 = true;
+                let now = world.resource::<Time>().elapsed_secs();
+                world.resource_mut::<Msgs>().0.push(0, 0, &format!("Server asks: {text} (answer with Enter)"), now, None);
+            }
+            ServerMsg::Stats(updates) => world.resource_mut::<PlayerStats>().0.apply(&updates),
+            ServerMsg::Player { tag, .. } => world.resource_mut::<Inv>().0.player = tag,
+            ServerMsg::Item2 { location, items } => world.resource_mut::<Inv>().0.apply_item2(location, items),
+            ServerMsg::UpdItem { tag, changes } => world.resource_mut::<Inv>().0.apply_upd(tag, &changes),
+            ServerMsg::DelItem(tags) => world.resource_mut::<Inv>().0.delete(&tags),
+            ServerMsg::DelInv(tag) => world.resource_mut::<Inv>().0.delete_inside(tag),
+            ServerMsg::AddSpell(spells) => world.resource_mut::<Spells>().0.add(spells),
+            ServerMsg::UpdSpell { tag, mana, grace, damage } => world.resource_mut::<Spells>().0.update(tag, mana, grace, damage),
+            ServerMsg::DelSpell(tag) => world.resource_mut::<Spells>().0.remove(tag),
+            ServerMsg::Sound { action, volume, x, y, .. } => {
+                world.resource_mut::<audio::AudioQueue>().sounds.push((action, volume, x, y))
+            }
+            ServerMsg::Music(name) => world.resource_mut::<audio::AudioQueue>().music = Some(name),
             _ => {}
         }
     }

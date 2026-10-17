@@ -5,7 +5,9 @@ use bevy_egui::{egui, EguiContexts};
 use cfproto::ClientMsg;
 use maccrossfire::login::{Creds, LoginFlow};
 
-use crate::{NcomSeq, Session, Status};
+use maccrossfire::modes::Mode;
+
+use crate::{KeyMode, LastAction, NcomSeq, PendingQuery, Session, Status};
 
 #[derive(Resource)]
 pub struct LoginForm {
@@ -137,20 +139,34 @@ pub fn command_line(
     mut contexts: EguiContexts,
     mut line: ResMut<CommandLine>,
     keys: Res<ButtonInput<KeyCode>>,
+    time: Res<Time>,
+    mut mode: ResMut<KeyMode>,
+    mut last: ResMut<LastAction>,
     mut seq: ResMut<NcomSeq>,
+    mut query: ResMut<PendingQuery>,
     session: Option<NonSend<Session>>,
 ) -> Result {
+    if mode.0 == Mode::Inventory {
+        return Ok(());
+    }
     match line_action(line.open, keys.just_pressed(KeyCode::Enter), keys.just_pressed(KeyCode::Escape)) {
-        LineAction::Open => line.open = true,
+        LineAction::Open => {
+            line.open = true;
+            mode.0 = Mode::CommandLine;
+        }
         LineAction::Cancel => {
             line.open = false;
             line.text.clear();
+            mode.0 = Mode::World;
         }
         LineAction::Submit => {
             let command = std::mem::take(&mut line.text);
             line.open = false;
+            mode.0 = Mode::World;
+            last.0 = Some(time.elapsed_secs());
             if let (Some(session), false) = (session, command.trim().is_empty()) {
-                session.send([ClientMsg::Ncom { packet: seq.next(), repeat: 0, command }]);
+                session.send([submit_message(command, query.0, seq.next())]);
+                query.0 = false;
             }
         }
         LineAction::Nothing => {}
@@ -164,9 +180,25 @@ pub fn command_line(
     Ok(())
 }
 
+/// The command box text as a message: an answer if the server asked a question.
+pub fn submit_message(text: String, pending_query: bool, packet: u16) -> ClientMsg {
+    if pending_query {
+        ClientMsg::Reply(text)
+    } else {
+        ClientMsg::Ncom { packet, repeat: 0, command: text }
+    }
+}
+
 #[cfg(test)]
 mod tests {
-    use super::{line_action, LineAction};
+    use super::{line_action, submit_message, LineAction};
+    use cfproto::ClientMsg;
+
+    #[test]
+    fn answer_goes_as_reply_after_query() {
+        assert_eq!(submit_message("y".into(), true, 3), ClientMsg::Reply("y".into()));
+        assert_eq!(submit_message("north".into(), false, 3), ClientMsg::Ncom { packet: 3, repeat: 0, command: "north".into() });
+    }
 
     #[test]
     fn enter_opens_then_submits() {
