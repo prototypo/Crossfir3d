@@ -35,7 +35,6 @@ Known problems left for later. Each line says what goes wrong and where to look.
 ## Not checked yet
 
 - [ ] The "Settings" button on the login screen (only the in-game screen was screenshot-checked).
-- [ ] Frame-rate caps feel smooth (sleep-based cap in `graphics.rs`); full screen on the external monitor.
 
 - [ ] Arrow keys in the inventory after a mouse click: egui's own focus movement may fight the custom selection.
 - [ ] Whether the parchment box draws over the full-screen inventory.
