@@ -29,14 +29,15 @@ use crate::{AppState, Clock, Faces, LastComc, Session, View, ViewSize};
 
 const TILE_PX: f32 = 32.0;
 const MAX_FACE_PX: u32 = 2048;
-/// Ocarina-style: low and behind the player.
-const PITCH_DEG: f32 = 20.0;
+/// Ocarina-style: low and close behind the player's back (owner: lower and closer).
+const PITCH_DEG: f32 = 12.0;
 /// When even the closest camera spot is behind a wall or house, look down from above.
 const HIGH_PITCH_DEG: f32 = 65.0;
-const ZOOM_MIN: f32 = 3.0;
+const ZOOM_MIN: f32 = 2.0;
 const ZOOM_MAX: f32 = 12.0;
-/// The camera looks at this point above the player's feet.
-const LOOK_HEIGHT: f32 = 1.2;
+/// The camera looks at this point above the player's feet (about shoulder height;
+/// the character is about 1.1 tall).
+const LOOK_HEIGHT: f32 = 0.9;
 const SUN_LUX: f32 = 10_000.0;
 const MOON_LUX: f32 = 2_500.0;
 const FOG_COLOR: Color = Color::srgb(0.05, 0.06, 0.08);
@@ -167,7 +168,7 @@ fn setup(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>, mut textures:
     // Unit card with its origin at the bottom middle, so scaling grows it up and sideways.
     textures.card = meshes.add(Rectangle::new(1.0, 1.0).mesh().build().translated_by(Vec3::Y * 0.5));
 
-    let distance = 6.0;
+    let distance = 3.5;
     commands.spawn((
         Camera3d::default(),
         camera_transform(Vec3::ZERO, distance, 0.0, PITCH_DEG.to_radians()),
@@ -280,6 +281,7 @@ fn sync_visuals(
         .filter(|(_, (f, _, _))| is_wall(name_of(*f)) || matches!(models.map.lookup(name_of(*f)), Visual::Wall { .. }))
         .map(|((x, y, _), _)| (*x, *y))
         .collect();
+    let player = view.0.world((view_size.0 / 2) as i8, (view_size.1 / 2) as i8);
     let joins = wall_masks(&walls);
     solid.0 = walls;
     for ((x, y, _), (face, _, join)) in want.iter_mut() {
@@ -288,10 +290,10 @@ fn sync_visuals(
         }
         if let Visual::Building { .. } = models.map.lookup(name_of(*face)) {
             let (w, h) = textures.images.get(face).map_or((1, 1), |(_, s)| footprint(s.x as u32, s.y as u32));
-            for dy in 0..h as i32 {
-                for dx in 0..w as i32 {
-                    solid.0.insert((x - dx, y - dy));
-                }
+            let squares: Vec<(i32, i32)> = (0..h as i32).flat_map(|dy| (0..w as i32).map(move |dx| (*x - dx, *y - dy))).collect();
+            // The building the player stands in is hidden (`hide_entered`), so it never blocks.
+            if !squares.contains(&player) {
+                solid.0.extend(squares);
             }
         }
     }
@@ -341,7 +343,7 @@ fn sync_visuals(
         let tv = TileVisual { x, y, layer, face, darkness, join };
         // Players (a race or class picture) are 3D characters; the own one in the middle.
         if glides(layer) && let Some(kind) = classify_player_face(name) {
-            let own_tile = (x, y) == view.0.world((view_size.0 / 2) as i8, (view_size.1 / 2) as i8);
+            let own_tile = (x, y) == player;
             let (look, body) = if own_tile { (own.look, own.body) } else { (other_look(kind), Body::Regular) };
             if !models.failed.contains(body_file(body)) {
                 let pos = tile + Vec3::new(0.5, 0.0, 0.5);
