@@ -59,3 +59,51 @@ fn walk_one_step() {
     }
     panic!("could not move in any direction");
 }
+
+/// Waits until `check` finds what it wants in a server message, or panics.
+fn wait_for<T>(net: &Net, flow: &mut LoginFlow, what: &str, mut check: impl FnMut(&ServerMsg) -> Option<T>) -> T {
+    let deadline = Instant::now() + Duration::from_secs(8);
+    while Instant::now() < deadline {
+        let msg = next(net, flow, Duration::from_secs(8));
+        if let Some(t) = check(&msg) {
+            return t;
+        }
+    }
+    panic!("timed out waiting for {what}");
+}
+
+#[test]
+#[ignore]
+fn pick_up_and_drop() {
+    let net = connect("localhost:13327").expect("is the server running? scripts/server.sh run");
+    let stamp = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_millis() % 1_000_000;
+    let name = format!("drop{stamp}");
+    let creds = Creds { account: name.clone(), password: "testpw".into(), character: name, new_account: true };
+    let (mut flow, first) = LoginFlow::start(creds);
+    for m in first {
+        net.tx.send(m).unwrap();
+    }
+    let player = wait_for(&net, &mut flow, "player", |m| match m {
+        ServerMsg::Player { tag, .. } => Some(*tag),
+        _ => None,
+    });
+    // A starting item that is neither locked nor worn.
+    let (tag, nrof) = wait_for(&net, &mut flow, "a droppable item", |m| match m {
+        ServerMsg::Item2 { location, items } if *location == player => {
+            items.iter().find(|i| !i.locked() && !i.applied()).map(|i| (i.tag, i.nrof))
+        }
+        _ => None,
+    });
+
+    net.tx.send(ClientMsg::Move { to: 0, tag, count: nrof }).unwrap();
+    wait_for(&net, &mut flow, "the dropped item on the ground", |m| match m {
+        ServerMsg::Item2 { location: 0, items } => items.iter().any(|i| i.tag == tag).then_some(()),
+        _ => None,
+    });
+
+    net.tx.send(ClientMsg::Move { to: player, tag, count: nrof }).unwrap();
+    wait_for(&net, &mut flow, "the item back in the inventory", |m| match m {
+        ServerMsg::Item2 { location, items } if *location == player => items.iter().any(|i| i.tag == tag).then_some(()),
+        _ => None,
+    });
+}

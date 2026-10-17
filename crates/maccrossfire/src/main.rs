@@ -116,6 +116,7 @@ fn main() {
         .init_resource::<Spells>()
         .init_resource::<Slots>()
         .init_resource::<inventory_ui::InvSel>()
+        .init_resource::<input::Facing>()
         .add_systems(EguiPrimaryContextPass, (hud::hud, inventory_ui::inventory_screen).chain().run_if(in_state(AppState::InGame)))
         .add_plugins(world::WorldPlugin)
         .add_plugins(audio::AudioPlugin)
@@ -149,6 +150,7 @@ pub fn start_session(world: &mut World, net: Net, login: LoginFlow, first: Vec<C
     world.insert_resource(Spells::default());
     world.insert_resource(Slots(slots));
     world.insert_resource(inventory_ui::InvSel::default());
+    world.insert_resource(input::Facing::default());
     *world.resource_mut::<ui::CommandLine>() = ui::CommandLine::default();
 }
 
@@ -174,6 +176,11 @@ fn pump_network(world: &mut World) {
             NetEvent::Disconnected(reason) => return end_session(world, format!("Disconnected: {reason}")),
         };
 
+        if *world.resource::<State<AppState>>().get() == AppState::InGame {
+            if let Some(reason) = maccrossfire::messages::in_game_reset(&msg) {
+                return end_session(world, reason.to_string());
+            }
+        }
         let mut session = world.non_send_mut::<Session>();
         let out = session.login.on_message(&msg);
         session.send(out);

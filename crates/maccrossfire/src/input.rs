@@ -4,8 +4,19 @@ use bevy::prelude::*;
 use cfproto::ClientMsg;
 
 use maccrossfire::modes::{act, Act, KeyName, Mode};
+use maccrossfire::slots::{dir_number, slot_commands};
 
-use crate::{HudState, KeyMode, LastAction, LastComc, Msgs, NcomSeq, Session};
+use crate::{HudState, Inv, KeyMode, LastAction, LastComc, Msgs, NcomSeq, Session, Slots, Spells};
+
+/// The direction of the last step or step attempt (1 = north .. 8 = northwest).
+#[derive(Resource)]
+pub struct Facing(pub u8);
+
+impl Default for Facing {
+    fn default() -> Self {
+        Facing(5) // south, towards the camera
+    }
+}
 
 /// Opposite keys cancel out.
 pub fn direction(up: bool, down: bool, left: bool, right: bool) -> Option<&'static str> {
@@ -54,6 +65,7 @@ pub fn send_moves(
     keys: Res<ButtonInput<KeyCode>>,
     mode: Res<KeyMode>,
     mut msgs: ResMut<Msgs>,
+    mut facing: ResMut<Facing>,
     comc: Res<LastComc>,
     time: Res<Time>,
     mut seq: ResMut<NcomSeq>,
@@ -80,6 +92,7 @@ pub fn send_moves(
     }
     first_step_at.get_or_insert(now);
     msgs.0.close_box(); // walking away closes the parchment box
+    facing.0 = dir_number(command).unwrap_or(facing.0);
     let packet = seq.next();
     wait.0 = Some((packet, now));
     session.send([ClientMsg::Ncom { packet, repeat: 0, command: command.into() }]);
@@ -105,7 +118,7 @@ fn key_name(key: KeyCode) -> KeyName {
 }
 
 /// One-key actions (the spec's key table, via `modes::act`). Enter is handled by the
-/// command line, M by the audio plugin, quick slots in Task 11.
+/// command line, M by the audio plugin.
 #[allow(clippy::too_many_arguments)]
 pub fn world_keys(
     keys: Res<ButtonInput<KeyCode>>,
@@ -115,6 +128,7 @@ pub fn world_keys(
     mut hud: ResMut<HudState>,
     mut last: ResMut<LastAction>,
     mut seq: ResMut<NcomSeq>,
+    (facing, slots, inv, spells): (Res<Facing>, Res<Slots>, Res<Inv>, Res<Spells>),
     session: Option<NonSend<Session>>,
 ) {
     let Some(session) = session else { return };
@@ -131,7 +145,13 @@ pub fn world_keys(
             Act::OpenInventory => mode.0 = Mode::Inventory,
             Act::CloseInventory => mode.0 = Mode::World,
             Act::ToggleLog => hud.tall_log = !hud.tall_log,
-            Act::Slot(_) | Act::ToggleMute | Act::OpenCommand | Act::Nothing => {}
+            Act::Slot(i) => {
+                let Some(slot) = &slots.0 .0[i] else { continue };
+                for c in slot_commands(slot, &inv.0, &spells.0, facing.0) {
+                    command(&c);
+                }
+            }
+            Act::ToggleMute | Act::OpenCommand | Act::Nothing => {}
         }
     }
 }

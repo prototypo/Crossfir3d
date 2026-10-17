@@ -61,9 +61,21 @@ impl Messages {
     }
 }
 
+/// A message that ends play while in game: on a permadeath server the server sends the
+/// character list again after death.
+pub fn in_game_reset(msg: &cfproto::ServerMsg) -> Option<&'static str> {
+    matches!(msg, cfproto::ServerMsg::AccountPlayers(_)).then_some("Your character died")
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn accountplayers_in_game_means_death() {
+        assert_eq!(in_game_reset(&cfproto::ServerMsg::AccountPlayers(vec![])), Some("Your character died"));
+        assert_eq!(in_game_reset(&cfproto::ServerMsg::NewMap), None);
+    }
 
     #[test]
     fn sign_after_apply_boxes() {
