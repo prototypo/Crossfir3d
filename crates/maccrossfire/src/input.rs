@@ -39,7 +39,16 @@ pub fn may_send(wait: Option<(u16, f32)>, acked: u16, now: f32) -> bool {
     }
 }
 
-/// While a key is held, send one move and wait for its `comc` before the next.
+/// Hold a key this long before steps repeat, so a tap is exactly one step.
+const REPEAT_DELAY_SECS: f32 = 0.3;
+
+/// `held_secs` is None for a key that has not stepped yet.
+pub fn wants_step(held_secs: Option<f32>) -> bool {
+    held_secs.is_none_or(|t| t >= REPEAT_DELAY_SECS)
+}
+
+/// A tap sends one move. A held key repeats after a short delay, one move per `comc`.
+#[allow(clippy::too_many_arguments)]
 pub fn send_moves(
     keys: Res<ButtonInput<KeyCode>>,
     line: Res<CommandLine>,
@@ -47,17 +56,11 @@ pub fn send_moves(
     time: Res<Time>,
     mut seq: ResMut<NcomSeq>,
     mut wait: ResMut<MoveWait>,
+    mut first_step_at: Local<Option<f32>>,
     session: Option<NonSend<Session>>,
 ) {
     let Some(session) = session else { return };
     let now = time.elapsed_secs();
-    if !may_send(wait.0, comc.packet, now) {
-        return;
-    }
-    wait.0 = None;
-    if line.open {
-        return;
-    }
     let held = |a, b| keys.pressed(a) || keys.pressed(b);
     let dir = direction(
         held(KeyCode::ArrowUp, KeyCode::KeyW),
@@ -65,16 +68,33 @@ pub fn send_moves(
         held(KeyCode::ArrowLeft, KeyCode::KeyA),
         held(KeyCode::ArrowRight, KeyCode::KeyD),
     );
-    if let Some(command) = dir {
-        let packet = seq.next();
-        wait.0 = Some((packet, now));
-        session.send([ClientMsg::Ncom { packet, repeat: 0, command: command.into() }]);
+    let (Some(command), false) = (dir, line.open) else {
+        *first_step_at = None; // key released: the next press is a new tap
+        return;
+    };
+    if !may_send(wait.0, comc.packet, now) || !wants_step(first_step_at.map(|t| now - t)) {
+        return;
     }
+    first_step_at.get_or_insert(now);
+    let packet = seq.next();
+    wait.0 = Some((packet, now));
+    session.send([ClientMsg::Ncom { packet, repeat: 0, command: command.into() }]);
 }
 
 #[cfg(test)]
 mod tests {
-    use super::{direction, may_send};
+    use super::{direction, may_send, wants_step};
+
+    #[test]
+    fn tap_is_one_step() {
+        assert!(wants_step(None));
+        assert!(!wants_step(Some(0.1)));
+    }
+
+    #[test]
+    fn hold_repeats() {
+        assert!(wants_step(Some(0.31)));
+    }
 
     #[test]
     fn wait_until_confirmed() {
