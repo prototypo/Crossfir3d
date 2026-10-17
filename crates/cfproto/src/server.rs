@@ -1,6 +1,7 @@
 //! Server-to-client messages.
 
 use crate::map2::{parse_map2, Map2Item};
+use crate::items::{parse_item2, parse_upditem, Item, ItemChange};
 use crate::stats::{parse_stats, StatValue};
 
 #[derive(Debug, PartialEq)]
@@ -25,6 +26,12 @@ pub enum ServerMsg {
     Tick(u32),
     /// Stat updates read before any unknown code (the rest of that packet is dropped).
     Stats(Vec<(u8, StatValue)>),
+    Item2 { location: u32, items: Vec<Item> },
+    UpdItem { tag: u32, changes: Vec<ItemChange> },
+    DelItem(Vec<u32>),
+    /// Delete everything inside this tag (0 = the ground).
+    DelInv(u32),
+    Player { tag: u32, weight: u32, face: u32, name: String },
     Text(String),
     Goodbye,
     /// A command this client does not handle. Holds the command word.
@@ -111,6 +118,27 @@ pub fn parse(payload: &[u8]) -> Result<ServerMsg, ParseError> {
         "smooth" => ServerMsg::Smooth { face: r.u16()?, smooth: r.u16()? },
         "comc" => ServerMsg::Comc { packet: r.u16()?, time_ms: r.u32()? },
         "tick" => ServerMsg::Tick(r.u32()?),
+        "item2" => {
+            let (location, items) = parse_item2(data)?;
+            ServerMsg::Item2 { location, items }
+        }
+        "upditem" => {
+            let (tag, changes) = parse_upditem(data)?;
+            ServerMsg::UpdItem { tag, changes }
+        }
+        "delitem" => {
+            let mut tags = Vec::new();
+            while !r.0.is_empty() {
+                tags.push(r.u32()?);
+            }
+            ServerMsg::DelItem(tags)
+        }
+        "delinv" => ServerMsg::DelInv(r.text().trim().parse().map_err(|_| err("bad delinv tag"))?),
+        "player" => {
+            let (tag, weight, face) = (r.u32()?, r.u32()?, r.u32()?);
+            let len = r.u8()? as usize;
+            ServerMsg::Player { tag, weight, face, name: String::from_utf8_lossy(r.take(len)?).into() }
+        }
         "stats" => {
             let (updates, err) = parse_stats(data);
             if let Some(e) = err {
@@ -129,10 +157,10 @@ fn err(msg: &str) -> ParseError {
 }
 
 /// Big-endian reader over a byte slice that returns ParseError on short data.
-struct Reader<'a>(&'a [u8]);
+pub(crate) struct Reader<'a>(pub(crate) &'a [u8]);
 
 impl<'a> Reader<'a> {
-    fn take(&mut self, n: usize) -> Result<&'a [u8], ParseError> {
+    pub(crate) fn take(&mut self, n: usize) -> Result<&'a [u8], ParseError> {
         if self.0.len() < n {
             return Err(err("packet too short"));
         }
@@ -140,17 +168,17 @@ impl<'a> Reader<'a> {
         self.0 = tail;
         Ok(head)
     }
-    fn u8(&mut self) -> Result<u8, ParseError> {
+    pub(crate) fn u8(&mut self) -> Result<u8, ParseError> {
         Ok(self.take(1)?[0])
     }
-    fn u16(&mut self) -> Result<u16, ParseError> {
+    pub(crate) fn u16(&mut self) -> Result<u16, ParseError> {
         Ok(u16::from_be_bytes(self.take(2)?.try_into().unwrap()))
     }
-    fn u32(&mut self) -> Result<u32, ParseError> {
+    pub(crate) fn u32(&mut self) -> Result<u32, ParseError> {
         Ok(u32::from_be_bytes(self.take(4)?.try_into().unwrap()))
     }
     /// The rest of the data as text.
-    fn text(&mut self) -> String {
+    pub(crate) fn text(&mut self) -> String {
         let s = String::from_utf8_lossy(self.0).into_owned();
         self.0 = &[];
         s
@@ -276,6 +304,23 @@ mod tests {
     #[test]
     fn parse_stats_msg() {
         assert_eq!(p(b"stats \x01\x00\x05"), ServerMsg::Stats(vec![(1, StatValue::Int(5))]));
+    }
+
+    #[test]
+    fn parse_item_messages() {
+        let mut b = b"item2 ".to_vec();
+        b.extend_from_slice(&[0, 0, 0, 0]);
+        assert_eq!(p(&b), ServerMsg::Item2 { location: 0, items: vec![] });
+        assert_eq!(p(b"delitem \x00\x00\x00\x05\x00\x00\x00\x06"), ServerMsg::DelItem(vec![5, 6]));
+        assert_eq!(p(b"delinv 77"), ServerMsg::DelInv(77));
+        assert_eq!(p(b"delinv 0"), ServerMsg::DelInv(0));
+        let mut b = b"upditem \x80\x00\x00\x00\x09".to_vec();
+        b.extend_from_slice(&[0, 0, 0, 2]);
+        assert_eq!(p(&b), ServerMsg::UpdItem { tag: 9, changes: vec![crate::ItemChange::Nrof(2)] });
+        let mut b = b"player \x00\x00\x00\x01\x00\x00\x00\x02\x00\x00\x00\x03".to_vec();
+        b.push(3);
+        b.extend_from_slice(b"Bob");
+        assert_eq!(p(&b), ServerMsg::Player { tag: 1, weight: 2, face: 3, name: "Bob".into() });
     }
 
     #[test]
