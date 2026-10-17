@@ -11,6 +11,7 @@ use maccrossfire::net::{Net, NetEvent};
 mod audio;
 mod hud;
 mod input;
+mod inventory_ui;
 mod ui;
 mod world;
 
@@ -114,7 +115,8 @@ fn main() {
         .init_resource::<Inv>()
         .init_resource::<Spells>()
         .init_resource::<Slots>()
-        .add_systems(EguiPrimaryContextPass, hud::hud.run_if(in_state(AppState::InGame)))
+        .init_resource::<inventory_ui::InvSel>()
+        .add_systems(EguiPrimaryContextPass, (hud::hud, inventory_ui::inventory_screen).chain().run_if(in_state(AppState::InGame)))
         .add_plugins(world::WorldPlugin)
         .add_plugins(audio::AudioPlugin)
         .add_systems(Startup, ui::auto_login)
@@ -146,6 +148,7 @@ pub fn start_session(world: &mut World, net: Net, login: LoginFlow, first: Vec<C
     world.insert_resource(Inv::default());
     world.insert_resource(Spells::default());
     world.insert_resource(Slots(slots));
+    world.insert_resource(inventory_ui::InvSel::default());
     *world.resource_mut::<ui::CommandLine>() = ui::CommandLine::default();
 }
 
