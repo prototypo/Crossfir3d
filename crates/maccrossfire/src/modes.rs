@@ -57,9 +57,21 @@ pub fn act(mode: Mode, key: KeyName, box_open: bool) -> Act {
     }
 }
 
+/// M mutes only while playing in the world, never while typing (login form, command box).
+pub fn mute_key_allowed(in_game: bool, mode: Mode) -> bool {
+    in_game && mode == Mode::World
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn m_on_login_form_does_not_mute() {
+        assert!(!mute_key_allowed(false, Mode::World));
+        assert!(!mute_key_allowed(true, Mode::CommandLine));
+        assert!(mute_key_allowed(true, Mode::World));
+    }
 
     #[test]
     fn e_closes_box_before_applying() {

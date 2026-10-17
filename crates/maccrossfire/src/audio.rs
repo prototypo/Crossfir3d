@@ -6,11 +6,11 @@ use std::sync::Arc;
 
 use bevy::audio::Volume;
 use bevy::prelude::*;
-use maccrossfire::sound::{sounds_dir, SoundTable};
+use maccrossfire::sound::{music_changes, music_file, sounds_dir, SoundTable};
 
-use maccrossfire::modes::Mode;
+use maccrossfire::modes::mute_key_allowed;
 
-use crate::KeyMode;
+use crate::{AppState, KeyMode};
 
 /// Sounds and music the network pump received this frame.
 #[derive(Resource, Default)]
@@ -27,6 +27,8 @@ struct Sounds {
     loaded: HashMap<PathBuf, Handle<AudioSource>>,
     warned: HashSet<String>,
     muted: bool,
+    /// The song playing now, as the server named it.
+    current: Option<String>,
 }
 
 #[derive(Component)]
@@ -43,6 +45,7 @@ impl Plugin for AudioPlugin {
             loaded: HashMap::new(),
             warned: HashSet::new(),
             muted: false,
+            current: None,
         })
         .init_resource::<AudioQueue>()
         .add_systems(Update, (toggle_mute, play_queued).chain());
@@ -74,10 +77,11 @@ impl Sounds {
 fn toggle_mute(
     keys: Res<ButtonInput<KeyCode>>,
     mode: Res<KeyMode>,
+    state: Res<State<AppState>>,
     mut sounds: ResMut<Sounds>,
     music: Query<&AudioSink, With<Music>>,
 ) {
-    if mode.0 != Mode::World || !keys.just_pressed(KeyCode::KeyM) {
+    if !mute_key_allowed(*state.get() == AppState::InGame, mode.0) || !keys.just_pressed(KeyCode::KeyM) {
         return;
     }
     sounds.muted = !sounds.muted;
@@ -110,14 +114,17 @@ fn play_queued(
         commands.spawn((AudioPlayer(h), PlaybackSettings { volume: Volume::Linear(v), ..PlaybackSettings::DESPAWN }));
     }
     if let Some(name) = queue.music.take() {
+        if !music_changes(sounds.current.as_deref(), &name) {
+            return;
+        }
         for e in &playing {
             commands.entity(e).despawn();
         }
+        sounds.current = (name != "NONE").then(|| name.clone());
         if name == "NONE" {
             return;
         }
-        let found = ["ogg", "mp3"].iter().map(|ext| sounds.dir.join("music").join(format!("{name}.{ext}"))).find(|p| p.exists());
-        let Some(path) = found else {
+        let Some(path) = music_file(&sounds.dir, &name) else {
             info!("no music file for '{name}'");
             return;
         };

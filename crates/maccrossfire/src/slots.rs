@@ -28,7 +28,8 @@ pub struct QuickSlots(pub [Option<Slot>; 4]);
 
 /// ncom command strings that use the slot, facing direction `facing`. Empty if the
 /// character no longer has the spell or item.
-pub fn slot_commands(slot: &Slot, inv: &Inventory, spells: &SpellBook, facing: u8) -> Vec<String> {
+/// `range` is the server's "Range: ..." stat: which item or spell `fire` will use.
+pub fn slot_commands(slot: &Slot, inv: &Inventory, spells: &SpellBook, facing: u8, range: &str) -> Vec<String> {
     let fire = || vec![format!("fire {facing}"), "fire_stop".to_string()];
     match slot {
         Slot::Spell(name) => match spells.by_name(name) {
@@ -37,7 +38,14 @@ pub fn slot_commands(slot: &Slot, inv: &Inventory, spells: &SpellBook, facing: u
         },
         Slot::Item(name) => match inv.find_by_name(name) {
             Some(item) if is_fired(item.kind) => {
-                let ready = if item.applied() { vec![] } else { vec![format!("apply {}", item.tag)] };
+                let apply = format!("apply {}", item.tag);
+                // Applied is not enough: `fire` uses whatever is in range (maybe the last spell).
+                let in_range = range == format!("Range: {}", item.name) || range.starts_with(&format!("Range: {} (", item.name));
+                let ready = match (item.applied(), in_range) {
+                    (true, true) => vec![],
+                    (true, false) => vec![apply.clone(), apply], // unready, then ready again
+                    (false, _) => vec![apply],
+                };
                 [ready, fire()].concat()
             }
             Some(item) => vec![format!("apply {}", item.tag)],
@@ -151,27 +159,36 @@ mod tests {
     #[test]
     fn spell_slot_casts_then_fires() {
         let (inv, book) = world();
-        assert_eq!(slot_commands(&Slot::Spell("small fireball".into()), &inv, &book, 3), ["cast 77", "fire 3", "fire_stop"]);
+        assert_eq!(slot_commands(&Slot::Spell("small fireball".into()), &inv, &book, 3, ""), ["cast 77", "fire 3", "fire_stop"]);
     }
 
     #[test]
     fn wand_slot_applies_once_then_fires() {
         let (inv, book) = world();
-        assert_eq!(slot_commands(&Slot::Item("wand of fire".into()), &inv, &book, 5), ["apply 10", "fire 5", "fire_stop"]);
-        assert_eq!(slot_commands(&Slot::Item("bow".into()), &inv, &book, 5), ["fire 5", "fire_stop"]); // already applied
+        assert_eq!(slot_commands(&Slot::Item("wand of fire".into()), &inv, &book, 5, ""), ["apply 10", "fire 5", "fire_stop"]);
+        let ready = "Range: bow (arrow)";
+        assert_eq!(slot_commands(&Slot::Item("bow".into()), &inv, &book, 5, ready), ["fire 5", "fire_stop"]); // already applied
+    }
+
+    #[test]
+    fn applied_but_not_readied_reapplies() {
+        // The last cast spell is in range: re-ready the bow (unapply, apply) before firing.
+        let (inv, book) = world();
+        let range = "Range: spell (small fireball)";
+        assert_eq!(slot_commands(&Slot::Item("bow".into()), &inv, &book, 5, range), ["apply 11", "apply 11", "fire 5", "fire_stop"]);
     }
 
     #[test]
     fn potion_slot_applies() {
         let (inv, book) = world();
-        assert_eq!(slot_commands(&Slot::Item("potion of healing".into()), &inv, &book, 1), ["apply 12"]);
+        assert_eq!(slot_commands(&Slot::Item("potion of healing".into()), &inv, &book, 1, ""), ["apply 12"]);
     }
 
     #[test]
     fn missing_item_sends_nothing() {
         let (inv, book) = world();
         let gone = Slot::Item("scroll of light".into());
-        assert!(slot_commands(&gone, &inv, &book, 1).is_empty());
+        assert!(slot_commands(&gone, &inv, &book, 1, "").is_empty());
         assert!(!usable(&gone, &inv, &book));
         assert!(usable(&Slot::Spell("small fireball".into()), &inv, &book));
     }

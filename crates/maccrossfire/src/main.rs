@@ -78,6 +78,10 @@ pub struct LastAction(pub Option<f32>);
 #[derive(Resource, Default)]
 pub struct Msgs(pub Messages);
 
+/// The server asked a question; the next command box line is the answer.
+#[derive(Resource, Default)]
+pub struct PendingQuery(pub bool);
+
 #[derive(Resource, Default)]
 pub struct PlayerStats(pub Stats);
 
@@ -110,6 +114,7 @@ fn main() {
         .init_resource::<KeyMode>()
         .init_resource::<LastAction>()
         .init_resource::<Msgs>()
+        .init_resource::<PendingQuery>()
         .init_resource::<HudState>()
         .init_resource::<PlayerStats>()
         .init_resource::<Inv>()
@@ -144,6 +149,7 @@ pub fn start_session(world: &mut World, net: Net, login: LoginFlow, first: Vec<C
     world.insert_resource(KeyMode::default());
     world.insert_resource(LastAction::default());
     world.insert_resource(Msgs::default());
+    world.insert_resource(PendingQuery::default());
     world.insert_resource(HudState::default());
     world.insert_resource(PlayerStats::default());
     world.insert_resource(Inv::default());
@@ -221,6 +227,7 @@ fn pump_network(world: &mut World) {
                 world.resource_mut::<Msgs>().0.push(kind, subtype, &text, now, last);
             }
             ServerMsg::Query { text, .. } => {
+                world.resource_mut::<PendingQuery>().0 = true;
                 let now = world.resource::<Time>().elapsed_secs();
                 world.resource_mut::<Msgs>().0.push(0, 0, &format!("Server asks: {text} (answer with Enter)"), now, None);
             }
