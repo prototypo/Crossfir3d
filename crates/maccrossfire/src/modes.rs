@@ -18,6 +18,7 @@ pub enum KeyName {
     I,
     L,
     M,
+    C,
     Escape,
     Enter,
     Digit(u8),
@@ -36,6 +37,8 @@ pub enum Act {
     CloseSettings,
     ToggleLog,
     ToggleMute,
+    /// Snap the camera straight behind the player.
+    CameraBehind,
     CloseBox,
     OpenCommand,
     Nothing,
@@ -58,6 +61,7 @@ pub fn act(mode: Mode, key: KeyName, box_open: bool) -> Act {
         (Mode::World, KeyName::I) => Act::OpenInventory,
         (Mode::World, KeyName::L) => Act::ToggleLog,
         (Mode::World, KeyName::M) => Act::ToggleMute,
+        (Mode::World, KeyName::C) => Act::CameraBehind,
         (Mode::World, KeyName::Enter) => Act::OpenCommand,
         (Mode::World, _) => Act::Nothing,
     }
@@ -119,6 +123,14 @@ mod tests {
             assert_eq!(act(Mode::Settings, k, false), Act::Nothing, "{k:?}");
         }
         assert!(!mute_key_allowed(true, Mode::Settings));
+    }
+
+    #[test]
+    fn c_snaps_camera_in_world_only() {
+        assert_eq!(act(Mode::World, KeyName::C, false), Act::CameraBehind);
+        assert_eq!(act(Mode::Inventory, KeyName::C, false), Act::Nothing);
+        assert_eq!(act(Mode::CommandLine, KeyName::C, false), Act::Nothing);
+        assert_eq!(act(Mode::Settings, KeyName::C, false), Act::Nothing);
     }
 
     #[test]

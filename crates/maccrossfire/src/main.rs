@@ -142,6 +142,7 @@ fn main() {
         .init_resource::<Slots>()
         .init_resource::<inventory_ui::InvSel>()
         .init_resource::<input::Facing>()
+        .init_resource::<input::CameraHeading>()
         .add_systems(EguiPrimaryContextPass, (hud::hud, inventory_ui::inventory_screen).chain().run_if(in_state(AppState::InGame)))
         .add_plugins(world::WorldPlugin)
         .add_plugins(audio::AudioPlugin)
@@ -190,6 +191,7 @@ fn reset_play_state(world: &mut World) {
     world.insert_resource(Slots::default());
     world.insert_resource(inventory_ui::InvSel::default());
     world.insert_resource(input::Facing::default());
+    world.insert_resource(input::CameraHeading::default());
     *world.resource_mut::<ui::CommandLine>() = ui::CommandLine::default();
 }
 
