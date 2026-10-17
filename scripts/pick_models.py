@@ -9,6 +9,7 @@ Usage: python3 -I scripts/pick_models.py
 import json
 import pathlib
 import shutil
+import struct
 import subprocess
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
@@ -66,6 +67,13 @@ PICK = [
 ]
 
 
+# Our copies use other textures: the pack's bushes have red (autumn) leaves.
+TEXTURE_SWAP = {
+    "Bush_Common.gltf": {"Leaves_TwistedTree_C.png": "Leaves_NormalTree_C.png"},
+    "Bush_Common_Flowers.gltf": {"Leaves_TwistedTree_C.png": "Leaves_NormalTree_C.png"},
+}
+
+
 def find(folder: pathlib.Path, uri: str):
     """The file a uri names. Some packs name `T_X_png.png` where only `T_X.png` exists."""
     for name in (uri, uri.replace("_png.png", ".png")):
@@ -75,14 +83,24 @@ def find(folder: pathlib.Path, uri: str):
 
 
 def copy_model(src: pathlib.Path, dest: pathlib.Path):
-    """Copies a model and the files it names; fixes broken names in the copy."""
-    if src.suffix.lower() != ".gltf":  # .glb files hold everything
+    """Copies a model and the files it names; fixes broken names in a .gltf copy.
+    A .glb keeps its JSON as is, so its outside files keep their relative paths."""
+    if src.suffix.lower() == ".glb":
+        data = src.read_bytes()
+        length = struct.unpack_from("<I", data, 12)[0]
+        g = json.loads(data[20:20 + length])
         shutil.copy2(src, dest / src.name)
+        for item in g.get("buffers", []) + g.get("images", []):
+            uri = item.get("uri")
+            if uri and not uri.startswith("data:"):
+                (dest / uri).parent.mkdir(parents=True, exist_ok=True)
+                shutil.copy2(src.parent / uri, dest / uri)
         return
     g = json.loads(src.read_text())
     for item in g.get("buffers", []) + g.get("images", []):
         uri = item.get("uri")
         if uri and not uri.startswith("data:"):
+            uri = TEXTURE_SWAP.get(src.name, {}).get(uri, uri)
             f = find(src.parent, uri)
             shutil.copy2(f, dest / f.name)
             item["uri"] = f.name
@@ -99,10 +117,10 @@ def main():
         shutil.copy2(PACKS / licence, dest / "LICENSE.txt")
         for rel in files:
             copy_model(PACKS / rel, dest)
-        pngs = [str(f) for f in dest.glob("*.png")]
+        pngs = [str(f) for f in dest.rglob("*.png")]
         if pngs:  # macOS sips; only shrinks, never enlarges
             subprocess.run(["sips", "-Z", str(MAX_TEXTURE), *pngs], check=True, capture_output=True)
-        size = sum(f.stat().st_size for f in dest.iterdir())
+        size = sum(f.stat().st_size for f in dest.rglob("*") if f.is_file())
         total += size
         print(f"{folder}: {len(files)} models, {size / 1e6:.1f} MB")
     print(f"total {total / 1e6:.1f} MB")

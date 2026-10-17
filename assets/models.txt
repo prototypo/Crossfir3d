@@ -125,21 +125,22 @@ sign_distance building signpost
 
 # --- Gates: a full name with its frame is that exact picture ---
 # Portcullis gates: frame 111 is open (raised), the last frame is closed.
-grate_1* model castle/metal-gate.glb 1.4 0 0.9
-grate_1.118 model castle/metal-gate.glb 1.4 0 0
-grate_2* model castle/metal-gate.glb 1.4 90 0.9
-grate_2.118 model castle/metal-gate.glb 1.4 90 0
-iron_gate1* model castle/metal-gate.glb 1.4 0 0.9
-iron_gate1.118 model castle/metal-gate.glb 1.4 0 0
-iron_gate2* model castle/metal-gate.glb 1.4 90 0.9
-iron_gate2.116 model castle/metal-gate.glb 1.4 90 0
-gratedoor1 model castle/metal-gate.glb 1.4 0 0
-gratedoor2 model castle/metal-gate.glb 1.4 90 0
+# Kenney gates span north-south unturned; `_1` pictures span east-west.
+grate_1* model castle/metal-gate.glb 1.4 90 0.9
+grate_1.118 model castle/metal-gate.glb 1.4 90 0
+grate_2* model castle/metal-gate.glb 1.4 0 0.9
+grate_2.118 model castle/metal-gate.glb 1.4 0 0
+iron_gate1* model castle/metal-gate.glb 1.4 90 0.9
+iron_gate1.118 model castle/metal-gate.glb 1.4 90 0
+iron_gate2* model castle/metal-gate.glb 1.4 0 0.9
+iron_gate2.116 model castle/metal-gate.glb 1.4 0 0
+gratedoor1 model castle/metal-gate.glb 1.4 90 0
+gratedoor2 model castle/metal-gate.glb 1.4 0 0
 # Wooden gates swing open: frame 111 is open (turned aside), the last frame is closed.
-gate_1* model castle/gate.glb 1.5 90 0
-gate_1.117 model castle/gate.glb 1.5 0 0
-gate_2* model castle/gate.glb 1.5 0 0
-gate_2.115 model castle/gate.glb 1.5 90 0
+gate_1* model castle/gate.glb 1.5 0 0
+gate_1.117 model castle/gate.glb 1.5 90 0
+gate_2* model castle/gate.glb 1.5 90 0
+gate_2.115 model castle/gate.glb 1.5 0 0
 # The garden gate is the other way round: frame 111 is closed.
 gard_gate* model castle/gate.glb 1.5 90 0 0.55,0.4,0.25
 gard_gate.111 model castle/gate.glb 1.5 0 0 0.55,0.4,0.25
@@ -166,8 +167,8 @@ woods_5 model nature/CommonTree_3.gltf 0.5 160 0
 evergreens* model nature/Pine_1.gltf 0.5 0 0
 darkforest model nature/Pine_2.gltf 0.55 0 0 0.6,0.7,0.6
 bforest model nature/Pine_3.gltf 0.55 0 0 0.6,0.65,0.7
-jungle_1 model nature/TwistedTree_1.gltf 0.5 0 0 0.7,1.0,0.7
-jungle_2 model nature/TwistedTree_2.gltf 0.5 0 0 0.7,1.0,0.7
+jungle_1 model nature/CommonTree_4.gltf 0.55 0 0 0.7,1.0,0.6
+jungle_2 model nature/CommonTree_5.gltf 0.55 0 0 0.7,1.0,0.6
 ytree* model nature/CommonTree_2.gltf 0.45 0 0 1.0,0.9,0.5
 treed_hills model nature/Pine_4.gltf 0.45 0 0
 brush model nature/Bush_Common.gltf 0.5 0 0
