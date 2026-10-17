@@ -26,14 +26,10 @@ fn seed() -> u64 {
     std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map_or(1, |d| d.as_nanos() as u64)
 }
 
-#[derive(Default)]
-pub struct ListSel(Option<usize>);
-
 pub fn characters_screen(
     mut contexts: EguiContexts,
     keys: Res<ButtonInput<KeyCode>>,
     mut status: ResMut<Status>,
-    mut sel: Local<ListSel>,
     mut auto: Local<bool>,
     mut commands: Commands,
     session: Option<NonSendMut<Session>>,
@@ -74,9 +70,9 @@ pub fn characters_screen(
                     }
                     for (i, c) in chars.iter().enumerate() {
                         let text = format!("{} — {} {}, level {}", c.name, c.race, c.class, c.level);
-                        let row = ui.selectable_label(sel.0 == Some(i), egui::RichText::new(text).size(15.0));
+                        let row = ui.selectable_label(session.login.selected == Some(i), egui::RichText::new(text).size(15.0));
                         if row.clicked() {
-                            sel.0 = Some(i);
+                            session.login.selected = Some(i);
                         }
                         if row.double_clicked() {
                             out = session.login.play(&c.name);
@@ -84,7 +80,7 @@ pub fn characters_screen(
                     }
                     ui.add_space(16.0);
                     ui.horizontal(|ui| {
-                        let chosen = sel.0.and_then(|i| chars.get(i));
+                        let chosen = session.login.selected.and_then(|i| chars.get(i));
                         let play = ui.add_enabled(chosen.is_some(), egui::Button::new("Play"));
                         if let (Some(c), true) = (chosen, play.clicked() || keys.just_pressed(KeyCode::Enter)) {
                             out = session.login.play(&c.name);
@@ -113,6 +109,7 @@ pub fn characters_screen(
 fn new_character(ctx: &egui::Context, screen: egui::Rect, session: &mut Session) {
     let mut out = Vec::new();
     let mut back = false;
+    let session_pending = session.login.create_pending();
     let n = &mut session.login.newchar;
     egui::Window::new("new character")
         .title_bar(false)
@@ -226,10 +223,14 @@ fn new_character(ctx: &egui::Context, screen: egui::Rect, session: &mut Session)
                     ui.label(egui::RichText::new(p).small());
                 }
                 ui.horizontal(|ui| {
-                    if ui.add_enabled(problem.is_none(), egui::Button::new("Create")).clicked() {
+                    let waiting = session_pending;
+                    if ui.add_enabled(problem.is_none() && !waiting, egui::Button::new("Create")).clicked() {
                         out.push(());
                     }
-                    back = ui.button("Back").clicked();
+                    back = ui.add_enabled(!waiting, egui::Button::new("Back")).clicked();
+                    if waiting {
+                        ui.label("Creating...");
+                    }
                 });
             });
         });

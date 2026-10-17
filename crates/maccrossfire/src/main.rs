@@ -166,6 +166,7 @@ pub fn start_session(world: &mut World, net: Net, login: LoginFlow, first: Vec<C
     session.send(first);
     world.insert_non_send(session);
     world.insert_resource(Faces(FaceStore::new(maccrossfire::faces::default_cache_dir())));
+    world.insert_resource(ViewSize(11, 11)); // until the setup reply says otherwise
     reset_play_state(world);
 }
 
@@ -173,7 +174,6 @@ pub fn start_session(world: &mut World, net: Net, login: LoginFlow, first: Vec<C
 /// to the character list.
 fn reset_play_state(world: &mut World) {
     world.insert_resource(View::default());
-    world.insert_resource(ViewSize(11, 11));
     world.insert_resource(LastComc { time_ms: 200, packet: 0 });
     world.insert_resource(NcomSeq::default());
     world.insert_resource(input::MoveWait::default());
@@ -335,4 +335,20 @@ fn ask_time(time: Res<Time>, mut request: ResMut<TimeRequest>, mut seq: ResMut<N
     let Some(session) = session else { return };
     session.send([ClientMsg::Ncom { packet: seq.next(), repeat: 0, command: "time".into() }]);
     request.0 = Some(time.elapsed_secs());
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn back_to_list_keeps_server_view_size() {
+        // The server sends the view size once per connection (setup reply).
+        let mut world = World::new();
+        world.init_resource::<ui::CommandLine>();
+        world.insert_resource(ViewSize(25, 25));
+        reset_play_state(&mut world);
+        let size = world.resource::<ViewSize>();
+        assert_eq!((size.0, size.1), (25, 25));
+    }
 }
