@@ -14,12 +14,14 @@ use bevy::prelude::*;
 use bevy::world_serialization::{WorldAsset, WorldAssetRoot, WorldInstanceReady};
 use maccrossfire::buildings::{footprint, parts, wall_parts, Part, Shape};
 use maccrossfire::models::{ModelMap, Visual};
+use maccrossfire::races::{classify_player_face, clothes_for_class, look_for_race, Body, Look, PlayerFace};
 use maccrossfire::terrain::{ground_height, is_wall};
 use maccrossfire::walls::wall_masks;
 
 use maccrossfire::clock::{sun_pose, FALLBACK_HOUR};
 use maccrossfire::settings::Quality;
 
+use crate::characters3d::{body_file, spawn_character, Character, OwnCharacter, OwnLook};
 use crate::graphics::CurrentSettings;
 use crate::input::{CameraHeading, Facing};
 use maccrossfire::camera::{pull_in, sight_blocked};
@@ -78,8 +80,8 @@ pub struct TileVisual {
 
 /// Moves toward `target` over the current step time. Used for creatures and the camera.
 #[derive(Component)]
-struct Glide {
-    target: Vec3,
+pub(crate) struct Glide {
+    pub target: Vec3,
 }
 
 #[derive(Component)]
@@ -143,7 +145,11 @@ struct Span(i32, i32, i32, i32);
 
 /// Colour a model's materials are multiplied by once it is spawned (tint and darkness).
 #[derive(Component)]
-struct ModelTint(Color);
+pub(crate) struct ModelTint(pub Color);
+
+/// Outfits carry bare skin too (parts named "...MI_Regular_..."); those get this colour.
+#[derive(Component)]
+pub(crate) struct SkinTint(pub Color);
 
 #[derive(Resource, Default)]
 struct Textures {
@@ -259,8 +265,9 @@ fn sync_visuals(
     server: Res<AssetServer>,
     mut models: ResMut<Models>,
     mut materials: ResMut<Assets<StandardMaterial>>,
-    mut existing: Query<(Entity, &mut TileVisual, Option<&mut Glide>)>,
+    mut existing: Query<(Entity, &mut TileVisual, Option<&mut Glide>, Has<Character>)>,
     mut solid: ResMut<Solid>,
+    (view_size, own): (Res<ViewSize>, Res<OwnLook>),
 ) {
     if !view.is_changed() && !textures.is_changed() {
         return;
@@ -296,7 +303,7 @@ fn sync_visuals(
 
     // Keep what is unchanged. Gliding things that left their tile become orphans.
     let mut orphans = Vec::new();
-    for (entity, tv, _) in &existing {
+    for (entity, tv, _, _) in &existing {
         match want.get(&(tv.x, tv.y, tv.layer)) {
             Some(&(face, dark, join)) if face == tv.face && dark == tv.darkness && join == tv.join => {
                 want.remove(&(tv.x, tv.y, tv.layer));
@@ -316,22 +323,35 @@ fn sync_visuals(
         // A creature that stepped one tile: move the old entity instead of making a new one.
         if glides(layer) {
             let found = orphans.iter().position(|&e| {
-                existing.get(e).is_ok_and(|(_, tv, _)| {
+                existing.get(e).is_ok_and(|(_, tv, _, _)| {
                     tv.face == face && tv.layer == layer && (tv.x - x).abs() <= 1 && (tv.y - y).abs() <= 1
                 })
             });
             if let Some(i) = found {
                 let e = orphans.swap_remove(i);
-                let (_, mut tv, glide) = existing.get_mut(e).unwrap();
+                let (_, mut tv, glide, character) = existing.get_mut(e).unwrap();
                 (tv.x, tv.y, tv.darkness) = (x, y, darkness);
                 if let Some(mut g) = glide {
-                    g.target = card_position(tile, *size, layer);
+                    g.target = if character { tile + Vec3::new(0.5, 0.0, 0.5) } else { card_position(tile, *size, layer) };
                 }
                 continue;
             }
         }
 
         let tv = TileVisual { x, y, layer, face, darkness, join };
+        // Players (a race or class picture) are 3D characters; the own one in the middle.
+        if glides(layer) && let Some(kind) = classify_player_face(name) {
+            let own_tile = (x, y) == view.0.world((view_size.0 / 2) as i8, (view_size.1 / 2) as i8);
+            let (look, body) = if own_tile { (own.look, own.body) } else { (other_look(kind), Body::Regular) };
+            if !models.failed.contains(body_file(body)) {
+                let pos = tile + Vec3::new(0.5, 0.0, 0.5);
+                let e = spawn_character(&mut commands, &server, &look, body, Transform::from_translation(pos), (tv, Glide { target: pos }));
+                if own_tile {
+                    commands.entity(e).insert(OwnCharacter);
+                }
+                continue;
+            }
+        }
         // Big pictures are sent at their bottom-right square; models stand in the middle.
         let (fw, fh) = footprint(size.x as u32, size.y as u32);
         let middle = tile + Vec3::new(1.0 - fw as f32 / 2.0, 0.0, 1.0 - fh as f32 / 2.0);
@@ -408,6 +428,15 @@ fn sync_visuals(
     }
 }
 
+/// Another player's look: their race if the picture shows it, else a human in their
+/// class colours.
+fn other_look(kind: PlayerFace) -> Look {
+    match kind {
+        PlayerFace::Race(race) => look_for_race(race),
+        PlayerFace::Class(class) => Look { clothes: clothes_for_class(class), ..look_for_race("human") },
+    }
+}
+
 /// One part of a building or wall, as a child entity.
 fn spawn_part(
     commands: &mut Commands,
@@ -458,12 +487,12 @@ fn swap_models(
 ) {
     for (e, p) in &pending {
         if models.failed.contains(&p.file) {
-            commands.entity(e).remove::<PendingModel>();
+            commands.entity(e).try_remove::<PendingModel>();
         } else if server.is_loaded_with_dependencies(&p.handle) {
             commands
                 .entity(e)
-                .remove::<(PendingModel, Card, Mesh3d, MeshMaterial3d<StandardMaterial>)>()
-                .insert((WorldAssetRoot(p.handle.clone()), p.transform, ModelTint(p.tint)));
+                .try_remove::<(PendingModel, Card, Mesh3d, MeshMaterial3d<StandardMaterial>)>()
+                .try_insert((WorldAssetRoot(p.handle.clone()), p.transform, ModelTint(p.tint)));
         }
     }
 }
@@ -473,22 +502,27 @@ fn swap_models(
 fn tint_model(
     ready: On<WorldInstanceReady>,
     mut commands: Commands,
-    tints: Query<&ModelTint>,
+    tints: Query<(&ModelTint, Option<&SkinTint>)>,
+    names: Query<&Name>,
     children: Query<&Children>,
     meshes: Query<&MeshMaterial3d<StandardMaterial>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    let Ok(ModelTint(tint)) = tints.get(ready.entity) else { return };
-    if *tint == Color::WHITE {
+    let Ok((ModelTint(tint), skin)) = tints.get(ready.entity) else { return };
+    if *tint == Color::WHITE && skin.is_none() {
         return;
     }
-    let tint = tint.to_linear();
     for d in children.iter_descendants(ready.entity) {
         let Ok(m) = meshes.get(d) else { continue };
+        let is_skin = names.get(d).is_ok_and(|n| n.as_str().contains("MI_Regular"));
+        let tint = match skin {
+            Some(SkinTint(s)) if is_skin => s.to_linear(),
+            _ => tint.to_linear(),
+        };
         let Some(mut copy) = materials.get(&m.0).cloned() else { continue };
         let c = copy.base_color.to_linear();
         copy.base_color = LinearRgba::new(c.red * tint.red, c.green * tint.green, c.blue * tint.blue, c.alpha).into();
-        commands.entity(d).insert(MeshMaterial3d(materials.add(copy)));
+        commands.entity(d).try_insert(MeshMaterial3d(materials.add(copy)));
     }
 }
 

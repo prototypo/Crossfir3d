@@ -1,10 +1,12 @@
 //! After account login: the character list and the new-character screen.
 
 use bevy::prelude::*;
-use bevy_egui::{egui, EguiContexts};
+use bevy_egui::{egui, EguiContexts, EguiTextureHandle};
 use maccrossfire::login::LoginState;
 use maccrossfire::newchar::{stat_code, STAT_NAMES};
+use maccrossfire::races::{default_body_path, save_body, Body};
 
+use crate::characters3d::Preview;
 use crate::{Session, Status};
 
 const GOLD: egui::Color32 = egui::Color32::from_rgb(0xc9, 0xa2, 0x4a);
@@ -32,17 +34,20 @@ pub fn characters_screen(
     mut status: ResMut<Status>,
     mut auto: Local<bool>,
     mut commands: Commands,
+    mut preview: ResMut<Preview>,
     session: Option<NonSendMut<Session>>,
 ) -> Result {
     let Some(mut session) = session else { return Ok(()) };
+    let picture = contexts.add_image(EguiTextureHandle::Weak(preview.image.id()));
     if status.0 == "Connecting..." {
         status.0.clear(); // connected: the list or form is showing now
     }
     let ctx = contexts.ctx_mut()?;
     let screen = ctx.content_rect().shrink(24.0);
-    // Developer screenshots: MACCROSSFIRE_SCREEN=newchar opens the new-character
-    // screen and rolls once.
-    if !*auto && std::env::var("MACCROSSFIRE_SCREEN").as_deref() == Ok("newchar") && *session.login.state() == LoginState::Characters {
+    // Developer screenshots: MACCROSSFIRE_SCREEN=newchar[:race_arch] opens the
+    // new-character screen, picks that race, and rolls once.
+    let dev = std::env::var("MACCROSSFIRE_SCREEN").ok().filter(|v| v.starts_with("newchar"));
+    if !*auto && dev.is_some() && *session.login.state() == LoginState::Characters {
         *auto = true;
         let out = session.login.start_creating();
         session.send(out);
@@ -100,13 +105,13 @@ pub fn characters_screen(
                 commands.queue(|world: &mut World| crate::end_session(world, String::new()));
             }
         }
-        LoginState::Creating => new_character(ctx, screen, &mut session),
+        LoginState::Creating => new_character(ctx, screen, &mut session, &mut preview.body, picture),
         _ => {}
     }
     Ok(())
 }
 
-fn new_character(ctx: &egui::Context, screen: egui::Rect, session: &mut Session) {
+fn new_character(ctx: &egui::Context, screen: egui::Rect, session: &mut Session, body: &mut Body, picture: egui::TextureId) {
     let mut out = Vec::new();
     let mut back = false;
     let session_pending = session.login.create_pending();
@@ -213,8 +218,13 @@ fn new_character(ctx: &egui::Context, screen: egui::Rect, session: &mut Session)
                 });
                 ui.label(egui::RichText::new("Characters are saved once they have some experience.").small().italics());
                 ui.add_space(8.0);
-                // Room for the turning 3D preview (M4).
-                ui.allocate_space(egui::vec2(ui.available_width(), 80.0));
+                // The server does not know a body type; the client keeps it per character.
+                ui.horizontal(|ui| {
+                    ui.label("Body");
+                    ui.radio_value(body, Body::Regular, "Broad");
+                    ui.radio_value(body, Body::Other, "Slim");
+                });
+                ui.image((picture, egui::vec2(200.0, 200.0)));
                 if let Some(e) = &n.error {
                     ui.colored_label(egui::Color32::LIGHT_RED, e);
                 }
@@ -234,10 +244,22 @@ fn new_character(ctx: &egui::Context, screen: egui::Rect, session: &mut Session)
                 });
             });
         });
-    if std::env::var("MACCROSSFIRE_SCREEN").as_deref() == Ok("newchar") && n.used() == n.limits.min as u16 * 7 && !n.races.is_empty() {
+    let dev = std::env::var("MACCROSSFIRE_SCREEN").ok().filter(|v| v.starts_with("newchar"));
+    if dev.is_some() && n.used() == n.limits.min as u16 * 7 && !n.races.is_empty() {
         n.roll(seed());
     }
+    if let Some(race) = dev.as_deref().and_then(|v| v.strip_prefix("newchar:"))
+        && n.race.as_deref() != Some(race)
+        && n.races.iter().any(|r| r == race)
+    {
+        n.race = Some(race.to_string());
+        n.refresh_choices();
+    }
     if !out.is_empty() {
+        let name = session.login.newchar.name.clone();
+        if let Err(e) = save_body(&default_body_path(), &name, *body) {
+            warn!("could not save the body choice: {e}");
+        }
         let msgs = session.login.create();
         session.send(msgs);
     }

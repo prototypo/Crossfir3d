@@ -68,9 +68,55 @@ impl AnimState {
     }
 }
 
+/// MSG_TYPE 14 (attack) means the player hit something; 19/5 (victim, died) is death.
+pub fn event_for_message(kind: u8, subtype: u8) -> Option<AnimEvent> {
+    match (kind, subtype) {
+        (14, _) => Some(AnimEvent::Attacked),
+        (19, 5) => Some(AnimEvent::Died),
+        _ => None,
+    }
+}
+
+pub fn event_for_command(command: &str) -> Option<AnimEvent> {
+    command.starts_with("cast ").then_some(AnimEvent::Cast)
+}
+
+/// The Universal Animation Library clip for each animation.
+pub fn clip_name(anim: Anim) -> &'static str {
+    match anim {
+        Anim::Idle => "Idle_Loop",
+        Anim::Walk => "Walk_Loop",
+        Anim::Attack => "Sword_Attack",
+        Anim::Cast => "Spell_Simple_Shoot",
+        Anim::Death => "Death01",
+    }
+}
+
+pub fn looping(anim: Anim) -> bool {
+    matches!(anim, Anim::Idle | Anim::Walk)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn messages_and_commands_start_animations() {
+        assert_eq!(event_for_message(14, 1), Some(AnimEvent::Attacked));
+        assert_eq!(event_for_message(19, 5), Some(AnimEvent::Died));
+        assert_eq!(event_for_message(19, 1), None);
+        assert_eq!(event_for_message(1, 0), None);
+        assert_eq!(event_for_command("cast 77"), Some(AnimEvent::Cast));
+        assert_eq!(event_for_command("fire 3"), None);
+    }
+
+    #[test]
+    fn every_anim_has_a_clip() {
+        for a in [Anim::Idle, Anim::Walk, Anim::Attack, Anim::Cast, Anim::Death] {
+            assert!(!clip_name(a).is_empty());
+        }
+        assert!(looping(Anim::Walk) && !looping(Anim::Death));
+    }
 
     #[test]
     fn idle_by_default() {

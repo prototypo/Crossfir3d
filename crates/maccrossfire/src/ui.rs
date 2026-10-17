@@ -151,6 +151,7 @@ pub fn command_line(
     mut last: ResMut<LastAction>,
     mut seq: ResMut<NcomSeq>,
     mut query: ResMut<PendingQuery>,
+    mut anim: ResMut<crate::characters3d::PlayerAnimEvents>,
     session: Option<NonSend<Session>>,
 ) -> Result {
     if !command_line_allowed(mode.0) {
@@ -172,6 +173,7 @@ pub fn command_line(
             mode.0 = Mode::World;
             last.0 = Some(time.elapsed_secs());
             if let (Some(session), false) = (session, command.trim().is_empty()) {
+                anim.0.extend(maccrossfire::anim::event_for_command(command.trim()));
                 session.send([submit_message(command, query.0, seq.next())]);
                 query.0 = false;
             }
