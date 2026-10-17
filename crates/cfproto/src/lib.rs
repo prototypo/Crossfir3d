@@ -5,6 +5,7 @@ pub mod frame;
 pub mod items;
 pub mod map2;
 pub mod server;
+pub mod spells;
 pub mod stats;
 pub mod view;
 
@@ -13,5 +14,6 @@ pub use frame::{read_frame, write_frame};
 pub use items::{Inventory, Item, ItemChange};
 pub use map2::{Map2Item, TileOp, ANIM_MASK, FACE_IS_ANIM};
 pub use server::{parse, ParseError, ServerMsg};
+pub use spells::{Spell, SpellBook};
 pub use stats::{parse_stats, StatValue, Stats};
 pub use view::{Cell, MapView};
