@@ -9,3 +9,4 @@ pub mod sound;
 pub mod modes;
 pub mod settings;
 pub mod clock;
+pub mod newchar;

@@ -8,7 +8,16 @@ pub enum ClientMsg {
     AccountLogin { name: String, password: String },
     AccountNew { name: String, password: String },
     AccountPlay(String),
-    CreatePlayer { name: String, password: String, race: String, class: String, stats: Vec<(String, u8)> },
+    CreatePlayer {
+        name: String,
+        password: String,
+        race: String,
+        class: String,
+        stats: Vec<(String, u8)>,
+        starting_map: Option<String>,
+        /// (choice key, chosen arch)
+        choices: Vec<(String, String)>,
+    },
     AskFace(u32),
     Ncom { packet: u16, repeat: i32, command: String },
     Beat,
@@ -35,11 +44,13 @@ impl ClientMsg {
             ClientMsg::AccountLogin { name, password } => with_lstrings("accountlogin", &[name, password]),
             ClientMsg::AccountNew { name, password } => with_lstrings("accountnew", &[name, password]),
             ClientMsg::AccountPlay(name) => format!("accountplay {name}").into_bytes(),
-            ClientMsg::CreatePlayer { name, password, race, class, stats } => {
+            ClientMsg::CreatePlayer { name, password, race, class, stats, starting_map, choices } => {
                 let mut b = with_lstrings("createplayer", &[name, password]);
                 // Each extra line is an lstring that includes a trailing null (see create_player_cmd).
                 let mut lines = vec![format!("race {race}\0"), format!("class {class}\0")];
                 lines.extend(stats.iter().map(|(k, v)| format!("{k} {v}\0")));
+                lines.extend(starting_map.iter().map(|m| format!("starting_map {m}\0")));
+                lines.extend(choices.iter().map(|(k, a)| format!("choice {k} {a}\0")));
                 for line in &lines {
                     push_lstring(&mut b, line);
                 }
@@ -116,9 +127,30 @@ mod tests {
             race: s("human_player"),
             class: s("fighter_class"),
             stats: vec![(s("Str"), 12)],
+            starting_map: None,
+            choices: vec![],
         };
         let mut want = b"createplayer \x03Bob\x02pw".to_vec();
         for line in ["race human_player\0", "class fighter_class\0", "Str 12\0"] {
+            want.push(line.len() as u8);
+            want.extend_from_slice(line.as_bytes());
+        }
+        assert_eq!(m.encode(), want);
+    }
+
+    #[test]
+    fn createplayer_with_map_and_choice() {
+        let m = ClientMsg::CreatePlayer {
+            name: s("Bob"),
+            password: s("pw"),
+            race: s("dwarf_player"),
+            class: s("wizard_class"),
+            stats: vec![(s("Str"), 12)],
+            starting_map: Some(s("map_scorn")),
+            choices: vec![(s("race_choice_1"), s("Gaea"))],
+        };
+        let mut want = b"createplayer \x03Bob\x02pw".to_vec();
+        for line in ["race dwarf_player\0", "class wizard_class\0", "Str 12\0", "starting_map map_scorn\0", "choice race_choice_1 Gaea\0"] {
             want.push(line.len() as u8);
             want.extend_from_slice(line.as_bytes());
         }

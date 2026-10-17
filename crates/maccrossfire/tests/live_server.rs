@@ -34,7 +34,7 @@ fn walk_one_step() {
     let net = connect("localhost:13327").expect("is the server running? scripts/server.sh run");
     let stamp = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_millis() % 1_000_000;
     let name = format!("walk{stamp}");
-    let creds = Creds { account: name.clone(), password: "testpw".into(), character: name, new_account: true };
+    let creds = Creds { account: name.clone(), password: "testpw".into(), new_account: true, quick_character: Some(name) };
     let (mut flow, first) = LoginFlow::start(creds);
     for m in first {
         net.tx.send(m).unwrap();
@@ -78,7 +78,7 @@ fn pick_up_and_drop() {
     let net = connect("localhost:13327").expect("is the server running? scripts/server.sh run");
     let stamp = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_millis() % 1_000_000;
     let name = format!("drop{stamp}");
-    let creds = Creds { account: name.clone(), password: "testpw".into(), character: name, new_account: true };
+    let creds = Creds { account: name.clone(), password: "testpw".into(), new_account: true, quick_character: Some(name) };
     let (mut flow, first) = LoginFlow::start(creds);
     for m in first {
         net.tx.send(m).unwrap();
@@ -106,4 +106,84 @@ fn pick_up_and_drop() {
         ServerMsg::Item2 { location, items } if *location == player => items.iter().any(|i| i.tag == tag).then_some(()),
         _ => None,
     });
+}
+
+#[test]
+#[ignore]
+fn creation_data_parses() {
+    use cfproto::newchar::{parse_arch_info, parse_newcharinfo, parse_starting_maps};
+    let net = connect("localhost:13327").expect("is the server running? scripts/server.sh run");
+    net.tx.send(ClientMsg::Version).unwrap();
+    net.tx.send(ClientMsg::Setup(vec![("loginmethod".into(), "2".into())])).unwrap();
+    for q in ["newcharinfo", "race_list", "startingmap", "race_info dwarf_player", "class_info wizard_class"] {
+        net.tx.send(ClientMsg::RequestInfo(q.into())).unwrap();
+    }
+    let mut seen = 0;
+    while let Ok(NetEvent::Msg(m)) = net.rx.recv_timeout(Duration::from_secs(3)) {
+        let ServerMsg::ReplyInfo { kind, data } = m else { continue };
+        seen += 1;
+        match kind.as_str() {
+            "newcharinfo" => assert!(parse_newcharinfo(&data).points >= 60),
+            "race_list" => assert!(String::from_utf8_lossy(&data).contains("dwarf_player")),
+            "startingmap" => assert!(parse_starting_maps(&data).unwrap().iter().any(|m| m.arch == "map_scorn" && m.name == "Scorn")),
+            "race_info" | "class_info" => {
+                let info = parse_arch_info(&data).unwrap();
+                assert!(!info.name.is_empty() && !info.message.is_empty(), "{kind}: {info:?}");
+            }
+            other => panic!("unexpected reply {other}"),
+        }
+    }
+    assert_eq!(seen, 5);
+}
+
+#[test]
+#[ignore]
+fn create_chosen_character() {
+    let net = connect("localhost:13327").expect("is the server running? scripts/server.sh run");
+    let stamp = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_millis() % 1_000_000;
+    let name = format!("make{stamp}");
+    let creds = Creds { account: name.clone(), password: "testpw".into(), new_account: true, quick_character: None };
+    let (mut flow, first) = LoginFlow::start(creds);
+    for m in first {
+        net.tx.send(m).unwrap();
+    }
+    wait_for(&net, &mut flow, "character list", |m| matches!(m, ServerMsg::AccountPlayers(_)).then_some(()));
+    for m in flow.start_creating() {
+        net.tx.send(m).unwrap();
+    }
+    // Wait until the lists, the second race's and class's descriptions, and the maps arrived.
+    let deadline = Instant::now() + Duration::from_secs(10);
+    loop {
+        assert!(Instant::now() < deadline, "creation data incomplete");
+        next(&net, &mut flow, Duration::from_secs(5));
+        let n = &flow.newchar;
+        let ready = n.races.len() > 1
+            && n.classes.len() > 1
+            && n.infos.contains_key(&n.races[1])
+            && n.infos.contains_key(&n.classes[1])
+            && n.map.is_some();
+        if ready {
+            break;
+        }
+    }
+    let n = &mut flow.newchar;
+    assert_eq!(n.map.as_deref(), Some("map_scorn"));
+    n.race = Some(n.races[1].clone());
+    n.class = Some(n.classes[1].clone());
+    n.refresh_choices();
+    n.name = name.clone();
+    // Roll until the race and class leave no stat below 1.
+    for seed in 1.. {
+        n.roll(seed);
+        if n.problem().is_none() {
+            break;
+        }
+    }
+    let create = flow.create();
+    assert!(matches!(&create[..], [ClientMsg::CreatePlayer { .. }]), "{create:?}");
+    for m in create {
+        net.tx.send(m).unwrap();
+    }
+    wait_for(&net, &mut flow, "the game to start", |m| matches!(m, ServerMsg::Map2(_)).then_some(()));
+    assert_eq!(flow.character(), name);
 }

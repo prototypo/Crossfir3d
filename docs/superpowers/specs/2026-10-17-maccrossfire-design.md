@@ -129,8 +129,12 @@ video settings menu, 3D models, solo-play auto-start.
   render scale, vsync, frame rate limit (30/60/120/unlimited), shadow quality
   (off/low/medium/high), anti-aliasing, contrast, brightness, gamma, field of
   view/zoom. Saved to a settings file.
+- **M3.5 — Characters.** Pick a character after login; create one with race,
+  class, rolled stats, and starting place. See `2026-10-17-characters-design.md`.
 - **M4 — 3D models.** A mapping file from face/arch name to a glTF model.
   Use a model when the map has one, a card when it does not. Start with CC0 packs.
+  Includes a 3D player character in the world and a turning 3D preview on the
+  new-character screen (owner, 2026-10-17).
 - **M5 — Solo play.** The app starts a bundled server and connects to it.
   (Uses the C server until M6 is done.)
 - **M6 — Rust server.** Port the C server to Rust. Old clients and this client
