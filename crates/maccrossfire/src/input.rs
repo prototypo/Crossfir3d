@@ -5,7 +5,10 @@ use cfproto::ClientMsg;
 
 use maccrossfire::camera::{compass, heading_of, screen_dir, swing, Heading, SWING_SECS};
 use maccrossfire::modes::{act, Act, KeyName, Mode};
+use maccrossfire::anim::event_for_command;
 use maccrossfire::slots::{dir_number, slot_commands};
+
+use crate::characters3d::PlayerAnimEvents;
 
 use crate::{HudState, Inv, KeyMode, LastAction, LastComc, Msgs, NcomSeq, PlayerStats, Session, Slots, Spells};
 
@@ -132,6 +135,7 @@ pub fn world_keys(
     mut seq: ResMut<NcomSeq>,
     (facing, slots, inv, spells, stats): (Res<Facing>, Res<Slots>, Res<Inv>, Res<Spells>, Res<PlayerStats>),
     mut heading: ResMut<CameraHeading>,
+    mut anim: ResMut<PlayerAnimEvents>,
     session: Option<NonSend<Session>>,
 ) {
     let Some(session) = session else { return };
@@ -139,6 +143,7 @@ pub fn world_keys(
     for key in pressed {
         let mut command = |c: &str| {
             last.0 = Some(time.elapsed_secs());
+            anim.0.extend(event_for_command(c));
             session.send([ClientMsg::Ncom { packet: seq.next(), repeat: 0, command: c.into() }]);
         };
         match act(mode.0, key, msgs.0.boxed.is_some()) {

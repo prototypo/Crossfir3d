@@ -55,6 +55,32 @@ pub fn look_for_race(race: &str) -> Look {
     }
 }
 
+/// The look as multipliers for the model's own colours. Skin and clothes textures are a
+/// human's, so a human gets ones; the hair texture is grey, so hair is the colour itself.
+/// Scale is kept.
+pub fn tints(look: &Look) -> Look {
+    let human = look_for_race("human");
+    let rel = |c: [f32; 3], h: [f32; 3]| [c[0] / h[0], c[1] / h[1], c[2] / h[2]];
+    Look {
+        scale: look.scale,
+        skin: rel(look.skin, human.skin),
+        hair: look.hair,
+        clothes: rel(look.clothes, human.clothes),
+    }
+}
+
+/// The triangles of a skinned mesh whose corners all follow head bones most. The free
+/// body is a whole body; the outfits carry their own arms and legs, so only the head
+/// of the body is shown. `is_head` is per skin joint.
+pub fn head_triangles(indices: &[u32], joints: &[[u16; 4]], weights: &[[f32; 4]], is_head: &[bool]) -> Vec<u32> {
+    let head_vertex = |v: u32| {
+        let (j, w) = (joints[v as usize], weights[v as usize]);
+        let strongest = (0..4).max_by(|&a, &b| w[a].total_cmp(&w[b])).unwrap_or(0);
+        is_head.get(j[strongest] as usize).copied().unwrap_or(false)
+    };
+    indices.as_chunks::<3>().0.iter().filter(|t| t.iter().all(|&v| head_vertex(v))).flatten().copied().collect()
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum PlayerFace {
     /// A race picture: the race arch.
@@ -120,8 +146,9 @@ pub fn clothes_for_class(class_arch: &str) -> [f32; 3] {
     }
 }
 
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
 pub enum Body {
+    #[default]
     Regular,
     Other,
 }
@@ -167,6 +194,27 @@ mod tests {
                 assert_ne!(look_for_race(arch), human, "{arch} looks like a human");
             }
         }
+    }
+
+    #[test]
+    fn tints_are_relative_to_a_human() {
+        let human = tints(&look_for_race("human"));
+        assert_eq!(human.skin, [1.0; 3]);
+        // The hair texture is grey, so hair takes the colour itself.
+        assert_eq!(human.hair, look_for_race("human").hair);
+        assert_eq!(human.clothes, [1.0; 3]);
+        let troll = tints(&look_for_race("troll"));
+        assert!(troll.skin[0] < troll.skin[1], "troll skin is greener than human");
+        assert_eq!(troll.scale, look_for_race("troll").scale);
+    }
+
+    #[test]
+    fn only_head_triangles_kept() {
+        // Joints: 0 = pelvis, 1 = Head. Vertices 0..3 follow the head, 3 follows the pelvis.
+        let joints = [[1, 0, 0, 0], [1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 0, 0]];
+        let weights = [[1.0, 0.0, 0.0, 0.0], [0.9, 0.1, 0.0, 0.0], [0.3, 0.7, 0.0, 0.0], [1.0, 0.0, 0.0, 0.0]];
+        let head = [false, true];
+        assert_eq!(head_triangles(&[0, 1, 2, 0, 1, 3], &joints, &weights, &head), vec![0, 1, 2]);
     }
 
     #[test]
