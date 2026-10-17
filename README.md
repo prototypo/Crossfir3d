@@ -21,6 +21,12 @@ plays sounds and music from there (or from `$MACCROSSFIRE_SOUNDS`).
 cargo run --release -p maccrossfire
 ```
 
+## Characters
+
+Log in with an account, then pick a character from the list or press "New character"
+to choose race, class, rolled stats, and where to start (Scorn by default). The server
+saves a character once it has some experience.
+
 ## Settings
 
 Escape in game (or "Settings" on the login screen) opens the video settings:

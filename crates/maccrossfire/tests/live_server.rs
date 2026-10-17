@@ -135,3 +135,55 @@ fn creation_data_parses() {
     }
     assert_eq!(seen, 5);
 }
+
+#[test]
+#[ignore]
+fn create_chosen_character() {
+    let net = connect("localhost:13327").expect("is the server running? scripts/server.sh run");
+    let stamp = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_millis() % 1_000_000;
+    let name = format!("make{stamp}");
+    let creds = Creds { account: name.clone(), password: "testpw".into(), new_account: true, quick_character: None };
+    let (mut flow, first) = LoginFlow::start(creds);
+    for m in first {
+        net.tx.send(m).unwrap();
+    }
+    wait_for(&net, &mut flow, "character list", |m| matches!(m, ServerMsg::AccountPlayers(_)).then_some(()));
+    for m in flow.start_creating() {
+        net.tx.send(m).unwrap();
+    }
+    // Wait until the lists, the second race's and class's descriptions, and the maps arrived.
+    let deadline = Instant::now() + Duration::from_secs(10);
+    loop {
+        assert!(Instant::now() < deadline, "creation data incomplete");
+        next(&net, &mut flow, Duration::from_secs(5));
+        let n = &flow.newchar;
+        let ready = n.races.len() > 1
+            && n.classes.len() > 1
+            && n.infos.contains_key(&n.races[1])
+            && n.infos.contains_key(&n.classes[1])
+            && n.map.is_some();
+        if ready {
+            break;
+        }
+    }
+    let n = &mut flow.newchar;
+    assert_eq!(n.map.as_deref(), Some("map_scorn"));
+    n.race = Some(n.races[1].clone());
+    n.class = Some(n.classes[1].clone());
+    n.refresh_choices();
+    n.name = name.clone();
+    // Roll until the race and class leave no stat below 1.
+    for seed in 1.. {
+        n.roll(seed);
+        if n.problem().is_none() {
+            break;
+        }
+    }
+    let create = flow.create();
+    assert!(matches!(&create[..], [ClientMsg::CreatePlayer { .. }]), "{create:?}");
+    for m in create {
+        net.tx.send(m).unwrap();
+    }
+    wait_for(&net, &mut flow, "the game to start", |m| matches!(m, ServerMsg::Map2(_)).then_some(()));
+    assert_eq!(flow.character(), name);
+}
