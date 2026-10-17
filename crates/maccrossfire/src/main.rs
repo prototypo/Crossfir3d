@@ -10,6 +10,7 @@ use maccrossfire::slots::{default_slots_path, load_slots, QuickSlots};
 use maccrossfire::net::{Net, NetEvent};
 
 mod audio;
+mod characters3d;
 mod characters_ui;
 mod graphics;
 mod hud;
@@ -114,10 +115,11 @@ pub struct HudState {
 fn main() {
     let settings = graphics::startup_settings();
     App::new()
-        .add_plugins(DefaultPlugins.set(WindowPlugin {
-            primary_window: Some(graphics::initial_window(&settings.0)),
-            ..default()
-        }))
+        .add_plugins(
+            DefaultPlugins
+                .set(WindowPlugin { primary_window: Some(graphics::initial_window(&settings.0)), ..default() })
+                .set(AssetPlugin { file_path: world::ASSET_DIR.into(), ..default() }),
+        )
         .insert_resource(settings)
         .add_plugins(graphics::GraphicsPlugin)
         .add_plugins(EguiPlugin::default())
@@ -134,7 +136,7 @@ fn main() {
         .init_resource::<PendingQuery>()
         .init_resource::<Clock>()
         .init_resource::<TimeRequest>()
-        .add_systems(OnEnter(AppState::InGame), ask_time)
+        .add_systems(OnEnter(AppState::InGame), (ask_time, dev_commands))
         .init_resource::<HudState>()
         .init_resource::<PlayerStats>()
         .init_resource::<Inv>()
@@ -142,8 +144,10 @@ fn main() {
         .init_resource::<Slots>()
         .init_resource::<inventory_ui::InvSel>()
         .init_resource::<input::Facing>()
+        .init_resource::<input::CameraHeading>()
         .add_systems(EguiPrimaryContextPass, (hud::hud, inventory_ui::inventory_screen).chain().run_if(in_state(AppState::InGame)))
         .add_plugins(world::WorldPlugin)
+        .add_plugins(characters3d::CharactersPlugin)
         .add_plugins(audio::AudioPlugin)
         .add_systems(Startup, ui::auto_login)
         .add_systems(Update, pump_network)
@@ -190,6 +194,7 @@ fn reset_play_state(world: &mut World) {
     world.insert_resource(Slots::default());
     world.insert_resource(inventory_ui::InvSel::default());
     world.insert_resource(input::Facing::default());
+    world.insert_resource(input::CameraHeading::default());
     *world.resource_mut::<ui::CommandLine>() = ui::CommandLine::default();
 }
 
@@ -254,7 +259,11 @@ fn pump_network(world: &mut World) {
                     world.resource_mut::<NextState<AppState>>().set(AppState::InGame);
                 }
             }
-            ServerMsg::NewMap => world.resource_mut::<View>().0.clear(),
+            ServerMsg::NewMap => {
+                world.resource_mut::<View>().0.clear();
+                // A new map after dying is the respawn.
+                world.resource_mut::<characters3d::PlayerAnimEvents>().0.push(maccrossfire::anim::AnimEvent::Revived);
+            }
             ServerMsg::Comc { packet, time_ms } => world.insert_resource(LastComc { time_ms, packet }),
             ServerMsg::Tick(t) => world.resource_mut::<Clock>().0.on_tick(t),
             // Every line of the reply to our own `time` request is for the clock, not the player.
@@ -273,6 +282,9 @@ fn pump_network(world: &mut World) {
                 info!("server: {text}");
                 let (now, last) = (world.resource::<Time>().elapsed_secs(), world.resource::<LastAction>().0);
                 world.resource_mut::<Msgs>().0.push(kind, subtype, &text, now, last);
+                if let Some(ev) = maccrossfire::anim::event_for_message(kind, subtype) {
+                    world.resource_mut::<characters3d::PlayerAnimEvents>().0.push(ev);
+                }
             }
             ServerMsg::Query { text, .. } => {
                 world.resource_mut::<PendingQuery>().0 = true;
@@ -331,6 +343,16 @@ fn time_reply_expected(world: &World, text: &str) -> bool {
 }
 
 /// Asks the server for the game time once per login.
+/// Developer check: MACCROSSFIRE_COMMANDS="cmd1;cmd2" sends these game commands on
+/// entering the game (e.g. a local-server teleport for screenshots).
+fn dev_commands(mut seq: ResMut<NcomSeq>, mut facing: ResMut<input::Facing>, session: Option<NonSend<Session>>) {
+    let (Ok(cmds), Some(session)) = (std::env::var("MACCROSSFIRE_COMMANDS"), session) else { return };
+    for c in cmds.split(';').map(str::trim).filter(|c| !c.is_empty()) {
+        facing.0 = maccrossfire::slots::dir_number(c).unwrap_or(facing.0);
+        session.send([ClientMsg::Ncom { packet: seq.next(), repeat: 0, command: c.into() }]);
+    }
+}
+
 fn ask_time(time: Res<Time>, mut request: ResMut<TimeRequest>, mut seq: ResMut<NcomSeq>, session: Option<NonSend<Session>>) {
     let Some(session) = session else { return };
     session.send([ClientMsg::Ncom { packet: seq.next(), repeat: 0, command: "time".into() }]);
