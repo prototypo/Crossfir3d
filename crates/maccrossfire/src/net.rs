@@ -1,7 +1,7 @@
 //! TCP connection to a Crossfire server: a reader thread and a writer thread.
 
 use std::io;
-use std::net::TcpStream;
+use std::net::{Shutdown, TcpStream};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::mpsc::{self, Receiver, RecvTimeoutError, Sender};
@@ -19,16 +19,24 @@ pub enum NetEvent {
 pub struct Net {
     pub tx: Sender<ClientMsg>,
     pub rx: Receiver<NetEvent>,
+    stream: TcpStream,
 }
 
-/// The server drops clients that send nothing for 3 s once `setup beat` is on.
+impl Drop for Net {
+    /// Closes the socket, so the server logs the player out and the reader thread ends.
+    fn drop(&mut self) {
+        let _ = self.stream.shutdown(Shutdown::Both);
+    }
+}
+
+/// With `setup beat` on, the server expects something from us every 3 s.
 const BEAT_AFTER: Duration = Duration::from_millis(2500);
 
 pub fn connect(addr: &str) -> io::Result<Net> {
     let stream = TcpStream::connect(addr)?;
     stream.set_nodelay(true)?;
     let mut reader = stream.try_clone()?;
-    let mut writer = stream;
+    let mut writer = stream.try_clone()?;
     let (tx, out_rx) = mpsc::channel::<ClientMsg>();
     let (in_tx, rx) = mpsc::channel();
     let dump = std::env::var_os("MACCROSSFIRE_DUMP").map(PathBuf::from);
@@ -72,7 +80,7 @@ pub fn connect(addr: &str) -> io::Result<Net> {
         }
     });
 
-    Ok(Net { tx, rx })
+    Ok(Net { tx, rx, stream })
 }
 
 fn dump_packet(dir: &Path, payload: &[u8]) {
@@ -132,6 +140,20 @@ mod tests {
         let net = connect(&addr).unwrap();
         let wait = Duration::from_secs(2);
         assert!(matches!(net.rx.recv_timeout(wait).unwrap(), NetEvent::Msg(ServerMsg::NewMap)));
+    }
+
+    #[test]
+    fn drop_closes_connection() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let addr = listener.local_addr().unwrap().to_string();
+        let server = std::thread::spawn(move || {
+            let (mut s, _) = listener.accept().unwrap();
+            s.set_read_timeout(Some(Duration::from_secs(2))).unwrap();
+            let mut buf = [0u8; 1];
+            std::io::Read::read(&mut s, &mut buf).map(|n| n == 0).unwrap_or(false)
+        });
+        drop(connect(&addr).unwrap());
+        assert!(server.join().unwrap(), "server did not see the connection close");
     }
 
     #[test]

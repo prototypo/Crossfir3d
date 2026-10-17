@@ -69,14 +69,24 @@ pub fn login_screen(
 }
 
 fn queue_connect(commands: &mut Commands, server: String, creds: Creds) {
-    commands.queue(move |world: &mut World| match maccrossfire::net::connect(&server) {
+    commands.queue(move |world: &mut World| {
+        // A second click while connected would leave the first character in the game.
+        if world.get_non_send::<Session>().is_some() {
+            return;
+        }
+        connect(world, &server, creds)
+    });
+}
+
+fn connect(world: &mut World, server: &str, creds: Creds) {
+    match maccrossfire::net::connect(server) {
         Ok(net) => {
             let (login, first) = LoginFlow::start(creds);
             world.resource_mut::<Status>().0 = "Connecting...".into();
             crate::start_session(world, net, login, first);
         }
         Err(e) => world.resource_mut::<Status>().0 = format!("Cannot connect to {server}: {e}"),
-    });
+    }
 }
 
 /// Developer shortcut: MACCROSSFIRE_LOGIN="account:password:character[:new]" logs in to

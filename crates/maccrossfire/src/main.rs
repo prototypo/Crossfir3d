@@ -91,6 +91,8 @@ pub fn start_session(world: &mut World, net: Net, login: LoginFlow, first: Vec<C
     world.insert_resource(View::default());
     world.insert_resource(ViewSize(11, 11));
     world.insert_resource(LastComc { time_ms: 200, packet: 0 });
+    world.insert_resource(NcomSeq::default());
+    world.insert_resource(input::MoveWait::default());
 }
 
 fn end_session(world: &mut World, status: String) {

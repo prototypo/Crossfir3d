@@ -11,9 +11,10 @@ use bevy::input::mouse::AccumulatedMouseScroll;
 use bevy::prelude::*;
 use maccrossfire::terrain::{ground_height, is_wall};
 
-use crate::{AppState, Faces, LastComc, View, ViewSize};
+use crate::{AppState, Faces, LastComc, Session, View, ViewSize};
 
 const TILE_PX: f32 = 32.0;
+const MAX_FACE_PX: u32 = 2048;
 const PITCH_DEG: f32 = 50.0;
 const ZOOM_MIN: f32 = 6.0;
 const ZOOM_MAX: f32 = 22.0;
@@ -97,24 +98,42 @@ fn camera_transform(focus: Vec3, distance: f32) -> Transform {
 }
 
 /// Turns newly arrived face PNGs into GPU images.
-fn load_textures(mut faces: ResMut<Faces>, mut textures: ResMut<Textures>, mut images: ResMut<Assets<Image>>) {
+fn load_textures(
+    mut faces: ResMut<Faces>,
+    mut textures: ResMut<Textures>,
+    mut images: ResMut<Assets<Image>>,
+    session: Option<NonSend<Session>>,
+) {
     for num in faces.0.take_new() {
         let Some(png) = faces.0.png(num) else { continue };
-        match Image::from_buffer(
+        let image = Image::from_buffer(
             png,
             ImageType::Extension("png"),
             CompressedImageFormats::NONE,
             true,
             ImageSampler::nearest(),
             RenderAssetUsages::RENDER_WORLD,
-        ) {
-            Ok(image) => {
+        );
+        match image {
+            Ok(image) if usable_size(image.size()) => {
                 let size = image.size().as_vec2();
                 textures.images.insert(num, (images.add(image), size));
             }
-            Err(e) => warn!("face {num}: bad PNG: {e}"),
+            Ok(image) => warn!("face {num}: size {} is too big, skipped", image.size()),
+            Err(e) => {
+                warn!("face {num}: bad PNG: {e}");
+                let ask = faces.0.on_bad_png(num);
+                if let Some(s) = &session {
+                    s.send(ask);
+                }
+            }
         }
     }
+}
+
+/// Server images become GPU textures; a huge one would fail on the GPU and crash.
+fn usable_size(size: UVec2) -> bool {
+    size.x > 0 && size.y > 0 && size.max_element() <= MAX_FACE_PX
 }
 
 /// What should be on screen, keyed by (world x, world y, layer).
@@ -275,5 +294,17 @@ fn lighting(view: Res<View>, size: Res<ViewSize>, mut sun: Single<&mut Direction
 fn despawn_visuals(mut commands: Commands, q: Query<Entity, With<TileVisual>>) {
     for e in &q {
         commands.entity(e).despawn();
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn huge_or_empty_images_rejected() {
+        assert!(usable_size(UVec2::new(32, 64)));
+        assert!(!usable_size(UVec2::new(16385, 1)));
+        assert!(!usable_size(UVec2::new(0, 32)));
     }
 }
