@@ -1,0 +1,238 @@
+# Which Crossfire picture becomes which 3D visual. Read by crates/maccrossfire/src/models.rs.
+# pattern[*] kind args...   (`*` = prefix; exact beats prefix; a full name with its
+# frame, like grate_1.118, beats the base name). Unlisted pictures stay picture cards.
+#   model <file under assets/models> <scale> <rot_deg> <dy> [r,g,b tint]
+#   building <recipe>   (assembled in code; well, fountain, signpost are built from shapes)
+#   wall <style>        (joined pieces; styles: stone brick plaster wood hedge rock)
+#   flat                (lies on the ground)
+#   card                (keep the picture card)
+# One map square is 1 unit. Player pictures are handled in code (races.rs).
+
+# --- Buildings (construct/) ---
+housesmall* building cottage
+s_house* building cottage
+hut* building cottage
+minihouse building cottage
+bungalow building cottage
+s_bungalow building cottage
+hovels* building cottage
+slum* building cottage
+house* building house
+r_house* building house
+rl_house* building house
+t_house* building house
+farmhouse building house
+woodhouse building house
+building* building house
+tavern building tavern
+inn* building tavern
+s_inn building tavern
+l_shop1 building tavern
+s_shop* building tavern
+market* building tavern
+draughts_house building tavern
+chess_club building tavern
+barn* building barn
+s_barn building barn
+barrack* building barn
+s_barrack* building barn
+church* building temple
+cathedral building temple
+temple* building temple
+smalltemple* building temple
+shrine* building temple
+s_church building temple
+devourers_cathedral building temple
+devourers_church building temple
+devourers_temple building temple
+gaea_cathedral building temple
+gaea_church building temple
+gaea_temple building temple
+gnarg_cathedral building temple
+gnarg_church building temple
+gnarg_temple building temple
+gorokh_cathedral building temple
+gorokh_church building temple
+gorokh_temple building temple
+ixalovh_cathedral building temple
+ixalovh_church building temple
+ixalovh_temple building temple
+lythander_cathedral building temple
+lythander_church building temple
+lythander_temple building temple
+mostrai_cathedral building temple
+mostrai_church building temple
+mostrai_temple building temple
+ruggilli_cathedral building temple
+ruggilli_church building temple
+ruggilli_temple building temple
+sorig_cathedral building temple
+sorig_church building temple
+sorig_temple building temple
+valkyrie_cathedral building temple
+valkyrie_church building temple
+valkyrie_temple building temple
+valriel_cathedral building temple
+valriel_church building temple
+valriel_temple building temple
+lyth_temple building temple
+mos_temple building temple
+city-tower* building tower
+city_tower* building tower
+s_citytower building tower
+tower* building tower
+s_tower* building tower
+out_tower building tower
+ruined_tower building tower
+wizard_tower building tower
+pagoda_tower* building tower
+lighthouse* building tower
+s_lighthouse building tower
+castle* building castle
+s_castle building castle
+keep* building castle
+fort* building castle
+palace building castle
+dark_palace building castle
+stronghold* building castle
+stronghsym building castle
+darkhold* building castle
+capitalhold* building castle
+guild building castle
+guild_* building castle
+guild2* building castle
+s_guild building castle
+dragon_guild building castle
+guild_* building castle
+guild2* building castle
+courthouse building castle
+university building castle
+prison building castle
+prison_fant building castle
+collesium building castle
+a_civic* building castle
+treehouse model nature/CommonTree_3.gltf 0.6 0 0
+treefort* model nature/CommonTree_4.gltf 0.7 0 0
+
+# --- Wells, fountains, signs (no free model; built from shapes in code) ---
+well building well
+bloodwell building well
+fountain building fountain
+sign building signpost
+sign_e building signpost
+sign_w building signpost
+sign_distance building signpost
+
+# --- Gates: a full name with its frame is that exact picture ---
+# Portcullis gates: frame 111 is open (raised), the last frame is closed.
+grate_1* model castle/metal-gate.glb 1.4 0 0.9
+grate_1.118 model castle/metal-gate.glb 1.4 0 0
+grate_2* model castle/metal-gate.glb 1.4 90 0.9
+grate_2.118 model castle/metal-gate.glb 1.4 90 0
+iron_gate1* model castle/metal-gate.glb 1.4 0 0.9
+iron_gate1.118 model castle/metal-gate.glb 1.4 0 0
+iron_gate2* model castle/metal-gate.glb 1.4 90 0.9
+iron_gate2.116 model castle/metal-gate.glb 1.4 90 0
+gratedoor1 model castle/metal-gate.glb 1.4 0 0
+gratedoor2 model castle/metal-gate.glb 1.4 90 0
+# Wooden gates swing open: frame 111 is open (turned aside), the last frame is closed.
+gate_1* model castle/gate.glb 1.5 90 0
+gate_1.117 model castle/gate.glb 1.5 0 0
+gate_2* model castle/gate.glb 1.5 0 0
+gate_2.115 model castle/gate.glb 1.5 90 0
+# The garden gate is the other way round: frame 111 is closed.
+gard_gate* model castle/gate.glb 1.5 90 0 0.55,0.4,0.25
+gard_gate.111 model castle/gate.glb 1.5 0 0 0.55,0.4,0.25
+
+# --- Arches (exit/) ---
+archgold model castle/wall-doorway.glb 1.0 0 0 0.9,0.75,0.3
+archgreen model castle/wall-doorway.glb 1.0 0 0 0.4,0.7,0.4
+archblack model castle/wall-doorway.glb 1.0 0 0 0.25,0.25,0.25
+archwood model castle/wall-doorway.glb 1.0 0 0 0.55,0.4,0.25
+archtree model nature/TwistedTree_1.gltf 0.4 0 0
+
+# --- Trees and bushes (ground/Wood): standing on their ground square ---
+tree_1 model nature/CommonTree_1.gltf 0.45 0 0
+tree_2 model nature/CommonTree_2.gltf 0.45 0 0
+tree_3 model nature/CommonTree_3.gltf 0.45 0 0
+tree_4 model nature/CommonTree_4.gltf 0.45 0 0
+tree_5 model nature/CommonTree_5.gltf 0.45 0 0
+tree_6 model nature/DeadTree_1.gltf 0.45 0 0
+woods_1 model nature/CommonTree_1.gltf 0.5 0 0
+woods_2 model nature/CommonTree_2.gltf 0.5 40 0
+woods_3 model nature/CommonTree_4.gltf 0.5 80 0
+woods_4 model nature/CommonTree_5.gltf 0.5 120 0
+woods_5 model nature/CommonTree_3.gltf 0.5 160 0
+evergreens* model nature/Pine_1.gltf 0.5 0 0
+darkforest model nature/Pine_2.gltf 0.55 0 0 0.6,0.7,0.6
+bforest model nature/Pine_3.gltf 0.55 0 0 0.6,0.65,0.7
+jungle_1 model nature/TwistedTree_1.gltf 0.5 0 0 0.7,1.0,0.7
+jungle_2 model nature/TwistedTree_2.gltf 0.5 0 0 0.7,1.0,0.7
+ytree* model nature/CommonTree_2.gltf 0.45 0 0 1.0,0.9,0.5
+treed_hills model nature/Pine_4.gltf 0.45 0 0
+brush model nature/Bush_Common.gltf 0.5 0 0
+cyanbrush model nature/Bush_Common_Flowers.gltf 0.5 0 0 0.7,0.9,1.0
+
+# --- Mountains and rocky hills (ground/Mountain): rocks on raised ground ---
+mountain_dwarf card
+mountain* model nature/Rock_Medium_1.gltf 0.45 0 0
+mountain2* model nature/Rock_Medium_2.gltf 0.45 90 0
+mountain3* model nature/Rock_Medium_3.gltf 0.45 180 0
+mountain4* model nature/Rock_Medium_1.gltf 0.5 270 0
+mountain5* model nature/Rock_Medium_2.gltf 0.55 45 0
+s_mountain model nature/Rock_Medium_3.gltf 0.45 0 0
+hillsrocky model nature/Rock_Medium_3.gltf 0.25 0 0
+
+# --- Walls (wall/): stone ---
+wall_* wall stone
+window_0 wall stone
+window_1 wall stone
+cwall* wall stone
+redcwall* wall stone
+westcwall* wall stone
+guard_ho* wall stone
+redguard_ho* wall stone
+westguard_ho* wall stone
+stwall* wall stone
+stwindow* wall stone
+swall* wall stone
+awall* wall stone
+awindow* wall stone
+bwall* wall stone
+stoneblock* wall stone
+dwall* wall stone
+dwindow* wall stone
+gwall* wall stone
+ewall* wall stone
+ewindow* wall stone
+flagstone_* wall stone
+flagstone_S card
+jcity* wall stone
+dun_* wall stone
+dun2 wall stone
+dun3 wall stone
+dun4 wall stone
+slevel* wall stone
+dlevel* wall stone
+earthwall wall rock
+# brick, plaster, wood
+rough* wall brick
+white_wall* wall plaster
+white_window* wall plaster
+wwall* wall plaster
+wwindow* wall plaster
+woodwall* wall wood
+woodwindow* wall wood
+timberwall* wall wood
+# hedge and rock
+hedge* wall hedge
+cave* wall rock
+cave_stair_up_2 card
+mine wall rock
+mine_* wall rock
+red_cave* wall rock
+dark_blue_cave* wall rock
+light_blue_cave* wall rock
+
+# --- Floor decorations ---
+pentagram flat
