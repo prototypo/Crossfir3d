@@ -5,6 +5,15 @@ use crate::items::{parse_item2, parse_upditem, Item, ItemChange};
 use crate::spells::{parse_addspell, parse_updspell, Spell};
 use crate::stats::{parse_stats, StatValue};
 
+#[derive(Clone, Debug, Default, PartialEq)]
+pub struct CharacterInfo {
+    pub name: String,
+    pub race: String,
+    pub class: String,
+    pub level: u16,
+    pub face: Option<u16>,
+}
+
 #[derive(Debug, PartialEq)]
 pub struct ParseError(pub String);
 
@@ -13,7 +22,7 @@ pub enum ServerMsg {
     Version { cs: u32, sc: u32, info: String },
     Setup(Vec<(String, String)>),
     Failure { command: String, reason: String },
-    AccountPlayers(Vec<String>),
+    AccountPlayers(Vec<CharacterInfo>),
     ReplyInfo { kind: String, data: Vec<u8> },
     AddmeSuccess,
     AddmeFailed,
@@ -47,6 +56,10 @@ pub enum ServerMsg {
 }
 
 const ACL_NAME: u8 = 1;
+const ACL_CLASS: u8 = 2;
+const ACL_RACE: u8 = 3;
+const ACL_LEVEL: u8 = 4;
+const ACL_FACE_NUM: u8 = 8;
 
 pub fn parse(payload: &[u8]) -> Result<ServerMsg, ParseError> {
     let (cmd, data) = match payload.iter().position(|&b| b == b' ') {
@@ -79,23 +92,33 @@ pub fn parse(payload: &[u8]) -> Result<ServerMsg, ParseError> {
         }
         "accountplayers" => {
             let count = r.u8()?;
-            let mut names = Vec::new();
+            let mut chars = Vec::new();
             for _ in 0..count {
+                let mut c = CharacterInfo::default();
                 loop {
                     let len = r.u8()? as usize;
                     if len == 0 {
                         break;
                     }
                     let field = r.take(len)?;
-                    if field[0] == ACL_NAME {
-                        names.push(String::from_utf8_lossy(&field[1..]).into_owned());
+                    let text = || String::from_utf8_lossy(&field[1..]).into_owned();
+                    let short = || field.get(1..3).map(|b| u16::from_be_bytes([b[0], b[1]]));
+                    match field[0] {
+                        ACL_NAME => c.name = text(),
+                        ACL_CLASS => c.class = text(),
+                        ACL_RACE => c.race = text(),
+                        ACL_LEVEL => c.level = short().unwrap_or(0),
+                        ACL_FACE_NUM => c.face = short(),
+                        _ => {}
                     }
                 }
+                chars.push(c);
             }
-            ServerMsg::AccountPlayers(names)
+            ServerMsg::AccountPlayers(chars)
         }
         "replyinfo" => {
-            let (kind, rest) = match data.iter().position(|&b| b == b' ') {
+            // The kind ends at a space or, for some replies, a newline.
+            let (kind, rest) = match data.iter().position(|&b| b == b' ' || b == b'\n') {
                 Some(i) => (&data[..i], &data[i + 1..]),
                 None => (data, &[][..]),
             };
@@ -256,14 +279,47 @@ mod tests {
     fn parse_accountplayers() {
         let mut b = b"accountplayers \x01".to_vec();
         b.extend_from_slice(&[4, 1, b'B', b'o', b'b']); // ACL_NAME
-        b.extend_from_slice(&[3, 4, 0x00, 0x05]); // ACL_LEVEL, skipped
+        b.extend_from_slice(&[3, 4, 0x00, 0x05]); // ACL_LEVEL
+        b.extend_from_slice(&[0, 0]);
+        let ServerMsg::AccountPlayers(c) = p(&b) else { panic!() };
+        assert_eq!((c[0].name.as_str(), c[0].level), ("Bob", 5));
+    }
+
+    #[test]
+    fn accountplayers_full_records() {
+        let mut b = b"accountplayers \x02".to_vec();
+        b.extend_from_slice(&[4, 1, b'A', b'n', b'n']);
+        b.extend_from_slice(&[6, 3, b'd', b'w', b'a', b'r', b'f']); // race
+        b.extend_from_slice(&[7, 2, b'w', b'i', b'z', b'a', b'r', b'd']); // class
+        b.extend_from_slice(&[3, 4, 0x00, 0x0c]); // level 12
+        b.extend_from_slice(&[3, 8, 0x01, 0x02]); // face 258
+        b.extend_from_slice(&[3, 7, b'x', b'y']); // map: skipped
         b.push(0);
-        assert_eq!(p(&b), ServerMsg::AccountPlayers(vec!["Bob".into()]));
+        b.extend_from_slice(&[4, 1, b'B', b'o', b'b']);
+        b.push(0);
+        let ServerMsg::AccountPlayers(c) = p(&b) else { panic!() };
+        assert_eq!(
+            c[0],
+            CharacterInfo { name: "Ann".into(), race: "dwarf".into(), class: "wizard".into(), level: 12, face: Some(258) }
+        );
+        assert_eq!(c[1].name, "Bob");
     }
 
     #[test]
     fn parse_accountplayers_empty() {
         assert_eq!(p(b"accountplayers \x00"), ServerMsg::AccountPlayers(vec![]));
+    }
+
+    #[test]
+    fn replyinfo_kind_ends_at_newline() {
+        assert_eq!(
+            p(b"replyinfo startingmap\n\x01\x00\x02ab"),
+            ServerMsg::ReplyInfo { kind: "startingmap".into(), data: b"\x01\x00\x02ab".to_vec() }
+        );
+        assert_eq!(
+            p(b"replyinfo race_info dwarf_player\nname x"),
+            ServerMsg::ReplyInfo { kind: "race_info".into(), data: b"dwarf_player\nname x".to_vec() }
+        );
     }
 
     #[test]

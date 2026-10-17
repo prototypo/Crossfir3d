@@ -61,8 +61,8 @@ impl LoginFlow {
                     vec![ClientMsg::AccountLogin { name, password }]
                 }
             }
-            (LoginState::Account, ServerMsg::AccountPlayers(names)) => {
-                if names.contains(&c.character) {
+            (LoginState::Account, ServerMsg::AccountPlayers(chars)) => {
+                if chars.iter().any(|ch| ch.name == c.character) {
                     self.state = LoginState::Playing;
                     vec![ClientMsg::AccountPlay(c.character.clone())]
                 } else {
@@ -91,6 +91,8 @@ impl LoginFlow {
                     race: race.clone(),
                     class: class.clone(),
                     stats,
+                    starting_map: None,
+                    choices: vec![],
                 };
                 self.state = LoginState::Playing;
                 vec![msg]
@@ -163,7 +165,8 @@ mod tests {
     #[test]
     fn known_character_plays() {
         let mut f = logged_in();
-        let out = f.on_message(&ServerMsg::AccountPlayers(vec!["Ann".into(), "Bob".into()]));
+        let named = |n: &str| cfproto::CharacterInfo { name: n.into(), ..Default::default() };
+        let out = f.on_message(&ServerMsg::AccountPlayers(vec![named("Ann"), named("Bob")]));
         assert_eq!(out, vec![ClientMsg::AccountPlay("Bob".into())]);
         assert_eq!(f.state(), &LoginState::Playing);
     }
@@ -189,6 +192,8 @@ mod tests {
                 race: "half_orc_player".into(),
                 class: "fighter_class".into(),
                 stats,
+                starting_map: None,
+                choices: vec![],
             }]
         );
         assert_eq!(f.state(), &LoginState::Playing);
