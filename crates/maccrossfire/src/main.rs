@@ -3,14 +3,17 @@ use bevy_egui::{EguiPlugin, EguiPrimaryContextPass};
 use cfproto::{ClientMsg, Inventory, MapView, ServerMsg, SpellBook, Stats};
 use maccrossfire::faces::FaceStore;
 use maccrossfire::login::{LoginFlow, LoginState};
+use maccrossfire::clock::{is_time_reply, is_time_reply_line, parse_time_reply, GameClock};
 use maccrossfire::messages::Messages;
 use maccrossfire::modes::Mode;
 use maccrossfire::slots::{default_slots_path, load_slots, QuickSlots};
 use maccrossfire::net::{Net, NetEvent};
 
 mod audio;
+mod graphics;
 mod hud;
 mod input;
+mod settings_ui;
 mod inventory_ui;
 mod ui;
 mod world;
@@ -78,6 +81,14 @@ pub struct LastAction(pub Option<f32>);
 #[derive(Resource, Default)]
 pub struct Msgs(pub Messages);
 
+/// Crossfire's game clock, synced from our own `time` request.
+#[derive(Resource, Default)]
+pub struct Clock(pub GameClock);
+
+/// When we sent `time`; its reply is used for the clock and not shown.
+#[derive(Resource, Default)]
+pub struct TimeRequest(pub Option<f32>);
+
 /// The server asked a question; the next command box line is the answer.
 #[derive(Resource, Default)]
 pub struct PendingQuery(pub bool);
@@ -100,12 +111,17 @@ pub struct HudState {
 }
 
 fn main() {
+    let settings = graphics::startup_settings();
     App::new()
         .add_plugins(DefaultPlugins.set(WindowPlugin {
-            primary_window: Some(Window { title: "MacCrossfire".into(), ..default() }),
+            primary_window: Some(graphics::initial_window(&settings.0)),
             ..default()
         }))
+        .insert_resource(settings)
+        .add_plugins(graphics::GraphicsPlugin)
         .add_plugins(EguiPlugin::default())
+        // egui goes on the window camera (graphics.rs), not the 3D camera that draws into an image.
+        .insert_resource(bevy_egui::EguiGlobalSettings { auto_create_primary_context: false, ..default() })
         .init_state::<AppState>()
         .init_resource::<Status>()
         .init_resource::<NcomSeq>()
@@ -115,6 +131,9 @@ fn main() {
         .init_resource::<LastAction>()
         .init_resource::<Msgs>()
         .init_resource::<PendingQuery>()
+        .init_resource::<Clock>()
+        .init_resource::<TimeRequest>()
+        .add_systems(OnEnter(AppState::InGame), ask_time)
         .init_resource::<HudState>()
         .init_resource::<PlayerStats>()
         .init_resource::<Inv>()
@@ -129,7 +148,9 @@ fn main() {
         .add_systems(Update, pump_network)
         .add_systems(Update, (input::send_moves, input::world_keys).run_if(in_state(AppState::InGame)))
         .add_systems(Update, dev_screenshot.run_if(in_state(AppState::InGame)))
+        .init_resource::<settings_ui::SettingsOpen>()
         .add_systems(EguiPrimaryContextPass, ui::login_screen.run_if(in_state(AppState::Login)))
+        .add_systems(EguiPrimaryContextPass, settings_ui::settings_screen)
         .add_systems(EguiPrimaryContextPass, ui::command_line.run_if(in_state(AppState::InGame)))
         .run();
 }
@@ -150,6 +171,8 @@ pub fn start_session(world: &mut World, net: Net, login: LoginFlow, first: Vec<C
     world.insert_resource(LastAction::default());
     world.insert_resource(Msgs::default());
     world.insert_resource(PendingQuery::default());
+    world.insert_resource(Clock::default());
+    world.insert_resource(TimeRequest::default());
     world.insert_resource(HudState::default());
     world.insert_resource(PlayerStats::default());
     world.insert_resource(Inv::default());
@@ -221,6 +244,19 @@ fn pump_network(world: &mut World) {
             }
             ServerMsg::NewMap => world.resource_mut::<View>().0.clear(),
             ServerMsg::Comc { packet, time_ms } => world.insert_resource(LastComc { time_ms, packet }),
+            ServerMsg::Tick(t) => world.resource_mut::<Clock>().0.on_tick(t),
+            // Every line of the reply to our own `time` request is for the clock, not the player.
+            ServerMsg::Text { text, .. } if time_reply_expected(world, &text) => {
+                if is_time_reply(&text) {
+                    match parse_time_reply(&text) {
+                        Some((hour, minute)) => {
+                            world.resource_mut::<Clock>().0.sync(hour, minute);
+                            info!("game clock synced: hour {hour}, minute {minute}");
+                        }
+                        None => warn!("could not read the time: {text}"),
+                    }
+                }
+            }
             ServerMsg::Text { kind, subtype, text } => {
                 info!("server: {text}");
                 let (now, last) = (world.resource::<Time>().elapsed_secs(), world.resource::<LastAction>().0);
@@ -267,4 +303,17 @@ fn dev_screenshot(
     } else if t > at + 2.0 {
         exit.write(AppExit::Success);
     }
+}
+
+/// A reply line to our own `time` request (within 10 s) is for the clock, not the player.
+fn time_reply_expected(world: &World, text: &str) -> bool {
+    let now = world.resource::<Time>().elapsed_secs();
+    world.resource::<TimeRequest>().0.is_some_and(|t| now - t <= 10.0) && is_time_reply_line(text)
+}
+
+/// Asks the server for the game time once per login.
+fn ask_time(time: Res<Time>, mut request: ResMut<TimeRequest>, mut seq: ResMut<NcomSeq>, session: Option<NonSend<Session>>) {
+    let Some(session) = session else { return };
+    session.send([ClientMsg::Ncom { packet: seq.next(), repeat: 0, command: "time".into() }]);
+    request.0 = Some(time.elapsed_secs());
 }

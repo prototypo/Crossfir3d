@@ -6,6 +6,7 @@ pub enum Mode {
     World,
     CommandLine,
     Inventory,
+    Settings,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -31,6 +32,8 @@ pub enum Act {
     Slot(usize),
     OpenInventory,
     CloseInventory,
+    OpenSettings,
+    CloseSettings,
     ToggleLog,
     ToggleMute,
     CloseBox,
@@ -45,7 +48,10 @@ pub fn act(mode: Mode, key: KeyName, box_open: bool) -> Act {
         (Mode::CommandLine, _) => Act::Nothing,
         (Mode::Inventory, KeyName::I | KeyName::Escape) => Act::CloseInventory,
         (Mode::Inventory, _) => Act::Nothing,
+        (Mode::Settings, KeyName::Escape) => Act::CloseSettings,
+        (Mode::Settings, _) => Act::Nothing,
         (Mode::World, KeyName::E | KeyName::Escape) if box_open => Act::CloseBox,
+        (Mode::World, KeyName::Escape) => Act::OpenSettings,
         (Mode::World, KeyName::E) => Act::Apply,
         (Mode::World, KeyName::G) => Act::Get,
         (Mode::World, KeyName::Digit(n @ 1..=4)) => Act::Slot(n as usize - 1),
@@ -62,9 +68,22 @@ pub fn mute_key_allowed(in_game: bool, mode: Mode) -> bool {
     in_game && mode == Mode::World
 }
 
+/// Enter may open (or use) the command box only from the world or the box itself.
+pub fn command_line_allowed(mode: Mode) -> bool {
+    matches!(mode, Mode::World | Mode::CommandLine)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn enter_does_not_open_command_box_over_screens() {
+        assert!(command_line_allowed(Mode::World));
+        assert!(command_line_allowed(Mode::CommandLine));
+        assert!(!command_line_allowed(Mode::Settings));
+        assert!(!command_line_allowed(Mode::Inventory));
+    }
 
     #[test]
     fn m_on_login_form_does_not_mute() {
@@ -78,7 +97,28 @@ mod tests {
         assert_eq!(act(Mode::World, KeyName::E, true), Act::CloseBox);
         assert_eq!(act(Mode::World, KeyName::E, false), Act::Apply);
         assert_eq!(act(Mode::World, KeyName::Escape, true), Act::CloseBox);
-        assert_eq!(act(Mode::World, KeyName::Escape, false), Act::Nothing);
+        assert_eq!(act(Mode::World, KeyName::Escape, false), Act::OpenSettings);
+    }
+
+    #[test]
+    fn escape_opens_settings_only_when_nothing_open() {
+        assert_eq!(act(Mode::World, KeyName::Escape, false), Act::OpenSettings);
+        assert_eq!(act(Mode::World, KeyName::Escape, true), Act::CloseBox);
+        assert_eq!(act(Mode::Inventory, KeyName::Escape, false), Act::CloseInventory);
+        assert_eq!(act(Mode::CommandLine, KeyName::Escape, false), Act::Nothing);
+    }
+
+    #[test]
+    fn escape_closes_settings() {
+        assert_eq!(act(Mode::Settings, KeyName::Escape, false), Act::CloseSettings);
+    }
+
+    #[test]
+    fn settings_swallows_keys() {
+        for k in [KeyName::E, KeyName::I, KeyName::M, KeyName::Digit(1), KeyName::Enter] {
+            assert_eq!(act(Mode::Settings, k, false), Act::Nothing, "{k:?}");
+        }
+        assert!(!mute_key_allowed(true, Mode::Settings));
     }
 
     #[test]

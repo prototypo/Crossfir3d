@@ -11,8 +11,12 @@ use bevy::input::mouse::AccumulatedMouseScroll;
 use bevy::prelude::*;
 use maccrossfire::terrain::{ground_height, is_wall};
 
+use maccrossfire::clock::{sun_pose, FALLBACK_HOUR};
+use maccrossfire::settings::Quality;
+
+use crate::graphics::CurrentSettings;
 use crate::input::Facing;
-use crate::{AppState, Faces, LastComc, Session, View, ViewSize};
+use crate::{AppState, Clock, Faces, LastComc, Session, View, ViewSize};
 
 const TILE_PX: f32 = 32.0;
 const MAX_FACE_PX: u32 = 2048;
@@ -20,6 +24,7 @@ const PITCH_DEG: f32 = 50.0;
 const ZOOM_MIN: f32 = 6.0;
 const ZOOM_MAX: f32 = 22.0;
 const SUN_LUX: f32 = 10_000.0;
+const MOON_LUX: f32 = 2_500.0;
 const FOG_COLOR: Color = Color::srgb(0.05, 0.06, 0.08);
 
 pub struct WorldPlugin;
@@ -27,7 +32,8 @@ pub struct WorldPlugin;
 impl Plugin for WorldPlugin {
     fn build(&self, app: &mut App) {
         app.insert_resource(ClearColor(FOG_COLOR))
-            .insert_resource(GlobalAmbientLight { brightness: 150.0, ..default() })
+            // 4x the M1 value: shadows were almost black (owner, M3 lighting test).
+            .insert_resource(GlobalAmbientLight { brightness: 600.0, ..default() })
             .init_resource::<Textures>()
             .add_systems(Startup, setup)
             .add_systems(
@@ -64,7 +70,7 @@ struct CameraRig {
 }
 
 #[derive(Component)]
-struct Sun;
+pub struct Sun;
 
 #[derive(Resource, Default)]
 struct Textures {
@@ -289,10 +295,36 @@ fn follow_player(
     fog.falloff = FogFalloff::Linear { start: rig.distance + radius * 0.4, end: rig.distance + radius };
 }
 
-/// The sun fades with the darkness of the player's tile, so dungeons are not sunlit.
-fn lighting(view: Res<View>, size: Res<ViewSize>, mut sun: Single<&mut DirectionalLight, With<Sun>>) {
+/// The game clock sets where the light comes from and its colour; its strength follows
+/// the darkness of the player's square (the server darkens by hour, season, indoors).
+fn lighting(
+    view: Res<View>,
+    size: Res<ViewSize>,
+    clock: Res<Clock>,
+    settings: Res<CurrentSettings>,
+    sun: Single<(&mut DirectionalLight, &mut Transform), With<Sun>>,
+) {
+    let (mut light, mut transform) = sun.into_inner();
     let dark = view.0.cell((size.0 / 2) as i8, (size.1 / 2) as i8).map_or(255, |c| c.darkness);
-    sun.illuminance = SUN_LUX * dark as f32 / 255.0;
+    let forced = std::env::var("MACCROSSFIRE_HOUR").ok().and_then(|h| h.parse().ok()); // screenshots
+    let pose = sun_pose(forced.or(clock.0.hour()).unwrap_or(FALLBACK_HOUR));
+    // azimuth 0 = east (+X), PI/2 = south (+Z), PI = west (-X)
+    let dir = Vec3::new(
+        pose.azimuth.cos() * pose.elevation.cos(),
+        pose.elevation.sin(),
+        pose.azimuth.sin() * pose.elevation.cos(),
+    );
+    *transform = Transform::from_translation(dir * 20.0).looking_at(Vec3::ZERO, Vec3::Y);
+    let (color, strength) = if pose.moon {
+        (Color::srgb(0.6, 0.7, 1.0), MOON_LUX)
+    } else if pose.elevation < 15f32.to_radians() {
+        (Color::srgb(1.0, 0.72, 0.45), SUN_LUX)
+    } else {
+        (Color::srgb(1.0, 0.97, 0.9), SUN_LUX)
+    };
+    light.color = color;
+    light.illuminance = strength * dark as f32 / 255.0;
+    light.shadow_maps_enabled = !pose.moon && settings.0.shadows != Quality::Off;
 }
 
 fn despawn_visuals(mut commands: Commands, q: Query<Entity, With<TileVisual>>) {
