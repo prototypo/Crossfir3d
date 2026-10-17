@@ -4,6 +4,9 @@
 use std::time::{Duration, Instant};
 
 use bevy::anti_alias::taa::TemporalAntiAliasing;
+use bevy::camera::RenderTarget;
+use bevy::render::render_resource::{Extent3d, TextureFormat};
+use bevy_egui::PrimaryEguiContext;
 use bevy::light::DirectionalLightShadowMap;
 use bevy::pbr::{ScreenSpaceAmbientOcclusion, ScreenSpaceAmbientOcclusionQualityLevel};
 use bevy::prelude::*;
@@ -21,7 +24,11 @@ pub struct GraphicsPlugin;
 
 impl Plugin for GraphicsPlugin {
     fn build(&self, app: &mut App) {
-        app.add_systems(Update, (apply_settings, keep_window_on_screen, remember_window, save_settings_later))
+        app.add_systems(Startup, setup_scaled_view)
+            .add_systems(
+                Update,
+                (apply_settings, fit_scene_image, keep_window_on_screen, remember_window, save_settings_later),
+            )
             .add_systems(Last, frame_cap);
     }
 }
@@ -187,4 +194,46 @@ fn frame_cap(settings: Res<CurrentSettings>, mut last: Local<Option<Instant>>) {
         }
     }
     *last = Some(Instant::now());
+}
+
+/// The 3D view is drawn into this image (window size x render scale); the window camera
+/// stretches it over the window and draws egui on top at full sharpness.
+#[derive(Resource)]
+pub struct SceneImage(pub Handle<Image>);
+
+fn setup_scaled_view(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
+    let image = Image::new_target_texture(1, 1, TextureFormat::Rgba8Unorm, Some(TextureFormat::Rgba8UnormSrgb));
+    let handle = images.add(image);
+    commands.insert_resource(SceneImage(handle.clone()));
+    commands.spawn((Camera2d, Camera { order: 1, ..default() }, PrimaryEguiContext));
+    commands.spawn((
+        Node { width: Val::Percent(100.0), height: Val::Percent(100.0), position_type: PositionType::Absolute, ..default() },
+        ImageNode::new(handle),
+        GlobalZIndex(-1),
+    ));
+}
+
+/// Points the 3D camera at the scene image and keeps the image at window size x scale.
+fn fit_scene_image(
+    mut commands: Commands,
+    scene: Res<SceneImage>,
+    settings: Res<CurrentSettings>,
+    window: Single<&Window, With<PrimaryWindow>>,
+    cameras: Query<(Entity, Option<&RenderTarget>), With<Camera3d>>,
+    mut images: ResMut<Assets<Image>>,
+) {
+    for (cam, target) in &cameras {
+        if !matches!(target, Some(RenderTarget::Image(_))) {
+            commands.entity(cam).insert((RenderTarget::Image(scene.0.clone().into()), Camera { order: 0, ..default() }));
+        }
+    }
+    let scale = settings.0.clone().normalized().render_scale;
+    let size = window.physical_size().as_vec2() * scale;
+    let want = Extent3d { width: (size.x as u32).max(1), height: (size.y as u32).max(1), depth_or_array_layers: 1 };
+    let Some(image) = images.get(&scene.0) else { return };
+    if image.texture_descriptor.size != want {
+        if let Some(mut image) = images.get_mut(&scene.0) {
+            image.resize(want);
+        }
+    }
 }
