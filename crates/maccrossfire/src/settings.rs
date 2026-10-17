@@ -172,8 +172,12 @@ fn parse_window(value: &str) -> Option<WindowPlace> {
     Some(WindowPlace { x: x.parse().ok()?, y: y.parse().ok()?, width: w.parse().ok()?, height: h.parse().ok()? })
 }
 
+/// MACCROSSFIRE_SETTINGS overrides it (tests, screenshots).
 /// ponytail: Mac path; the `dirs` crate in M7.
 pub fn default_settings_path() -> PathBuf {
+    if let Some(p) = std::env::var_os("MACCROSSFIRE_SETTINGS") {
+        return PathBuf::from(p);
+    }
     let home = std::env::var_os("HOME").map(PathBuf::from).unwrap_or_default();
     home.join("Library/Application Support/MacCrossfire/settings.txt")
 }
