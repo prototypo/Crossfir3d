@@ -63,7 +63,8 @@ pub fn send_moves(
 ) {
     let Some(session) = session else { return };
     let now = time.elapsed_secs();
-    let held = |a, b| keys.pressed(a) || keys.pressed(b);
+    // just_pressed too: a press and release in one frame (a very fast tap) still steps.
+    let held = |a, b| keys.any_pressed([a, b]) || keys.any_just_pressed([a, b]);
     let dir = direction(
         held(KeyCode::ArrowUp, KeyCode::KeyW),
         held(KeyCode::ArrowDown, KeyCode::KeyS),
