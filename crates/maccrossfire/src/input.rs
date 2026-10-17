@@ -3,10 +3,15 @@
 use bevy::prelude::*;
 use cfproto::ClientMsg;
 
+use maccrossfire::camera::{compass, heading_of, screen_dir, swing, Heading, SWING_SECS};
 use maccrossfire::modes::{act, Act, KeyName, Mode};
 use maccrossfire::slots::{dir_number, slot_commands};
 
 use crate::{HudState, Inv, KeyMode, LastAction, LastComc, Msgs, NcomSeq, PlayerStats, Session, Slots, Spells};
+
+/// Where the camera looks (45° steps); the world rig eases its yaw toward it.
+#[derive(Resource, Default)]
+pub struct CameraHeading(pub Heading);
 
 /// The direction of the last step or step attempt (1 = north .. 8 = northwest).
 #[derive(Resource)]
@@ -16,23 +21,6 @@ impl Default for Facing {
     fn default() -> Self {
         Facing(5) // south, towards the camera
     }
-}
-
-/// Opposite keys cancel out.
-pub fn direction(up: bool, down: bool, left: bool, right: bool) -> Option<&'static str> {
-    let dy = down as i8 - up as i8;
-    let dx = right as i8 - left as i8;
-    Some(match (dx, dy) {
-        (0, -1) => "north",
-        (0, 1) => "south",
-        (-1, 0) => "west",
-        (1, 0) => "east",
-        (1, -1) => "northeast",
-        (-1, -1) => "northwest",
-        (1, 1) => "southeast",
-        (-1, 1) => "southwest",
-        _ => return None,
-    })
 }
 
 /// The move we sent and are waiting on: (packet, time sent in seconds).
@@ -60,39 +48,52 @@ pub fn wants_step(held_secs: Option<f32>) -> bool {
 }
 
 /// A tap sends one move. A held key repeats after a short delay, one move per `comc`.
+/// Directions are camera-relative; the compass direction is fixed at key-down so a
+/// swinging camera does not bend a held walk.
 #[allow(clippy::too_many_arguments)]
 pub fn send_moves(
     keys: Res<ButtonInput<KeyCode>>,
     mode: Res<KeyMode>,
     mut msgs: ResMut<Msgs>,
     mut facing: ResMut<Facing>,
+    mut heading: ResMut<CameraHeading>,
     comc: Res<LastComc>,
     time: Res<Time>,
     mut seq: ResMut<NcomSeq>,
     mut wait: ResMut<MoveWait>,
-    mut first_step_at: Local<Option<f32>>,
+    mut held: Local<Option<(f32, (i8, i8), Heading, f32)>>, // (first step, screen dir, locked heading, last swing)
     session: Option<NonSend<Session>>,
 ) {
     let Some(session) = session else { return };
     let now = time.elapsed_secs();
     // just_pressed too: a press and release in one frame (a very fast tap) still steps.
-    let held = |a, b| keys.any_pressed([a, b]) || keys.any_just_pressed([a, b]);
-    let dir = direction(
-        held(KeyCode::ArrowUp, KeyCode::KeyW),
-        held(KeyCode::ArrowDown, KeyCode::KeyS),
-        held(KeyCode::ArrowLeft, KeyCode::KeyA),
-        held(KeyCode::ArrowRight, KeyCode::KeyD),
+    let key = |a, b| keys.any_pressed([a, b]) || keys.any_just_pressed([a, b]);
+    let screen = screen_dir(
+        key(KeyCode::ArrowUp, KeyCode::KeyW),
+        key(KeyCode::ArrowDown, KeyCode::KeyS),
+        key(KeyCode::ArrowLeft, KeyCode::KeyA),
+        key(KeyCode::ArrowRight, KeyCode::KeyD),
     );
-    let (Some(command), Mode::World) = (dir, mode.0) else {
-        *first_step_at = None; // key released: the next press is a new tap
+    let (Some(screen), Mode::World) = (screen, mode.0) else {
+        *held = None; // key released: the next press is a new tap
         return;
     };
-    if !may_send(wait.0, comc.packet, now) || !wants_step(first_step_at.map(|t| now - t)) {
+    // A new key combination locks the camera heading of this moment.
+    if held.is_none_or(|(_, s, _, _)| s != screen) {
+        *held = None;
+    }
+    let first = held.map(|(t, ..)| t);
+    if !may_send(wait.0, comc.packet, now) || !wants_step(first.map(|t| now - t)) {
         return;
     }
-    first_step_at.get_or_insert(now);
+    let (first, _, locked, last_swing) = *held.get_or_insert((now, screen, heading.0, now));
+    let command = compass(screen, locked);
     msgs.0.close_box(); // walking away closes the parchment box
     facing.0 = dir_number(command).unwrap_or(facing.0);
+    if now - last_swing >= SWING_SECS {
+        heading.0 = swing(heading.0, facing.0, screen);
+        *held = Some((first, screen, locked, now));
+    }
     let packet = seq.next();
     wait.0 = Some((packet, now));
     session.send([ClientMsg::Ncom { packet, repeat: 0, command: command.into() }]);
@@ -107,6 +108,7 @@ fn key_name(key: KeyCode) -> KeyName {
         KeyCode::KeyI => KeyName::I,
         KeyCode::KeyL => KeyName::L,
         KeyCode::KeyM => KeyName::M,
+        KeyCode::KeyC => KeyName::C,
         KeyCode::Escape => KeyName::Escape,
         KeyCode::Enter => KeyName::Enter,
         KeyCode::Digit1 => KeyName::Digit(1),
@@ -129,6 +131,7 @@ pub fn world_keys(
     mut last: ResMut<LastAction>,
     mut seq: ResMut<NcomSeq>,
     (facing, slots, inv, spells, stats): (Res<Facing>, Res<Slots>, Res<Inv>, Res<Spells>, Res<PlayerStats>),
+    mut heading: ResMut<CameraHeading>,
     session: Option<NonSend<Session>>,
 ) {
     let Some(session) = session else { return };
@@ -152,6 +155,7 @@ pub fn world_keys(
                     command(&c);
                 }
             }
+            Act::CameraBehind => heading.0 = heading_of(facing.0),
             Act::ToggleMute | Act::OpenCommand | Act::Nothing => {}
         }
     }
@@ -159,7 +163,7 @@ pub fn world_keys(
 
 #[cfg(test)]
 mod tests {
-    use super::{direction, may_send, wants_step};
+    use super::{may_send, wants_step};
 
     #[test]
     fn tap_is_one_step() {
@@ -190,26 +194,6 @@ mod tests {
         assert!(may_send(Some((5, 0.0)), 4, 1.1));
     }
 
-    #[test]
-    fn cardinals() {
-        assert_eq!(direction(true, false, false, false), Some("north"));
-        assert_eq!(direction(false, true, false, false), Some("south"));
-        assert_eq!(direction(false, false, true, false), Some("west"));
-        assert_eq!(direction(false, false, false, true), Some("east"));
-    }
 
-    #[test]
-    fn diagonals() {
-        assert_eq!(direction(true, false, false, true), Some("northeast"));
-        assert_eq!(direction(true, false, true, false), Some("northwest"));
-        assert_eq!(direction(false, true, false, true), Some("southeast"));
-        assert_eq!(direction(false, true, true, false), Some("southwest"));
-    }
 
-    #[test]
-    fn opposites_cancel() {
-        assert_eq!(direction(true, true, false, false), None);
-        assert_eq!(direction(true, true, false, true), Some("east"));
-        assert_eq!(direction(false, false, false, false), None);
-    }
 }

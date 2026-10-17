@@ -3,7 +3,7 @@
 //! 1 tile = 1 world unit. Map x is world +X, map y is world +Z (north is -Z).
 //! World tile coords = MapView origin + view coords, so they stay put when the map scrolls.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use bevy::asset::RenderAssetUsages;
 use bevy::image::{CompressedImageFormats, ImageSampler, ImageType};
@@ -15,14 +15,18 @@ use maccrossfire::clock::{sun_pose, FALLBACK_HOUR};
 use maccrossfire::settings::Quality;
 
 use crate::graphics::CurrentSettings;
-use crate::input::Facing;
+use crate::input::{CameraHeading, Facing};
+use maccrossfire::camera::pull_in;
 use crate::{AppState, Clock, Faces, LastComc, Session, View, ViewSize};
 
 const TILE_PX: f32 = 32.0;
 const MAX_FACE_PX: u32 = 2048;
-const PITCH_DEG: f32 = 50.0;
-const ZOOM_MIN: f32 = 6.0;
-const ZOOM_MAX: f32 = 22.0;
+/// Ocarina-style: low and behind the player.
+const PITCH_DEG: f32 = 20.0;
+const ZOOM_MIN: f32 = 3.0;
+const ZOOM_MAX: f32 = 12.0;
+/// The camera looks at this point above the player's feet.
+const LOOK_HEIGHT: f32 = 1.2;
 const SUN_LUX: f32 = 10_000.0;
 const MOON_LUX: f32 = 2_500.0;
 const FOG_COLOR: Color = Color::srgb(0.05, 0.06, 0.08);
@@ -35,10 +39,11 @@ impl Plugin for WorldPlugin {
             // 4x the M1 value: shadows were almost black (owner, M3 lighting test).
             .insert_resource(GlobalAmbientLight { brightness: 600.0, ..default() })
             .init_resource::<Textures>()
+            .init_resource::<Solid>()
             .add_systems(Startup, setup)
             .add_systems(
                 Update,
-                (load_textures, sync_visuals, glide, follow_player, place_arrow, lighting)
+                (load_textures, sync_visuals, glide, follow_player, face_camera, place_arrow, lighting)
                     .chain()
                     .run_if(in_state(AppState::InGame)),
             )
@@ -67,7 +72,17 @@ struct Glide {
 struct CameraRig {
     focus: Vec3,
     distance: f32,
+    /// Radians clockwise from north (seen from above), eased toward the heading.
+    yaw: f32,
 }
+
+/// Flat picture cards, which always turn to face the camera.
+#[derive(Component)]
+struct Card;
+
+/// Tiles the camera must not sit in (walls now; buildings and big models later).
+#[derive(Resource, Default)]
+pub struct Solid(pub HashSet<(i32, i32)>);
 
 #[derive(Component)]
 pub struct Sun;
@@ -86,11 +101,11 @@ fn setup(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>, mut textures:
     // Unit card with its origin at the bottom middle, so scaling grows it up and sideways.
     textures.card = meshes.add(Rectangle::new(1.0, 1.0).mesh().build().translated_by(Vec3::Y * 0.5));
 
-    let distance = 12.0;
+    let distance = 6.0;
     commands.spawn((
         Camera3d::default(),
-        camera_transform(Vec3::ZERO, distance),
-        CameraRig { focus: Vec3::ZERO, distance },
+        camera_transform(Vec3::ZERO, distance, 0.0),
+        CameraRig { focus: Vec3::ZERO, distance, yaw: 0.0 },
         Glide { target: Vec3::ZERO },
         DistanceFog { color: FOG_COLOR, falloff: FogFalloff::Linear { start: 15.0, end: 25.0 }, ..default() },
     ));
@@ -101,10 +116,18 @@ fn setup(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>, mut textures:
     ));
 }
 
-fn camera_transform(focus: Vec3, distance: f32) -> Transform {
+/// The direction the camera looks along the ground for a yaw (0 = north, -Z).
+fn look_dir(yaw: f32) -> Vec3 {
+    Vec3::new(yaw.sin(), 0.0, -yaw.cos())
+}
+
+fn camera_eye(focus: Vec3, distance: f32, yaw: f32) -> Vec3 {
     let pitch = PITCH_DEG.to_radians();
-    let eye = focus + Vec3::new(0.0, pitch.sin() * distance, pitch.cos() * distance);
-    Transform::from_translation(eye).looking_at(focus, Vec3::Y)
+    focus + Vec3::Y * LOOK_HEIGHT - look_dir(yaw) * pitch.cos() * distance + Vec3::Y * pitch.sin() * distance
+}
+
+fn camera_transform(focus: Vec3, distance: f32, yaw: f32) -> Transform {
+    Transform::from_translation(camera_eye(focus, distance, yaw)).looking_at(focus + Vec3::Y * LOOK_HEIGHT, Vec3::Y)
 }
 
 /// Turns newly arrived face PNGs into GPU images.
@@ -176,12 +199,18 @@ fn sync_visuals(
     textures: Res<Textures>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut existing: Query<(Entity, &mut TileVisual, Option<&mut Glide>)>,
+    mut solid: ResMut<Solid>,
 ) {
     if !view.is_changed() && !textures.is_changed() {
         return;
     }
     // ponytail: full diff per change; incremental dirty cells if profiling says so.
     let mut want = wanted(&view, &faces, &textures);
+    solid.0 = want
+        .iter()
+        .filter(|(_, (face, _))| faces.0.name(*face).is_some_and(is_wall))
+        .map(|((x, y, _), _)| (*x, *y))
+        .collect();
     let floor_height = |x: i32, y: i32, want: &Wanted| {
         want.get(&(x, y, 0)).and_then(|(f, _)| faces.0.name(*f)).map_or(0.0, ground_height)
     };
@@ -246,7 +275,7 @@ fn sync_visuals(
         } else {
             let pos = card_position(tile, *size, layer);
             let t = Transform::from_translation(pos).with_scale(Vec3::new(size.x / TILE_PX, size.y / TILE_PX, 1.0));
-            let mut e = commands.spawn((tv, Mesh3d(textures.card.clone()), MeshMaterial3d(material), t));
+            let mut e = commands.spawn((tv, Card, Mesh3d(textures.card.clone()), MeshMaterial3d(material), t));
             if glides(layer) {
                 e.insert(Glide { target: pos });
             }
@@ -274,11 +303,14 @@ fn glide(time: Res<Time>, comc: Res<LastComc>, mut q: Query<(&mut Transform, &Gl
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 fn follow_player(
     time: Res<Time>,
     comc: Res<LastComc>,
     view: Res<View>,
     size: Res<ViewSize>,
+    heading: Res<CameraHeading>,
+    solid: Res<Solid>,
     scroll: Res<AccumulatedMouseScroll>,
     rig: Single<(&mut Transform, &mut CameraRig, &mut DistanceFog)>,
 ) {
@@ -289,10 +321,29 @@ fn follow_player(
     let step_secs = comc.time_ms.clamp(100, 400) as f32 / 1000.0;
     let d = target - rig.focus;
     rig.focus = if d.length() > 2.0 { target } else { rig.focus + d.clamp_length_max(time.delta_secs() / step_secs) };
-    *t = camera_transform(rig.focus, rig.distance);
+    // Ease the yaw the short way round toward the heading (about 0.4 s per 45°).
+    let goal = heading.0 as f32 * std::f32::consts::FRAC_PI_4;
+    let diff = (goal - rig.yaw + std::f32::consts::PI).rem_euclid(std::f32::consts::TAU) - std::f32::consts::PI;
+    rig.yaw += diff.clamp(-1.0, 1.0) * (time.delta_secs() * 4.0).min(1.0);
+    // Never sit inside a wall: pull in while the camera's ground tile is solid.
+    let (focus, yaw) = (rig.focus, rig.yaw);
+    let blocked = |dist: f32| {
+        let eye = camera_eye(focus, dist, yaw);
+        solid.0.contains(&(eye.x.floor() as i32, eye.z.floor() as i32))
+    };
+    let distance = pull_in(rig.distance, blocked);
+    *t = camera_transform(rig.focus, distance, rig.yaw);
     // Hide the edge of what the server sends: fog from 40% of the view radius to the edge.
     let radius = size.0.min(size.1) as f32 / 2.0;
-    fog.falloff = FogFalloff::Linear { start: rig.distance + radius * 0.4, end: rig.distance + radius };
+    fog.falloff = FogFalloff::Linear { start: distance + radius * 0.4, end: distance + radius };
+}
+
+/// Cards turn about the vertical axis to face the camera.
+fn face_camera(rig: Single<&CameraRig>, mut cards: Query<&mut Transform, With<Card>>) {
+    let rotation = Quat::from_rotation_y(-rig.yaw);
+    for mut t in &mut cards {
+        t.rotation = rotation;
+    }
 }
 
 /// The game clock sets where the light comes from and its colour; its strength follows
