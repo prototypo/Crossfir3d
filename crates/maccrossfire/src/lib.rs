@@ -12,3 +12,4 @@ pub mod clock;
 pub mod newchar;
 pub mod camera;
 pub mod models;
+pub mod walls;
