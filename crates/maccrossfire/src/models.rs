@@ -39,11 +39,14 @@ impl ModelMap {
         map
     }
 
-    /// `face_name` may carry the `.111` suffix. Exact beats the longest prefix.
+    /// `face_name` may carry the `.111` suffix. An exact full name ("grate_1.118", one
+    /// frame) beats an exact base name, which beats the longest prefix.
     pub fn lookup(&self, face_name: &str) -> &Visual {
         let name = face_name.split('.').next().unwrap_or(face_name);
-        if let Some((_, v)) = self.exact.iter().find(|(p, _)| p == name) {
-            return v;
+        for want in [face_name, name] {
+            if let Some((_, v)) = self.exact.iter().find(|(p, _)| p == want) {
+                return v;
+            }
         }
         self.prefixes
             .iter()
@@ -90,6 +93,8 @@ house_1 building small_house
 stwall* wall stone
 sign* model props/signpost.glb 0.8 0 0 0.6,0.4,0.2
 pentagram flat
+grate_1* model castle/metal-gate.glb 1.0 0 1.0
+grate_1.118 model castle/metal-gate.glb 1.0 0 0
 broken line
 bad model x.glb notanumber 0 0
 ";
@@ -118,6 +123,13 @@ bad model x.glb notanumber 0 0
         assert_eq!(m.lookup("house_1.111"), &Visual::Building { recipe: "small_house".into() });
         assert_eq!(m.lookup("stwall_A.111"), &Visual::Wall { style: "stone".into() });
         assert_eq!(m.lookup("pentagram.111"), &Visual::Flat);
+    }
+
+    #[test]
+    fn full_name_with_frame_beats_base_name() {
+        let m = ModelMap::parse(TEXT);
+        assert!(matches!(m.lookup("grate_1.118"), Visual::Model { dy, .. } if *dy == 0.0));
+        assert!(matches!(m.lookup("grate_1.111"), Visual::Model { dy, .. } if *dy == 1.0));
     }
 
     #[test]
