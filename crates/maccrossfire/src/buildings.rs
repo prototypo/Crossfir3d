@@ -49,6 +49,8 @@ const INSIDE: [f32; 3] = [0.1, 0.08, 0.06];
 const WALL_INSET: f32 = 0.05;
 /// Under the squashed roof: fills the open ends without poking through the tiles.
 const GABLE_Y: f32 = 0.75;
+/// How far outside the front wall someone stands at the door.
+const DOORSTEP: f32 = 0.35;
 
 pub const RECIPES: [&str; 11] =
     ["cottage", "house", "tavern", "barn", "temple", "tower", "castle", "shop", "well", "fountain", "signpost"];
@@ -131,6 +133,16 @@ pub fn parts(recipe: &str, w: u32, h: u32) -> Option<Vec<Part>> {
 
 /// One side of a footprint: (side, squares along it, where square i sits, yaw).
 type Side<'a> = (u8, u32, &'a dyn Fn(f32) -> (f32, f32), f32);
+
+/// Where someone stands just outside the front door, relative to the middle of the
+/// footprint; None for things without a door (wells, castles, signposts).
+pub fn doorstep(recipe: &str, w: u32, h: u32) -> Option<[f32; 3]> {
+    if recipe != "shop" && style(recipe).is_none() {
+        return None;
+    }
+    // `village` puts the door on the south side at square w / 2, counted from the east.
+    Some([w as f32 / 2.0 - (w / 2) as f32 - 0.5, 0.0, h as f32 / 2.0 + DOORSTEP])
+}
 
 /// Walls round the edge (door in the middle of the south side), posts at the corners,
 /// a roof on top, and maybe a chimney.
@@ -334,6 +346,18 @@ mod tests {
         assert!(s.pos[1] + h < STORY && w < 2.0, "on the wall, inside the front");
         let Shape::Sign([wide, _]) = sign(5).shape else { unreachable!() };
         assert!(wide > w, "a wider front gets a wider board");
+    }
+
+    #[test]
+    fn doorstep_is_just_outside_the_door() {
+        for (recipe, w, h) in [("cottage", 1, 1), ("shop", 2, 2), ("house", 3, 2), ("tower", 1, 1)] {
+            let door = parts(recipe, w, h).unwrap().into_iter().find(|p| matches!(p.shape, Shape::Model(f) if f.contains("Door"))).unwrap();
+            let step = doorstep(recipe, w, h).unwrap();
+            assert_eq!(step[0], door.pos[0], "{recipe} {w}x{h}: in line with the door");
+            assert!(step[2] > door.pos[2], "{recipe}: outside the south wall");
+        }
+        assert_eq!(doorstep("well", 1, 1), None);
+        assert_eq!(doorstep("castle", 3, 3), None);
     }
 
     #[test]

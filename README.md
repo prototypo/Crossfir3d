@@ -30,17 +30,21 @@ to choose race, class, rolled stats, and where to start (Scorn by default). The 
 ## Playing in 3D
 
 The camera sits over your character's shoulder and turns to stay behind them. Arrow
-keys move relative to the camera: Up walks the way the camera looks. **Tab** turns a
-top view (north up) on and off; **C** goes back to the view behind you. Hold **F** to
-look at your character's face. **A** or **E** applies. The mouse wheel, a trackpad
-pinch, and two-finger scroll zoom (the top view has its own zoom). When a wall or
-house is in the way, the camera moves closer.
+keys work relative to the way you face, in every view: Up takes a step forward; Left
+and Right turn you 90° and Down turns you round, without a step. Hold an arrow to turn,
+then walk that way. **Tab**
+turns a top view (north up) on and off; **C** goes back to the view behind you. Hold
+**F** to look at your character's face. **A** or **E** applies. The mouse wheel, a
+trackpad pinch, and two-finger scroll zoom (the top view has its own zoom). When a
+wall or house is in the way, the camera moves closer.
 
 Shops are one-storey houses with a painted sign and icon (JEWELS, BANK, MAGIC, ...).
-Houses, walls, gates, trees, rocks, wells, fountains, and signs are 3D. Players are
-one 3D body (with a "Broad" or "Slim" build, chosen on the new-character screen),
-sized and coloured for their race. Your character holds the weapon, bow, and shield
-in use. Everything else is still a picture card.
+Standing on a house's squares (a shop's entrance row, say) shows you on its
+doorstep, facing the door; apply goes in. Houses, walls, gates, trees, rocks, wells,
+fountains, and signs are 3D. Players are one 3D body (with a "Broad" or "Slim"
+build, chosen on the new-character screen), sized and coloured for their race. Your
+character holds the weapon, bow, and shield in use. Everything else is still a
+picture card.
 
 The models are CC0 (Quaternius, Kenney), free tiers, in `assets/models/` with their
 licences. `assets/models.txt` says which picture becomes which model.
