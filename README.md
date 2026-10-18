@@ -61,7 +61,9 @@ window/full screen, render scale, frame rate, ambient occlusion, shadows,
 anti-aliasing, brightness, contrast, gamma. They are saved to
 `~/Library/Application Support/MacCrossfire/settings.txt` (override with
 `MACCROSSFIRE_SETTINGS`). The sun follows the server's game clock
-(`MACCROSSFIRE_HOUR=14` forces an hour, for screenshots).
+(`MACCROSSFIRE_HOUR=14` forces an hour, for screenshots): a blue sky with drifting
+clouds by day, a warm glow round the low sun at dawn and dusk, and stars at night.
+Wells and other one-square things stay in view when you stand on them.
 
 ## Developer switches
 
