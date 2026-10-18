@@ -1,0 +1,240 @@
+{
+ "asset": {
+  "version": "2.0",
+  "generator": "MacCrossfire scripts/obj2gltf.py"
+ },
+ "scene": 0,
+ "scenes": [
+  {
+   "nodes": [
+    0
+   ]
+  }
+ ],
+ "nodes": [
+  {
+   "name": "Bow_Golden",
+   "mesh": 0
+  }
+ ],
+ "meshes": [
+  {
+   "name": "Bow_Golden",
+   "primitives": [
+    {
+     "attributes": {
+      "POSITION": 0,
+      "NORMAL": 1
+     },
+     "indices": 2,
+     "material": 0
+    },
+    {
+     "attributes": {
+      "POSITION": 3,
+      "NORMAL": 4
+     },
+     "indices": 5,
+     "material": 1
+    },
+    {
+     "attributes": {
+      "POSITION": 6,
+      "NORMAL": 7
+     },
+     "indices": 8,
+     "material": 2
+    }
+   ]
+  }
+ ],
+ "materials": [
+  {
+   "name": "Gold",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.4569,
+     0.374227,
+     0.127169,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  },
+  {
+   "name": "LightWood",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.190718,
+     0.083693,
+     0.041016,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  },
+  {
+   "name": "White",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.64,
+     0.64,
+     0.64,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  }
+ ],
+ "accessors": [
+  {
+   "bufferView": 0,
+   "componentType": 5126,
+   "count": 1346,
+   "type": "VEC3",
+   "min": [
+    -0.480121,
+    -2.718302,
+    -0.121704
+   ],
+   "max": [
+    1.099968,
+    2.718302,
+    0.121706
+   ]
+  },
+  {
+   "bufferView": 1,
+   "componentType": 5126,
+   "count": 1346,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 2,
+   "componentType": 5125,
+   "count": 2040,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 3,
+   "componentType": 5126,
+   "count": 144,
+   "type": "VEC3",
+   "min": [
+    -0.138358,
+    -0.451246,
+    -0.118621
+   ],
+   "max": [
+    0.196057,
+    0.451246,
+    0.118622
+   ]
+  },
+  {
+   "bufferView": 4,
+   "componentType": 5126,
+   "count": 144,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 5,
+   "componentType": 5125,
+   "count": 216,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 6,
+   "componentType": 5126,
+   "count": 36,
+   "type": "VEC3",
+   "min": [
+    1.020761,
+    -2.548703,
+    -0.012509
+   ],
+   "max": [
+    1.044003,
+    2.548703,
+    0.014329
+   ]
+  },
+  {
+   "bufferView": 7,
+   "componentType": 5126,
+   "count": 36,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 8,
+   "componentType": 5125,
+   "count": 72,
+   "type": "SCALAR"
+  }
+ ],
+ "bufferViews": [
+  {
+   "buffer": 0,
+   "byteOffset": 0,
+   "byteLength": 16152,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 16152,
+   "byteLength": 16152,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 32304,
+   "byteLength": 8160,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 40464,
+   "byteLength": 1728,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 42192,
+   "byteLength": 1728,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 43920,
+   "byteLength": 864,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 44784,
+   "byteLength": 432,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 45216,
+   "byteLength": 432,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 45648,
+   "byteLength": 288,
+   "target": 34963
+  }
+ ],
+ "buffers": [
+  {
+   "uri": "Bow_Golden.bin",
+   "byteLength": 45936
+  }
+ ]
+}

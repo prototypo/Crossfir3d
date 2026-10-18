@@ -24,6 +24,17 @@ pub struct CameraView {
     pub face: bool,
 }
 
+/// In a house (shown on its doorstep): the move from the player's square to the square
+/// in front of the door, which any step south takes. `came_out`: they got here on a
+/// new map (out of a shop's own map), not by a step in, so they step out at once.
+/// `new_map` is set by `newmap` and cleared by the next move sent.
+#[derive(Resource, Default)]
+pub struct DoorExit {
+    pub out: Option<&'static str>,
+    pub came_out: bool,
+    pub new_map: bool,
+}
+
 /// The direction of the last step or step attempt (1 = north .. 8 = northwest).
 #[derive(Resource)]
 pub struct Facing(pub u8);
@@ -58,9 +69,12 @@ pub fn wants_step(held_secs: Option<f32>) -> bool {
     held_secs.is_none_or(|t| t >= REPEAT_DELAY_SECS)
 }
 
-/// A tap sends one move. A held key repeats after a short delay, one move per `comc`.
-/// Directions are camera-relative (north up in the top view); the compass direction
-/// is fixed at key-down so the camera turning behind the player does not bend a held walk.
+/// A tap the way the player faces sends one move; a tap any other way only turns them
+/// (and the camera) to face it. A held key repeats after a short delay, one move per
+/// `comc`, so holding a new direction turns, then walks.
+/// Directions are relative to the way the player faces, in every view: Up is forward,
+/// Left/Right turn 90°, Down turns round. The compass direction is fixed at key-down,
+/// so the turn does not bend a held walk.
 #[allow(clippy::too_many_arguments)]
 pub fn send_moves(
     keys: Res<ButtonInput<KeyCode>>,
@@ -68,16 +82,26 @@ pub fn send_moves(
     mut msgs: ResMut<Msgs>,
     mut facing: ResMut<Facing>,
     mut heading: ResMut<CameraHeading>,
-    view: Res<CameraView>,
     comc: Res<LastComc>,
     time: Res<Time>,
     mut seq: ResMut<NcomSeq>,
     mut wait: ResMut<MoveWait>,
-    mut held: Local<Option<(f32, (i8, i8), Heading)>>, // (first step, screen dir, locked heading)
+    mut door: ResMut<DoorExit>,
+    mut held: Local<Option<(f32, (i8, i8), Heading)>>, // (first step, screen dir, facing at key-down)
     session: Option<NonSend<Session>>,
 ) {
     let Some(session) = session else { return };
     let now = time.elapsed_secs();
+    if door.came_out && may_send(wait.0, comc.packet, now) {
+        // Out of the door, facing away from it, the camera behind.
+        door.new_map = false;
+        facing.0 = 5;
+        heading.0 = heading_of(5);
+        let packet = seq.next();
+        wait.0 = Some((packet, now));
+        session.send([ClientMsg::Ncom { packet, repeat: 0, command: door.out.unwrap_or("south").into() }]);
+        return;
+    }
     // just_pressed too: a press and release in one frame (a very fast tap) still steps.
     let key = |k| keys.pressed(k) || keys.just_pressed(k);
     let screen = screen_dir(key(KeyCode::ArrowUp), key(KeyCode::ArrowDown), key(KeyCode::ArrowLeft), key(KeyCode::ArrowRight));
@@ -93,12 +117,21 @@ pub fn send_moves(
     if !may_send(wait.0, comc.packet, now) || !wants_step(first.map(|t| now - t)) {
         return;
     }
-    let base = if view.top { 0 } else { heading.0 };
-    let (_, _, locked) = *held.get_or_insert((now, screen, base));
+    let (_, _, locked) = *held.get_or_insert((now, screen, heading_of(facing.0)));
     let command = compass(screen, locked);
+    let dir = dir_number(command).unwrap_or(facing.0);
+    if dir != facing.0 {
+        facing.0 = dir;
+        heading.0 = heading_of(dir);
+        return;
+    }
+    // The door is in the south wall.
+    let command = match door.out {
+        Some(out) if command.starts_with("south") => out,
+        _ => command,
+    };
+    door.new_map = false;
     msgs.0.close_box(); // walking away closes the parchment box
-    facing.0 = dir_number(command).unwrap_or(facing.0);
-    heading.0 = heading_of(facing.0);
     let packet = seq.next();
     wait.0 = Some((packet, now));
     session.send([ClientMsg::Ncom { packet, repeat: 0, command: command.into() }]);

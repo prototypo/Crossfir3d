@@ -1,0 +1,374 @@
+{
+ "asset": {
+  "version": "2.0",
+  "generator": "MacCrossfire scripts/obj2gltf.py"
+ },
+ "scene": 0,
+ "scenes": [
+  {
+   "nodes": [
+    0
+   ]
+  }
+ ],
+ "nodes": [
+  {
+   "name": "Dagger_2",
+   "mesh": 0
+  }
+ ],
+ "meshes": [
+  {
+   "name": "Dagger_2",
+   "primitives": [
+    {
+     "attributes": {
+      "POSITION": 0,
+      "NORMAL": 1
+     },
+     "indices": 2,
+     "material": 0
+    },
+    {
+     "attributes": {
+      "POSITION": 3,
+      "NORMAL": 4
+     },
+     "indices": 5,
+     "material": 1
+    },
+    {
+     "attributes": {
+      "POSITION": 6,
+      "NORMAL": 7
+     },
+     "indices": 8,
+     "material": 2
+    },
+    {
+     "attributes": {
+      "POSITION": 9,
+      "NORMAL": 10
+     },
+     "indices": 11,
+     "material": 3
+    },
+    {
+     "attributes": {
+      "POSITION": 12,
+      "NORMAL": 13
+     },
+     "indices": 14,
+     "material": 4
+    }
+   ]
+  }
+ ],
+ "materials": [
+  {
+   "name": "Steel",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.30101,
+     0.321582,
+     0.351726,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  },
+  {
+   "name": "LightWood",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.190718,
+     0.083693,
+     0.041016,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  },
+  {
+   "name": "DarkWood",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.13011,
+     0.058112,
+     0.029076,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  },
+  {
+   "name": "LightSteel",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.369662,
+     0.392817,
+     0.431584,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  },
+  {
+   "name": "Gold",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.4569,
+     0.374227,
+     0.127169,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  }
+ ],
+ "accessors": [
+  {
+   "bufferView": 0,
+   "componentType": 5126,
+   "count": 140,
+   "type": "VEC3",
+   "min": [
+    -0.149464,
+    0.714455,
+    -0.026858
+   ],
+   "max": [
+    0.129416,
+    2.346005,
+    0.026858
+   ]
+  },
+  {
+   "bufferView": 1,
+   "componentType": 5126,
+   "count": 140,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 2,
+   "componentType": 5125,
+   "count": 624,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 3,
+   "componentType": 5126,
+   "count": 416,
+   "type": "VEC3",
+   "min": [
+    -0.119149,
+    -0.399845,
+    -0.119149
+   ],
+   "max": [
+    0.129225,
+    0.485423,
+    0.119149
+   ]
+  },
+  {
+   "bufferView": 4,
+   "componentType": 5126,
+   "count": 416,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 5,
+   "componentType": 5125,
+   "count": 624,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 6,
+   "componentType": 5126,
+   "count": 160,
+   "type": "VEC3",
+   "min": [
+    -0.091873,
+    -0.373703,
+    -0.091808
+   ],
+   "max": [
+    0.101729,
+    0.4975,
+    0.091808
+   ]
+  },
+  {
+   "bufferView": 7,
+   "componentType": 5126,
+   "count": 160,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 8,
+   "componentType": 5125,
+   "count": 240,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 9,
+   "componentType": 5126,
+   "count": 244,
+   "type": "VEC3",
+   "min": [
+    -0.172571,
+    0.714455,
+    -0.026858
+   ],
+   "max": [
+    0.162609,
+    2.430761,
+    0.026858
+   ]
+  },
+  {
+   "bufferView": 10,
+   "componentType": 5126,
+   "count": 244,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 11,
+   "componentType": 5125,
+   "count": 372,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 12,
+   "componentType": 5126,
+   "count": 205,
+   "type": "VEC3",
+   "min": [
+    -0.322,
+    -0.674764,
+    -0.128183
+   ],
+   "max": [
+    0.322,
+    0.769575,
+    0.128183
+   ]
+  },
+  {
+   "bufferView": 13,
+   "componentType": 5126,
+   "count": 205,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 14,
+   "componentType": 5125,
+   "count": 348,
+   "type": "SCALAR"
+  }
+ ],
+ "bufferViews": [
+  {
+   "buffer": 0,
+   "byteOffset": 0,
+   "byteLength": 1680,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 1680,
+   "byteLength": 1680,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 3360,
+   "byteLength": 2496,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 5856,
+   "byteLength": 4992,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 10848,
+   "byteLength": 4992,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 15840,
+   "byteLength": 2496,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 18336,
+   "byteLength": 1920,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 20256,
+   "byteLength": 1920,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 22176,
+   "byteLength": 960,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 23136,
+   "byteLength": 2928,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 26064,
+   "byteLength": 2928,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 28992,
+   "byteLength": 1488,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 30480,
+   "byteLength": 2460,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 32940,
+   "byteLength": 2460,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 35400,
+   "byteLength": 1392,
+   "target": 34963
+  }
+ ],
+ "buffers": [
+  {
+   "uri": "Dagger_2.bin",
+   "byteLength": 36792
+  }
+ ]
+}

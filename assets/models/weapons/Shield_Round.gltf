@@ -1,0 +1,307 @@
+{
+ "asset": {
+  "version": "2.0",
+  "generator": "MacCrossfire scripts/obj2gltf.py"
+ },
+ "scene": 0,
+ "scenes": [
+  {
+   "nodes": [
+    0
+   ]
+  }
+ ],
+ "nodes": [
+  {
+   "name": "Shield_Round",
+   "mesh": 0
+  }
+ ],
+ "meshes": [
+  {
+   "name": "Shield_Round",
+   "primitives": [
+    {
+     "attributes": {
+      "POSITION": 0,
+      "NORMAL": 1
+     },
+     "indices": 2,
+     "material": 0
+    },
+    {
+     "attributes": {
+      "POSITION": 3,
+      "NORMAL": 4
+     },
+     "indices": 5,
+     "material": 1
+    },
+    {
+     "attributes": {
+      "POSITION": 6,
+      "NORMAL": 7
+     },
+     "indices": 8,
+     "material": 2
+    },
+    {
+     "attributes": {
+      "POSITION": 9,
+      "NORMAL": 10
+     },
+     "indices": 11,
+     "material": 3
+    }
+   ]
+  }
+ ],
+ "materials": [
+  {
+   "name": "LightWood",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.190718,
+     0.083693,
+     0.041016,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  },
+  {
+   "name": "Steel",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.30101,
+     0.321582,
+     0.351726,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  },
+  {
+   "name": "DarkWood",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.13011,
+     0.058112,
+     0.029076,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  },
+  {
+   "name": "LightSteel",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.369662,
+     0.392817,
+     0.431584,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  }
+ ],
+ "accessors": [
+  {
+   "bufferView": 0,
+   "componentType": 5126,
+   "count": 642,
+   "type": "VEC3",
+   "min": [
+    -0.820295,
+    -0.887217,
+    -0.023366
+   ],
+   "max": [
+    0.814873,
+    0.848963,
+    0.231237
+   ]
+  },
+  {
+   "bufferView": 1,
+   "componentType": 5126,
+   "count": 642,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 2,
+   "componentType": 5125,
+   "count": 1044,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 3,
+   "componentType": 5126,
+   "count": 464,
+   "type": "VEC3",
+   "min": [
+    -1.0,
+    -1.0,
+    -0.123588
+   ],
+   "max": [
+    1.0,
+    1.0,
+    0.140381
+   ]
+  },
+  {
+   "bufferView": 4,
+   "componentType": 5126,
+   "count": 464,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 5,
+   "componentType": 5125,
+   "count": 714,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 6,
+   "componentType": 5126,
+   "count": 376,
+   "type": "VEC3",
+   "min": [
+    -0.806169,
+    -0.806169,
+    -0.37244
+   ],
+   "max": [
+    0.806169,
+    0.806169,
+    0.110991
+   ]
+  },
+  {
+   "bufferView": 7,
+   "componentType": 5126,
+   "count": 376,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 8,
+   "componentType": 5125,
+   "count": 642,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 9,
+   "componentType": 5126,
+   "count": 480,
+   "type": "VEC3",
+   "min": [
+    -0.932669,
+    -0.932669,
+    0.086622
+   ],
+   "max": [
+    0.932669,
+    0.932669,
+    0.195044
+   ]
+  },
+  {
+   "bufferView": 10,
+   "componentType": 5126,
+   "count": 480,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 11,
+   "componentType": 5125,
+   "count": 768,
+   "type": "SCALAR"
+  }
+ ],
+ "bufferViews": [
+  {
+   "buffer": 0,
+   "byteOffset": 0,
+   "byteLength": 7704,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 7704,
+   "byteLength": 7704,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 15408,
+   "byteLength": 4176,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 19584,
+   "byteLength": 5568,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 25152,
+   "byteLength": 5568,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 30720,
+   "byteLength": 2856,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 33576,
+   "byteLength": 4512,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 38088,
+   "byteLength": 4512,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 42600,
+   "byteLength": 2568,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 45168,
+   "byteLength": 5760,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 50928,
+   "byteLength": 5760,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 56688,
+   "byteLength": 3072,
+   "target": 34963
+  }
+ ],
+ "buffers": [
+  {
+   "uri": "Shield_Round.bin",
+   "byteLength": 59760
+  }
+ ]
+}

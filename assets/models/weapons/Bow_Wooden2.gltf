@@ -1,0 +1,240 @@
+{
+ "asset": {
+  "version": "2.0",
+  "generator": "MacCrossfire scripts/obj2gltf.py"
+ },
+ "scene": 0,
+ "scenes": [
+  {
+   "nodes": [
+    0
+   ]
+  }
+ ],
+ "nodes": [
+  {
+   "name": "Bow_Wooden2",
+   "mesh": 0
+  }
+ ],
+ "meshes": [
+  {
+   "name": "Bow_Wooden2",
+   "primitives": [
+    {
+     "attributes": {
+      "POSITION": 0,
+      "NORMAL": 1
+     },
+     "indices": 2,
+     "material": 0
+    },
+    {
+     "attributes": {
+      "POSITION": 3,
+      "NORMAL": 4
+     },
+     "indices": 5,
+     "material": 1
+    },
+    {
+     "attributes": {
+      "POSITION": 6,
+      "NORMAL": 7
+     },
+     "indices": 8,
+     "material": 2
+    }
+   ]
+  }
+ ],
+ "materials": [
+  {
+   "name": "DarkWood",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.13011,
+     0.058112,
+     0.029076,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  },
+  {
+   "name": "LightWood",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.190718,
+     0.083693,
+     0.041016,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  },
+  {
+   "name": "White",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.64,
+     0.64,
+     0.64,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  }
+ ],
+ "accessors": [
+  {
+   "bufferView": 0,
+   "componentType": 5126,
+   "count": 1158,
+   "type": "VEC3",
+   "min": [
+    -0.357613,
+    -2.718302,
+    -0.121704
+   ],
+   "max": [
+    1.110309,
+    2.718302,
+    0.121706
+   ]
+  },
+  {
+   "bufferView": 1,
+   "componentType": 5126,
+   "count": 1158,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 2,
+   "componentType": 5125,
+   "count": 1776,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 3,
+   "componentType": 5126,
+   "count": 96,
+   "type": "VEC3",
+   "min": [
+    -0.07823,
+    -0.322621,
+    -0.115391
+   ],
+   "max": [
+    0.115731,
+    0.322621,
+    0.115393
+   ]
+  },
+  {
+   "bufferView": 4,
+   "componentType": 5126,
+   "count": 96,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 5,
+   "componentType": 5125,
+   "count": 144,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 6,
+   "componentType": 5126,
+   "count": 36,
+   "type": "VEC3",
+   "min": [
+    1.031102,
+    -2.548703,
+    -0.012509
+   ],
+   "max": [
+    1.054344,
+    2.548703,
+    0.014329
+   ]
+  },
+  {
+   "bufferView": 7,
+   "componentType": 5126,
+   "count": 36,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 8,
+   "componentType": 5125,
+   "count": 72,
+   "type": "SCALAR"
+  }
+ ],
+ "bufferViews": [
+  {
+   "buffer": 0,
+   "byteOffset": 0,
+   "byteLength": 13896,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 13896,
+   "byteLength": 13896,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 27792,
+   "byteLength": 7104,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 34896,
+   "byteLength": 1152,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 36048,
+   "byteLength": 1152,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 37200,
+   "byteLength": 576,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 37776,
+   "byteLength": 432,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 38208,
+   "byteLength": 432,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 38640,
+   "byteLength": 288,
+   "target": 34963
+  }
+ ],
+ "buffers": [
+  {
+   "uri": "Bow_Wooden2.bin",
+   "byteLength": 38928
+  }
+ ]
+}
