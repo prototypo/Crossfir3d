@@ -20,7 +20,7 @@ use maccrossfire::races::{classify_player_face, clothes_for_class, look_for_race
 use maccrossfire::terrain::{ground_height, is_wall};
 use maccrossfire::walls::wall_masks;
 
-use maccrossfire::clock::{sun_pose, FALLBACK_HOUR};
+use maccrossfire::clock::{sun_pose, SunPose, FALLBACK_HOUR};
 use maccrossfire::settings::Quality;
 
 use crate::characters3d::{character_files, spawn_character, Character, OwnCharacter, OwnLook};
@@ -70,10 +70,10 @@ impl Plugin for WorldPlugin {
             .init_resource::<DoorExit>()
             .insert_resource(Models::load())
             .add_observer(tint_model)
-            .add_systems(Startup, setup)
+            .add_systems(Startup, (setup, crate::sky::spawn_sky))
             .add_systems(
                 Update,
-                (load_textures, sync_visuals, check_models, swap_models, reveal_assembled, hide_entered, glide, follow_player, face_camera, place_arrow, lighting)
+                (load_textures, sync_visuals, check_models, swap_models, reveal_assembled, hide_entered, glide, follow_player, face_camera, place_arrow, lighting, crate::sky::update_sky)
                     .chain()
                     .run_if(in_state(AppState::InGame)),
             )
@@ -101,7 +101,7 @@ pub(crate) struct Glide {
 }
 
 #[derive(Component)]
-struct CameraRig {
+pub(crate) struct CameraRig {
     focus: Vec3,
     distance: f32,
     /// The top view's own zoom.
@@ -753,7 +753,8 @@ fn follow_player(
 }
 
 /// The player on a house's squares stands on its doorstep, outside, with the house in
-/// view. Anything else they stand in (a well, a castle) is hidden instead.
+/// view. One-square things (a well) are drawn with them; anything bigger they stand in
+/// (a castle) is hidden.
 fn hide_entered(
     view: Res<View>,
     size: Res<ViewSize>,
@@ -769,7 +770,8 @@ fn hide_entered(
         if let (true, Some(Door(at))) = (inside, door) {
             step.0 = Some(*at);
         }
-        vis.set_if_neq(if inside && door.is_none() { Visibility::Hidden } else { Visibility::Inherited });
+        let big = x1 > x0 || y1 > y0;
+        vis.set_if_neq(if inside && door.is_none() && big { Visibility::Hidden } else { Visibility::Inherited });
     }
     // The square in front of the door, one step out of the doorway.
     exit.came_out = step.0.is_some() && exit.new_map;
@@ -793,15 +795,14 @@ fn face_camera(rig: Single<&CameraRig>, mut cards: Query<&mut Transform, With<Ca
 
 /// The game clock sets where the light comes from and its colour; its strength follows
 /// the darkness of the player's square (the server darkens by hour, season, indoors).
-fn lighting(
-    view: Res<View>,
-    size: Res<ViewSize>,
-    clock: Res<Clock>,
-    settings: Res<CurrentSettings>,
-    sun: Single<(&mut DirectionalLight, &mut Transform), With<Sun>>,
-) {
-    let (mut light, mut transform) = sun.into_inner();
-    let dark = view.0.cell((size.0 / 2) as i8, (size.1 / 2) as i8).map_or(255, |c| c.darkness);
+/// The player's square's light, 0 (dark) ..= 255 (the server darkens by hour, season,
+/// indoors).
+pub(crate) fn darkness(view: &View, size: &ViewSize) -> u8 {
+    view.0.cell((size.0 / 2) as i8, (size.1 / 2) as i8).map_or(255, |c| c.darkness)
+}
+
+/// Where the sun (or moon) is now, and the direction toward it.
+pub(crate) fn sun_now(clock: &Clock) -> (SunPose, Vec3) {
     let forced = std::env::var("MACCROSSFIRE_HOUR").ok().and_then(|h| h.parse().ok()); // screenshots
     let pose = sun_pose(forced.or(clock.0.hour()).unwrap_or(FALLBACK_HOUR));
     // azimuth 0 = east (+X), PI/2 = south (+Z), PI = west (-X)
@@ -810,6 +811,19 @@ fn lighting(
         pose.elevation.sin(),
         pose.azimuth.sin() * pose.elevation.cos(),
     );
+    (pose, dir)
+}
+
+fn lighting(
+    view: Res<View>,
+    size: Res<ViewSize>,
+    clock: Res<Clock>,
+    settings: Res<CurrentSettings>,
+    sun: Single<(&mut DirectionalLight, &mut Transform), With<Sun>>,
+) {
+    let (mut light, mut transform) = sun.into_inner();
+    let dark = darkness(&view, &size);
+    let (pose, dir) = sun_now(&clock);
     *transform = Transform::from_translation(dir * 20.0).looking_at(Vec3::ZERO, Vec3::Y);
     let (color, strength) = if pose.moon {
         (Color::srgb(0.6, 0.7, 1.0), MOON_LUX)
