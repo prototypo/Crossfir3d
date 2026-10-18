@@ -114,7 +114,7 @@ pub(crate) struct CameraRig {
 
 /// Flat picture cards, which always turn to face the camera.
 #[derive(Component)]
-struct Card;
+pub(crate) struct Card;
 
 /// Tiles the camera must not sit in: walls and buildings.
 #[derive(Resource, Default)]
@@ -304,6 +304,14 @@ fn glides(layer: u8) -> bool {
     layer >= 6
 }
 
+/// Where a gliding thing with a 3D model (a flying arrow) sits on square `tile`.
+fn model_spot(visual: &Visual, tile: Vec3) -> Option<Vec3> {
+    match visual {
+        Visual::Model { dy, .. } => Some(tile + Vec3::new(0.5, *dy, 0.5)),
+        _ => None,
+    }
+}
+
 #[allow(clippy::too_many_arguments)]
 fn sync_visuals(
     mut commands: Commands,
@@ -381,7 +389,11 @@ fn sync_visuals(
                 let (_, mut tv, glide, character) = existing.get_mut(e).unwrap();
                 (tv.x, tv.y, tv.darkness) = (x, y, darkness);
                 if let Some(mut g) = glide {
-                    g.target = if character { tile + Vec3::new(0.5, 0.0, 0.5) } else { card_position(tile, *size, layer) };
+                    g.target = if character {
+                        tile + Vec3::new(0.5, 0.0, 0.5)
+                    } else {
+                        model_spot(models.map.lookup(name), tile).unwrap_or_else(|| card_position(tile, *size, layer))
+                    };
                 }
                 continue;
             }
@@ -497,7 +509,16 @@ fn sync_visuals(
             let t = Transform::from_translation(pos).with_scale(Vec3::new(size.x / TILE_PX, size.y / TILE_PX, 1.0));
             let mut e = commands.spawn((tv, Card, Mesh3d(textures.card.clone()), MeshMaterial3d(material), t));
             if glides(layer) {
-                e.insert(Glide { target: pos });
+                match (model, model_spot(models.map.lookup(name), tile)) {
+                    (Some((file, t, tint)), Some(spot)) => {
+                        let handle = models.scene(&server, &file);
+                        let transform = Transform { translation: spot, ..t };
+                        e.insert((Glide { target: spot }, PendingModel { file, handle, transform, tint }));
+                    }
+                    _ => {
+                        e.insert(Glide { target: pos });
+                    }
+                }
             } else if let Some((file, t, tint)) = model {
                 let handle = models.scene(&server, &file);
                 let transform = Transform { translation: middle + t.translation, ..t };

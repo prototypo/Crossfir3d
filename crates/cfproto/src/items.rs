@@ -147,7 +147,9 @@ impl Inventory {
         let inside: Vec<u32> = self.items.values().filter(|i| i.location == location).map(|i| i.tag).collect();
         for tag in inside {
             self.items.remove(&tag);
-            if tag != location {
+            // The player can be listed on the ground too; clearing the ground must not
+            // clear what they carry.
+            if tag != location && tag != self.player {
                 self.delete_inside(tag);
             }
         }
@@ -284,6 +286,16 @@ mod tests {
         inv.apply_upd(11, &[ItemChange::Location(0), ItemChange::Nrof(2)]);
         assert_eq!(inv.ground()[0].nrof, 2);
         assert!(inv.carried().is_empty());
+    }
+
+    #[test]
+    fn clearing_the_ground_keeps_the_players_items() {
+        let mut inv = Inventory { player: 1, ..Default::default() };
+        inv.apply_item2(1, vec![item(10, 1, "bow", 151)]);
+        inv.apply_item2(0, vec![item(1, 0, "Gatey", 0), item(5, 0, "apple", 60)]);
+        inv.delete_inside(0);
+        assert!(inv.get(5).is_none());
+        assert_eq!(inv.carried().len(), 1);
     }
 
     #[test]
