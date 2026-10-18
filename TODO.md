@@ -36,7 +36,11 @@ Known problems left for later. Each line says what goes wrong and where to look.
 - [ ] Torches and other wall-mounted things are hidden inside the solid wall blocks (`world.rs`).
 - [ ] Live tests for "read a sign → parchment box" and "cast a known spell".
 
-- [ ] Monsters are still picture cards. The Bestiary Dungeon Monsters Kit is downloaded (`upstream/packs/dungeon-monsters-kit`) but not used yet.
+- [ ] Monsters the Bestiary kit does not cover (orcs, animals, dragons, undead other than skeletons, ...) are still picture cards or tinted 3D people (`person` in `assets/models.txt`).
+
+## Before making the repo public
+
+- [ ] Do not publish the paid model files. `assets/models/monsters/` comes from the Bestiary – Dungeon Monsters Kit **Source** tier (Quaternius Asset License: the assets may be used in a game but not redistributed as assets). Remove the folder from the repo and its git history (or ignore it and have `scripts/pick_models.py` make it locally from `upstream/packs/dungeon-monsters-kit-source/`), and ship it only inside the built app (binary release). Check every other pack's licence the same way.
 - [ ] Shops drawn as map buildings (`mapbuilding/`, e.g. `store_gems`) stay picture cards (they show the shop name).
 - [ ] Walking by typed direction words (`north` in the command line) does not turn the character; only movement keys set `Facing` (`input.rs`).
 - [ ] Each tinted or darkened model instance gets its own material copies (`world.rs` `tint_model`); share copies per (material, tint) if draw calls hurt.

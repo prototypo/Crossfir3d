@@ -28,6 +28,8 @@ pub struct Part {
     pub shape: Shape,
     pub pos: [f32; 3],
     pub yaw_deg: f32,
+    /// Lean toward the east, in degrees, about `pos` (a lever's handle).
+    pub tilt_deg: f32,
     pub scale: [f32; 3],
     /// Shapes: their colour. Models: a tint (None = as made).
     pub color: Option<[f32; 3]>,
@@ -55,8 +57,10 @@ const GABLE_Y: f32 = 0.75;
 /// square in front of it, where they step out to.
 const DOORSTEP: f32 = 0.5;
 
-pub const RECIPES: [&str; 14] =
-    ["cottage", "house", "tavern", "barn", "temple", "tower", "castle", "shop", "well", "fountain", "signpost", "crossroads", "noticeboard", "lamppost"];
+pub const RECIPES: [&str; 17] = [
+    "cottage", "house", "tavern", "barn", "temple", "tower", "castle", "shop", "well", "fountain", "signpost", "crossroads",
+    "noticeboard", "lamppost", "clock", "lever", "lever_pulled",
+];
 pub const WALL_STYLES: [&str; 6] = ["stone", "brick", "plaster", "wood", "hedge", "rock"];
 
 /// Squares a picture covers (32 px each), at least 1 by 1.
@@ -65,7 +69,7 @@ pub fn footprint(w_px: u32, h_px: u32) -> (u32, u32) {
 }
 
 fn part(shape: Shape, pos: [f32; 3], yaw_deg: f32, scale: [f32; 3], color: Option<[f32; 3]>) -> Part {
-    Part { shape, pos, yaw_deg, scale, color }
+    Part { shape, pos, yaw_deg, tilt_deg: 0.0, scale, color }
 }
 
 fn model(file: &'static str, pos: [f32; 3], yaw_deg: f32, scale: f32) -> Part {
@@ -124,6 +128,17 @@ fn style(recipe: &str) -> Option<Style> {
 
 /// The parts of a recipe over a `w` by `h` footprint. Unknown recipe: None (keep the card).
 pub fn parts(recipe: &str, w: u32, h: u32) -> Option<Vec<Part>> {
+    // Long tables and benches join like walls: `longtable_5` joins north and south.
+    if let Some((kind, mask)) = recipe.split_once('_')
+        && let Ok(mask) = u8::from_str_radix(mask, 16)
+        && mask < 16
+    {
+        match kind {
+            "longtable" => return Some(run(mask, 0.85, 0.45, BOARD)),
+            "bench" => return Some(run(mask, 0.3, 0.25, [0.45, 0.2, 0.12])),
+            _ => {}
+        }
+    }
     match recipe {
         "well" => Some(well()),
         "fountain" => Some(fountain()),
@@ -131,6 +146,9 @@ pub fn parts(recipe: &str, w: u32, h: u32) -> Option<Vec<Part>> {
         "crossroads" => Some(crossroads()),
         "noticeboard" => Some(noticeboard()),
         "lamppost" => Some(lamppost()),
+        "clock" => Some(clock()),
+        "lever" => Some(lever(35.0)),
+        "lever_pulled" => Some(lever(-35.0)),
         "castle" => Some(castle(w, h)),
         "shop" => Some(shop(w, h)),
         _ => style(recipe).map(|s| village(&s, w, h)),
@@ -281,6 +299,73 @@ fn lamppost() -> Vec<Part> {
     out
 }
 
+/// A tall wooden case on a plinth: a hood with a round dial under a little gable, and
+/// a gold pendulum behind a glass door in the trunk.
+fn clock() -> Vec<Part> {
+    const DIAL: [f32; 3] = [0.9, 0.85, 0.7];
+    const BRASS: [f32; 3] = [0.85, 0.65, 0.25];
+    const TRIM: [f32; 3] = [0.6, 0.42, 0.25];
+    vec![
+        cube([0.42, 0.12, 0.32], [0.0, 0.06, 0.0], WOOD),
+        cube([0.32, 0.7, 0.24], [0.0, 0.47, 0.0], WOOD),
+        cube([0.22, 0.52, 0.02], [0.0, 0.47, 0.12], TRIM),
+        cube([0.17, 0.46, 0.02], [0.0, 0.47, 0.125], INSIDE),
+        cube([0.015, 0.3, 0.01], [0.0, 0.55, 0.14], BRASS),
+        disc(0.045, 0.015, [0.0, 0.38, 0.14], BRASS),
+        cube([0.38, 0.04, 0.28], [0.0, 0.84, 0.0], TRIM),
+        cube([0.36, 0.32, 0.26], [0.0, 1.02, 0.0], WOOD),
+        disc(0.13, 0.02, [0.0, 1.02, 0.13], BRASS),
+        disc(0.11, 0.02, [0.0, 1.02, 0.14], DIAL),
+        cube([0.015, 0.09, 0.01], [0.0, 1.06, 0.155], INSIDE),
+        cube([0.06, 0.015, 0.01], [0.03, 1.02, 0.155], INSIDE),
+        cube([0.42, 0.04, 0.32], [0.0, 1.2, 0.0], TRIM),
+        part(Shape::Wedge([0.42, 0.14, 0.3]), [0.0, 1.22, 0.0], 0.0, [1.0; 3], Some(WOOD)),
+        cube([0.04, 0.05, 0.04], [0.0, 1.38, 0.0], BRASS),
+    ]
+}
+
+/// A cylinder turned to face south, like a coin standing on edge.
+fn disc(radius: f32, thick: f32, pos: [f32; 3], color: [f32; 3]) -> Part {
+    Part { yaw_deg: 90.0, tilt_deg: 90.0, ..cylinder(radius, thick, pos, color) }
+}
+
+/// One square of a long table or bench: a top `width` wide at `height`, reaching out to
+/// the joined sides in `mask`. Ends, corners and lone squares stand on four legs.
+fn run(mask: u8, width: f32, height: f32, color: [f32; 3]) -> Vec<Part> {
+    const THICK: f32 = 0.06;
+    let y = height - THICK / 2.0;
+    let half = width / 2.0;
+    let arm = 0.5 - half;
+    let mut out = vec![cube([width, THICK, width], [0.0, y, 0.0], color)];
+    for (side, dx, dz) in [(N, 0.0, -1.0), (E, 1.0, 0.0), (S, 0.0, 1.0), (W, -1.0, 0.0)] {
+        if mask & side != 0 {
+            let size = if dx != 0.0 { [arm, THICK, width] } else { [width, THICK, arm] };
+            out.push(cube(size, [dx * (half + arm / 2.0), y, dz * (half + arm / 2.0)], color));
+        }
+    }
+    if mask != N | S && mask != E | W {
+        let c = half - 0.04;
+        for (x, z) in [(-c, -c), (c, -c), (c, c), (-c, c)] {
+            out.push(cube([0.05, height - THICK, 0.05], [x, (height - THICK) / 2.0, z], WOOD));
+        }
+    }
+    out
+}
+
+/// An iron knob with a handle leaning `tilt_deg` toward the east (west when negative).
+fn lever(tilt_deg: f32) -> Vec<Part> {
+    const IRON: [f32; 3] = [0.35, 0.35, 0.38];
+    const LENGTH: f32 = 0.5;
+    let t = tilt_deg.to_radians();
+    let (x, y) = (t.sin() * LENGTH / 2.0, 0.15 + t.cos() * LENGTH / 2.0);
+    let grip = (t.sin() * LENGTH, 0.15 + t.cos() * LENGTH);
+    vec![
+        cylinder(0.18, 0.2, [0.0, 0.1, 0.0], IRON),
+        Part { tilt_deg, ..cube([0.05, LENGTH, 0.05], [x, y, 0.0], WOOD) },
+        cube([0.1, 0.1, 0.1], [grip.0, grip.1, 0.0], [0.6, 0.1, 0.1]),
+    ]
+}
+
 /// A wide board between two posts, under a little roof.
 fn noticeboard() -> Vec<Part> {
     vec![
@@ -410,11 +495,33 @@ mod tests {
 
     #[test]
     fn small_things_are_shapes() {
-        for r in ["well", "fountain", "signpost", "crossroads", "noticeboard"] {
+        for r in ["well", "fountain", "signpost", "crossroads", "noticeboard", "clock", "lever"] {
             let p = parts(r, 1, 1).unwrap();
             assert!(!p.is_empty() && models(&p).is_empty(), "{r}");
         }
         assert_eq!(parts("spaceship", 1, 1), None);
+    }
+
+    #[test]
+    fn pulled_lever_leans_the_other_way() {
+        let handle = |r| parts(r, 1, 1).unwrap().into_iter().find(|p| p.tilt_deg != 0.0).unwrap();
+        let (off, on) = (handle("lever"), handle("lever_pulled"));
+        assert!(off.tilt_deg > 0.0 && off.pos[0] > 0.0, "leans east");
+        assert!(on.tilt_deg < 0.0 && on.pos[0] < 0.0, "leans west");
+    }
+
+    #[test]
+    fn long_table_reaches_its_joined_sides() {
+        let reach = |r| {
+            let p = parts(r, 1, 1).unwrap();
+            let edge = |f: fn(&Part) -> f32| p.iter().filter(|p| p.pos[1] > 0.4).map(f).fold(0.0, f32::max);
+            (edge(|p| -p.pos[2]), edge(|p| p.pos[0]), p.len())
+        };
+        let (north, east, n) = reach("longtable_5");
+        assert!(north > 0.4 && east < 0.1, "runs north-south");
+        assert_eq!(n, 3, "a middle piece has no legs");
+        assert_eq!(reach("longtable_0").2, 5, "a lone square has four legs");
+        assert_eq!(parts("bench_G", 1, 1), None);
     }
 
     #[test]
