@@ -16,6 +16,7 @@ mod graphics;
 mod hud;
 mod input;
 mod settings_ui;
+mod sky;
 mod inventory_ui;
 mod ui;
 mod world;
