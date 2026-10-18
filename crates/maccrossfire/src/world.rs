@@ -768,9 +768,10 @@ fn follow_player(
     let step = pitch.to_radians() - rig.pitch;
     rig.pitch += step * (time.delta_secs() * 4.0).min(1.0);
     *t = camera_transform(rig.focus, distance, rig.yaw, rig.pitch, side, ahead);
-    // Hide the edge of what the server sends: fog from 40% of the view radius to the edge.
+    // Hide the edge of what the server sends: fog from 75% of the view radius to the edge,
+    // so nearby houses keep their colours.
     let radius = size.0.min(size.1) as f32 / 2.0;
-    fog.falloff = FogFalloff::Linear { start: distance + radius * 0.4, end: distance + radius };
+    fog.falloff = FogFalloff::Linear { start: distance + radius * 0.75, end: distance + radius };
 }
 
 /// The player on a house's squares stands on its doorstep, outside, with the house in
