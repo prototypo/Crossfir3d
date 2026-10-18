@@ -11,6 +11,7 @@ use bevy::gltf::GltfAssetLabel;
 use bevy::image::{CompressedImageFormats, ImageSampler, ImageType};
 use bevy::input::gestures::PinchGesture;
 use bevy::input::mouse::{AccumulatedMouseScroll, MouseScrollUnit};
+use bevy::light::NotShadowCaster;
 use bevy::prelude::*;
 use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat};
 use bevy::world_serialization::{WorldAsset, WorldAssetRoot, WorldInstanceReady};
@@ -23,7 +24,7 @@ use maccrossfire::walls::wall_masks;
 use maccrossfire::clock::{sun_pose, SunPose, FALLBACK_HOUR};
 use maccrossfire::settings::Quality;
 
-use crate::characters3d::{character_files, spawn_character, Character, OwnCharacter, OwnLook};
+use crate::characters3d::{character_files, spawn_character, Character, OwnCharacter, OwnLook, PartOf, StatueFigure};
 use crate::graphics::CurrentSettings;
 use crate::input::{CameraHeading, CameraView, DoorExit, Facing};
 use maccrossfire::camera::{compass, pull_in, sight_blocked, zoom, PIXELS_PER_LINE};
@@ -42,6 +43,18 @@ const LOOK_HEIGHT: f32 = 0.95;
 /// so the player stands left of the middle, FPS-like.
 const SHOULDER: f32 = 0.35;
 const AHEAD: f32 = 4.0;
+/// Statues: the Modular Dungeon plinth (2.19 tall), its scale, and where its top is.
+const PLINTH: &str = "dungeon/Pedestal.gltf";
+const PLINTH_SCALE: f32 = 0.3;
+const PLINTH_TOP: f32 = 2.19 * PLINTH_SCALE;
+const STATUE_STONE: [f32; 3] = [0.7, 0.7, 0.68];
+const STONE_SHADE: f32 = 0.35;
+/// Map memory: how far from the player squares seen before are still drawn.
+const MEMORY_SQUARES: i32 = 40;
+/// Street lamps: how bright the lamp box looks, and the light it sheds (lumens, squares).
+const LAMP_GLOW: f32 = 4.0;
+const LAMP_LUMENS: f32 = 60_000.0;
+const LAMP_RANGE: f32 = 5.0;
 /// Tab: high above, looking almost straight down (straight down has no "up").
 const TOP_PITCH_DEG: f32 = 80.0;
 const TOP_DISTANCE: f32 = 14.0;
@@ -67,6 +80,7 @@ impl Plugin for WorldPlugin {
             .init_resource::<Textures>()
             .init_resource::<Solid>()
             .init_resource::<Doorstep>()
+            .init_resource::<MapGen>()
             .init_resource::<DoorExit>()
             .insert_resource(Models::load())
             .add_observer(tint_model)
@@ -165,6 +179,10 @@ struct Span(i32, i32, i32, i32);
 /// has them on one of its squares (a shop's entrance row, say).
 #[derive(Component)]
 struct Door(Vec3);
+
+/// Counts `newmap`s, so map memory forgets the last map.
+#[derive(Resource, Default)]
+pub struct MapGen(pub u32);
 
 /// The doorstep the player is shown at now, if they are in a house.
 #[derive(Resource, Default)]
@@ -324,10 +342,15 @@ fn sync_visuals(
     mut existing: Query<(Entity, &mut TileVisual, Option<&mut Glide>, Has<Character>)>,
     mut solid: ResMut<Solid>,
     (view_size, own, mut images): (Res<ViewSize>, Res<OwnLook>, ResMut<Assets<Image>>),
+    map_gen: Res<MapGen>,
+    mut seen_gen: Local<u32>,
 ) {
     if !view.is_changed() && !textures.is_changed() {
         return;
     }
+    // A new map: forget the last one's squares (the square numbers carry on).
+    let new_map = *seen_gen != map_gen.0;
+    *seen_gen = map_gen.0;
     // ponytail: full diff per change; incremental dirty cells if profiling says so.
     let mut want = wanted(&view, &faces, &textures);
     let name_of = |face: u16| faces.0.name(face).unwrap_or("");
@@ -359,6 +382,11 @@ fn sync_visuals(
         want.keys().map(|&(x, y, _)| ((x, y), floor_height(x, y, &want))).collect();
 
     // Keep what is unchanged. Gliding things that left their tile become orphans.
+    // Map memory: still things outside the server's view stay as last seen, up to
+    // MEMORY_SQUARES away.
+    let (x0, y0) = view.0.world(0, 0);
+    let in_view = |x: i32, y: i32| (x0..x0 + view_size.0 as i32).contains(&x) && (y0..y0 + view_size.1 as i32).contains(&y);
+    let remembered = |x: i32, y: i32| !new_map && !in_view(x, y) && (x - player.0).abs().max((y - player.1).abs()) <= MEMORY_SQUARES;
     let mut orphans = Vec::new();
     for (entity, tv, _, _) in &existing {
         match want.get(&(tv.x, tv.y, tv.layer)) {
@@ -366,6 +394,7 @@ fn sync_visuals(
                 want.remove(&(tv.x, tv.y, tv.layer));
             }
             _ if glides(tv.layer) => orphans.push(entity),
+            None if remembered(tv.x, tv.y) => {}
             _ => commands.entity(entity).despawn(),
         }
     }
@@ -378,16 +407,19 @@ fn sync_visuals(
         let tile = Vec3::new(x as f32, h, y as f32);
 
         // A creature that stepped one tile: move the old entity instead of making a new one.
+        // A 3D character keeps its body when only its picture changes (each turn and step
+        // frame), so it is never rebuilt, nor briefly built as someone else.
         if glides(layer) {
+            let player_face = classify_player_face(name).is_some();
             let found = orphans.iter().position(|&e| {
-                existing.get(e).is_ok_and(|(_, tv, _, _)| {
-                    tv.face == face && tv.layer == layer && (tv.x - x).abs() <= 1 && (tv.y - y).abs() <= 1
+                existing.get(e).is_ok_and(|(_, tv, _, character)| {
+                    (tv.face == face || (character && player_face)) && tv.layer == layer && (tv.x - x).abs() <= 1 && (tv.y - y).abs() <= 1
                 })
             });
             if let Some(i) = found {
                 let e = orphans.swap_remove(i);
                 let (_, mut tv, glide, character) = existing.get_mut(e).unwrap();
-                (tv.x, tv.y, tv.darkness) = (x, y, darkness);
+                (tv.x, tv.y, tv.darkness, tv.face) = (x, y, darkness, face);
                 if let Some(mut g) = glide {
                     g.target = if character {
                         tile + Vec3::new(0.5, 0.0, 0.5)
@@ -474,6 +506,24 @@ fn sync_visuals(
                 commands.entity(parent).add_child(child);
             }
             stand_in(&mut commands, parent, at);
+            continue;
+        }
+
+        if let Visual::Statue { tint } = models.map.lookup(name) {
+            let [r, g, b] = tint.unwrap_or(STATUE_STONE);
+            let stone = Color::srgb(r * shade, g * shade, b * shade);
+            let parent = commands.spawn((tv, Transform::from_translation(tile + Vec3::new(0.5, 0.0, 0.5)), Visibility::default())).id();
+            let plinth = models.scene(&server, PLINTH);
+            commands.spawn((WorldAssetRoot(plinth), Transform::from_scale(Vec3::splat(PLINTH_SCALE)), ModelTint(stone), ChildOf(parent)));
+            // Body colours are tints relative to a human (`races::tints`): undo that, so
+            // every part comes out the same stone.
+            let human = look_for_race("human");
+            let rel = |h: [f32; 3]| [r * h[0], g * h[1], b * h[2]];
+            let look = Look { scale: 0.5, skin: rel(human.skin), hair: [r, g, b], clothes: rel(human.clothes) };
+            let load = |f: &str| models.scene(&server, f);
+            let on_top = Transform::from_xyz(0.0, PLINTH_TOP, 0.0);
+            let figure = spawn_character(&mut commands, load, character_files(Body::Regular), &look, on_top, Visibility::Inherited, StatueFigure);
+            commands.entity(figure).insert(ChildOf(parent));
             continue;
         }
 
@@ -587,6 +637,19 @@ fn spawn_part(
         Shape::Box(size) => (textures.cube.clone(), Vec3::from(size)),
         Shape::Cylinder { radius, height } => (textures.cylinder.clone(), Vec3::new(radius, height, radius)),
         Shape::Wedge(size) => (textures.wedge.clone(), Vec3::from(size)),
+        Shape::Lamp(size) => {
+            let glow = materials.add(StandardMaterial {
+                base_color: color,
+                emissive: LinearRgba::from(color) * LAMP_GLOW,
+                unlit: true,
+                ..default()
+            });
+            let t = Transform { scale: t.scale * Vec3::from(size), ..t };
+            let light = PointLight { color, intensity: LAMP_LUMENS, range: LAMP_RANGE, shadow_maps_enabled: false, ..default() };
+            // The light is a child of the scaled box: undo the scale so its range is in squares.
+            let unscaled = Transform::from_scale(Vec3::ONE / t.scale);
+            return commands.spawn((Mesh3d(textures.cube.clone()), MeshMaterial3d(glow), t, Visibility::Hidden, NotShadowCaster)).with_child((light, unscaled)).id();
+        }
         Shape::Sign([w, h]) => {
             let Some((material, aspect)) = sign else { return commands.spawn((t, Visibility::Hidden)).id() };
             // Fit the text inside the board, keeping its shape, centred top to bottom.
@@ -675,6 +738,8 @@ fn tint_model(
     ready: On<WorldInstanceReady>,
     mut commands: Commands,
     tints: Query<(&ModelTint, Option<&SkinTint>)>,
+    part_of: Query<&PartOf>,
+    statues: Query<(), With<StatueFigure>>,
     names: Query<&Name>,
     children: Query<&Children>,
     meshes: Query<&MeshMaterial3d<StandardMaterial>>,
@@ -684,6 +749,8 @@ fn tint_model(
     if *tint == Color::WHITE && skin.is_none() {
         return;
     }
+    // A statue's figure is plain stone: its tint, with no picture on it.
+    let stone = part_of.get(ready.entity).is_ok_and(|p| statues.contains(p.0));
     for d in children.iter_descendants(ready.entity) {
         let Ok(m) = meshes.get(d) else { continue };
         let is_skin = names.get(d).is_ok_and(|n| n.as_str().contains("MI_Regular"));
@@ -694,6 +761,18 @@ fn tint_model(
         let Some(mut copy) = materials.get(&m.0).cloned() else { continue };
         let c = copy.base_color.to_linear();
         copy.base_color = LinearRgba::new(c.red * tint.red, c.green * tint.green, c.blue * tint.blue, c.alpha).into();
+        if stone {
+            // Darker than the tint: the plinth's own marble colour darkens it too.
+            copy.base_color = LinearRgba::new(tint.red * STONE_SHADE, tint.green * STONE_SHADE, tint.blue * STONE_SHADE, 1.0).into();
+            copy.base_color_texture = None;
+            // Outfits can be shiny or metallic; stone is neither (it mirrored the sky).
+            copy.metallic = 0.0;
+            copy.metallic_roughness_texture = None;
+            copy.perceptual_roughness = 0.9;
+            copy.reflectance = 0.2;
+            copy.emissive = LinearRgba::BLACK;
+            copy.emissive_texture = None;
+        }
         commands.entity(d).try_insert(MeshMaterial3d(materials.add(copy)));
     }
 }
@@ -768,10 +847,10 @@ fn follow_player(
     let step = pitch.to_radians() - rig.pitch;
     rig.pitch += step * (time.delta_secs() * 4.0).min(1.0);
     *t = camera_transform(rig.focus, distance, rig.yaw, rig.pitch, side, ahead);
-    // Hide the edge of what the server sends: fog from 75% of the view radius to the edge,
-    // so nearby houses keep their colours.
+    // Haze from the edge of what the server sends out to the edge of map memory: nearby
+    // houses keep their colours, remembered ones fade.
     let radius = size.0.min(size.1) as f32 / 2.0;
-    fog.falloff = FogFalloff::Linear { start: distance + radius * 0.75, end: distance + radius };
+    fog.falloff = FogFalloff::Linear { start: distance + radius, end: distance + MEMORY_SQUARES as f32 };
 }
 
 /// The player on a house's squares stands on its doorstep, outside, with the house in
