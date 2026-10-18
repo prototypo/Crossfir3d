@@ -1,4 +1,4 @@
-//! Video settings and the settings file (`key=value` lines).
+//! Video and sound settings and the settings file (`key=value` lines).
 
 use std::io;
 use std::path::{Path, PathBuf};
@@ -47,6 +47,8 @@ pub struct Settings {
     pub brightness: f32,
     pub contrast: f32,
     pub gamma: f32,
+    /// Background music on (sound effects are not affected).
+    pub music: bool,
 }
 
 impl Default for Settings {
@@ -62,6 +64,7 @@ impl Default for Settings {
             brightness: 0.0,
             contrast: 1.0,
             gamma: 1.0,
+            music: true,
         }
     }
 }
@@ -101,6 +104,7 @@ impl Settings {
         out += &format!("shadows={}\n", quality_name(self.shadows));
         out += &format!("anti_alias={}\n", anti_alias_name(self.anti_alias));
         out += &format!("brightness={}\ncontrast={}\ngamma={}\n", self.brightness, self.contrast, self.gamma);
+        out += &format!("music={}\n", self.music);
         out
     }
 
@@ -123,6 +127,7 @@ impl Settings {
                 "brightness" => s.brightness = value.parse().unwrap_or(s.brightness),
                 "contrast" => s.contrast = value.parse().unwrap_or(s.contrast),
                 "gamma" => s.gamma = value.parse().unwrap_or(s.gamma),
+                "music" => s.music = value.parse().unwrap_or(s.music),
                 _ => {}
             }
         }
@@ -246,6 +251,7 @@ mod tests {
             brightness: 0.25,
             contrast: 1.2,
             gamma: 0.8,
+            music: false,
         };
         assert_eq!(Settings::from_text(&s.to_text()), s);
         let path = temp("roundtrip");

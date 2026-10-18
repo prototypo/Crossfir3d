@@ -68,9 +68,10 @@ fn ssao_level(q: Quality) -> Option<ScreenSpaceAmbientOcclusionQualityLevel> {
     }
 }
 
-/// Everything except the window place, which changes on every move and needs no re-apply.
+/// Everything except the window place, which changes on every move and needs no re-apply,
+/// and music, which `audio.rs` handles.
 fn look(s: &Settings) -> Settings {
-    Settings { window: None, ..s.clone() }.normalized()
+    Settings { window: None, music: true, ..s.clone() }.normalized()
 }
 
 #[allow(clippy::too_many_arguments)]
