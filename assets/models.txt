@@ -285,3 +285,169 @@ statue_gold statue 1.0,0.8,0.3
 statue2_gold statue 1.0,0.8,0.3
 statue_gargoyle model dungeon/Statue_Horse.gltf 0.28 0 0
 statue_ruined card
+
+# --- Furniture and loot (props/: Quaternius' Fantasy Props MegaKit) ---
+# Chairs face south unturned (rot 0). Frames: .101 north, .111 west, .121 south, .131 east.
+chest_* model props/Chest_Wood.gltf 0.45 0 0
+chest_blue_1 model props/Chest_Wood.gltf 0.45 0 0 0.5,0.6,1.0
+chest_green_1 model props/Chest_Wood.gltf 0.45 0 0 0.5,0.9,0.5
+chest_jade_1 model props/Chest_Wood.gltf 0.45 0 0 0.4,0.9,0.7
+chest_pink_1 model props/Chest_Wood.gltf 0.45 0 0 1.0,0.6,0.8
+chest_red_1 model props/Chest_Wood.gltf 0.45 0 0 1.0,0.45,0.4
+chest_white_1 model props/Chest_Wood.gltf 0.45 0 0 1.4,1.4,1.4
+chest_yellow_1 model props/Chest_Wood.gltf 0.45 0 0 1.2,1.0,0.4
+key1 model props/Key_Metal.gltf 2.0 30 0.01
+key2 model props/Key_Gold.gltf 2.0 30 0.01
+key_* model props/Key_Metal.gltf 2.0 30 0.01
+key_blue model props/Key_Metal.gltf 2.0 30 0.01 0.5,0.6,1.0
+key_brown model props/Key_Metal.gltf 2.0 30 0.01 0.7,0.5,0.3
+key_darkgray model props/Key_Metal.gltf 2.0 30 0.01 0.4,0.4,0.4
+key_darkgreen model props/Key_Metal.gltf 2.0 30 0.01 0.3,0.6,0.3
+key_green model props/Key_Metal.gltf 2.0 30 0.01 0.5,1.0,0.5
+key_magenta model props/Key_Metal.gltf 2.0 30 0.01 1.0,0.4,1.0
+key_red model props/Key_Metal.gltf 2.0 30 0.01 1.0,0.4,0.4
+chair* model props/Chair_1.gltf 0.5 0 0
+chair_3 model props/Stool.gltf 0.5 0 0
+chair_1.101 180 model props/Chair_1.gltf 0.5  0
+chair_1.111 90 model props/Chair_1.gltf 0.5  0
+chair_1.121 0 model props/Chair_1.gltf 0.5  0
+chair_1.131 270 model props/Chair_1.gltf 0.5  0
+chair_2.101 180 model props/Chair_1.gltf 0.5  0
+chair_2.111 90 model props/Chair_1.gltf 0.5  0
+chair_2.121 0 model props/Chair_1.gltf 0.5  0
+chair_2.131 270 model props/Chair_1.gltf 0.5  0
+chair_bc_2.101 180 model props/Chair_1.gltf 0.5  0
+chair_bc_2.111 90 model props/Chair_1.gltf 0.5  0
+chair_bc_2.121 0 model props/Chair_1.gltf 0.5  0
+chair_bc_2.131 270 model props/Chair_1.gltf 0.5  0
+chair_cw_1.101 180 model props/Chair_1.gltf 0.5  0
+chair_cw_1.111 90 model props/Chair_1.gltf 0.5  0
+chair_cw_1.121 0 model props/Chair_1.gltf 0.5  0
+chair_cw_1.131 270 model props/Chair_1.gltf 0.5  0
+chair_gv_1.101 180 model props/Chair_1.gltf 0.5  0
+chair_gv_1.111 90 model props/Chair_1.gltf 0.5  0
+chair_gv_1.121 0 model props/Chair_1.gltf 0.5  0
+chair_gv_1.131 270 model props/Chair_1.gltf 0.5  0
+chair_wv_1.101 180 model props/Chair_1.gltf 0.5  0
+chair_wv_1.111 90 model props/Chair_1.gltf 0.5  0
+chair_wv_1.121 0 model props/Chair_1.gltf 0.5  0
+chair_wv_1.131 270 model props/Chair_1.gltf 0.5  0
+table* model props/Table_Large.gltf 0.35 0 0
+table_2x1 model props/Table_Large.gltf 0.6 0 0
+table_1x2 model props/Table_Large.gltf 0.6 90 0
+table_2x2 model props/Table_Large.gltf 0.65 0 0
+
+# --- Clocks and levers (no free model; built from shapes in code) ---
+# A lever's frame .111 is off (leans east), .112 is pulled (leans west).
+clock* building clock
+lever.111 building lever
+lever.112 building lever_pulled
+# Wall handles are levers too.
+handle.111 building lever
+handle.112 building lever_pulled
+
+# --- Long tables and benches: like walls, the hex digit is the sides they join (N1 E2 S4 W8) ---
+longtable_0 building longtable_0
+longtable_1 building longtable_1
+longtable_2 building longtable_2
+longtable_3 building longtable_3
+longtable_4 building longtable_4
+longtable_5 building longtable_5
+longtable_6 building longtable_6
+longtable_7 building longtable_7
+longtable_8 building longtable_8
+longtable_9 building longtable_9
+longtable_A building longtable_A
+longtable_B building longtable_B
+longtable_C building longtable_C
+longtable_D building longtable_D
+longtable_E building longtable_E
+longtable_F building longtable_F
+bench_0 building bench_0
+bench_1 building bench_1
+bench_2 building bench_2
+bench_3 building bench_3
+bench_4 building bench_4
+bench_5 building bench_5
+bench_6 building bench_6
+bench_7 building bench_7
+bench_8 building bench_8
+bench_9 building bench_9
+bench_A building bench_A
+bench_B building bench_B
+bench_C building bench_C
+bench_D building bench_D
+bench_E building bench_E
+bench_F building bench_F
+
+# --- Creatures drawn as 3D people (no monster models yet) ---
+#   person <regular|other> <scale> <skin r,g,b> <hair r,g,b> <clothes r,g,b> [dress r,g,b] [broom]
+# Clothes 0.45,0.4,0.3 (a human's) keep the outfit's own colours: the female peasant.
+charwoman person other 0.95 0.9,0.72,0.6 0.6,0.2,0.1 0.45,0.4,0.3 broom
+orc person regular 1.0 0.65,0.45,0.3 0.15,0.1,0.08 0.4,0.32,0.25
+orc_chief person regular 1.1 0.65,0.45,0.3 0.15,0.1,0.08 0.5,0.5,0.5
+orc_leader person regular 1.1 0.6,0.42,0.28 0.15,0.1,0.08 0.45,0.3,0.25
+
+# --- Monsters (monsters/: Quaternius' Bestiary - Dungeon Monsters Kit, Source tier) ---
+#   monster <file> <scale> [r,g,b]   (scale 1 = a person's body scale; heights at scale 1:
+#   Puglin 0.56, Imp 1.0, Skeleton 1.08, Lycan 1.2, Hellwarden 1.36, Tidebreaker 1.56)
+goblin monster monsters/Puglin.gltf 1.1
+goblin_chief monster monsters/Puglin.gltf 1.3
+goblin_leader monster monsters/Puglin.gltf 1.3 0.8,1.0,0.7
+kobold monster monsters/Puglin.gltf 0.9 1.0,0.55,0.4
+h_kobold monster monsters/Puglin.gltf 1.0 1.0,0.55,0.4
+unusual_kobold monster monsters/Puglin.gltf 0.9 0.8,0.6,1.0
+imp monster monsters/Imp.gltf 0.6
+skeleton monster monsters/Skeleton_A.gltf 1.0
+skeleton_chief monster monsters/Skeleton_B.gltf 1.1
+skeleton_leader monster monsters/Skeleton_B.gltf 1.05
+skeletalmage monster monsters/Skeleton_B.gltf 1.0 0.8,0.8,1.0
+gnoll monster monsters/Lycan.gltf 0.95
+gnoll_chief monster monsters/Lycan.gltf 1.05
+gnoll_leader monster monsters/Lycan.gltf 1.05
+troll monster monsters/Tidebreaker.gltf 1.0
+smalltroll monster monsters/Tidebreaker.gltf 0.7
+armourtroll2 monster monsters/Tidebreaker.gltf 1.05
+armourtroll3 monster monsters/Tidebreaker.gltf 1.05
+armourtroll4 monster monsters/Tidebreaker.gltf 1.05
+gaelotroll monster monsters/Tidebreaker.gltf 1.1 0.7,0.9,0.7
+ogre monster monsters/Tidebreaker.gltf 0.9 1.0,0.8,0.65
+ogre_chief monster monsters/Tidebreaker.gltf 1.0 1.0,0.8,0.65
+ogre_leader monster monsters/Tidebreaker.gltf 1.0 1.0,0.8,0.65
+devil monster monsters/Hellwarden.gltf 0.9
+mdemon monster monsters/Hellwarden.gltf 1.0
+demon_lord monster monsters/Hellwarden.gltf 1.2
+big_demon monster monsters/Hellwarden.gltf 1.3
+
+# --- Doors (door/): the Kenney door spans north-south unturned. `_1`, `h` and `1` pictures
+# span east-west (rot 90); `_2`, `v` and `2` span north-south. Opened doors vanish.
+wooddoor_1 model castle/door.glb 2.2 90 0
+wooddoor_2 model castle/door.glb 2.2 0 0
+locked_hwooddoor model castle/door.glb 2.2 90 0
+locked_vwooddoor model castle/door.glb 2.2 0 0
+unlocked_hwooddoor model castle/door.glb 2.2 90 0
+unlocked_vwooddoor model castle/door.glb 2.2 0 0
+large_hdoor model castle/door.glb 2.2 90 0
+large_vdoor model castle/door.glb 2.2 0 0
+ldoor1 model castle/door.glb 2.2 90 0 0.7,0.7,0.75
+ldoor2 model castle/door.glb 2.2 0 0 0.7,0.7,0.75
+ldoor_blue 0.5,0.6,1.01 model castle/door.glb 2.2 90 0 
+ldoor_blue 0.5,0.6,1.02 model castle/door.glb 2.2 0 0 
+ldoor_brown 0.7,0.5,0.31 model castle/door.glb 2.2 90 0 
+ldoor_brown 0.7,0.5,0.32 model castle/door.glb 2.2 0 0 
+ldoor_darkgray 0.4,0.4,0.41 model castle/door.glb 2.2 90 0 
+ldoor_darkgray 0.4,0.4,0.42 model castle/door.glb 2.2 0 0 
+ldoor_darkgreen 0.3,0.6,0.31 model castle/door.glb 2.2 90 0 
+ldoor_darkgreen 0.3,0.6,0.32 model castle/door.glb 2.2 0 0 
+ldoor_green 0.5,1.0,0.51 model castle/door.glb 2.2 90 0 
+ldoor_green 0.5,1.0,0.52 model castle/door.glb 2.2 0 0 
+ldoor_magenta 1.0,0.4,1.01 model castle/door.glb 2.2 90 0 
+ldoor_magenta 1.0,0.4,1.02 model castle/door.glb 2.2 0 0 
+ldoor_red 1.0,0.4,0.41 model castle/door.glb 2.2 90 0 
+ldoor_red 1.0,0.4,0.42 model castle/door.glb 2.2 0 0 
+ldoor_white 1.4,1.4,1.41 model castle/door.glb 2.2 90 0 
+ldoor_white 1.4,1.4,1.42 model castle/door.glb 2.2 0 0 
+# Oak doors are the other way round: `odoor_1` spans north-south, `odoor_2` east-west.
+odoor_1* model castle/door.glb 2.2 0 0
+odoor_2* model castle/door.glb 2.2 90 0
+oakdoor_2 model castle/door.glb 2.2 90 0

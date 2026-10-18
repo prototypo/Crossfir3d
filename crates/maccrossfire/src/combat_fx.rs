@@ -1,12 +1,12 @@
 //! Combat feedback the server does not draw: a red flash and the HP lost when the
 //! player is hit, and "hit", "miss", or "killed" over the creature in front of them,
-//! which flashes red when hit. The protocol sends no creature health or damage, so
+//! which flashes red when hit (a picture card, or a 3D creature). The protocol sends no creature health or damage, so
 //! there are no creature health bars or damage numbers.
 
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
 
-use crate::characters3d::OwnCharacter;
+use crate::characters3d::{Character, OwnCharacter};
 use crate::input::Facing;
 use crate::world::{CameraRig, Card, TileVisual};
 use crate::{PlayerStats, View, ViewSize};
@@ -55,7 +55,9 @@ pub fn watch(
     mut last_hp: Local<Option<i16>>,
     mut tinted: Local<Vec<(Handle<StandardMaterial>, Color, f32)>>,
     own: Query<&Transform, With<OwnCharacter>>,
-    cards: Query<(&TileVisual, &MeshMaterial3d<StandardMaterial>), With<Card>>,
+    things: Query<(Entity, &TileVisual, Has<Card>, Has<Character>)>,
+    children: Query<&Children>,
+    meshes: Query<&MeshMaterial3d<StandardMaterial>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
     let now = time.elapsed_secs();
@@ -84,8 +86,14 @@ pub fn watch(
         fx.floats.push(Float { at: target, text: text.into(), colour, born: now });
         if subtype == DID_HIT {
             let (px, py) = view.0.world((size.0 / 2) as i8, (size.1 / 2) as i8);
-            for (tv, mat) in &cards {
-                if (tv.x, tv.y) == (px + dx, py + dy) && tv.layer >= 6 && !tinted.iter().any(|(h, ..)| h == &mat.0)
+            // A picture card, or every part of a 3D creature (each has its own materials).
+            let hit = things.iter().filter(|(_, tv, ..)| (tv.x, tv.y) == (px + dx, py + dy) && tv.layer >= 6);
+            let parts = hit.flat_map(|(e, _, card, character)| {
+                let own = card.then_some(e).into_iter();
+                own.chain(character.then(|| children.iter_descendants(e)).into_iter().flatten())
+            });
+            for mat in parts.filter_map(|e| meshes.get(e).ok()) {
+                if !tinted.iter().any(|(h, ..)| h == &mat.0)
                     && let Some(mut m) = materials.get_mut(&mat.0)
                 {
                     tinted.push((mat.0.clone(), m.base_color, now));
