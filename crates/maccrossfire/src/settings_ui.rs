@@ -116,6 +116,10 @@ pub fn settings_screen(
                 ui.label("Gamma");
                 ui.add(egui::Slider::new(&mut s.gamma, 0.5..=2.0));
                 ui.end_row();
+
+                ui.label("Music");
+                ui.checkbox(&mut s.music, "");
+                ui.end_row();
             });
             ui.add_space(16.0);
             ui.horizontal(|ui| {

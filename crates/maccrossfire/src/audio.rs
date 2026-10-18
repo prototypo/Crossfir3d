@@ -10,6 +10,7 @@ use maccrossfire::sound::{music_changes, music_file, sounds_dir, SoundTable};
 
 use maccrossfire::modes::mute_key_allowed;
 
+use crate::graphics::CurrentSettings;
 use crate::{AppState, KeyMode};
 
 /// Sounds and music the network pump received this frame.
@@ -48,7 +49,7 @@ impl Plugin for AudioPlugin {
             current: None,
         })
         .init_resource::<AudioQueue>()
-        .add_systems(Update, (toggle_mute, play_queued).chain());
+        .add_systems(Update, (toggle_mute, play_queued, pause_music).chain());
     }
 }
 
@@ -79,14 +80,21 @@ fn toggle_mute(
     mode: Res<KeyMode>,
     state: Res<State<AppState>>,
     mut sounds: ResMut<Sounds>,
-    music: Query<&AudioSink, With<Music>>,
 ) {
-    if !mute_key_allowed(*state.get() == AppState::InGame, mode.0) || !keys.just_pressed(KeyCode::KeyM) {
-        return;
+    if mute_key_allowed(*state.get() == AppState::InGame, mode.0) && keys.just_pressed(KeyCode::KeyM) {
+        sounds.muted = !sounds.muted;
     }
-    sounds.muted = !sounds.muted;
+}
+
+/// Music plays unless everything is muted (M) or the Music setting is off.
+fn pause_music(sounds: Res<Sounds>, settings: Res<CurrentSettings>, music: Query<&AudioSink, With<Music>>) {
+    let quiet = sounds.muted || !settings.0.music;
     for sink in &music {
-        if sounds.muted { sink.pause() } else { sink.play() }
+        if quiet && !sink.is_paused() {
+            sink.pause();
+        } else if !quiet && sink.is_paused() {
+            sink.play();
+        }
     }
 }
 
@@ -129,7 +137,8 @@ fn play_queued(
             return;
         };
         let Some(h) = sounds.handle(path, &mut sources) else { return };
-        let settings = PlaybackSettings { paused: sounds.muted, volume: Volume::Linear(0.5), ..PlaybackSettings::LOOP };
+        // Starts paused; `pause_music` plays it if music is wanted.
+        let settings = PlaybackSettings { paused: true, volume: Volume::Linear(0.5), ..PlaybackSettings::LOOP };
         commands.spawn((Music, AudioPlayer(h), settings));
     }
 }
