@@ -13,6 +13,8 @@ pub enum Visual {
     Model { file: String, scale: f32, rot_deg: f32, dy: f32, tint: Option<[f32; 3]> },
     Building { recipe: String, sign: Option<String>, icon: Option<String> },
     Wall { style: String },
+    /// A person in stone on a plinth: a half-size 3D character, maybe tinted (bronze).
+    Statue { tint: Option<[f32; 3]> },
     Flat,
     Card,
 }
@@ -56,22 +58,28 @@ impl ModelMap {
     }
 }
 
+/// An optional `r,g,b` word.
+fn tint(words: &[&str]) -> Option<Option<[f32; 3]>> {
+    match words {
+        [] => Some(None),
+        [t] => {
+            let v: Vec<f32> = t.split(',').map(|c| c.parse().ok()).collect::<Option<_>>()?;
+            Some(Some(<[f32; 3]>::try_from(v).ok()?))
+        }
+        _ => None,
+    }
+}
+
 fn parse_visual(words: &[&str]) -> Option<Visual> {
     Some(match *words {
-        ["model", file, scale, rot, dy, ref tint @ ..] => Visual::Model {
+        ["model", file, scale, rot, dy, ref rest @ ..] => Visual::Model {
             file: file.to_string(),
             scale: scale.parse().ok()?,
             rot_deg: rot.parse().ok()?,
             dy: dy.parse().ok()?,
-            tint: match tint {
-                [] => None,
-                [t] => {
-                    let v: Vec<f32> = t.split(',').map(|c| c.parse().ok()).collect::<Option<_>>()?;
-                    Some(<[f32; 3]>::try_from(v).ok()?)
-                }
-                _ => return None,
-            },
+            tint: tint(rest)?,
         },
+        ["statue", ref rest @ ..] => Visual::Statue { tint: tint(rest)? },
         ["building", recipe] => Visual::Building { recipe: recipe.to_string(), sign: None, icon: None },
         ["building", recipe, sign, ref icon @ ..] if icon.len() <= 1 => Visual::Building {
             recipe: recipe.to_string(),
@@ -185,6 +193,9 @@ bad model x.glb notanumber 0 0
             &Visual::Model { file: "nature/oak.glb".into(), scale: 1.2, rot_deg: 90.0, dy: 0.1, tint: None }
         );
         assert!(matches!(m.lookup("signpost_e"), Visual::Model { tint: Some(t), .. } if *t == [0.6, 0.4, 0.2]));
+        let m = ModelMap::parse("statue statue\nstatue_gold statue 1,0.8,0.3\n");
+        assert_eq!(m.lookup("statue.111"), &Visual::Statue { tint: None });
+        assert_eq!(m.lookup("statue_gold"), &Visual::Statue { tint: Some([1.0, 0.8, 0.3]) });
     }
 
     #[test]

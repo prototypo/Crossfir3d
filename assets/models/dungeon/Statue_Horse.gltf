@@ -1,0 +1,178 @@
+{
+ "asset": {
+  "version": "2.0",
+  "generator": "MacCrossfire scripts/obj2gltf.py"
+ },
+ "scene": 0,
+ "scenes": [
+  {
+   "nodes": [
+    0
+   ]
+  }
+ ],
+ "nodes": [
+  {
+   "name": "Statue_Horse",
+   "mesh": 0,
+   "translation": [
+    0.007199000000000011,
+    -0.015196,
+    -5.8521105
+   ]
+  }
+ ],
+ "meshes": [
+  {
+   "name": "Statue_Horse",
+   "primitives": [
+    {
+     "attributes": {
+      "POSITION": 0,
+      "NORMAL": 1
+     },
+     "indices": 2,
+     "material": 0
+    },
+    {
+     "attributes": {
+      "POSITION": 3,
+      "NORMAL": 4
+     },
+     "indices": 5,
+     "material": 1
+    }
+   ]
+  }
+ ],
+ "materials": [
+  {
+   "name": "Marble",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.267456,
+     0.258437,
+     0.249598,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  },
+  {
+   "name": "Statue",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.166331,
+     0.166331,
+     0.166331,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  }
+ ],
+ "accessors": [
+  {
+   "bufferView": 0,
+   "componentType": 5126,
+   "count": 1898,
+   "type": "VEC3",
+   "min": [
+    -0.878715,
+    0.015196,
+    4.578734
+   ],
+   "max": [
+    0.864317,
+    2.329874,
+    6.321767
+   ]
+  },
+  {
+   "bufferView": 1,
+   "componentType": 5126,
+   "count": 1898,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 2,
+   "componentType": 5125,
+   "count": 3546,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 3,
+   "componentType": 5126,
+   "count": 1394,
+   "type": "VEC3",
+   "min": [
+    -0.588838,
+    2.261199,
+    4.162934
+   ],
+   "max": [
+    0.438658,
+    5.870006,
+    7.541287
+   ]
+  },
+  {
+   "bufferView": 4,
+   "componentType": 5126,
+   "count": 1394,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 5,
+   "componentType": 5125,
+   "count": 2004,
+   "type": "SCALAR"
+  }
+ ],
+ "bufferViews": [
+  {
+   "buffer": 0,
+   "byteOffset": 0,
+   "byteLength": 22776,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 22776,
+   "byteLength": 22776,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 45552,
+   "byteLength": 14184,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 59736,
+   "byteLength": 16728,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 76464,
+   "byteLength": 16728,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 93192,
+   "byteLength": 8016,
+   "target": 34963
+  }
+ ],
+ "buffers": [
+  {
+   "uri": "Statue_Horse.bin",
+   "byteLength": 101208
+  }
+ ]
+}

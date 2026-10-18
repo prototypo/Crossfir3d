@@ -8,6 +8,7 @@
 #   wall <style>        (joined pieces; styles: stone brick plaster wood hedge rock)
 #   flat                (lies on the ground)
 #   card                (keep the picture card)
+#   statue [r,g,b]      (a half-size stone 3D character on a plinth)
 # One map square is 1 unit. Player pictures are handled in code (races.rs).
 
 # --- Buildings (construct/) ---
@@ -136,6 +137,9 @@ sign building signpost
 sign_e building signpost
 sign_w building signpost
 sign_distance building signpost
+crossroad building crossroads
+messageboard building noticeboard
+lampost building lamppost
 
 # --- Gates: a full name with its frame is that exact picture ---
 # Portcullis gates: frame 111 is open (raised), the last frame is closed.
@@ -270,3 +274,14 @@ bolt.151 model weapons/Arrow.gltf 0.35 0 1.0
 bolt.161 model weapons/Arrow.gltf 0.35 45 1.0
 bolt.171 model weapons/Arrow.gltf 0.35 90 1.0
 bolt.181 model weapons/Arrow.gltf 0.35 135 1.0
+
+# --- Statues (dungeon/: Quaternius' Modular Dungeon) ---
+#   statue [r,g,b]  a half-size stone 3D character on the plinth (people, knights)
+statue* statue
+d_statue statue
+statue_bronze statue 0.8,0.55,0.3
+statue2_bronze statue 0.8,0.55,0.3
+statue_gold statue 1.0,0.8,0.3
+statue2_gold statue 1.0,0.8,0.3
+statue_gargoyle model dungeon/Statue_Horse.gltf 0.28 0 0
+statue_ruined card
