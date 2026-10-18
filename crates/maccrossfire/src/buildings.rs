@@ -49,8 +49,9 @@ const INSIDE: [f32; 3] = [0.1, 0.08, 0.06];
 const WALL_INSET: f32 = 0.05;
 /// Under the squashed roof: fills the open ends without poking through the tiles.
 const GABLE_Y: f32 = 0.75;
-/// How far outside the front wall someone stands at the door.
-const DOORSTEP: f32 = 0.35;
+/// How far outside the front wall someone stands at the door: the middle of the
+/// square in front of it, where they step out to.
+const DOORSTEP: f32 = 0.5;
 
 pub const RECIPES: [&str; 11] =
     ["cottage", "house", "tavern", "barn", "temple", "tower", "castle", "shop", "well", "fountain", "signpost"];
@@ -349,12 +350,12 @@ mod tests {
     }
 
     #[test]
-    fn doorstep_is_just_outside_the_door() {
+    fn doorstep_is_in_front_of_the_door() {
         for (recipe, w, h) in [("cottage", 1, 1), ("shop", 2, 2), ("house", 3, 2), ("tower", 1, 1)] {
             let door = parts(recipe, w, h).unwrap().into_iter().find(|p| matches!(p.shape, Shape::Model(f) if f.contains("Door"))).unwrap();
             let step = doorstep(recipe, w, h).unwrap();
             assert_eq!(step[0], door.pos[0], "{recipe} {w}x{h}: in line with the door");
-            assert!(step[2] > door.pos[2], "{recipe}: outside the south wall");
+            assert_eq!(step[2], door.pos[2] + 0.5, "{recipe}: the middle of the square outside the door");
         }
         assert_eq!(doorstep("well", 1, 1), None);
         assert_eq!(doorstep("castle", 3, 3), None);

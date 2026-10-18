@@ -25,8 +25,8 @@ use maccrossfire::settings::Quality;
 
 use crate::characters3d::{character_files, spawn_character, Character, OwnCharacter, OwnLook};
 use crate::graphics::CurrentSettings;
-use crate::input::{CameraHeading, CameraView, Facing};
-use maccrossfire::camera::{pull_in, sight_blocked, zoom, PIXELS_PER_LINE};
+use crate::input::{CameraHeading, CameraView, DoorExit, Facing};
+use maccrossfire::camera::{compass, pull_in, sight_blocked, zoom, PIXELS_PER_LINE};
 use crate::{AppState, Clock, Faces, LastComc, Session, View, ViewSize};
 
 const TILE_PX: f32 = 32.0;
@@ -67,6 +67,7 @@ impl Plugin for WorldPlugin {
             .init_resource::<Textures>()
             .init_resource::<Solid>()
             .init_resource::<Doorstep>()
+            .init_resource::<DoorExit>()
             .insert_resource(Models::load())
             .add_observer(tint_model)
             .add_systems(Startup, setup)
@@ -757,12 +758,12 @@ fn hide_entered(
     view: Res<View>,
     size: Res<ViewSize>,
     mut step: ResMut<Doorstep>,
-    mut heading: ResMut<CameraHeading>,
+    mut exit: ResMut<DoorExit>,
     mut q: Query<(&Span, Option<&Door>, &mut Visibility)>,
     mut own: Query<&mut Glide, With<OwnCharacter>>,
 ) {
     let (px, py) = view.0.world((size.0 / 2) as i8, (size.1 / 2) as i8);
-    let before = step.0.take();
+    step.0 = None;
     for (Span(x0, y0, x1, y1), door, mut vis) in &mut q {
         let inside = (*x0..=*x1).contains(&px) && (*y0..=*y1).contains(&py);
         if let (true, Some(Door(at))) = (inside, door) {
@@ -770,10 +771,12 @@ fn hide_entered(
         }
         vis.set_if_neq(if inside && door.is_none() { Visibility::Hidden } else { Visibility::Inherited });
     }
-    // Arriving: look north at the door (it is in the south wall). C turns back.
-    if step.0.is_some() && step.0 != before {
-        heading.0 = 0;
-    }
+    // The square in front of the door, one step out of the doorway.
+    exit.came_out = step.0.is_some() && exit.new_map;
+    exit.out = step.0.map(|at| {
+        let d = (at.x.floor() as i32 - px, (at.z + 0.25).floor() as i32 - py);
+        compass((d.0.signum() as i8, d.1.signum() as i8), 0)
+    });
     // Moving off the house gives the character a new tile target (`sync_visuals`).
     if let (Some(at), Ok(mut glide)) = (step.0, own.single_mut()) {
         glide.target = at;

@@ -40,7 +40,9 @@ wall or house is in the way, the camera moves closer.
 
 Shops are one-storey houses with a painted sign and icon (JEWELS, BANK, MAGIC, ...).
 Standing on a house's squares (a shop's entrance row, say) shows you on its
-doorstep, facing the door; apply goes in. Houses, walls, gates, trees, rocks, wells,
+doorstep; apply goes in. Leaving a shop, or stepping south off its squares, puts you
+on the square in front of the door. With your back to a wall the camera comes in
+close, first-person. Houses, walls, gates, trees, rocks, wells,
 fountains, and signs are 3D. Players are one 3D body (with a "Broad" or "Slim"
 build, chosen on the new-character screen), sized and coloured for their race. Your
 character holds the weapon, bow, and shield in use. Everything else is still a

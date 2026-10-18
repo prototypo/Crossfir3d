@@ -24,6 +24,17 @@ pub struct CameraView {
     pub face: bool,
 }
 
+/// In a house (shown on its doorstep): the move from the player's square to the square
+/// in front of the door, which any step south takes. `came_out`: they got here on a
+/// new map (out of a shop's own map), not by a step in, so they step out at once.
+/// `new_map` is set by `newmap` and cleared by the next move sent.
+#[derive(Resource, Default)]
+pub struct DoorExit {
+    pub out: Option<&'static str>,
+    pub came_out: bool,
+    pub new_map: bool,
+}
+
 /// The direction of the last step or step attempt (1 = north .. 8 = northwest).
 #[derive(Resource)]
 pub struct Facing(pub u8);
@@ -75,11 +86,22 @@ pub fn send_moves(
     time: Res<Time>,
     mut seq: ResMut<NcomSeq>,
     mut wait: ResMut<MoveWait>,
+    mut door: ResMut<DoorExit>,
     mut held: Local<Option<(f32, (i8, i8), Heading)>>, // (first step, screen dir, facing at key-down)
     session: Option<NonSend<Session>>,
 ) {
     let Some(session) = session else { return };
     let now = time.elapsed_secs();
+    if door.came_out && may_send(wait.0, comc.packet, now) {
+        // Out of the door, facing away from it, the camera behind.
+        door.new_map = false;
+        facing.0 = 5;
+        heading.0 = heading_of(5);
+        let packet = seq.next();
+        wait.0 = Some((packet, now));
+        session.send([ClientMsg::Ncom { packet, repeat: 0, command: door.out.unwrap_or("south").into() }]);
+        return;
+    }
     // just_pressed too: a press and release in one frame (a very fast tap) still steps.
     let key = |k| keys.pressed(k) || keys.just_pressed(k);
     let screen = screen_dir(key(KeyCode::ArrowUp), key(KeyCode::ArrowDown), key(KeyCode::ArrowLeft), key(KeyCode::ArrowRight));
@@ -103,6 +125,12 @@ pub fn send_moves(
         heading.0 = heading_of(dir);
         return;
     }
+    // The door is in the south wall.
+    let command = match door.out {
+        Some(out) if command.starts_with("south") => out,
+        _ => command,
+    };
+    door.new_map = false;
     msgs.0.close_box(); // walking away closes the parchment box
     let packet = seq.next();
     wait.0 = Some((packet, now));
