@@ -1,0 +1,374 @@
+{
+ "asset": {
+  "version": "2.0",
+  "generator": "MacCrossfire scripts/obj2gltf.py"
+ },
+ "scene": 0,
+ "scenes": [
+  {
+   "nodes": [
+    0
+   ]
+  }
+ ],
+ "nodes": [
+  {
+   "name": "Sword_Golden",
+   "mesh": 0
+  }
+ ],
+ "meshes": [
+  {
+   "name": "Sword_Golden",
+   "primitives": [
+    {
+     "attributes": {
+      "POSITION": 0,
+      "NORMAL": 1
+     },
+     "indices": 2,
+     "material": 0
+    },
+    {
+     "attributes": {
+      "POSITION": 3,
+      "NORMAL": 4
+     },
+     "indices": 5,
+     "material": 1
+    },
+    {
+     "attributes": {
+      "POSITION": 6,
+      "NORMAL": 7
+     },
+     "indices": 8,
+     "material": 2
+    },
+    {
+     "attributes": {
+      "POSITION": 9,
+      "NORMAL": 10
+     },
+     "indices": 11,
+     "material": 3
+    },
+    {
+     "attributes": {
+      "POSITION": 12,
+      "NORMAL": 13
+     },
+     "indices": 14,
+     "material": 4
+    }
+   ]
+  }
+ ],
+ "materials": [
+  {
+   "name": "Gold",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.4569,
+     0.374227,
+     0.127169,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  },
+  {
+   "name": "LightWood",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.190718,
+     0.083693,
+     0.041016,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  },
+  {
+   "name": "DarkWood",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.13011,
+     0.058112,
+     0.029076,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  },
+  {
+   "name": "DarkSteel",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.213085,
+     0.213085,
+     0.178582,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  },
+  {
+   "name": "LightGold",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.629913,
+     0.514987,
+     0.172721,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  }
+ ],
+ "accessors": [
+  {
+   "bufferView": 0,
+   "componentType": 5126,
+   "count": 308,
+   "type": "VEC3",
+   "min": [
+    -0.399276,
+    0.876649,
+    -0.033838
+   ],
+   "max": [
+    0.399276,
+    5.219647,
+    0.033838
+   ]
+  },
+  {
+   "bufferView": 1,
+   "componentType": 5126,
+   "count": 308,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 2,
+   "componentType": 5125,
+   "count": 1044,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 3,
+   "componentType": 5126,
+   "count": 480,
+   "type": "VEC3",
+   "min": [
+    -0.110292,
+    -0.404528,
+    -0.108855
+   ],
+   "max": [
+    0.110292,
+    0.524343,
+    0.108855
+   ]
+  },
+  {
+   "bufferView": 4,
+   "componentType": 5126,
+   "count": 480,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 5,
+   "componentType": 5125,
+   "count": 720,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 6,
+   "componentType": 5126,
+   "count": 160,
+   "type": "VEC3",
+   "min": [
+    -0.085373,
+    -0.423787,
+    -0.08297
+   ],
+   "max": [
+    0.085373,
+    0.361625,
+    0.08297
+   ]
+  },
+  {
+   "bufferView": 7,
+   "componentType": 5126,
+   "count": 160,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 8,
+   "componentType": 5125,
+   "count": 240,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 9,
+   "componentType": 5126,
+   "count": 268,
+   "type": "VEC3",
+   "min": [
+    -0.607357,
+    -0.620152,
+    -0.119291
+   ],
+   "max": [
+    0.607357,
+    0.876649,
+    0.119291
+   ]
+  },
+  {
+   "bufferView": 10,
+   "componentType": 5126,
+   "count": 268,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 11,
+   "componentType": 5125,
+   "count": 510,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 12,
+   "componentType": 5126,
+   "count": 320,
+   "type": "VEC3",
+   "min": [
+    -0.431781,
+    0.876649,
+    -0.033838
+   ],
+   "max": [
+    0.431781,
+    5.346097,
+    0.033838
+   ]
+  },
+  {
+   "bufferView": 13,
+   "componentType": 5126,
+   "count": 320,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 14,
+   "componentType": 5125,
+   "count": 504,
+   "type": "SCALAR"
+  }
+ ],
+ "bufferViews": [
+  {
+   "buffer": 0,
+   "byteOffset": 0,
+   "byteLength": 3696,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 3696,
+   "byteLength": 3696,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 7392,
+   "byteLength": 4176,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 11568,
+   "byteLength": 5760,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 17328,
+   "byteLength": 5760,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 23088,
+   "byteLength": 2880,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 25968,
+   "byteLength": 1920,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 27888,
+   "byteLength": 1920,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 29808,
+   "byteLength": 960,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 30768,
+   "byteLength": 3216,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 33984,
+   "byteLength": 3216,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 37200,
+   "byteLength": 2040,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 39240,
+   "byteLength": 3840,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 43080,
+   "byteLength": 3840,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 46920,
+   "byteLength": 2016,
+   "target": 34963
+  }
+ ],
+ "buffers": [
+  {
+   "uri": "Sword_Golden.bin",
+   "byteLength": 48936
+  }
+ ]
+}

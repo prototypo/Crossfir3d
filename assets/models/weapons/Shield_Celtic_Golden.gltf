@@ -1,0 +1,307 @@
+{
+ "asset": {
+  "version": "2.0",
+  "generator": "MacCrossfire scripts/obj2gltf.py"
+ },
+ "scene": 0,
+ "scenes": [
+  {
+   "nodes": [
+    0
+   ]
+  }
+ ],
+ "nodes": [
+  {
+   "name": "Shield_Celtic_Golden",
+   "mesh": 0
+  }
+ ],
+ "meshes": [
+  {
+   "name": "Shield_Celtic_Golden",
+   "primitives": [
+    {
+     "attributes": {
+      "POSITION": 0,
+      "NORMAL": 1
+     },
+     "indices": 2,
+     "material": 0
+    },
+    {
+     "attributes": {
+      "POSITION": 3,
+      "NORMAL": 4
+     },
+     "indices": 5,
+     "material": 1
+    },
+    {
+     "attributes": {
+      "POSITION": 6,
+      "NORMAL": 7
+     },
+     "indices": 8,
+     "material": 2
+    },
+    {
+     "attributes": {
+      "POSITION": 9,
+      "NORMAL": 10
+     },
+     "indices": 11,
+     "material": 3
+    }
+   ]
+  }
+ ],
+ "materials": [
+  {
+   "name": "Gold",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.4569,
+     0.374227,
+     0.127169,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  },
+  {
+   "name": "LightBlue",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.226519,
+     0.416797,
+     0.4569,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  },
+  {
+   "name": "Green",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.07807,
+     0.4569,
+     0.152961,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  },
+  {
+   "name": "LightGold",
+   "pbrMetallicRoughness": {
+    "baseColorFactor": [
+     0.629913,
+     0.514987,
+     0.172721,
+     1.0
+    ],
+    "metallicFactor": 0.0,
+    "roughnessFactor": 0.6
+   }
+  }
+ ],
+ "accessors": [
+  {
+   "bufferView": 0,
+   "componentType": 5126,
+   "count": 1018,
+   "type": "VEC3",
+   "min": [
+    -1.04928,
+    -2.267177,
+    -0.706369
+   ],
+   "max": [
+    1.04928,
+    2.013,
+    0.496322
+   ]
+  },
+  {
+   "bufferView": 1,
+   "componentType": 5126,
+   "count": 1018,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 2,
+   "componentType": 5125,
+   "count": 1716,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 3,
+   "componentType": 5126,
+   "count": 124,
+   "type": "VEC3",
+   "min": [
+    -0.950478,
+    -1.864357,
+    -0.380012
+   ],
+   "max": [
+    0.950478,
+    1.696681,
+    0.212954
+   ]
+  },
+  {
+   "bufferView": 4,
+   "componentType": 5126,
+   "count": 124,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 5,
+   "componentType": 5125,
+   "count": 180,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 6,
+   "componentType": 5126,
+   "count": 192,
+   "type": "VEC3",
+   "min": [
+    -0.297375,
+    -0.342153,
+    0.406978
+   ],
+   "max": [
+    0.301406,
+    0.370484,
+    0.706369
+   ]
+  },
+  {
+   "bufferView": 7,
+   "componentType": 5126,
+   "count": 192,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 8,
+   "componentType": 5125,
+   "count": 288,
+   "type": "SCALAR"
+  },
+  {
+   "bufferView": 9,
+   "componentType": 5126,
+   "count": 168,
+   "type": "VEC3",
+   "min": [
+    -0.497304,
+    -0.462973,
+    -0.189889
+   ],
+   "max": [
+    0.485403,
+    0.214804,
+    0.111528
+   ]
+  },
+  {
+   "bufferView": 10,
+   "componentType": 5126,
+   "count": 168,
+   "type": "VEC3"
+  },
+  {
+   "bufferView": 11,
+   "componentType": 5125,
+   "count": 312,
+   "type": "SCALAR"
+  }
+ ],
+ "bufferViews": [
+  {
+   "buffer": 0,
+   "byteOffset": 0,
+   "byteLength": 12216,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 12216,
+   "byteLength": 12216,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 24432,
+   "byteLength": 6864,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 31296,
+   "byteLength": 1488,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 32784,
+   "byteLength": 1488,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 34272,
+   "byteLength": 720,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 34992,
+   "byteLength": 2304,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 37296,
+   "byteLength": 2304,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 39600,
+   "byteLength": 1152,
+   "target": 34963
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 40752,
+   "byteLength": 2016,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 42768,
+   "byteLength": 2016,
+   "target": 34962
+  },
+  {
+   "buffer": 0,
+   "byteOffset": 44784,
+   "byteLength": 1248,
+   "target": 34963
+  }
+ ],
+ "buffers": [
+  {
+   "uri": "Shield_Celtic_Golden.bin",
+   "byteLength": 46032
+  }
+ ]
+}

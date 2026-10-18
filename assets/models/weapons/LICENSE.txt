@@ -1,0 +1,4 @@
+Medieval Weapons Pack by Quaternius (https://quaternius.com)
+License: CC0 1.0 Universal (public domain): https://creativecommons.org/publicdomain/zero/1.0/
+
+Converted from the pack's OBJ files with scripts/obj2gltf.py.

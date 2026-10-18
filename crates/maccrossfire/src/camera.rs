@@ -4,7 +4,9 @@
 /// 45° steps, 0..8: 0 = camera looking north, 2 = east, 4 = south, 6 = west.
 pub type Heading = u8;
 
-pub const MIN_DISTANCE: f32 = 0.75;
+/// As close as the camera pulls in: with the player's back to a wall (half a square
+/// behind them) it must come this close to stay in front of the wall.
+pub const MIN_DISTANCE: f32 = 0.3;
 
 const COMPASS: [&str; 8] = ["north", "northeast", "east", "southeast", "south", "southwest", "west", "northwest"];
 
@@ -147,6 +149,6 @@ mod tests {
     #[test]
     fn pull_in_never_below_min() {
         assert_eq!(pull_in(6.0, |_| true), MIN_DISTANCE);
-        assert_eq!(pull_in(0.5, |_| false), MIN_DISTANCE);
+        assert_eq!(pull_in(0.2, |_| false), MIN_DISTANCE);
     }
 }

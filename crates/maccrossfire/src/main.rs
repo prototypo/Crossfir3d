@@ -263,6 +263,7 @@ fn pump_network(world: &mut World) {
             }
             ServerMsg::NewMap => {
                 world.resource_mut::<View>().0.clear();
+                world.resource_mut::<input::DoorExit>().new_map = true;
                 // A new map after dying is the respawn.
                 world.resource_mut::<characters3d::PlayerAnimEvents>().0.push(maccrossfire::anim::AnimEvent::Revived);
             }
