@@ -3,14 +3,14 @@
 use bevy::prelude::*;
 use cfproto::ClientMsg;
 
-use maccrossfire::camera::{compass, heading_of, screen_dir, Heading};
+use maccrossfire::camera::{compass, heading_of, nearest_dir, screen_dir, Heading, CREATURE_LAYERS};
 use maccrossfire::modes::{act, Act, KeyName, Mode};
 use maccrossfire::anim::event_for_command;
-use maccrossfire::slots::{dir_number, slot_commands};
+use maccrossfire::slots::{dir_number, fire_commands, slot_commands};
 
 use crate::characters3d::PlayerAnimEvents;
 
-use crate::{HudState, Inv, KeyMode, LastAction, LastComc, Msgs, NcomSeq, PlayerStats, Session, Slots, Spells};
+use crate::{HudState, Inv, KeyMode, LastAction, LastComc, Msgs, NcomSeq, PlayerStats, Session, Slots, Spells, View, ViewSize};
 
 /// Where the camera looks (45° steps); the world rig eases its yaw toward it.
 /// It follows the player's facing, so the camera stays behind them.
@@ -148,6 +148,8 @@ fn key_name(key: KeyCode) -> KeyName {
         KeyCode::KeyL => KeyName::L,
         KeyCode::KeyM => KeyName::M,
         KeyCode::KeyC => KeyName::C,
+        KeyCode::KeyT => KeyName::T,
+        KeyCode::Space => KeyName::Space,
         KeyCode::Tab => KeyName::Tab,
         KeyCode::Escape => KeyName::Escape,
         KeyCode::Enter => KeyName::Enter,
@@ -170,7 +172,8 @@ pub fn world_keys(
     mut hud: ResMut<HudState>,
     mut last: ResMut<LastAction>,
     mut seq: ResMut<NcomSeq>,
-    (facing, slots, inv, spells, stats): (Res<Facing>, Res<Slots>, Res<Inv>, Res<Spells>, Res<PlayerStats>),
+    (mut facing, slots, inv, spells, stats): (ResMut<Facing>, Res<Slots>, Res<Inv>, Res<Spells>, Res<PlayerStats>),
+    (map, size): (Res<View>, Res<ViewSize>),
     mut heading: ResMut<CameraHeading>,
     mut view: ResMut<CameraView>,
     mut anim: ResMut<PlayerAnimEvents>,
@@ -202,6 +205,24 @@ pub fn world_keys(
             Act::CameraBehind => {
                 heading.0 = heading_of(facing.0);
                 view.top = false;
+            }
+            Act::Fire => {
+                let fire = fire_commands(&inv.0, facing.0, &stats.0.range);
+                if fire.is_empty() {
+                    let now = time.elapsed_secs();
+                    msgs.0.push(0, 0, "Nothing to fire: ready a bow or wand first (I, select it, E).", now, None);
+                }
+                for c in &fire {
+                    command(c);
+                }
+            }
+            Act::FaceNearest => {
+                let (cx, cy) = (size.0 as i32 / 2, size.1 as i32 / 2);
+                let creatures = map.0.cells().filter(|(_, c)| c.layers[CREATURE_LAYERS].iter().any(|f| *f != 0));
+                if let Some(dir) = nearest_dir(creatures.map(|((x, y), _)| (x as i32 - cx, y as i32 - cy)), 4) {
+                    facing.0 = dir_number(dir).unwrap_or(facing.0);
+                    heading.0 = heading_of(facing.0);
+                }
             }
             Act::TopView => view.top = !view.top,
             Act::ToggleMute | Act::OpenCommand | Act::Nothing => {}

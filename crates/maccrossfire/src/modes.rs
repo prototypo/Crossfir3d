@@ -20,6 +20,8 @@ pub enum KeyName {
     L,
     M,
     C,
+    T,
+    Space,
     Tab,
     Escape,
     Enter,
@@ -41,6 +43,10 @@ pub enum Act {
     ToggleMute,
     /// Snap the camera straight behind the player.
     CameraBehind,
+    /// T: turn to face the nearest creature.
+    FaceNearest,
+    /// Space: fire the readied bow or wand.
+    Fire,
     /// Tab: the top view on or off.
     TopView,
     CloseBox,
@@ -66,6 +72,8 @@ pub fn act(mode: Mode, key: KeyName, box_open: bool) -> Act {
         (Mode::World, KeyName::L) => Act::ToggleLog,
         (Mode::World, KeyName::M) => Act::ToggleMute,
         (Mode::World, KeyName::C) => Act::CameraBehind,
+        (Mode::World, KeyName::T) => Act::FaceNearest,
+        (Mode::World, KeyName::Space) => Act::Fire,
         (Mode::World, KeyName::Tab) => Act::TopView,
         (Mode::World, KeyName::Enter) => Act::OpenCommand,
         (Mode::World, _) => Act::Nothing,

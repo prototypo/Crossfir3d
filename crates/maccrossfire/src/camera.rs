@@ -74,6 +74,20 @@ pub fn sight_blocked(from: (f32, f32), to: (f32, f32), solid: impl Fn(i32, i32) 
     })
 }
 
+/// Map layers that hold creatures (Crossfire's LIVING1..FLY2).
+pub const CREATURE_LAYERS: std::ops::RangeInclusive<usize> = 6..=9;
+
+/// The compass direction toward the nearest of `others` (squares relative to the
+/// player, who is at (0, 0) and never counts), within `range` squares; ties go to the
+/// straighter one.
+pub fn nearest_dir(others: impl IntoIterator<Item = (i32, i32)>, range: i32) -> Option<&'static str> {
+    let (dx, dy) = others
+        .into_iter()
+        .filter(|&(x, y)| (x, y) != (0, 0) && x.abs().max(y.abs()) <= range)
+        .min_by_key(|&(x, y)| (x.abs().max(y.abs()), x * x + y * y))?;
+    Some(compass((dx.signum() as i8, dy.signum() as i8), 0))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -101,6 +115,15 @@ mod tests {
         assert_eq!(screen_dir(true, true, false, false), None);
         assert_eq!(screen_dir(true, true, true, false), Some(LEFT));
         assert_eq!(screen_dir(false, false, false, false), None);
+    }
+
+    #[test]
+    fn nearest_creature_direction() {
+        assert_eq!(nearest_dir([(3, 0), (-1, 1)], 4), Some("southwest"));
+        assert_eq!(nearest_dir([(0, 0), (0, -2)], 4), Some("north"), "the player's own square never counts");
+        assert_eq!(nearest_dir([(1, 1), (0, 1)], 4), Some("south"), "the straighter of two as near");
+        assert_eq!(nearest_dir([(2, -1)], 4), Some("northeast"));
+        assert_eq!(nearest_dir([(5, 0)], 4), None, "out of range");
     }
 
     #[test]

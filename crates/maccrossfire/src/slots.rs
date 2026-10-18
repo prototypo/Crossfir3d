@@ -30,28 +30,41 @@ pub struct QuickSlots(pub [Option<Slot>; 4]);
 /// character no longer has the spell or item.
 /// `range` is the server's "Range: ..." stat: which item or spell `fire` will use.
 pub fn slot_commands(slot: &Slot, inv: &Inventory, spells: &SpellBook, facing: u8, range: &str) -> Vec<String> {
-    let fire = || vec![format!("fire {facing}"), "fire_stop".to_string()];
     match slot {
         Slot::Spell(name) => match spells.by_name(name) {
-            Some(spell) => [vec![format!("cast {}", spell.tag)], fire()].concat(),
+            Some(spell) => [vec![format!("cast {}", spell.tag)], fire(facing)].concat(),
             None => vec![],
         },
         Slot::Item(name) => match inv.find_by_name(name) {
-            Some(item) if is_fired(item.kind) => {
-                let apply = format!("apply {}", item.tag);
-                // Applied is not enough: `fire` uses whatever is in range (maybe the last spell).
-                let in_range = range == format!("Range: {}", item.name) || range.starts_with(&format!("Range: {} (", item.name));
-                let ready = match (item.applied(), in_range) {
-                    (true, true) => vec![],
-                    (true, false) => vec![apply.clone(), apply], // unready, then ready again
-                    (false, _) => vec![apply],
-                };
-                [ready, fire()].concat()
-            }
+            Some(item) if is_fired(item.kind) => fire_item(item, facing, range),
             Some(item) => vec![format!("apply {}", item.tag)],
             None => vec![],
         },
     }
+}
+
+fn fire(facing: u8) -> Vec<String> {
+    vec![format!("fire {facing}"), "fire_stop".to_string()]
+}
+
+/// Ready `item` (a bow, wand, ...) for `fire` if it is not, then fire it.
+fn fire_item(item: &cfproto::Item, facing: u8, range: &str) -> Vec<String> {
+    let apply = format!("apply {}", item.tag);
+    // Applied is not enough: `fire` uses whatever is in range (maybe the last spell, or
+    // nothing at all just after login).
+    let in_range = range == format!("Range: {}", item.name) || range.starts_with(&format!("Range: {} (", item.name));
+    let ready = match (item.applied(), in_range) {
+        (true, true) => vec![],
+        (true, false) => vec![apply.clone(), apply], // unready, then ready again
+        (false, _) => vec![apply],
+    };
+    [ready, fire(facing)].concat()
+}
+
+/// Space: fire the readied bow, wand, rod, or horn the way the player faces. Empty if
+/// none is readied.
+pub fn fire_commands(inv: &Inventory, facing: u8, range: &str) -> Vec<String> {
+    inv.carried().into_iter().find(|i| i.applied() && is_fired(i.kind)).map_or_else(Vec::new, |i| fire_item(i, facing, range))
 }
 
 pub fn usable(slot: &Slot, inv: &Inventory, spells: &SpellBook) -> bool {
@@ -154,6 +167,16 @@ mod tests {
             assert_eq!(dir_number(d), Some(i as u8 + 1));
         }
         assert_eq!(dir_number("up"), None);
+    }
+
+    #[test]
+    fn space_fires_the_readied_bow() {
+        let (inv, _) = world();
+        assert_eq!(fire_commands(&inv, 3, "Range: nothing"), ["apply 11", "apply 11", "fire 3", "fire_stop"]);
+        assert_eq!(fire_commands(&inv, 3, "Range: bow (arrows)"), ["fire 3", "fire_stop"]);
+        let mut empty = Inventory::default();
+        empty.player = 1;
+        assert!(fire_commands(&empty, 3, "Range: nothing").is_empty());
     }
 
     #[test]
