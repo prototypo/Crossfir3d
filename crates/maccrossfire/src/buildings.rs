@@ -19,6 +19,8 @@ pub enum Shape {
     Wedge([f32; 3]),
     /// The building's sign text, fitted inside this width and height, its bottom middle on `pos`.
     Sign([f32; 2]),
+    /// A glowing box (a lamp) of this size, centred on `pos`, that also lights round it.
+    Lamp([f32; 3]),
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -53,8 +55,8 @@ const GABLE_Y: f32 = 0.75;
 /// square in front of it, where they step out to.
 const DOORSTEP: f32 = 0.5;
 
-pub const RECIPES: [&str; 11] =
-    ["cottage", "house", "tavern", "barn", "temple", "tower", "castle", "shop", "well", "fountain", "signpost"];
+pub const RECIPES: [&str; 14] =
+    ["cottage", "house", "tavern", "barn", "temple", "tower", "castle", "shop", "well", "fountain", "signpost", "crossroads", "noticeboard", "lamppost"];
 pub const WALL_STYLES: [&str; 6] = ["stone", "brick", "plaster", "wood", "hedge", "rock"];
 
 /// Squares a picture covers (32 px each), at least 1 by 1.
@@ -126,6 +128,9 @@ pub fn parts(recipe: &str, w: u32, h: u32) -> Option<Vec<Part>> {
         "well" => Some(well()),
         "fountain" => Some(fountain()),
         "signpost" => Some(signpost()),
+        "crossroads" => Some(crossroads()),
+        "noticeboard" => Some(noticeboard()),
+        "lamppost" => Some(lamppost()),
         "castle" => Some(castle(w, h)),
         "shop" => Some(shop(w, h)),
         _ => style(recipe).map(|s| village(&s, w, h)),
@@ -250,6 +255,42 @@ fn signpost() -> Vec<Part> {
     vec![cube([0.08, 1.1, 0.08], [0.0, 0.55, 0.0], WOOD), cube([0.6, 0.25, 0.05], [0.0, 0.95, 0.0], BOARD)]
 }
 
+/// A post with two arms, one each way.
+fn crossroads() -> Vec<Part> {
+    vec![
+        cube([0.08, 1.3, 0.08], [0.0, 0.65, 0.0], WOOD),
+        cube([0.7, 0.18, 0.05], [0.0, 1.1, 0.0], BOARD),
+        cube([0.05, 0.18, 0.7], [0.0, 0.85, 0.0], BOARD),
+    ]
+}
+
+/// A stone post on the dungeon plinth, with a lamp in an iron cage open on all four sides.
+fn lamppost() -> Vec<Part> {
+    const IRON: [f32; 3] = [0.15, 0.15, 0.17];
+    let mut out = vec![
+        model("dungeon/Pedestal.gltf", [0.0; 3], 0.0, 0.22),
+        cube([0.1, 0.9, 0.1], [0.0, 0.93, 0.0], STONE),
+        cube([0.26, 0.04, 0.26], [0.0, 1.4, 0.0], IRON),
+        part(Shape::Lamp([0.14; 3]), [0.0, 1.52, 0.0], 0.0, [1.0; 3], Some([1.0, 0.85, 0.35])),
+        cube([0.3, 0.04, 0.3], [0.0, 1.66, 0.0], IRON),
+        cube([0.12, 0.06, 0.12], [0.0, 1.71, 0.0], IRON),
+    ];
+    for (x, z) in [(-1.0, -1.0), (1.0, -1.0), (1.0, 1.0), (-1.0, 1.0)] {
+        out.push(cube([0.03, 0.22, 0.03], [x * 0.115, 1.53, z * 0.115], IRON));
+    }
+    out
+}
+
+/// A wide board between two posts, under a little roof.
+fn noticeboard() -> Vec<Part> {
+    vec![
+        cube([0.08, 1.4, 0.08], [-0.42, 0.7, 0.0], WOOD),
+        cube([0.08, 1.4, 0.08], [0.42, 0.7, 0.0], WOOD),
+        cube([0.8, 0.55, 0.05], [0.0, 0.95, 0.0], BOARD),
+        cube([1.0, 0.05, 0.25], [0.0, 1.42, 0.0], WOOD),
+    ]
+}
+
 /// The parts of one wall square that joins its neighbours on the sides in `mask`.
 /// Unknown style: nothing (keep the plain block).
 pub fn wall_parts(style: &str, mask: u8) -> Vec<Part> {
@@ -369,7 +410,7 @@ mod tests {
 
     #[test]
     fn small_things_are_shapes() {
-        for r in ["well", "fountain", "signpost"] {
+        for r in ["well", "fountain", "signpost", "crossroads", "noticeboard"] {
             let p = parts(r, 1, 1).unwrap();
             assert!(!p.is_empty() && models(&p).is_empty(), "{r}");
         }

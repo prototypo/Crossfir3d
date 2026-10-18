@@ -4,12 +4,16 @@ The models here come from the free ("Standard") tiers of the Quaternius packs an
 Kenney Castle Kit. All are CC0 (see `LICENSE.txt` in each folder). `scripts/pick_models.py`
 copies them from `upstream/packs/` and shrinks textures to 1024 px. The weapons in `weapons/` are
 Quaternius' Medieval Weapons Pack (CC0), converted from its OBJ files with
-`scripts/obj2gltf.py OUT_DIR file.obj...`.
+`scripts/obj2gltf.py OUT_DIR file.obj...`. `dungeon/` holds the horse statue and the
+plinth from Quaternius' Modular Dungeon pack (CC0), converted the same way; the horse is
+then centred (its node `translation`).
 
 | Missing | What we use now | Where to get the real one |
 |---|---|---|
 | Well | Built from shapes in code (`building well`) | No pack has one; make it or commission it |
 | Fountain | Built from shapes in code (`building fountain`) | No pack has one |
+| Statues of people and knights | A half-size stone 3D character on the plinth (`statue` in models.txt) | No free pack found |
+| Gargoyle statue | The horse statue | No free pack found |
 | Signpost | Built from shapes in code (`building signpost`) | No pack has one |
 | Finished houses | Assembled from village wall and roof pieces (7 recipes) | — (the pack has pieces only) |
 | Big mountain rocks | `Rock_Medium_*`, scaled | Stylized Nature MegaKit **Source** tier has more rocks |

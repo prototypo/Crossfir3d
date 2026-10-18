@@ -45,10 +45,22 @@ impl Plugin for CharactersPlugin {
             .init_resource::<Preview>()
             .add_observer(bind_bones)
             .add_systems(Startup, (load_anims, setup_preview))
-            .add_systems(Update, (build_graph, animate, hold_items))
+            .add_systems(Update, (build_graph, animate, hold_items, freeze_statues))
             .add_systems(Update, update_preview.run_if(in_state(AppState::Login)))
             .add_systems(OnEnter(AppState::InGame), set_own_look)
             .add_systems(OnExit(AppState::Login), clear_preview);
+    }
+}
+
+/// A stone character on a plinth: it stands in the first frame of its idle pose.
+#[derive(Component)]
+pub struct StatueFigure;
+
+fn freeze_statues(mut q: Query<(&Character, &mut AnimationPlayer), With<StatueFigure>>) {
+    for (c, mut player) in &mut q {
+        if c.playing.is_some() && !player.all_paused() {
+            player.pause_all();
+        }
     }
 }
 
@@ -97,7 +109,7 @@ pub struct OwnCharacter;
 
 /// A body part scene inside a character; its bones get animation targets once spawned.
 #[derive(Component)]
-struct PartOf(Entity);
+pub(crate) struct PartOf(pub Entity);
 
 #[derive(Component)]
 struct PreviewBody;
