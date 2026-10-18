@@ -38,6 +38,12 @@ turns a top view (north up) on and off; **C** goes back to the view behind you. 
 trackpad pinch, and two-finger scroll zoom (the top view has its own zoom). When a
 wall or house is in the way, the camera moves closer.
 
+Walk into a monster to attack it (hold the arrow to keep attacking); **T** turns you to
+face the nearest one. **Space** fires your readied bow or wand the way you face (ready
+it from the inventory: **I**, select it, **E**); arrows and bolts fly as 3D arrows. When you are hit, the screen flashes red and the HP you lost
+floats above you; "hit", "miss", and "killed!" float over the monster you attack, and
+it flashes red when hit. (The server sends no monster health or damage numbers.)
+
 Shops are one-storey houses with a painted sign and icon (JEWELS, BANK, MAGIC, ...).
 Standing on a house's squares (a shop's entrance row, say) shows you on its
 doorstep; apply goes in. Leaving a shop, or stepping south off its squares, puts you

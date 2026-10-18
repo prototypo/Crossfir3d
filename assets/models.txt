@@ -251,3 +251,22 @@ light_blue_cave* wall rock
 
 # --- Floor decorations ---
 pentagram flat
+
+# --- Missiles in flight (frame .1d1: d = direction 1 north .. 8 northwest; .101 lies on the ground) ---
+# Arrow.gltf points along +Z; rot = (d - 1) * 45 - 180.
+arrow.111 model weapons/Arrow.gltf 0.35 -180 1.0
+arrow.121 model weapons/Arrow.gltf 0.35 -135 1.0
+arrow.131 model weapons/Arrow.gltf 0.35 -90 1.0
+arrow.141 model weapons/Arrow.gltf 0.35 -45 1.0
+arrow.151 model weapons/Arrow.gltf 0.35 0 1.0
+arrow.161 model weapons/Arrow.gltf 0.35 45 1.0
+arrow.171 model weapons/Arrow.gltf 0.35 90 1.0
+arrow.181 model weapons/Arrow.gltf 0.35 135 1.0
+bolt.111 model weapons/Arrow.gltf 0.35 -180 1.0
+bolt.121 model weapons/Arrow.gltf 0.35 -135 1.0
+bolt.131 model weapons/Arrow.gltf 0.35 -90 1.0
+bolt.141 model weapons/Arrow.gltf 0.35 -45 1.0
+bolt.151 model weapons/Arrow.gltf 0.35 0 1.0
+bolt.161 model weapons/Arrow.gltf 0.35 45 1.0
+bolt.171 model weapons/Arrow.gltf 0.35 90 1.0
+bolt.181 model weapons/Arrow.gltf 0.35 135 1.0

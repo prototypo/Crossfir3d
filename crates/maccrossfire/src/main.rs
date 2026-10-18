@@ -12,6 +12,7 @@ use maccrossfire::net::{Net, NetEvent};
 mod audio;
 mod characters3d;
 mod characters_ui;
+mod combat_fx;
 mod graphics;
 mod hud;
 mod input;
@@ -147,7 +148,9 @@ fn main() {
         .init_resource::<input::Facing>()
         .init_resource::<input::CameraHeading>()
         .init_resource::<input::CameraView>()
-        .add_systems(EguiPrimaryContextPass, (hud::hud, inventory_ui::inventory_screen).chain().run_if(in_state(AppState::InGame)))
+        .add_systems(EguiPrimaryContextPass, (hud::hud, inventory_ui::inventory_screen, combat_fx::draw).chain().run_if(in_state(AppState::InGame)))
+        .init_resource::<combat_fx::CombatFx>()
+        .add_systems(Update, combat_fx::watch.run_if(in_state(AppState::InGame)))
         .add_plugins(world::WorldPlugin)
         .add_plugins(characters3d::CharactersPlugin)
         .add_plugins(audio::AudioPlugin)
@@ -286,6 +289,9 @@ fn pump_network(world: &mut World) {
                 info!("server: {text}");
                 let (now, last) = (world.resource::<Time>().elapsed_secs(), world.resource::<LastAction>().0);
                 world.resource_mut::<Msgs>().0.push(kind, subtype, &text, now, last);
+                if kind == combat_fx::MSG_ATTACK {
+                    world.resource_mut::<combat_fx::CombatFx>().attacks.push(subtype);
+                }
                 if let Some(ev) = maccrossfire::anim::event_for_message(kind, subtype) {
                     world.resource_mut::<characters3d::PlayerAnimEvents>().0.push(ev);
                 }
