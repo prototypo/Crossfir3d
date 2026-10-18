@@ -24,13 +24,15 @@ use maccrossfire::walls::wall_masks;
 use maccrossfire::clock::{sun_pose, SunPose, FALLBACK_HOUR};
 use maccrossfire::settings::Quality;
 
-use crate::characters3d::{character_files, spawn_character, Character, OwnCharacter, OwnLook, PartOf, StatueFigure};
+use crate::characters3d::{character_files, spawn_character, spawn_monster, Character, Outfit, OwnCharacter, OwnLook, PartOf, StatueFigure};
 use crate::graphics::CurrentSettings;
 use crate::input::{CameraHeading, CameraView, DoorExit, Facing};
 use maccrossfire::camera::{compass, pull_in, sight_blocked, zoom, PIXELS_PER_LINE};
 use crate::{AppState, Clock, Faces, LastComc, Session, View, ViewSize};
 
 const TILE_PX: f32 = 32.0;
+/// Ground squares are blocks down to here, below the lowest ground (deep sea, -0.4).
+const GROUND_BOTTOM: f32 = -1.0;
 const MAX_FACE_PX: u32 = 2048;
 /// Over the shoulder: just above the head, close behind (owner: torso and head in view).
 const PITCH_DEG: f32 = 10.0;
@@ -410,10 +412,11 @@ fn sync_visuals(
         // A 3D character keeps its body when only its picture changes (each turn and step
         // frame), so it is never rebuilt, nor briefly built as someone else.
         if glides(layer) {
-            let player_face = classify_player_face(name).is_some();
+            let key = body_key(&models.map, name);
             let found = orphans.iter().position(|&e| {
                 existing.get(e).is_ok_and(|(_, tv, _, character)| {
-                    (tv.face == face || (character && player_face)) && tv.layer == layer && (tv.x - x).abs() <= 1 && (tv.y - y).abs() <= 1
+                    let same_body = character && key.is_some() && body_key(&models.map, name_of(tv.face)) == key;
+                    (tv.face == face || same_body) && tv.layer == layer && (tv.x - x).abs() <= 1 && (tv.y - y).abs() <= 1
                 })
             });
             if let Some(i) = found {
@@ -462,9 +465,15 @@ fn sync_visuals(
         };
 
         // Players (a race or class picture) are 3D characters; the own one in the middle.
-        if glides(layer) && let Some(kind) = classify_player_face(name) {
-            let own_tile = (x, y) == player;
-            let (look, body) = if own_tile { (own.look, own.body) } else { (other_look(kind), Body::Regular) };
+        // So are creatures listed as `person`.
+        let own_tile = (x, y) == player && classify_player_face(name).is_some();
+        let who = match (classify_player_face(name), models.map.lookup(name)) {
+            _ if own_tile => Some((own.look, own.body, None)),
+            (Some(kind), _) => Some((other_look(kind), Body::Regular, None)),
+            (None, &Visual::Person { body, look, dress, broom }) => Some((look, body, Some(Outfit { scale: look.scale, dress, broom }))),
+            _ => None,
+        };
+        if glides(layer) && let Some((look, body, outfit)) = who {
             let files = character_files(body);
             if !files.iter().any(|f| models.failed.contains(*f)) {
                 let pos = tile + Vec3::new(0.5, 0.0, 0.5);
@@ -475,9 +484,24 @@ fn sync_visuals(
                 if own_tile {
                     commands.entity(e).insert(OwnCharacter);
                 }
+                if let Some(outfit) = outfit {
+                    commands.entity(e).insert(outfit);
+                }
                 stand_in(&mut commands, e, pos);
                 continue;
             }
+        }
+        if glides(layer)
+            && let Visual::Monster { file, scale, tint } = models.map.lookup(name)
+            && !models.failed.contains(file)
+        {
+            let pos = tile + Vec3::new(0.5, 0.0, 0.5);
+            let (file, scale, tint) = (file.clone(), *scale, tint.unwrap_or([1.0; 3]));
+            let scene = models.scene(&server, &file);
+            let at = Transform::from_translation(pos);
+            let e = spawn_monster(&mut commands, scene, scale, tint, at, Visibility::Hidden, (tv, Glide { target: pos }, Assembled(vec![file])));
+            stand_in(&mut commands, e, pos);
+            continue;
         }
         // Big pictures are sent at their bottom-right square; models stand in the middle.
         let (fw, fh) = footprint(size.x as u32, size.y as u32);
@@ -548,7 +572,14 @@ fn sync_visuals(
                 (tile + Vec3::new(0.5, 0.0, 0.5), Vec3::ONE)
             };
             let t = Transform::from_translation(pos).with_scale(scale);
-            let mut e = commands.spawn((tv, Mesh3d(textures.ground.clone()), MeshMaterial3d(material), t));
+            let mut e = commands.spawn((tv, Mesh3d(textures.ground.clone()), MeshMaterial3d(material.clone()), t));
+            // Raised and sunken squares (hills, sea) need sides, or they float over a gap:
+            // a block under every ground square reaches down below the lowest ground.
+            if !flat {
+                let depth = h - GROUND_BOTTOM;
+                let side = Transform::from_xyz(0.0, -depth / 2.0 - 0.002, 0.0).with_scale(Vec3::new(1.0, depth, 1.0));
+                e.with_child((Mesh3d(textures.cube.clone()), MeshMaterial3d(material), side));
+            }
             // Trees and rocks on ground squares stand on the ground tile.
             if let (Some((file, t, tint)), false) = (model, flat) {
                 let handle = models.scene(&server, &file);
@@ -578,6 +609,15 @@ fn sync_visuals(
     }
     for e in orphans {
         commands.entity(e).despawn();
+    }
+}
+
+/// Pictures that share a 3D body: every player picture, or one creature's frames.
+fn body_key<'a>(map: &ModelMap, name: &'a str) -> Option<&'a str> {
+    match map.lookup(name) {
+        _ if classify_player_face(name).is_some() => Some("player"),
+        Visual::Person { .. } | Visual::Monster { .. } => name.split('.').next(),
+        _ => None,
     }
 }
 
@@ -625,7 +665,7 @@ fn spawn_part(
     materials: &mut Assets<StandardMaterial>,
 ) -> Entity {
     let t = Transform::from_translation(Vec3::from(p.pos))
-        .with_rotation(Quat::from_rotation_y(-p.yaw_deg.to_radians()))
+        .with_rotation(Quat::from_rotation_y(-p.yaw_deg.to_radians()) * Quat::from_rotation_z(-p.tilt_deg.to_radians()))
         .with_scale(Vec3::from(p.scale));
     let [r, g, b] = p.color.unwrap_or([1.0; 3]);
     let color = Color::srgb(r * shade, g * shade, b * shade);

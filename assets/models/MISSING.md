@@ -6,7 +6,9 @@ copies them from `upstream/packs/` and shrinks textures to 1024 px. The weapons 
 Quaternius' Medieval Weapons Pack (CC0), converted from its OBJ files with
 `scripts/obj2gltf.py OUT_DIR file.obj...`. `dungeon/` holds the horse statue and the
 plinth from Quaternius' Modular Dungeon pack (CC0), converted the same way; the horse is
-then centred (its node `translation`).
+then centred (its node `translation`). `props/` holds chests, keys, chairs and tables from
+Quaternius' Fantasy Props MegaKit (CC0). KayKit Dungeon Remastered (CC0) is in
+`upstream/packs/kaykit-dungeon-remastered/` but not used yet.
 
 | Missing | What we use now | Where to get the real one |
 |---|---|---|
@@ -14,6 +16,9 @@ then centred (its node `translation`).
 | Fountain | Built from shapes in code (`building fountain`) | No pack has one |
 | Statues of people and knights | A half-size stone 3D character on the plinth (`statue` in models.txt) | No free pack found |
 | Gargoyle statue | The horse statue | No free pack found |
+| Clock | Built from shapes in code (`building clock`) | No free pack found |
+| Broom for the sweeper woman (charwoman) | Nothing in the hand | No pack here has one |
+| Lever | Built from shapes in code (`building lever`, `lever_pulled`) | No free pack found |
 | Signpost | Built from shapes in code (`building signpost`) | No pack has one |
 | Finished houses | Assembled from village wall and roof pieces (7 recipes) | — (the pack has pieces only) |
 | Big mountain rocks | `Rock_Medium_*`, scaled | Stylized Nature MegaKit **Source** tier has more rocks |
@@ -22,4 +27,4 @@ then centred (its node `translation`).
 | More outfits (wizard robe, plate armour) | Peasant outfit, tinted per race or class | Modular Character Outfits – Fantasy **Pro/Source** |
 | Crossbows, staffs, tools (shovel, saw, pipe) in hand | Nothing in the hand | No pack here has them |
 | Other players' weapons | Not shown: the server sends only your own items | — |
-| Monster models | Picture cards | Bestiary Dungeon Monsters Kit (downloaded, not used yet) |
+| Monster models | Bestiary kit (`monsters/`) for goblins, kobolds, imps, skeletons, gnolls, trolls, ogres, demons; orcs are tinted 3D people; the rest are picture cards | More Quaternius monster packs |

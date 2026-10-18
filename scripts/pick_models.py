@@ -24,6 +24,8 @@ HAIR = f"{UBC}/Hairstyles/Rigged to Head Bone/glTF (Godot -Unreal)"
 VILLAGE = "medieval-village-megakit/glTF"
 NATURE = "stylized-nature-megakit/glTF"
 CASTLE = "kenney-castle-kit/Models/GLB format"
+PROPS = "fantasy-props-megakit/Exports/glTF"
+MONSTERS = "dungeon-monsters-kit-source/Exports/GLB (Godot-Unreal)"
 
 # (destination folder, pack licence file, source files relative to PACKS)
 PICK = [
@@ -64,6 +66,14 @@ PICK = [
         "wall-narrow-gate", "gate", "metal-gate", "door", "tower-square", "tower-square-arch",
         "tower-hexagon-base", "tower-hexagon-mid", "tower-hexagon-roof",
     ]]),
+    ("props", "fantasy-props-megakit/License_Standard.txt", [f"{PROPS}/{n}.gltf" for n in [
+        "Chest_Wood", "Key_Gold", "Key_Metal", "Chair_1", "Stool", "Table_Large",
+    ]]),
+    # Paid (Source tier), Quaternius Asset License: fine in this private repo; the
+    # licence forbids sharing the files themselves.
+    ("monsters", "dungeon-monsters-kit-source/License_Source.txt", [f"{MONSTERS}/{n}.glb" for n in [
+        "Hellwarden", "Imp", "Lycan", "Puglin", "Skeleton_A", "Skeleton_B", "Tidebreaker",
+    ]]),
 ]
 
 
@@ -82,13 +92,52 @@ def find(folder: pathlib.Path, uri: str):
     raise FileNotFoundError(folder / uri)
 
 
+def unpack_glb(src: pathlib.Path, dest: pathlib.Path, g: dict, data: bytes):
+    """Writes a .glb with images inside it as a .gltf, a .bin, and PNG files, so the
+    images can be shrunk like any other texture."""
+    length = struct.unpack_from("<I", data, 12)[0]
+    chunk = 20 + length
+    binary = data[chunk + 8:chunk + 8 + struct.unpack_from("<I", data, chunk)[0]]
+    views = g["bufferViews"]
+    for im in g["images"]:
+        v = views[im["bufferView"]]
+        name = im.get("name", src.stem).removesuffix(".png") + ".png"
+        (dest / name).write_bytes(binary[v.get("byteOffset", 0):v.get("byteOffset", 0) + v["byteLength"]])
+        im["uri"] = name
+    # Keep only the views the meshes use, packed again, and renumber them.
+    dropped = {im.pop("bufferView") for im in g["images"]}
+    new_index, out = {}, bytearray()
+    for i, v in enumerate(views):
+        if i in dropped:
+            continue
+        out += b"\0" * (-len(out) % 4)
+        start = v.get("byteOffset", 0)
+        new_index[i] = len(new_index)
+        out_offset = len(out)
+        out += binary[start:start + v["byteLength"]]
+        v["byteOffset"] = out_offset
+    g["bufferViews"] = [v for i, v in enumerate(views) if i not in dropped]
+    for a in g["accessors"]:
+        if "bufferView" in a:
+            a["bufferView"] = new_index[a["bufferView"]]
+    for im in g["images"]:
+        im.pop("mimeType", None)
+    g["buffers"] = [{"byteLength": len(out), "uri": f"{src.stem}.bin"}]
+    (dest / f"{src.stem}.bin").write_bytes(out)
+    (dest / f"{src.stem}.gltf").write_text(json.dumps(g))
+
+
 def copy_model(src: pathlib.Path, dest: pathlib.Path):
     """Copies a model and the files it names; fixes broken names in a .gltf copy.
-    A .glb keeps its JSON as is, so its outside files keep their relative paths."""
+    A .glb keeps its JSON as is, so its outside files keep their relative paths,
+    unless it holds its images: then it becomes a .gltf (see `unpack_glb`)."""
     if src.suffix.lower() == ".glb":
         data = src.read_bytes()
         length = struct.unpack_from("<I", data, 12)[0]
         g = json.loads(data[20:20 + length])
+        if any("bufferView" in im for im in g.get("images", [])):
+            unpack_glb(src, dest, g, data)
+            return
         shutil.copy2(src, dest / src.name)
         for item in g.get("buffers", []) + g.get("images", []):
             uri = item.get("uri")

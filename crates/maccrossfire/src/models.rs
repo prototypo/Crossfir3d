@@ -5,8 +5,14 @@
 //! - `model <file> <scale> <rot_deg> <dy> [r,g,b]`
 //! - `building <recipe> [SIGN_TEXT [icon]]` (`_` in the sign is a space; icons in signs.rs)
 //! - `wall <style>`
+//! - `person <regular|other> <scale> <skin> <hair> <clothes> [dress r,g,b] [broom]` (colours
+//!   as r,g,b: a 3D character, like a player, for a monster or townsperson)
+//! - `monster <file> <scale> [r,g,b]` (a rigged creature model, moved by the same clips
+//!   as people; scale 1 = the size a person's body is drawn at)
 //! - `flat` (a floor decoration lying on the ground)
 //! - `card` (keep the picture card)
+
+use crate::races::{Body, Look};
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Visual {
@@ -15,6 +21,11 @@ pub enum Visual {
     Wall { style: String },
     /// A person in stone on a plinth: a half-size 3D character, maybe tinted (bronze).
     Statue { tint: Option<[f32; 3]> },
+    /// A creature drawn as a 3D character with this body and look, maybe in a long
+    /// skirt of this colour, maybe with a broom in the right hand.
+    Person { body: Body, look: Look, dress: Option<[f32; 3]>, broom: bool },
+    /// A rigged creature model (one file) moved like a person.
+    Monster { file: String, scale: f32, tint: Option<[f32; 3]> },
     Flat,
     Card,
 }
@@ -62,12 +73,14 @@ impl ModelMap {
 fn tint(words: &[&str]) -> Option<Option<[f32; 3]>> {
     match words {
         [] => Some(None),
-        [t] => {
-            let v: Vec<f32> = t.split(',').map(|c| c.parse().ok()).collect::<Option<_>>()?;
-            Some(Some(<[f32; 3]>::try_from(v).ok()?))
-        }
+        [t] => Some(Some(rgb(t)?)),
         _ => None,
     }
+}
+
+fn rgb(word: &str) -> Option<[f32; 3]> {
+    let v: Vec<f32> = word.split(',').map(|c| c.parse().ok()).collect::<Option<_>>()?;
+    <[f32; 3]>::try_from(v).ok()
 }
 
 fn parse_visual(words: &[&str]) -> Option<Visual> {
@@ -79,6 +92,30 @@ fn parse_visual(words: &[&str]) -> Option<Visual> {
             dy: dy.parse().ok()?,
             tint: tint(rest)?,
         },
+        ["person", body, scale, skin, hair, clothes, ref rest @ ..] => {
+            let (mut dress, mut broom) = (None, false);
+            let mut words = rest.iter();
+            while let Some(&w) = words.next() {
+                match w {
+                    "dress" => dress = Some(rgb(words.next()?)?),
+                    "broom" => broom = true,
+                    _ => return None,
+                }
+            }
+            Visual::Person {
+                body: match body {
+                    "regular" => Body::Regular,
+                    "other" => Body::Other,
+                    _ => return None,
+                },
+                look: Look { scale: scale.parse().ok()?, skin: rgb(skin)?, hair: rgb(hair)?, clothes: rgb(clothes)? },
+                dress,
+                broom,
+            }
+        }
+        ["monster", file, scale, ref rest @ ..] => {
+            Visual::Monster { file: file.to_string(), scale: scale.parse().ok()?, tint: tint(rest)? }
+        }
         ["statue", ref rest @ ..] => Visual::Statue { tint: tint(rest)? },
         ["building", recipe] => Visual::Building { recipe: recipe.to_string(), sign: None, icon: None },
         ["building", recipe, sign, ref icon @ ..] if icon.len() <= 1 => Visual::Building {
@@ -196,6 +233,31 @@ bad model x.glb notanumber 0 0
         let m = ModelMap::parse("statue statue\nstatue_gold statue 1,0.8,0.3\n");
         assert_eq!(m.lookup("statue.111"), &Visual::Statue { tint: None });
         assert_eq!(m.lookup("statue_gold"), &Visual::Statue { tint: Some([1.0, 0.8, 0.3]) });
+    }
+
+    #[test]
+    fn person_parsed() {
+        let m = ModelMap::parse(
+            "goblin person regular 0.7 0.3,0.5,0.2 0.1,0.1,0.1 0.4,0.3,0.2\n\
+             maid person other 0.7 0.3,0.5,0.2 0.1,0.1,0.1 0.4,0.3,0.2 dress 0.6,0.2,0.2 broom\n\
+             bad person tall 1 1,1,1 1,1,1 1,1,1\n\
+             bad2 person other 1 1,1,1 1,1,1 1,1,1 dress\n",
+        );
+        let look = Look { scale: 0.7, skin: [0.3, 0.5, 0.2], hair: [0.1, 0.1, 0.1], clothes: [0.4, 0.3, 0.2] };
+        assert_eq!(m.lookup("goblin.131"), &Visual::Person { body: Body::Regular, look, dress: None, broom: false });
+        assert_eq!(m.lookup("maid"), &Visual::Person { body: Body::Other, look, dress: Some([0.6, 0.2, 0.2]), broom: true });
+        assert_eq!(m.lookup("bad"), &Visual::Card);
+        assert_eq!(m.lookup("bad2"), &Visual::Card);
+    }
+
+    #[test]
+    fn monster_parsed() {
+        let m = ModelMap::parse("kobold monster monsters/Puglin.gltf 0.9 1,0.6,0.4\nskeleton monster monsters/Skeleton_A.gltf 1\n");
+        assert_eq!(
+            m.lookup("kobold.151"),
+            &Visual::Monster { file: "monsters/Puglin.gltf".into(), scale: 0.9, tint: Some([1.0, 0.6, 0.4]) }
+        );
+        assert!(matches!(m.lookup("skeleton"), Visual::Monster { tint: None, .. }));
     }
 
     #[test]
