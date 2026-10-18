@@ -14,7 +14,7 @@ use bevy::input::mouse::{AccumulatedMouseScroll, MouseScrollUnit};
 use bevy::prelude::*;
 use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat};
 use bevy::world_serialization::{WorldAsset, WorldAssetRoot, WorldInstanceReady};
-use maccrossfire::buildings::{footprint, parts, wall_parts, Part, Shape};
+use maccrossfire::buildings::{doorstep, footprint, parts, wall_parts, Part, Shape};
 use maccrossfire::models::{all_loaded, Load, ModelMap, Visual};
 use maccrossfire::races::{classify_player_face, clothes_for_class, look_for_race, Body, Look, PlayerFace};
 use maccrossfire::terrain::{ground_height, is_wall};
@@ -66,12 +66,13 @@ impl Plugin for WorldPlugin {
             .insert_resource(GlobalAmbientLight { brightness: 600.0, ..default() })
             .init_resource::<Textures>()
             .init_resource::<Solid>()
+            .init_resource::<Doorstep>()
             .insert_resource(Models::load())
             .add_observer(tint_model)
             .add_systems(Startup, setup)
             .add_systems(
                 Update,
-                (load_textures, sync_visuals, check_models, swap_models, reveal_assembled, glide, follow_player, face_camera, hide_entered, place_arrow, lighting)
+                (load_textures, sync_visuals, check_models, swap_models, reveal_assembled, hide_entered, glide, follow_player, face_camera, place_arrow, lighting)
                     .chain()
                     .run_if(in_state(AppState::InGame)),
             )
@@ -158,6 +159,15 @@ struct PendingModel {
 /// are entrances: the player steps onto them, and then that building is hidden.
 #[derive(Component)]
 struct Span(i32, i32, i32, i32);
+
+/// A house's doorstep (world position): where the player is shown while the server
+/// has them on one of its squares (a shop's entrance row, say).
+#[derive(Component)]
+struct Door(Vec3);
+
+/// The doorstep the player is shown at now, if they are in a house.
+#[derive(Resource, Default)]
+struct Doorstep(Option<Vec3>);
 
 /// A thing put together from model files (building, wall, character): its parts are
 /// hidden and its picture stands in until every file has loaded.
@@ -441,6 +451,11 @@ fn sync_visuals(
             let files: Vec<String> =
                 parts.iter().filter_map(|p| if let Shape::Model(f) = p.shape { Some(f.to_string()) } else { None }).collect();
             let parent = commands.spawn((tv, span, Assembled(files), Transform::from_translation(at), Visibility::default())).id();
+            if let Visual::Building { recipe, .. } = models.map.lookup(name)
+                && let Some(step) = doorstep(recipe, fw, fh)
+            {
+                commands.entity(parent).insert(Door(at + Vec3::from(step)));
+            }
             for p in &parts {
                 let child = spawn_part(&mut commands, p, shade, &textures, sign.as_ref(), &server, &mut models, &mut materials);
                 commands.entity(parent).add_child(child);
@@ -689,6 +704,7 @@ fn follow_player(
     solid: Res<Solid>,
     scroll: Res<AccumulatedMouseScroll>,
     mut pinch: MessageReader<PinchGesture>,
+    doorstep: Res<Doorstep>,
     rig: Single<(&mut Transform, &mut CameraRig, &mut DistanceFog)>,
 ) {
     let (mut t, mut rig, mut fog) = rig.into_inner();
@@ -704,7 +720,7 @@ fn follow_player(
         rig.distance = zoom(rig.distance, lines, pinched, ZOOM_MIN, ZOOM_MAX);
     }
     let (px, py) = view.0.world((size.0 / 2) as i8, (size.1 / 2) as i8);
-    let target = Vec3::new(px as f32 + 0.5, 0.0, py as f32 + 0.5);
+    let target = doorstep.0.map_or(Vec3::new(px as f32 + 0.5, 0.0, py as f32 + 0.5), |d| d.with_y(0.0));
     let step_secs = comc.time_ms.clamp(100, 400) as f32 / 1000.0;
     let d = target - rig.focus;
     rig.focus = if d.length() > 2.0 { target } else { rig.focus + d.clamp_length_max(time.delta_secs() / step_secs) };
@@ -735,11 +751,32 @@ fn follow_player(
     fog.falloff = FogFalloff::Linear { start: distance + radius * 0.4, end: distance + radius };
 }
 
-fn hide_entered(view: Res<View>, size: Res<ViewSize>, mut q: Query<(&Span, &mut Visibility)>) {
+/// The player on a house's squares stands on its doorstep, outside, with the house in
+/// view. Anything else they stand in (a well, a castle) is hidden instead.
+fn hide_entered(
+    view: Res<View>,
+    size: Res<ViewSize>,
+    mut step: ResMut<Doorstep>,
+    mut heading: ResMut<CameraHeading>,
+    mut q: Query<(&Span, Option<&Door>, &mut Visibility)>,
+    mut own: Query<&mut Glide, With<OwnCharacter>>,
+) {
     let (px, py) = view.0.world((size.0 / 2) as i8, (size.1 / 2) as i8);
-    for (Span(x0, y0, x1, y1), mut vis) in &mut q {
+    let before = step.0.take();
+    for (Span(x0, y0, x1, y1), door, mut vis) in &mut q {
         let inside = (*x0..=*x1).contains(&px) && (*y0..=*y1).contains(&py);
-        vis.set_if_neq(if inside { Visibility::Hidden } else { Visibility::Inherited });
+        if let (true, Some(Door(at))) = (inside, door) {
+            step.0 = Some(*at);
+        }
+        vis.set_if_neq(if inside && door.is_none() { Visibility::Hidden } else { Visibility::Inherited });
+    }
+    // Arriving: look north at the door (it is in the south wall). C turns back.
+    if step.0.is_some() && step.0 != before {
+        heading.0 = 0;
+    }
+    // Moving off the house gives the character a new tile target (`sync_visuals`).
+    if let (Some(at), Ok(mut glide)) = (step.0, own.single_mut()) {
+        glide.target = at;
     }
 }
 
