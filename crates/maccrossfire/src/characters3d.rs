@@ -45,7 +45,7 @@ impl Plugin for CharactersPlugin {
             .init_resource::<Preview>()
             .add_observer(bind_bones)
             .add_systems(Startup, (load_anims, setup_preview))
-            .add_systems(Update, (build_graph, animate, hold_items, freeze_statues))
+            .add_systems(Update, (build_graph, animate, hold_items, dress_people, freeze_statues))
             .add_systems(Update, update_preview.run_if(in_state(AppState::Login)))
             .add_systems(OnEnter(AppState::InGame), set_own_look)
             .add_systems(OnExit(AppState::Login), clear_preview);
@@ -157,6 +157,24 @@ pub fn spawn_character(
         let scene = load(file);
         commands.spawn((WorldAssetRoot(scene), inner, parts, ModelTint(color(tint)), SkinTint(color(t.skin)), PartOf(root), ChildOf(root)));
     }
+    root
+}
+
+/// Spawns a rigged creature (one file, the people's skeleton) standing at `at`; it is
+/// animated like a person. `scale` 1 draws it at a person's body scale.
+pub fn spawn_monster(
+    commands: &mut Commands,
+    scene: Handle<WorldAsset>,
+    scale: f32,
+    tint: [f32; 3],
+    at: Transform,
+    parts: Visibility,
+    extra: impl Bundle,
+) -> Entity {
+    let root = commands.spawn((at, Visibility::default(), Character::default(), AnimationPlayer::default(), extra)).id();
+    let inner = Transform::from_scale(Vec3::splat(BODY_SCALE * scale));
+    let [r, g, b] = tint;
+    commands.spawn((WorldAssetRoot(scene), inner, parts, ModelTint(Color::srgb(r, g, b)), PartOf(root), ChildOf(root)));
     root
 }
 
@@ -275,23 +293,85 @@ fn hold_items(
     }
     for (file, hand) in &want {
         let hand = if *hand == Hand::Right { right } else { left };
-        // The bone's own scale inside its body part (the armature may be scaled).
-        let mut scale = 1.0;
-        let mut e = hand;
-        while let Ok((ChildOf(parent), t)) = parents.get(e) {
-            if parts.contains(e) {
-                break;
-            }
-            scale *= t.scale.x;
-            e = *parent;
-        }
-        let t = Transform::from_scale(Vec3::splat(WEAPON_SCALE / scale));
+        let t = Transform::from_scale(Vec3::splat(WEAPON_SCALE / bone_scale(hand, &parents, &parts)));
         let scene = server.load(GltfAssetLabel::Scene(0).from_asset(format!("models/{file}")));
         commands.entity(hand).queue_silenced(move |mut e: EntityWorldMut| {
             e.with_child((WorldAssetRoot(scene), t, HeldModel));
         });
     }
     commands.entity(root).try_insert(Holding(want));
+}
+
+/// A bone's own scale inside its body part (the armature may be scaled).
+fn bone_scale(bone: Entity, parents: &Query<(&ChildOf, &Transform)>, parts: &Query<(), With<PartOf>>) -> f32 {
+    let mut scale = 1.0;
+    let mut e = bone;
+    while let Ok((ChildOf(parent), t)) = parents.get(e) {
+        if parts.contains(e) {
+            break;
+        }
+        scale *= t.scale.x;
+        e = *parent;
+    }
+    scale
+}
+
+/// What a `person` creature wears or carries beyond the shared body: a long skirt of
+/// this colour (the free outfits have none), a broom in the right hand.
+#[derive(Component, Clone, Copy)]
+pub struct Outfit {
+    pub scale: f32,
+    pub dress: Option<[f32; 3]>,
+    pub broom: bool,
+}
+
+/// Adds each Outfit once the body's bones exist. Sizes are for a human (scale 1, about
+/// 1.08 tall): the skirt hangs from the waist nearly to the floor; the broom runs along
+/// the hand bone's +Y, like a sword's blade, with the straw at the far end.
+#[allow(clippy::too_many_arguments)]
+fn dress_people(
+    mut commands: Commands,
+    people: Query<(Entity, &Outfit)>,
+    children: Query<&Children>,
+    names: Query<&Name>,
+    parents: Query<(&ChildOf, &Transform)>,
+    parts: Query<(), With<PartOf>>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut shapes: Local<Option<[Handle<Mesh>; 3]>>,
+) {
+    const STRAW: [f32; 3] = [0.85, 0.7, 0.35];
+    const HANDLE: [f32; 3] = [0.45, 0.3, 0.18];
+    const HANDLE_LEN: f32 = 0.85;
+    let [skirt, stick, straw] = shapes
+        .get_or_insert_with(|| {
+            [
+                meshes.add(ConicalFrustum { radius_top: 0.11, radius_bottom: 0.24, height: 0.52 }),
+                meshes.add(Cylinder::new(0.015, HANDLE_LEN)),
+                meshes.add(ConicalFrustum { radius_top: 0.08, radius_bottom: 0.025, height: 0.2 }),
+            ]
+        })
+        .clone();
+    let mut paint = |[r, g, b]: [f32; 3]| materials.add(StandardMaterial { base_color: Color::srgb(r, g, b), perceptual_roughness: 0.9, ..default() });
+    for (root, outfit) in &people {
+        // The body scenes spawn a little later than the character: try again next frame.
+        let Some(hand) = children.iter_descendants(root).find(|e| names.get(*e).is_ok_and(|n| n.as_str() == "hand_r")) else { continue };
+        let k = outfit.scale;
+        if let Some(colour) = outfit.dress {
+            let t = Transform::from_xyz(0.0, 0.31 * k, 0.0).with_scale(Vec3::splat(k));
+            commands.entity(root).with_child((Mesh3d(skirt.clone()), MeshMaterial3d(paint(colour)), t));
+        }
+        if outfit.broom {
+            let k = k / bone_scale(hand, &parents, &parts);
+            let at = |y: f32| Transform::from_xyz(0.0, y * k, 0.0).with_scale(Vec3::splat(k));
+            let handle = (Mesh3d(stick.clone()), MeshMaterial3d(paint(HANDLE)), at(HANDLE_LEN / 2.0 - 0.1));
+            let bristles = (Mesh3d(straw.clone()), MeshMaterial3d(paint(STRAW)), at(HANDLE_LEN - 0.05));
+            commands.entity(hand).queue_silenced(move |mut e: EntityWorldMut| {
+                e.with_child(handle).with_child(bristles);
+            });
+        }
+        commands.entity(root).remove::<Outfit>();
+    }
 }
 
 /// Facing 1 = north .. 8 = northwest, clockwise. The model looks along +Z unturned.
