@@ -26,6 +26,7 @@ NATURE = "stylized-nature-megakit/glTF"
 CASTLE = "kenney-castle-kit/Models/GLB format"
 PROPS = "fantasy-props-megakit/Exports/glTF"
 MONSTERS = "dungeon-monsters-kit-source/Exports/GLB (Godot-Unreal)"
+KAYKIT = "kaykit-dungeon-remastered/Assets/gltf"
 
 # (destination folder, pack licence file, source files relative to PACKS)
 PICK = [
@@ -70,6 +71,7 @@ PICK = [
         "Chest_Wood", "Key_Gold", "Key_Metal", "Chair_1", "Stool", "Table_Large",
         "Bag", "Pouch_Large", "Bookcase_2", "Crate_Wooden", "Cauldron", "Workbench", "Cabinet", "Barrel",
     ]]),
+    ("kaykit", "kaykit-dungeon-remastered/License.txt", [f"{KAYKIT}/{n}.gltf" for n in ["stairs"]]),
     # Paid (Source tier), Quaternius Asset License: fine in this private repo; the
     # licence forbids sharing the files themselves.
     ("monsters", "dungeon-monsters-kit-source/License_Source.txt", [f"{MONSTERS}/{n}.glb" for n in [
@@ -83,9 +85,9 @@ TEXTURE_SWAP = {
     "Bush_Common.gltf": {"Leaves_TwistedTree_C.png": "Leaves_NormalTree_C.png"},
     "Bush_Common_Flowers.gltf": {"Leaves_TwistedTree_C.png": "Leaves_NormalTree_C.png"},
 }
-# Our copies are scaled (x, y, z) in their first node: the Kenney door is a block as
-# thick as a wall; a dungeon door is about a hand thick.
-NODE_SCALE = {"door.glb": [0.25, 1, 1]}
+# Our copies change their first node: the Kenney door is a block as thick as a wall
+# (a dungeon door is about a hand thick); the KayKit stairs start at the model's middle.
+NODE = {"door.glb": {"scale": [0.25, 1, 1]}, "stairs.gltf": {"translation": [0, 0, -2]}}
 
 
 def find(folder: pathlib.Path, uri: str):
@@ -142,8 +144,8 @@ def copy_model(src: pathlib.Path, dest: pathlib.Path):
         if any("bufferView" in im for im in g.get("images", [])):
             unpack_glb(src, dest, g, data)
             return
-        if src.name in NODE_SCALE:
-            g["nodes"][0]["scale"] = NODE_SCALE[src.name]
+        if src.name in NODE:
+            g["nodes"][0].update(NODE[src.name])
             js = json.dumps(g).encode()
             js += b" " * (-len(js) % 4)
             rest = data[20 + length:]
@@ -165,6 +167,8 @@ def copy_model(src: pathlib.Path, dest: pathlib.Path):
             f = find(src.parent, uri)
             shutil.copy2(f, dest / f.name)
             item["uri"] = f.name
+    if src.name in NODE:
+        g["nodes"][0].update(NODE[src.name])
     (dest / src.name).write_text(json.dumps(g))
 
 
