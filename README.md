@@ -81,6 +81,9 @@ Wells and other one-square things stay in view when you stand on them.
 - `MACCROSSFIRE_SCREEN=newchar[:race_arch]` opens the new-character screen.
 - `MACCROSSFIRE_SCREENSHOT=file.png` (with `MACCROSSFIRE_SCREENSHOT_AT=seconds`)
   saves one screenshot and quits.
+- `MACCROSSFIRE_COMPARE=file` (lines `picture_name model1.glb model2.glb ...`, files
+  under `assets/models`) keeps those pictures as cards with the models in a row
+  beside them (`experiments/sprite3d/`).
 
 ## Tests
 

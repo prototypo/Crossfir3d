@@ -145,6 +145,8 @@ struct Models {
     map: ModelMap,
     scenes: HashMap<String, Handle<WorldAsset>>,
     failed: HashSet<String>,
+    /// Developer check: picture name -> model files shown in a row beside its card.
+    compare: HashMap<String, Vec<String>>,
 }
 
 impl Models {
@@ -154,7 +156,10 @@ impl Models {
             warn!("{path}: {e}; every picture stays a card");
             String::new()
         });
-        Models { map: ModelMap::parse(&text), scenes: HashMap::new(), failed: HashSet::new() }
+        let compare = compare_list();
+        // Compared pictures stay cards (exact lines first win), with their models beside.
+        let cards: String = compare.keys().map(|name| format!("{name} card\n")).collect();
+        Models { map: ModelMap::parse(&(cards + &text)), scenes: HashMap::new(), failed: HashSet::new(), compare }
     }
 
     fn scene(&mut self, server: &AssetServer, file: &str) -> Handle<WorldAsset> {
@@ -162,6 +167,26 @@ impl Models {
         self.scenes.entry(file.to_string()).or_insert_with(load).clone()
     }
 }
+
+/// Developer check: MACCROSSFIRE_COMPARE=file, lines `picture_name file1 file2 ...`
+/// (files under assets/models). Those pictures stay cards, with the models in a row
+/// to the right, turned a little so their depth shows.
+fn compare_list() -> HashMap<String, Vec<String>> {
+    let Ok(path) = std::env::var("MACCROSSFIRE_COMPARE") else { return HashMap::new() };
+    let text = std::fs::read_to_string(&path).unwrap_or_else(|e| {
+        warn!("{path}: {e}");
+        String::new()
+    });
+    text.lines()
+        .filter_map(|l| {
+            let mut words = l.split_whitespace();
+            Some((words.next()?.to_string(), words.map(String::from).collect()))
+        })
+        .collect()
+}
+
+const COMPARE_GAP: f32 = 1.0;
+const COMPARE_TURN_DEG: f32 = 35.0;
 
 /// A model waiting to load; its picture card shows until then (and stays if it fails).
 #[derive(Component)]
@@ -589,6 +614,13 @@ fn sync_visuals(
             let pos = card_position(tile, *size, layer);
             let t = Transform::from_translation(pos).with_scale(Vec3::new(size.x / TILE_PX, size.y / TILE_PX, 1.0));
             let mut e = commands.spawn((tv, Card, Mesh3d(textures.card.clone()), MeshMaterial3d(material), t));
+            // Children turn with the card, so the row always faces the camera.
+            let base = name.split('.').next().unwrap_or(name);
+            for (i, file) in models.compare.get(base).cloned().unwrap_or_default().iter().enumerate() {
+                let at = Vec3::new(COMPARE_GAP * (i + 1) as f32, 0.0, 0.0) / t.scale;
+                let turn = Quat::from_rotation_y(COMPARE_TURN_DEG.to_radians());
+                e.with_child((WorldAssetRoot(models.scene(&server, file)), Transform::from_translation(at).with_rotation(turn).with_scale(1.0 / t.scale)));
+            }
             if glides(layer) {
                 match (model, model_spot(models.map.lookup(name), tile)) {
                     (Some((file, t, tint)), Some(spot)) => {
