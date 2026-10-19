@@ -57,10 +57,11 @@ const GABLE_Y: f32 = 0.75;
 /// square in front of it, where they step out to.
 const DOORSTEP: f32 = 0.5;
 
-pub const RECIPES: [&str; 28] = [
+pub const RECIPES: [&str; 33] = [
     "cottage", "house", "tavern", "barn", "temple", "tower", "castle", "shop", "well", "fountain", "signpost", "crossroads",
     "noticeboard", "lamppost", "clock", "lever", "lever_pulled", "ladder_down", "altar", "altar_green", "altar_black",
     "altar_red", "altar_white", "altar_blue", "brazier", "brazier_unlit", "lantern", "lantern_off",
+    "torch", "torch_cyan", "torch_indigo", "torch_vermilion", "tikitorch",
 ];
 pub const WALL_STYLES: [&str; 6] = ["stone", "brick", "plaster", "wood", "hedge", "rock"];
 
@@ -161,6 +162,11 @@ pub fn parts(recipe: &str, w: u32, h: u32) -> Option<Vec<Part>> {
         "brazier_unlit" => Some(brazier(false)),
         "lantern" => Some(lantern(true)),
         "lantern_off" => Some(lantern(false)),
+        "torch" => Some(torch(0.6, FLAME)),
+        "torch_cyan" => Some(torch(0.6, [0.4, 1.0, 1.0])),
+        "torch_indigo" => Some(torch(0.6, [0.5, 0.4, 1.0])),
+        "torch_vermilion" => Some(torch(0.6, [1.0, 0.35, 0.2])),
+        "tikitorch" => Some(torch(0.9, FLAME)),
         "castle" => Some(castle(w, h)),
         "shop" => Some(shop(w, h)),
         _ => style(recipe).map(|s| village(&s, w, h)),
@@ -411,6 +417,17 @@ fn brazier(lit: bool) -> Vec<Part> {
         out.push(cube([0.04, 0.6, 0.04], [s * 0.15, 0.3, c * 0.15], IRON));
     }
     out
+}
+
+const FLAME: [f32; 3] = [1.0, 0.6, 0.2];
+
+/// The KayKit torch (`scale` of it; it stands 0.4 below its middle) with a flame in its
+/// cup that lights round it.
+fn torch(scale: f32, flame: [f32; 3]) -> Vec<Part> {
+    vec![
+        model("kaykit/torch.gltf", [0.0, 0.4 * scale, 0.0], 0.0, scale),
+        part(Shape::Lamp([0.08, 0.12, 0.08]), [0.0, 1.0 * scale, 0.0], 0.0, [scale / 0.6; 3], Some(flame)),
+    ]
 }
 
 /// A lamp in a little iron frame that stands on the ground; unlit, its glass is dark.
