@@ -68,6 +68,7 @@ PICK = [
     ]]),
     ("props", "fantasy-props-megakit/License_Standard.txt", [f"{PROPS}/{n}.gltf" for n in [
         "Chest_Wood", "Key_Gold", "Key_Metal", "Chair_1", "Stool", "Table_Large",
+        "Bag", "Pouch_Large", "Bookcase_2", "Crate_Wooden", "Cauldron", "Workbench", "Cabinet", "Barrel",
     ]]),
     # Paid (Source tier), Quaternius Asset License: fine in this private repo; the
     # licence forbids sharing the files themselves.
@@ -82,6 +83,9 @@ TEXTURE_SWAP = {
     "Bush_Common.gltf": {"Leaves_TwistedTree_C.png": "Leaves_NormalTree_C.png"},
     "Bush_Common_Flowers.gltf": {"Leaves_TwistedTree_C.png": "Leaves_NormalTree_C.png"},
 }
+# Our copies are scaled (x, y, z) in their first node: the Kenney door is a block as
+# thick as a wall; a dungeon door is about a hand thick.
+NODE_SCALE = {"door.glb": [0.25, 1, 1]}
 
 
 def find(folder: pathlib.Path, uri: str):
@@ -138,7 +142,15 @@ def copy_model(src: pathlib.Path, dest: pathlib.Path):
         if any("bufferView" in im for im in g.get("images", [])):
             unpack_glb(src, dest, g, data)
             return
-        shutil.copy2(src, dest / src.name)
+        if src.name in NODE_SCALE:
+            g["nodes"][0]["scale"] = NODE_SCALE[src.name]
+            js = json.dumps(g).encode()
+            js += b" " * (-len(js) % 4)
+            rest = data[20 + length:]
+            (dest / src.name).write_bytes(data[:4] + struct.pack("<III", 2, 20 + len(js) + len(rest), len(js))
+                                          + data[16:20] + js + rest)
+        else:
+            shutil.copy2(src, dest / src.name)
         for item in g.get("buffers", []) + g.get("images", []):
             uri = item.get("uri")
             if uri and not uri.startswith("data:"):
