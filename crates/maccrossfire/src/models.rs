@@ -274,6 +274,8 @@ bad model x.glb notanumber 0 0
         let path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../assets/models.txt");
         let Ok(text) = std::fs::read_to_string(&path) else { return };
         let m = ModelMap::parse(&text);
-        assert!(!m.exact.is_empty() || !m.prefixes.is_empty());
+        // Every line must parse: a bad line is skipped silently and its picture stays a card.
+        let lines = text.lines().filter(|l| !l.split('#').next().unwrap_or("").trim().is_empty()).count();
+        assert_eq!(m.exact.len() + m.prefixes.len(), lines);
     }
 }
