@@ -739,18 +739,23 @@ fn spawn_part(
         Shape::Box(size) => (textures.cube.clone(), Vec3::from(size)),
         Shape::Cylinder { radius, height } => (textures.cylinder.clone(), Vec3::new(radius, height, radius)),
         Shape::Wedge(size) => (textures.wedge.clone(), Vec3::from(size)),
-        Shape::Lamp(size) => {
+        Shape::Lamp(_) | Shape::RoundLamp { .. } => {
+            let (mesh, size) = match p.shape {
+                Shape::RoundLamp { radius, height } => (textures.cylinder.clone(), Vec3::new(radius, height, radius)),
+                Shape::Lamp(size) => (textures.cube.clone(), Vec3::from(size)),
+                _ => unreachable!(),
+            };
             let glow = materials.add(StandardMaterial {
                 base_color: color,
                 emissive: LinearRgba::from(color) * LAMP_GLOW,
                 unlit: true,
                 ..default()
             });
-            let t = Transform { scale: t.scale * Vec3::from(size), ..t };
+            let t = Transform { scale: t.scale * size, ..t };
             let light = PointLight { color, intensity: LAMP_LUMENS, range: LAMP_RANGE, shadow_maps_enabled: false, ..default() };
-            // The light is a child of the scaled box: undo the scale so its range is in squares.
+            // The light is a child of the scaled shape: undo the scale so its range is in squares.
             let unscaled = Transform::from_scale(Vec3::ONE / t.scale);
-            return commands.spawn((Mesh3d(textures.cube.clone()), MeshMaterial3d(glow), t, Visibility::Hidden, NotShadowCaster)).with_child((light, unscaled)).id();
+            return commands.spawn((Mesh3d(mesh), MeshMaterial3d(glow), t, Visibility::Hidden, NotShadowCaster)).with_child((light, unscaled)).id();
         }
         Shape::Sign([w, h]) => {
             let Some((material, aspect)) = sign else { return commands.spawn((t, Visibility::Hidden)).id() };
