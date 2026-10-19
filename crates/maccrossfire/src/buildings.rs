@@ -443,14 +443,14 @@ fn mountain(file: &'static str, yaw: f32, scale: f32, seed: u32) -> Vec<Part> {
     };
     let base = -MOUNTAIN_RAISE;
     let mut out = vec![part(Shape::Model(file), [0.0, base, 0.0], yaw, [scale, scale * MOUNTAIN_STRETCH, scale], None)];
-    // Rocks round the sides, more of them low down (squared), lower ones further out,
-    // as the mountain narrows upward.
+    // Rocks round the sides, more of them low down (squared). Low ones stick out further
+    // and are bigger; higher up they sit closer in and get smaller, as the mountain narrows.
     for i in 0..16 {
         let angle = (i as f32 * 22.5 + rand() * 20.0).to_radians();
         let up = 0.05 + rand().powi(2) * 0.9;
-        let reach = 0.5 * (1.0 - up * 0.45);
+        let reach = 0.68 - up * 0.4;
         let pos = [angle.sin() * reach, base + up * 2.6, angle.cos() * reach];
-        let size = 1.6 + rand() * 1.4;
+        let size = (1.6 + rand() * 1.4) * (1.3 - up * 0.5);
         out.push(part(Shape::Model(ROCKS[i % ROCKS.len()]), pos, rand() * 360.0, [size, size * (0.8 + rand()), size], None));
     }
     out
