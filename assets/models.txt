@@ -194,13 +194,15 @@ cyanbrush model nature/Bush_Common_Flowers.gltf 0.5 0 0 0.7,0.9,1.0
 
 # --- Mountains and rocky hills (ground/Mountain): rocks on raised ground ---
 mountain_dwarf card
-mountain* model hexagon/mountain_A.gltf 0.6 0 0
-mountain2* model hexagon/mountain_B.gltf 0.6 90 0
-mountain3* model hexagon/mountain_C.gltf 0.6 180 0
-mountain4* model hexagon/mountain_A.gltf 0.65 270 0
-mountain5* model hexagon/mountain_B.gltf 0.7 45 0
+# Mountains (raised 0.6) and hills (raised 0.3) stand at ground level, dy = minus the
+# raise, and are big enough to cover their raised square. Hexagons turn in 60° steps.
+mountain* model hexagon/mountain_A.gltf 0.8 0 -0.6
+mountain2* model hexagon/mountain_B.gltf 0.8 60 -0.6
+mountain3* model hexagon/mountain_C.gltf 0.8 120 -0.6
+mountain4* model hexagon/mountain_A.gltf 0.85 180 -0.6
+mountain5* model hexagon/mountain_B.gltf 0.85 240 -0.6
 s_mountain model nature/Rock_Medium_3.gltf 0.45 0 0
-hillsrocky model hexagon/hills_C.gltf 0.6 0 0
+hillsrocky model hexagon/hills_C.gltf 0.95 0 -0.3
 
 # --- Walls (wall/): stone ---
 wall_* wall stone
@@ -576,7 +578,7 @@ tikitorch model kaykit/torch_lit.gltf 0.9 0 0.36
 unlit_tikitorch model kaykit/torch.gltf 0.9 0 0.36
 
 # --- KayKit Medieval Hexagon pack (hexagon/) ---
-hills model hexagon/hills_A.gltf 0.6 0 0
+hills model hexagon/hills_A.gltf 0.95 0 -0.3
 wheelbarrow model hexagon/wheelbarrow.gltf 1.5 0 0
 
 # --- Small items, made from their pictures (experiments/sprite3d/auto.py: Hunyuan3D-2mini +
