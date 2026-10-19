@@ -583,6 +583,34 @@ unlit_tikitorch model kaykit/torch.gltf 0.9 0 0.36
 hills model hexagon/hills_A.gltf 0.95 0 -0.3
 wheelbarrow model hexagon/wheelbarrow.gltf 1.5 0 0
 
+# --- Monster generators (where monsters come from): built shapes (buildings.rs). ---
+gravestone building grave
+zombie_gen building grave
+ghost_gen building coffin
+vampiregen building coffin
+goblin_gen building lair
+orc_gen building lair
+ogre_gen building lair
+gnoll_gen building lair
+kobold_gen building lair
+giant_gen building lair
+scorpi_gen building lair
+stalkergen building lair
+madman_gen building lair
+serpman_gen building lair
+behold_gen building lair
+panthergen building lair
+dragoncave* building lair
+ant_gen building nest
+xan_gen building nest
+mouse_gen building nest
+devil_gen building portal
+pyro_gen building portal
+bat_gen model nature/DeadTree_1.gltf 0.2 0 0
+bird_gen model nature/DeadTree_2.gltf 0.2 0 0
+bee_gen model nature/DeadTree_3.gltf 0.2 0 0
+pixie_gen model nature/TwistedTree_1.gltf 0.18 0 0
+
 # --- Small items, made from their pictures (experiments/sprite3d/auto.py: Hunyuan3D-2mini +
 # clean-up; inflated voxels for foot, mint, topaz). Half the size of the picture card. ---
 a_helmet model auto/a_helmet.glb 0.5 0 0

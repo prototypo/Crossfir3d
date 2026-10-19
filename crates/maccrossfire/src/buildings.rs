@@ -21,6 +21,8 @@ pub enum Shape {
     Sign([f32; 2]),
     /// A glowing box (a lamp) of this size, centred on `pos`, that also lights round it.
     Lamp([f32; 3]),
+    /// A glowing upright cylinder, centred on `pos`, that also lights round it.
+    RoundLamp { radius: f32, height: f32 },
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -57,12 +59,12 @@ const GABLE_Y: f32 = 0.75;
 /// square in front of it, where they step out to.
 const DOORSTEP: f32 = 0.5;
 
-pub const RECIPES: [&str; 38] = [
+pub const RECIPES: [&str; 43] = [
     "cottage", "house", "tavern", "barn", "temple", "tower", "castle", "shop", "well", "fountain", "signpost", "crossroads",
     "noticeboard", "lamppost", "clock", "lever", "lever_pulled", "ladder_down", "altar", "altar_green", "altar_black",
     "altar_red", "altar_white", "altar_blue", "brazier", "brazier_unlit", "lantern", "lantern_off",
     "torch", "torch_cyan", "torch_indigo", "torch_vermilion", "tikitorch", "mountain1", "mountain2", "mountain3",
-    "mountain4", "mountain5",
+    "mountain4", "mountain5", "grave", "coffin", "lair", "nest", "portal",
 ];
 pub const WALL_STYLES: [&str; 6] = ["stone", "brick", "plaster", "wood", "hedge", "rock"];
 
@@ -168,6 +170,11 @@ pub fn parts(recipe: &str, w: u32, h: u32) -> Option<Vec<Part>> {
         "torch_indigo" => Some(torch(0.6, [0.5, 0.4, 1.0])),
         "torch_vermilion" => Some(torch(0.6, [1.0, 0.35, 0.2])),
         "tikitorch" => Some(torch(0.9, FLAME)),
+        "grave" => Some(grave()),
+        "coffin" => Some(coffin()),
+        "lair" => Some(lair()),
+        "nest" => Some(nest()),
+        "portal" => Some(portal()),
         "mountain1" => Some(mountain("hexagon/mountain_A.gltf", 0.0, 0.8, 1)),
         "mountain2" => Some(mountain("hexagon/mountain_B.gltf", 60.0, 0.8, 2)),
         "mountain3" => Some(mountain("hexagon/mountain_C.gltf", 120.0, 0.8, 3)),
@@ -454,6 +461,59 @@ fn mountain(file: &'static str, yaw: f32, scale: f32, seed: u32) -> Vec<Part> {
         out.push(part(Shape::Model(ROCKS[i % ROCKS.len()]), pos, rand() * 360.0, [size, size * (0.8 + rand()), size], None));
     }
     out
+}
+
+const DIRT: [f32; 3] = [0.35, 0.25, 0.15];
+
+// Monster generators: where monsters come from.
+
+/// A headstone at the north end of a low mound of earth.
+fn grave() -> Vec<Part> {
+    vec![
+        cube([0.36, 0.08, 0.6], [0.0, 0.04, 0.08], DIRT),
+        cube([0.3, 0.36, 0.08], [0.0, 0.18, -0.28], STONE),
+        disc(0.15, 0.08, [0.0, 0.36, -0.28], STONE),
+    ]
+}
+
+/// A dark wooden coffin with a pale cross on its lid.
+fn coffin() -> Vec<Part> {
+    const DARK: [f32; 3] = [0.25, 0.15, 0.1];
+    const CROSS: [f32; 3] = [0.8, 0.75, 0.6];
+    vec![
+        cube([0.32, 0.14, 0.7], [0.0, 0.07, 0.0], DARK),
+        cube([0.34, 0.03, 0.72], [0.0, 0.155, 0.0], WOOD),
+        cube([0.04, 0.01, 0.3], [0.0, 0.175, -0.05], CROSS),
+        cube([0.16, 0.01, 0.04], [0.0, 0.175, -0.12], CROSS),
+    ]
+}
+
+/// A heap of rocks round a dark cave mouth that faces south.
+fn lair() -> Vec<Part> {
+    vec![
+        part(Shape::Model("hexagon/rock_single_E.gltf"), [-0.22, 0.0, -0.05], 30.0, [1.8, 3.0, 1.8], None),
+        part(Shape::Model("hexagon/rock_single_C.gltf"), [0.24, 0.0, -0.05], 200.0, [2.0, 3.0, 2.0], None),
+        part(Shape::Model("hexagon/rock_single_D.gltf"), [0.0, 0.0, -0.25], 90.0, [2.4, 4.5, 2.4], None),
+        part(Shape::Model("hexagon/rock_single_B.gltf"), [0.0, 0.42, 0.0], 150.0, [2.2, 1.6, 2.0], None),
+        cube([0.28, 0.36, 0.3], [0.0, 0.18, 0.05], INSIDE),
+    ]
+}
+
+/// A mound of earth in two steps with a dark hole on top (ants, mice).
+fn nest() -> Vec<Part> {
+    vec![
+        cylinder(0.36, 0.14, [0.0, 0.07, 0.0], DIRT),
+        cylinder(0.24, 0.26, [0.0, 0.13, 0.0], DIRT),
+        cylinder(0.07, 0.02, [0.0, 0.26, 0.0], INSIDE),
+    ]
+}
+
+/// A dark red ring on the ground with a glow in it that lights round it.
+fn portal() -> Vec<Part> {
+    vec![
+        cylinder(0.4, 0.02, [0.0, 0.01, 0.0], [0.25, 0.04, 0.04]),
+        part(Shape::RoundLamp { radius: 0.3, height: 0.02 }, [0.0, 0.025, 0.0], 0.0, [1.0; 3], Some([1.0, 0.2, 0.1])),
+    ]
 }
 
 const FLAME: [f32; 3] = [1.0, 0.6, 0.2];
