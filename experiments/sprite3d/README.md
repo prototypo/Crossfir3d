@@ -42,3 +42,16 @@ python3 -I experiments/sprite3d/run.py shoot     # screenshots, about 15 s per o
 `SPRITE3D_APPROACHES=extrude,inflate` picks approaches. Existing models are kept;
 delete one to remake it. The screenshots use the game's compare mode:
 `MACCROSSFIRE_COMPARE=file` with lines `picture_name model1.glb model2.glb ...`.
+
+## Sorting the whole catalog
+
+`catalog.py` puts every picture (6,799 in the `base` set) into the technique most
+likely to work for it, with the reason, in `catalog.tsv`; the counts are in
+`CATALOG.md`, and `shots/catalog-<group>.jpg` shows 120 random pictures per group.
+Rules (in order): already 3D in the game, spell/skill icons, monster generators,
+whole folders (ground, roads, building kits, ...), alive, floor, object type, then
+the folder. `catalog.py test` checks the pilot's verdicts still come out.
+
+```sh
+python3 -I experiments/sprite3d/catalog.py samples
+```
