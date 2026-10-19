@@ -529,8 +529,10 @@ stair2_do flat
 stair3_do flat
 stair3_gstone_do flat
 stair3_ystone_do flat
-ladder_down flat
-ladder2_do flat
+ladder_up model platformer/Ladder_medium.gltf 0.55 0 0
+ladder2_up model platformer/Ladder_medium.gltf 0.55 0 0
+ladder_down building ladder_down
+ladder2_do building ladder_down
 rope_down flat
 rope_hole_down flat
 chole_* flat
