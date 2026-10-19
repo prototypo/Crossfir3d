@@ -13,7 +13,7 @@ use bevy::render::render_resource::TextureFormat;
 use bevy::world_serialization::{WorldAsset, WorldAssetRoot, WorldInstanceReady};
 use maccrossfire::login::LoginState;
 use maccrossfire::anim::{clip_name, looping, Anim, AnimEvent, AnimState};
-use maccrossfire::held::{held, worn, Garb, Hand};
+use maccrossfire::held::{held, helmet, worn, Garb, Hand};
 use maccrossfire::races::{default_body_path, head_triangles, load_body, look_for_race, tints, Body, Look};
 use std::collections::HashMap;
 
@@ -45,7 +45,7 @@ impl Plugin for CharactersPlugin {
             .init_resource::<Preview>()
             .add_observer(bind_bones)
             .add_systems(Startup, (load_anims, setup_preview))
-            .add_systems(Update, (build_graph, animate, hold_items, wear_armour, dress_people, freeze_statues))
+            .add_systems(Update, (build_graph, animate, hold_items, wear_armour, wear_helmet, dress_people, freeze_statues))
             .add_systems(Update, update_preview.run_if(in_state(AppState::Login)))
             .add_systems(OnEnter(AppState::InGame), set_own_look)
             .add_systems(OnExit(AppState::Login), clear_preview);
@@ -342,6 +342,54 @@ fn wear_armour(
     let [r, g, b] = tint;
     commands.entity(old).try_despawn();
     commands.spawn((WorldAssetRoot(scene), t, vis, ModelTint(Color::srgb(r, g, b)), SkinTint(skin.0), PartOf(root), ChildOf(root), OutfitPart));
+    commands.entity(root).try_insert(want);
+}
+
+/// The own character's applied helmet colour (see `maccrossfire::held::helmet`).
+#[derive(Component, PartialEq)]
+struct Helmeted(Option<[f32; 3]>);
+
+/// A helmet shape on the own character.
+#[derive(Component)]
+struct HelmetShape;
+
+/// Puts the applied helmet on the own character: a metal cap on the head bone, so it
+/// follows the head.
+#[allow(clippy::too_many_arguments)]
+fn wear_helmet(
+    mut commands: Commands,
+    inv: Res<Inv>,
+    own_look: Res<OwnLook>,
+    own: Query<(Entity, Option<&Helmeted>), With<OwnCharacter>>,
+    children: Query<&Children>,
+    names: Query<&Name>,
+    parents: Query<(&ChildOf, &Transform)>,
+    parts: Query<(), With<PartOf>>,
+    worn_now: Query<Entity, With<HelmetShape>>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut cap: Local<Option<Handle<Mesh>>>,
+) {
+    let Ok((root, helmeted)) = own.single() else { return };
+    let want = Helmeted(helmet(&inv.0.carried()));
+    if helmeted.map_or(want.0.is_none(), |h| *h == want) {
+        return;
+    }
+    // The body scenes spawn a little later than the character: try again next frame.
+    let Some(head) = children.iter_descendants(root).find(|e| names.get(*e).is_ok_and(|n| n.as_str() == "Head")) else { return };
+    for e in children.iter_descendants(root).filter(|e| worn_now.contains(*e)) {
+        commands.entity(e).try_despawn();
+    }
+    if let Some([r, g, b]) = want.0 {
+        let cap = cap.get_or_insert_with(|| meshes.add(Sphere::new(0.1))).clone();
+        let metal = materials.add(StandardMaterial { base_color: Color::srgb(r, g, b), perceptual_roughness: 0.6, metallic: 0.6, ..default() });
+        let k = own_look.look.scale / bone_scale(head, &parents, &parts);
+        let t = Transform::from_xyz(0.0, 0.15 * k, 0.0).with_scale(Vec3::new(1.15, 0.9, 1.25) * k);
+        let cap = (Mesh3d(cap), MeshMaterial3d(metal), t, HelmetShape);
+        commands.entity(head).queue_silenced(move |mut e: EntityWorldMut| {
+            e.with_child(cap);
+        });
+    }
     commands.entity(root).try_insert(want);
 }
 

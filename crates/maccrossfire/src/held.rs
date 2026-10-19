@@ -84,6 +84,12 @@ pub fn worn(carried: &[&Item]) -> Option<(Garb, [f32; 3])> {
     }
 }
 
+/// The colour of the applied helmet or crown (client type 271): crowns gold, others steel.
+pub fn helmet(carried: &[&Item]) -> Option<[f32; 3]> {
+    let item = carried.iter().find(|i| i.applied() && i.kind == 271)?;
+    Some(if item.name.to_ascii_lowercase().contains("crown") { [0.95, 0.75, 0.25] } else { [0.6, 0.62, 0.66] })
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -140,6 +146,13 @@ mod tests {
         assert_eq!(worn(&[&robe]).map(|w| w.0), Some(Garb::Peasant));
         assert_eq!(worn(&[&item(251, "blue dragon mail", true)]), Some((Garb::Metal, [0.6, 0.8, 1.7])));
         assert_eq!(worn(&[&spare, &sword]), None);
+    }
+
+    #[test]
+    fn helmet_colours() {
+        assert_eq!(helmet(&[&item(271, "Crown", true)]), Some([0.95, 0.75, 0.25]));
+        assert_eq!(helmet(&[&item(271, "full helmet", true)]), Some([0.6, 0.62, 0.66]));
+        assert_eq!(helmet(&[&item(272, "turban", true)]), None);
     }
 
     #[test]
