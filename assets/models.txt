@@ -641,6 +641,12 @@ b-king-draughts flat
 r-draughts flat
 r-king-draughts flat
 
+# --- Teleporters and portals (built shapes, buildings.rs) ---
+teleporter building teleporter
+magic_portal building magic_portal
+magic_portal_failed building magic_portal
+exit building magic_portal
+
 # --- Small items, made from their pictures (experiments/sprite3d/auto.py: Hunyuan3D-2mini +
 # clean-up; inflated voxels for foot, mint, topaz). Half the size of the picture card. ---
 a_helmet model auto/a_helmet.glb 0.5 0 0
