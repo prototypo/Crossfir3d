@@ -567,12 +567,13 @@ lantern_off building lantern_off
 lantern2_off building lantern_off
 chandelier_2 model props/CandleStick_Stand.gltf 0.7 0 0
 chandelier_2_copper model props/CandleStick_Stand.gltf 0.7 0 0 1.0,0.6,0.4
-# KayKit torches stand 0.4 below their middle.
-torch_cyan model kaykit/torch_lit.gltf 0.6 0 0.24 0.5,1.0,1.0
-torch_indigo model kaykit/torch_lit.gltf 0.6 0 0.24 0.6,0.5,1.0
-torch_vermilion model kaykit/torch_lit.gltf 0.6 0 0.24 1.0,0.5,0.4
+# Lit torches are recipes: their flame lights round them. KayKit torches stand 0.4 below their middle.
+torch_lit* building torch
+torch_cyan building torch_cyan
+torch_indigo building torch_indigo
+torch_vermilion building torch_vermilion
+tikitorch building tikitorch
 torch_unlit model kaykit/torch.gltf 0.6 0 0.24
-tikitorch model kaykit/torch_lit.gltf 0.9 0 0.36
 unlit_tikitorch model kaykit/torch.gltf 0.9 0 0.36
 
 # --- Small items, made from their pictures (experiments/sprite3d/auto.py: Hunyuan3D-2mini +
@@ -1099,8 +1100,6 @@ tooth_charm model auto/tooth_charm.glb 0.5 0 0
 tooth model auto/tooth.glb 0.5 0 0
 topaz model auto/topaz.glb 0.5 0 0
 torc model auto/torc.glb 0.5 0 0
-torch_lit1 model auto/torch_lit1.glb 0.5 0 0
-torch_lit2 model auto/torch_lit2.glb 0.5 0 0
 trap model auto/trap.glb 0.5 0 0
 trident model auto/trident.glb 0.5 0 0
 true_lead model auto/true_lead.glb 0.5 0 0
