@@ -13,7 +13,7 @@ use bevy::render::render_resource::TextureFormat;
 use bevy::world_serialization::{WorldAsset, WorldAssetRoot, WorldInstanceReady};
 use maccrossfire::login::LoginState;
 use maccrossfire::anim::{clip_name, looping, Anim, AnimEvent, AnimState};
-use maccrossfire::held::{held, Hand};
+use maccrossfire::held::{held, worn, Garb, Hand};
 use maccrossfire::races::{default_body_path, head_triangles, load_body, look_for_race, tints, Body, Look};
 use std::collections::HashMap;
 
@@ -45,7 +45,7 @@ impl Plugin for CharactersPlugin {
             .init_resource::<Preview>()
             .add_observer(bind_bones)
             .add_systems(Startup, (load_anims, setup_preview))
-            .add_systems(Update, (build_graph, animate, hold_items, dress_people, freeze_statues))
+            .add_systems(Update, (build_graph, animate, hold_items, wear_armour, dress_people, freeze_statues))
             .add_systems(Update, update_preview.run_if(in_state(AppState::Login)))
             .add_systems(OnEnter(AppState::InGame), set_own_look)
             .add_systems(OnExit(AppState::Login), clear_preview);
@@ -122,19 +122,30 @@ struct Holding(Vec<(&'static str, Hand)>);
 #[derive(Component)]
 struct HeldModel;
 
+/// The outfit part of a character (the third of `character_files`).
+#[derive(Component)]
+struct OutfitPart;
+
+/// What the own character wears now (see `maccrossfire::held::worn`).
+#[derive(Component, PartialEq)]
+struct Wearing(Option<(Garb, [f32; 3])>);
+
 /// Body, hair, and outfit files for a Body choice.
 pub fn character_files(body: Body) -> [&'static str; 3] {
     match body {
-        Body::Regular => [
-            "characters/Superhero_Male_FullBody.gltf",
-            "characters/Hair_SimpleParted.gltf",
-            "outfits/Male_Peasant.gltf",
-        ],
-        Body::Other => [
-            "characters/Superhero_Female_FullBody.gltf",
-            "characters/Hair_Long.gltf",
-            "outfits/Female_Peasant.gltf",
-        ],
+        Body::Regular => ["characters/Superhero_Male_FullBody.gltf", "characters/Hair_SimpleParted.gltf", outfit_file(body, Garb::Peasant)],
+        Body::Other => ["characters/Superhero_Female_FullBody.gltf", "characters/Hair_Long.gltf", outfit_file(body, Garb::Peasant)],
+    }
+}
+
+fn outfit_file(body: Body, garb: Garb) -> &'static str {
+    match (body, garb) {
+        (Body::Regular, Garb::Peasant) => "outfits/Male_Peasant.gltf",
+        (Body::Regular, Garb::Ranger) => "outfits/Male_Ranger.gltf",
+        (Body::Regular, Garb::Metal) => "outfits/Male_Ranger_Metal.gltf",
+        (Body::Other, Garb::Peasant) => "outfits/Female_Peasant.gltf",
+        (Body::Other, Garb::Ranger) => "outfits/Female_Ranger.gltf",
+        (Body::Other, Garb::Metal) => "outfits/Female_Ranger_Metal.gltf",
     }
 }
 
@@ -153,9 +164,12 @@ pub fn spawn_character(
     let root = commands.spawn((at, Visibility::default(), Character::default(), AnimationPlayer::default(), extra)).id();
     let inner = Transform::from_scale(Vec3::splat(BODY_SCALE * look.scale));
     let color = |[r, g, b]: [f32; 3]| Color::srgb(r, g, b);
-    for (file, tint) in files.into_iter().zip([t.skin, t.hair, t.clothes]) {
+    for (i, (file, tint)) in files.into_iter().zip([t.skin, t.hair, t.clothes]).enumerate() {
         let scene = load(file);
-        commands.spawn((WorldAssetRoot(scene), inner, parts, ModelTint(color(tint)), SkinTint(color(t.skin)), PartOf(root), ChildOf(root)));
+        let e = commands.spawn((WorldAssetRoot(scene), inner, parts, ModelTint(color(tint)), SkinTint(color(t.skin)), PartOf(root), ChildOf(root))).id();
+        if i == 2 {
+            commands.entity(e).insert(OutfitPart);
+        }
     }
     root
 }
@@ -300,6 +314,35 @@ fn hold_items(
         });
     }
     commands.entity(root).try_insert(Holding(want));
+}
+
+/// Dresses the own character in the outfit for its applied body armour: the outfit part
+/// is swapped for the other file and tint (its bones bind again when it spawns).
+fn wear_armour(
+    mut commands: Commands,
+    inv: Res<Inv>,
+    own_look: Res<OwnLook>,
+    server: Res<AssetServer>,
+    own: Query<(Entity, Option<&Wearing>), With<OwnCharacter>>,
+    outfits: Query<(Entity, &ChildOf, &Transform, &Visibility, &SkinTint), With<OutfitPart>>,
+) {
+    let Ok((root, wearing)) = own.single() else { return };
+    let want = Wearing(worn(&inv.0.carried()));
+    // A new character starts in its own clothes: nothing to swap.
+    if wearing.map_or(want.0.is_none(), |w| *w == want) {
+        if wearing.is_none() {
+            commands.entity(root).try_insert(want);
+        }
+        return;
+    }
+    let Some((old, _, &t, &vis, skin)) = outfits.iter().find(|o| o.1.parent() == root) else { return };
+    let (garb, tint) = want.0.unwrap_or((Garb::Peasant, tints(&own_look.look).clothes));
+    let file = outfit_file(own_look.body, garb);
+    let scene = server.load(GltfAssetLabel::Scene(0).from_asset(format!("models/{file}")));
+    let [r, g, b] = tint;
+    commands.entity(old).try_despawn();
+    commands.spawn((WorldAssetRoot(scene), t, vis, ModelTint(Color::srgb(r, g, b)), SkinTint(skin.0), PartOf(root), ChildOf(root), OutfitPart));
+    commands.entity(root).try_insert(want);
 }
 
 /// A bone's own scale inside its body part (the armature may be scaled).
