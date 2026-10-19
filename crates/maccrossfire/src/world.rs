@@ -234,7 +234,8 @@ pub(crate) struct SkinTint(pub Color);
 
 #[derive(Resource, Default)]
 struct Textures {
-    images: HashMap<u16, (Handle<Image>, Vec2)>,
+    /// Each picture, its size, and its average colour (for the sides of raised squares).
+    images: HashMap<u16, (Handle<Image>, Vec2, Color)>,
     ground: Handle<Mesh>,
     cube: Handle<Mesh>,
     card: Handle<Mesh>,
@@ -288,6 +289,22 @@ fn camera_transform(focus: Vec3, distance: f32, yaw: f32, pitch: f32, side: f32,
     Transform::from_translation(camera_eye(focus, distance, yaw, pitch, side)).looking_at(target, Vec3::Y)
 }
 
+/// The average colour of the opaque pixels of RGBA8 (sRGB) data; grey when none are.
+fn mean_colour(rgba: &[u8]) -> Color {
+    let (mut sum, mut n) = ([0u64; 3], 0u64);
+    for px in rgba.chunks_exact(4).filter(|px| px[3] >= 128) {
+        for i in 0..3 {
+            sum[i] += px[i] as u64;
+        }
+        n += 1;
+    }
+    if n == 0 {
+        return Color::srgb(0.5, 0.5, 0.5);
+    }
+    let c = |i: usize| sum[i] as f32 / n as f32 / 255.0;
+    Color::srgb(c(0), c(1), c(2))
+}
+
 /// Turns newly arrived face PNGs into GPU images.
 fn load_textures(
     mut faces: ResMut<Faces>,
@@ -308,7 +325,8 @@ fn load_textures(
         match image {
             Ok(image) if usable_size(image.size()) => {
                 let size = image.size().as_vec2();
-                textures.images.insert(num, (images.add(image), size));
+                let mean = mean_colour(image.data.as_deref().unwrap_or_default());
+                textures.images.insert(num, (images.add(image), size, mean));
             }
             Ok(image) => warn!("face {num}: size {} is too big, skipped", image.size()),
             Err(e) => {
@@ -394,7 +412,7 @@ fn sync_visuals(
             *join = *m;
         }
         if let Visual::Building { .. } = models.map.lookup(name_of(*face)) {
-            let (w, h) = textures.images.get(face).map_or((1, 1), |(_, s)| footprint(s.x as u32, s.y as u32));
+            let (w, h) = textures.images.get(face).map_or((1, 1), |(_, s, _)| footprint(s.x as u32, s.y as u32));
             let squares: Vec<(i32, i32)> = (0..h as i32).flat_map(|dy| (0..w as i32).map(move |dx| (*x - dx, *y - dy))).collect();
             // The building the player stands in is hidden (`hide_entered`), so it never blocks.
             if !squares.contains(&player) {
@@ -427,7 +445,7 @@ fn sync_visuals(
     }
 
     for ((x, y, layer), (face, darkness, join)) in want {
-        let Some((image, size)) = textures.images.get(&face) else { continue };
+        let Some((image, size, mean)) = textures.images.get(&face) else { continue };
         let name = name_of(face);
         let h = heights.get(&(x, y)).copied().unwrap_or(0.0);
         let shade = darkness as f32 / 255.0;
@@ -600,10 +618,22 @@ fn sync_visuals(
             let mut e = commands.spawn((tv, Mesh3d(textures.ground.clone()), MeshMaterial3d(material.clone()), t));
             // Raised and sunken squares (hills, sea) need sides, or they float over a gap:
             // a block under every ground square reaches down below the lowest ground.
+            // Under a 3D model (mountains, hills) the sides are the picture's average
+            // colour: the stretched pixels did not blend into the model.
             if !flat {
                 let depth = h - GROUND_BOTTOM;
                 let side = Transform::from_xyz(0.0, -depth / 2.0 - 0.002, 0.0).with_scale(Vec3::new(1.0, depth, 1.0));
-                e.with_child((Mesh3d(textures.cube.clone()), MeshMaterial3d(material), side));
+                let side_material = if model.is_some() {
+                    let c = mean.to_srgba();
+                    materials.add(StandardMaterial {
+                        base_color: Color::srgb(c.red * shade, c.green * shade, c.blue * shade),
+                        perceptual_roughness: 0.9,
+                        ..default()
+                    })
+                } else {
+                    material
+                };
+                e.with_child((Mesh3d(textures.cube.clone()), MeshMaterial3d(side_material), side));
             }
             // Trees and rocks on ground squares stand on the ground tile.
             if let (Some((file, t, tint)), false) = (model, flat) {
@@ -1019,6 +1049,13 @@ fn despawn_visuals(mut commands: Commands, q: Query<Entity, With<TileVisual>>) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn mean_colour_skips_see_through_pixels() {
+        let px = [255, 0, 0, 255, 0, 0, 255, 255, 0, 255, 0, 0];
+        assert_eq!(mean_colour(&px), Color::srgb(0.5, 0.0, 0.5));
+        assert_eq!(mean_colour(&[]), Color::srgb(0.5, 0.5, 0.5));
+    }
 
     #[test]
     fn huge_or_empty_images_rejected() {
