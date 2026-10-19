@@ -611,6 +611,36 @@ bird_gen model nature/DeadTree_2.gltf 0.2 0 0
 bee_gen model nature/DeadTree_3.gltf 0.2 0 0
 pixie_gen model nature/TwistedTree_1.gltf 0.18 0 0
 
+# --- Odd things (misc/) ---
+boulder model hexagon/rock_single_E.gltf 2.2 0 0
+rock model hexagon/rock_single_C.gltf 2.0 0 0
+t_rock model hexagon/rock_single_D.gltf 2.0 0 0
+rubble1 model kaykit/rubble_large.gltf 0.12 0 0
+pillars model kaykit/pillar.gltf 0.4 0 0
+close_keys model kaykit/keyring.gltf 0.3 0 0
+plate model props/Table_Plate.gltf 1.2 0 0
+cplate model props/Table_Plate.gltf 1.2 0 0 1.0,0.8,0.5
+wplate model props/Table_Plate.gltf 1.2 0 0 1.3,1.3,1.3
+fork model props/Table_Fork.gltf 1.5 30 0.01
+knife model props/Table_Knife.gltf 1.5 30 0.01
+spoon model props/Table_Spoon.gltf 1.5 30 0.01
+campfire_out building campfire_out
+fire building campfire
+broken_gravestone building grave
+gravestone2 building grave
+sarcophagus building coffin
+close_sarcophagus building coffin
+marble_coffin_container_* building coffin
+blood flat
+penta flat
+point_* flat
+stone_black flat
+stone_white flat
+b-draughts flat
+b-king-draughts flat
+r-draughts flat
+r-king-draughts flat
+
 # --- Small items, made from their pictures (experiments/sprite3d/auto.py: Hunyuan3D-2mini +
 # clean-up; inflated voxels for foot, mint, topaz). Half the size of the picture card. ---
 a_helmet model auto/a_helmet.glb 0.5 0 0
