@@ -292,7 +292,7 @@ fn camera_transform(focus: Vec3, distance: f32, yaw: f32, pitch: f32, side: f32,
 /// The average colour of the opaque pixels of RGBA8 (sRGB) data; grey when none are.
 fn mean_colour(rgba: &[u8]) -> Color {
     let (mut sum, mut n) = ([0u64; 3], 0u64);
-    for px in rgba.chunks_exact(4).filter(|px| px[3] >= 128) {
+    for px in rgba.as_chunks::<4>().0.iter().filter(|px| px[3] >= 128) {
         for i in 0..3 {
             sum[i] += px[i] as u64;
         }
