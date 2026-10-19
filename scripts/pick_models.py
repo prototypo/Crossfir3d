@@ -71,9 +71,11 @@ PICK = [
     ("props", "fantasy-props-megakit/License_Standard.txt", [f"{PROPS}/{n}.gltf" for n in [
         "Chest_Wood", "Key_Gold", "Key_Metal", "Chair_1", "Stool", "Table_Large",
         "Bag", "Pouch_Large", "Bookcase_2", "Crate_Wooden", "Cauldron", "Workbench", "Cabinet", "Barrel",
-        "CandleStick_Stand",
+        "CandleStick_Stand", "Table_Fork", "Table_Knife", "Table_Spoon", "Table_Plate",
     ]]),
-    ("kaykit", "kaykit-dungeon-remastered/License.txt", [f"{KAYKIT}/{n}.gltf" for n in ["stairs", "torch", "torch_lit"]]),
+    ("kaykit", "kaykit-dungeon-remastered/License.txt", [f"{KAYKIT}/{n}.gltf" for n in [
+        "stairs", "torch", "torch_lit", "rubble_large", "pillar", "keyring",
+    ]]),
     ("hexagon", "kaykit-medieval-hexagon/License.txt", [f"{HEX}/{n}.gltf" for n in [
         "decoration/nature/mountain_A", "decoration/nature/mountain_B", "decoration/nature/mountain_C",
         "decoration/nature/hills_A", "decoration/nature/hills_C", "buildings/blue/building_well_blue",
