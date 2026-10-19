@@ -206,6 +206,31 @@ def copy_model(src: pathlib.Path, dest: pathlib.Path):
     (dest / src.name).write_text(json.dumps(g))
 
 
+# Grey copies of outfits for metal armour (a tint can only darken the green cloth):
+# the copy uses a grey version of the base colour texture.
+GREY = {"Male_Ranger.gltf": "Male_Ranger_Metal.gltf", "Female_Ranger.gltf": "Female_Ranger_Metal.gltf"}
+GREY_PROFILES = "/System/Library/ColorSync/Profiles"
+
+
+def grey_copies(dest: pathlib.Path):
+    """Writes each GREY copy next to its outfit, with its base colour texture in grey."""
+    for name, copy in GREY.items():
+        if not (dest / name).is_file():
+            continue
+        g = json.loads((dest / name).read_text())
+        for im in g["images"]:
+            uri = im["uri"]
+            if uri.startswith("T_Ranger") and uri.endswith("_BaseColor.png"):
+                grey = uri.replace("_BaseColor", "_Metal_BaseColor")
+                if not (dest / grey).is_file():
+                    # To grey and back to RGB, so the PNG keeps three colour channels.
+                    for profile, src in (("Generic Gray Profile.icc", uri), ("sRGB Profile.icc", grey)):
+                        subprocess.run(["sips", "-m", f"{GREY_PROFILES}/{profile}", str(dest / src), "--out", str(dest / grey)],
+                                       check=True, capture_output=True)
+                im["uri"] = grey
+        (dest / copy).write_text(json.dumps(g))
+
+
 def main():
     total = 0
     for folder, licence, files in PICK:
@@ -216,6 +241,7 @@ def main():
         shutil.copy2(PACKS / licence, dest / "LICENSE.txt")
         for rel in files:
             copy_model(PACKS / rel, dest)
+        grey_copies(dest)
         pngs = [str(f) for f in dest.rglob("*.png")]
         if pngs:  # macOS sips; only shrinks, never enlarges
             subprocess.run(["sips", "-Z", str(MAX_TEXTURE), *pngs], check=True, capture_output=True)
