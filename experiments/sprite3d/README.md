@@ -55,3 +55,16 @@ the folder. `catalog.py test` checks the pilot's verdicts still come out.
 ```sh
 python3 -I experiments/sprite3d/catalog.py samples
 ```
+
+## Making the `auto` group
+
+```sh
+python3 -I experiments/sprite3d/auto.py
+```
+
+One model per thing in the `auto` group (572), in `assets/models/experiment/auto/`:
+`hunyuan/` (Hunyuan3D-2mini + clean-up, decimated to about 20,000 faces) and
+`inflate/` (the voxel fallback). The AI models load once for the whole batch, and
+FlashVDM decoding makes the shape step about 4x faster with the same shapes: about
+20 s per thing, about 3 hours in all. A stopped run carries on where it was;
+progress is in `progress.txt` there.

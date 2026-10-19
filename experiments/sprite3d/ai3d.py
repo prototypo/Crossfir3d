@@ -8,9 +8,10 @@ Engines:
            texture painter needs CUDA); vertex colours come from a front planar projection of the input.
 --cleanup: Real-ESRGAN RealESRGAN_x4plus_anime_6B (BSD-3) via spandrel, weights in upstream/weights.
 
-  .venv/bin/python ai3d.py --engine triposr [--cleanup] IN.png OUT.glb
+  .venv/bin/python ai3d.py --engine triposr [--cleanup] [--faces N] IN.png OUT.glb
+  .venv/bin/python ai3d.py --engine hunyuan --cleanup --faces 20000 --batch LIST   (LIST: `IN OUT` lines)
 """
-import argparse, os, sys, time, types
+import argparse, functools, os, sys, time, types
 from pathlib import Path
 
 UP = Path(__file__).resolve().parents[2] / "upstream"
@@ -27,13 +28,18 @@ SIZE, RATIO = 512, 0.85
 DEV = "mps" if torch.backends.mps.is_available() else "cpu"
 
 
+@functools.cache
+def esrgan():
+    from spandrel import ModelLoader
+    return ModelLoader().load_from_file(UP / "weights/RealESRGAN_x4plus_anime_6B.pth").to(DEV).eval()
+
+
 def upscale(rgba, cleanup, bg):
     a = rgba.getchannel("A")
     if not cleanup:
         k = SIZE // max(rgba.size)
         return rgba.resize((rgba.width * k, rgba.height * k), Image.NEAREST)
-    from spandrel import ModelLoader
-    sr = ModelLoader().load_from_file(UP / "weights/RealESRGAN_x4plus_anime_6B.pth").to(DEV).eval()
+    sr = esrgan()
     rgb = Image.new("RGB", rgba.size, bg)
     rgb.paste(rgba, mask=a)  # transparent pixels -> background so ESRGAN sees no junk colours
     x = torch.from_numpy(np.asarray(rgb, np.float32) / 255).permute(2, 0, 1)[None].to(DEV)
@@ -87,13 +93,20 @@ def triposr(rgba, flat):
     return to_gradio_3d_orientation(mesh)
 
 
-def hunyuan(rgba, flat):
+@functools.cache
+def hunyuan_pipe():
     sys.path.insert(0, str(UP / "Hunyuan3D-2"))
     from hy3dgen.shapegen import Hunyuan3DDiTFlowMatchingPipeline
     pipe = Hunyuan3DDiTFlowMatchingPipeline.from_pretrained(
         "tencent/Hunyuan3D-2mini", subfolder="hunyuan3d-dit-v2-mini", variant="fp16",
         device=DEV, dtype=torch.float16 if DEV == "mps" else torch.float32)
-    mesh = pipe(image=rgba, num_inference_steps=30, octree_resolution=256, num_chunks=20000,
+    # FlashVDM (turbo VAE, hierarchical decoding): same shapes, ~80 s -> ~20 s per object here.
+    pipe.enable_flashvdm()
+    return pipe
+
+
+def hunyuan(rgba, flat):
+    mesh = hunyuan_pipe()(image=rgba, num_inference_steps=30, octree_resolution=256, num_chunks=20000,
                 generator=torch.manual_seed(0), output_type="trimesh")[0]
     # Front planar projection: mesh x/y bbox -> sprite alpha bbox. Transparent pixels take the
     # nearest opaque colour so edges don't pick up background.
@@ -113,17 +126,43 @@ def hunyuan(rgba, flat):
 
 ENGINES = {"triposr": (triposr, (128, 128, 128)), "hunyuan": (hunyuan, (255, 255, 255))}
 
+def decimate(mesh, faces):
+    """Quadric edge collapse (MeshLab) down to about `faces` triangles, keeping vertex colours."""
+    import pymeshlab
+    if len(mesh.faces) <= faces or not hasattr(mesh.visual, "vertex_colors"):
+        return mesh
+    ms = pymeshlab.MeshSet()
+    ms.add_mesh(pymeshlab.Mesh(mesh.vertices, mesh.faces, v_color_matrix=mesh.visual.vertex_colors / 255.0))
+    ms.meshing_decimation_quadric_edge_collapse(targetfacenum=faces, preservenormal=True)
+    m = ms.current_mesh()
+    colours = (m.vertex_color_matrix() * 255).round().astype(np.uint8)
+    return trimesh.Trimesh(m.vertex_matrix(), m.face_matrix(), vertex_colors=colours, process=False)
+
+
+def convert(engine, cleanup, faces, inp, out):
+    run, bg = ENGINES[engine]
+    t = time.time()
+    rgba, flat = preprocess(inp, cleanup, bg)
+    flat.save(Path(out).with_suffix(".input.png"))
+    mesh = run(rgba, flat)
+    if faces:
+        mesh = decimate(mesh, faces)
+    mesh.export(out)
+    print(f"{out}: {len(mesh.vertices)} verts, {len(mesh.faces)} faces, {time.time() - t:.1f}s", flush=True)
+
+
 if __name__ == "__main__":
     ap = argparse.ArgumentParser()
     ap.add_argument("--engine", choices=ENGINES, required=True)
     ap.add_argument("--cleanup", action="store_true")
-    ap.add_argument("inp")
-    ap.add_argument("out")
+    ap.add_argument("--faces", type=int, default=0, help="decimate to about this many triangles")
+    ap.add_argument("--batch", help="file of `IN OUT` lines; the models load once for all of them")
+    ap.add_argument("inp", nargs="?")
+    ap.add_argument("out", nargs="?")
     a = ap.parse_args()
-    run, bg = ENGINES[a.engine]
-    t = time.time()
-    rgba, flat = preprocess(a.inp, a.cleanup, bg)
-    flat.save(Path(a.out).with_suffix(".input.png"))
-    mesh = run(rgba, flat)
-    mesh.export(a.out)
-    print(f"{a.out}: {len(mesh.vertices)} verts, {len(mesh.faces)} faces, {time.time() - t:.1f}s")
+    jobs = [line.split() for line in open(a.batch) if line.strip()] if a.batch else [(a.inp, a.out)]
+    for inp, out in jobs:
+        try:
+            convert(a.engine, a.cleanup, a.faces, inp, out)
+        except Exception as e:  # one bad picture must not stop an overnight batch
+            print(f"{out}: FAILED {e!r}", flush=True)
