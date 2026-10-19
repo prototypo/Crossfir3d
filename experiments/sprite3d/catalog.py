@@ -203,7 +203,8 @@ def classify(face, users, maps, size, folder):
         return "existing", "player character (3D bodies)"
     if face.startswith(("spell_", "skill_", "prayer_")):
         return "skip", "a spell or skill icon"
-    if any(u.get("generator") == "1" for u in users):
+    # A monster that multiplies (centipede, slime) is a generator too, but a creature.
+    if any(u.get("generator") == "1" and u.get("monster") != "1" for u in users):
         return "scratch", "a monster generator (a building or object)"
     if folder.split(os.sep)[0] in FOLDER_FIRST:
         group, why = FOLDER_FIRST[folder.split(os.sep)[0]]
@@ -289,10 +290,11 @@ def sheets(rows):
 
 
 def test():
-    """The pilot's verdicts (RESULTS.md) still come out of the rules."""
-    want = {"sword_1.111": "auto", "ring.111": "auto", "ruby.111": "auto", "goblin_head.111": "auto",
+    """The pilot's verdicts (RESULTS.md) still come out of the rules. The pilot's auto items
+    now have models (auto.py, models.txt), so they count as existing."""
+    want = {"sword_1.111": "existing", "ring.111": "existing", "ruby.111": "existing", "goblin_head.111": "existing",
             "baby_drag.111": "rigged", "book_clasp.111": "scratch", "statue.111": "existing",
-            "grass.111": "flat", "bat_gen.111": "scratch", "spell_aggravation.111": "skip",
+            "grass.111": "flat", "skull_gen.111": "scratch", "centipede.111": "rigged", "spell_aggravation.111": "skip",
             "mb_lavawell.111": "skip", "stwall_0.111": "existing"}
     got = {r[0]: r[4] for r in catalog()}
     bad = {f: (got.get(f), g) for f, g in want.items() if got.get(f) != g}
