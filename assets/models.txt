@@ -308,34 +308,79 @@ key_magenta model props/Key_Metal.gltf 2.0 30 0.01 1.0,0.4,1.0
 key_red model props/Key_Metal.gltf 2.0 30 0.01 1.0,0.4,0.4
 chair* model props/Chair_1.gltf 0.5 0 0
 chair_3 model props/Stool.gltf 0.5 0 0
-chair_1.101 180 model props/Chair_1.gltf 0.5  0
-chair_1.111 90 model props/Chair_1.gltf 0.5  0
-chair_1.121 0 model props/Chair_1.gltf 0.5  0
-chair_1.131 270 model props/Chair_1.gltf 0.5  0
-chair_2.101 180 model props/Chair_1.gltf 0.5  0
-chair_2.111 90 model props/Chair_1.gltf 0.5  0
-chair_2.121 0 model props/Chair_1.gltf 0.5  0
-chair_2.131 270 model props/Chair_1.gltf 0.5  0
-chair_bc_2.101 180 model props/Chair_1.gltf 0.5  0
-chair_bc_2.111 90 model props/Chair_1.gltf 0.5  0
-chair_bc_2.121 0 model props/Chair_1.gltf 0.5  0
-chair_bc_2.131 270 model props/Chair_1.gltf 0.5  0
-chair_cw_1.101 180 model props/Chair_1.gltf 0.5  0
-chair_cw_1.111 90 model props/Chair_1.gltf 0.5  0
-chair_cw_1.121 0 model props/Chair_1.gltf 0.5  0
-chair_cw_1.131 270 model props/Chair_1.gltf 0.5  0
-chair_gv_1.101 180 model props/Chair_1.gltf 0.5  0
-chair_gv_1.111 90 model props/Chair_1.gltf 0.5  0
-chair_gv_1.121 0 model props/Chair_1.gltf 0.5  0
-chair_gv_1.131 270 model props/Chair_1.gltf 0.5  0
-chair_wv_1.101 180 model props/Chair_1.gltf 0.5  0
-chair_wv_1.111 90 model props/Chair_1.gltf 0.5  0
-chair_wv_1.121 0 model props/Chair_1.gltf 0.5  0
-chair_wv_1.131 270 model props/Chair_1.gltf 0.5  0
+chair_1.101 model props/Chair_1.gltf 0.5 180 0
+chair_1.111 model props/Chair_1.gltf 0.5 90 0
+chair_1.121 model props/Chair_1.gltf 0.5 0 0
+chair_1.131 model props/Chair_1.gltf 0.5 270 0
+chair_2.101 model props/Chair_1.gltf 0.5 180 0
+chair_2.111 model props/Chair_1.gltf 0.5 90 0
+chair_2.121 model props/Chair_1.gltf 0.5 0 0
+chair_2.131 model props/Chair_1.gltf 0.5 270 0
+chair_bc_2.101 model props/Chair_1.gltf 0.5 180 0
+chair_bc_2.111 model props/Chair_1.gltf 0.5 90 0
+chair_bc_2.121 model props/Chair_1.gltf 0.5 0 0
+chair_bc_2.131 model props/Chair_1.gltf 0.5 270 0
+chair_cw_1.101 model props/Chair_1.gltf 0.5 180 0
+chair_cw_1.111 model props/Chair_1.gltf 0.5 90 0
+chair_cw_1.121 model props/Chair_1.gltf 0.5 0 0
+chair_cw_1.131 model props/Chair_1.gltf 0.5 270 0
+chair_gv_1.101 model props/Chair_1.gltf 0.5 180 0
+chair_gv_1.111 model props/Chair_1.gltf 0.5 90 0
+chair_gv_1.121 model props/Chair_1.gltf 0.5 0 0
+chair_gv_1.131 model props/Chair_1.gltf 0.5 270 0
+chair_wv_1.101 model props/Chair_1.gltf 0.5 180 0
+chair_wv_1.111 model props/Chair_1.gltf 0.5 90 0
+chair_wv_1.121 model props/Chair_1.gltf 0.5 0 0
+chair_wv_1.131 model props/Chair_1.gltf 0.5 270 0
 table* model props/Table_Large.gltf 0.35 0 0
 table_2x1 model props/Table_Large.gltf 0.6 0 0
 table_1x2 model props/Table_Large.gltf 0.6 90 0
 table_2x2 model props/Table_Large.gltf 0.65 0 0
+# Containers (scratch group, kit first)
+closechest model props/Chest_Wood.gltf 0.45 0 0
+schest model props/Chest_Wood.gltf 0.3 0 0
+close_schest model props/Chest_Wood.gltf 0.3 0 0
+luggage model props/Chest_Wood.gltf 0.35 0 0
+attache model props/Chest_Wood.gltf 0.25 0 0 0.5,0.35,0.25
+close_attache model props/Chest_Wood.gltf 0.25 0 0 0.5,0.35,0.25
+bag model props/Bag.gltf 0.5 0 0
+bag_holding model props/Bag.gltf 0.5 0 0 0.8,0.6,1.0
+close_bag model props/Bag.gltf 0.5 0 0
+sack model props/Bag.gltf 0.6 0 0
+close_sack model props/Bag.gltf 0.6 0 0
+r_sack model props/Bag.gltf 0.5 0 0 0.7,0.5,0.4
+close_rsack model props/Bag.gltf 0.5 0 0 0.7,0.5,0.4
+pouch model props/Pouch_Large.gltf 1.5 0 0
+close_pouc model props/Pouch_Large.gltf 1.5 0 0
+bookshelf model props/Bookcase_2.gltf 0.45 0 0
+bookshelf2 model props/Bookcase_2.gltf 0.45 0 0
+carton_box_1* model props/Crate_Wooden.gltf 0.4 0 0 1.1,0.9,0.7
+package model props/Crate_Wooden.gltf 0.25 0 0 1.1,0.9,0.7
+close_dbox model props/Crate_Wooden.gltf 0.3 0 0
+present_box_1 model props/Crate_Wooden.gltf 0.3 0 0 1.0,0.4,0.4
+present_box_2 model props/Crate_Wooden.gltf 0.3 0 0 0.5,0.6,1.0
+present_box_3 model props/Crate_Wooden.gltf 0.3 0 0 0.5,1.0,0.5
+present_box_4 model props/Crate_Wooden.gltf 0.3 0 0 1.2,1.0,0.4
+present_box_5 model props/Crate_Wooden.gltf 0.3 0 0 1.0,0.6,1.0
+present_box_6 model props/Crate_Wooden.gltf 0.3 0 0 0.5,1.0,1.0
+close_present_box_1 model props/Crate_Wooden.gltf 0.3 0 0 1.0,0.4,0.4
+close_present_box_2 model props/Crate_Wooden.gltf 0.3 0 0 0.5,0.6,1.0
+close_present_box_3 model props/Crate_Wooden.gltf 0.3 0 0 0.5,1.0,0.5
+close_present_box_4 model props/Crate_Wooden.gltf 0.3 0 0 1.2,1.0,0.4
+close_present_box_5 model props/Crate_Wooden.gltf 0.3 0 0 1.0,0.6,1.0
+close_present_box_6 model props/Crate_Wooden.gltf 0.3 0 0 0.5,1.0,1.0
+cauldron model props/Cauldron.gltf 0.5 0 0
+desk* model props/Table_Large.gltf 0.3 0 0
+close_desk* model props/Table_Large.gltf 0.3 0 0
+wizdesk model props/Table_Large.gltf 0.3 0 0 0.8,0.7,1.0
+close_wizdesk model props/Table_Large.gltf 0.3 0 0 0.8,0.7,1.0
+thaumaturg_desk model props/Table_Large.gltf 0.3 0 0 0.8,0.7,1.0
+dresser* model props/Cabinet.gltf 0.5 0 0
+close_dresser* model props/Cabinet.gltf 0.5 0 0
+workbench model props/Workbench.gltf 0.35 0 0
+tanbench model props/Workbench.gltf 0.35 0 0
+jeweler_bench model props/Workbench.gltf 0.35 0 0
+barrel model props/Barrel.gltf 0.6 0 0
 
 # --- Clocks and levers (no free model; built from shapes in code) ---
 # A lever's frame .111 is off (leans east), .112 is pulled (leans west).
@@ -431,26 +476,46 @@ large_hdoor model castle/door.glb 2.2 90 0
 large_vdoor model castle/door.glb 2.2 0 0
 ldoor1 model castle/door.glb 2.2 90 0 0.7,0.7,0.75
 ldoor2 model castle/door.glb 2.2 0 0 0.7,0.7,0.75
-ldoor_blue 0.5,0.6,1.01 model castle/door.glb 2.2 90 0 
-ldoor_blue 0.5,0.6,1.02 model castle/door.glb 2.2 0 0 
-ldoor_brown 0.7,0.5,0.31 model castle/door.glb 2.2 90 0 
-ldoor_brown 0.7,0.5,0.32 model castle/door.glb 2.2 0 0 
-ldoor_darkgray 0.4,0.4,0.41 model castle/door.glb 2.2 90 0 
-ldoor_darkgray 0.4,0.4,0.42 model castle/door.glb 2.2 0 0 
-ldoor_darkgreen 0.3,0.6,0.31 model castle/door.glb 2.2 90 0 
-ldoor_darkgreen 0.3,0.6,0.32 model castle/door.glb 2.2 0 0 
-ldoor_green 0.5,1.0,0.51 model castle/door.glb 2.2 90 0 
-ldoor_green 0.5,1.0,0.52 model castle/door.glb 2.2 0 0 
-ldoor_magenta 1.0,0.4,1.01 model castle/door.glb 2.2 90 0 
-ldoor_magenta 1.0,0.4,1.02 model castle/door.glb 2.2 0 0 
-ldoor_red 1.0,0.4,0.41 model castle/door.glb 2.2 90 0 
-ldoor_red 1.0,0.4,0.42 model castle/door.glb 2.2 0 0 
-ldoor_white 1.4,1.4,1.41 model castle/door.glb 2.2 90 0 
-ldoor_white 1.4,1.4,1.42 model castle/door.glb 2.2 0 0 
+ldoor_blue1 model castle/door.glb 2.2 90 0 0.5,0.6,1.0
+ldoor_blue2 model castle/door.glb 2.2 0 0 0.5,0.6,1.0
+ldoor_brown1 model castle/door.glb 2.2 90 0 0.7,0.5,0.3
+ldoor_brown2 model castle/door.glb 2.2 0 0 0.7,0.5,0.3
+ldoor_darkgray1 model castle/door.glb 2.2 90 0 0.4,0.4,0.4
+ldoor_darkgray2 model castle/door.glb 2.2 0 0 0.4,0.4,0.4
+ldoor_darkgreen1 model castle/door.glb 2.2 90 0 0.3,0.6,0.3
+ldoor_darkgreen2 model castle/door.glb 2.2 0 0 0.3,0.6,0.3
+ldoor_green1 model castle/door.glb 2.2 90 0 0.5,1.0,0.5
+ldoor_green2 model castle/door.glb 2.2 0 0 0.5,1.0,0.5
+ldoor_magenta1 model castle/door.glb 2.2 90 0 1.0,0.4,1.0
+ldoor_magenta2 model castle/door.glb 2.2 0 0 1.0,0.4,1.0
+ldoor_red1 model castle/door.glb 2.2 90 0 1.0,0.4,0.4
+ldoor_red2 model castle/door.glb 2.2 0 0 1.0,0.4,0.4
+ldoor_white1 model castle/door.glb 2.2 90 0 1.4,1.4,1.4
+ldoor_white2 model castle/door.glb 2.2 0 0 1.4,1.4,1.4
 # Oak doors are the other way round: `odoor_1` spans north-south, `odoor_2` east-west.
 odoor_1* model castle/door.glb 2.2 0 0
 odoor_2* model castle/door.glb 2.2 90 0
 oakdoor_2 model castle/door.glb 2.2 90 0
+# Doors that a lever opens (connect/Doors): frame 111 and frame 114 face different ways;
+# the frames between are half open. A wide picture spans east-west (rot 90).
+wdoor* model castle/door.glb 2.2 45 0
+wdoor.111 model castle/door.glb 2.2 0 0
+wdoor.114 model castle/door.glb 2.2 90 0
+sdoor* model castle/door.glb 2.2 45 0 0.7,0.7,0.75
+sdoor.111 model castle/door.glb 2.2 0 0 0.7,0.7,0.75
+sdoor.114 model castle/door.glb 2.2 90 0 0.7,0.7,0.75
+mvsdoor model castle/door.glb 2.2 0 0 0.7,0.7,0.75
+mvwdoor model castle/door.glb 2.2 0 0
+odoorm2* model castle/door.glb 2.2 45 0 0.6,0.4,0.35
+odoorm2.111 model castle/door.glb 2.2 90 0 0.6,0.4,0.35
+odoorm2bg.111 model castle/door.glb 2.2 90 0 0.6,0.4,0.35
+odoorm2rw.111 model castle/door.glb 2.2 90 0 0.6,0.4,0.35
+odoorm2.114 model castle/door.glb 2.2 0 0 0.6,0.4,0.35
+odoorm2bg.114 model castle/door.glb 2.2 0 0 0.6,0.4,0.35
+odoorm2rw.114 model castle/door.glb 2.2 0 0 0.6,0.4,0.35
+odoorn2* model castle/door.glb 2.2 45 0
+odoorn2.111 model castle/door.glb 2.2 90 0
+odoorn2.114 model castle/door.glb 2.2 0 0
 
 # --- Small items, made from their pictures (experiments/sprite3d/auto.py: Hunyuan3D-2mini +
 # clean-up; inflated voxels for foot, mint, topaz). Half the size of the picture card. ---
