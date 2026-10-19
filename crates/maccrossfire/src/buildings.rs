@@ -59,12 +59,13 @@ const GABLE_Y: f32 = 0.75;
 /// square in front of it, where they step out to.
 const DOORSTEP: f32 = 0.5;
 
-pub const RECIPES: [&str; 43] = [
+pub const RECIPES: [&str; 45] = [
     "cottage", "house", "tavern", "barn", "temple", "tower", "castle", "shop", "well", "fountain", "signpost", "crossroads",
     "noticeboard", "lamppost", "clock", "lever", "lever_pulled", "ladder_down", "altar", "altar_green", "altar_black",
     "altar_red", "altar_white", "altar_blue", "brazier", "brazier_unlit", "lantern", "lantern_off",
     "torch", "torch_cyan", "torch_indigo", "torch_vermilion", "tikitorch", "mountain1", "mountain2", "mountain3",
     "mountain4", "mountain5", "grave", "coffin", "lair", "nest", "portal",
+    "campfire", "campfire_out",
 ];
 pub const WALL_STYLES: [&str; 6] = ["stone", "brick", "plaster", "wood", "hedge", "rock"];
 
@@ -170,6 +171,8 @@ pub fn parts(recipe: &str, w: u32, h: u32) -> Option<Vec<Part>> {
         "torch_indigo" => Some(torch(0.6, [0.5, 0.4, 1.0])),
         "torch_vermilion" => Some(torch(0.6, [1.0, 0.35, 0.2])),
         "tikitorch" => Some(torch(0.9, FLAME)),
+        "campfire" => Some(campfire(true)),
+        "campfire_out" => Some(campfire(false)),
         "grave" => Some(grave()),
         "coffin" => Some(coffin()),
         "lair" => Some(lair()),
@@ -464,6 +467,23 @@ fn mountain(file: &'static str, yaw: f32, scale: f32, seed: u32) -> Vec<Part> {
 }
 
 const DIRT: [f32; 3] = [0.35, 0.25, 0.15];
+
+/// A ring of stones round crossed logs; lit, a fire burns on them and lights round it.
+fn campfire(lit: bool) -> Vec<Part> {
+    let mut out: Vec<Part> = (0..8)
+        .map(|i| {
+            let a = (i as f32 * 45.0).to_radians();
+            cube([0.09, 0.06, 0.09], [a.sin() * 0.24, 0.03, a.cos() * 0.24], STONE)
+        })
+        .collect();
+    for yaw in [0.0, 60.0, 120.0] {
+        out.push(part(Shape::Box([0.05, 0.05, 0.36]), [0.0, 0.05, 0.0], yaw, [1.0; 3], Some(WOOD)));
+    }
+    if lit {
+        out.push(part(Shape::RoundLamp { radius: 0.1, height: 0.14 }, [0.0, 0.14, 0.0], 0.0, [1.0; 3], Some(FLAME)));
+    }
+    out
+}
 
 // Monster generators: where monsters come from.
 
