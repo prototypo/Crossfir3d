@@ -78,6 +78,8 @@ PICK = [
         "decoration/nature/mountain_A", "decoration/nature/mountain_B", "decoration/nature/mountain_C",
         "decoration/nature/hills_A", "decoration/nature/hills_C", "buildings/blue/building_well_blue",
         "decoration/props/wheelbarrow",
+        "decoration/nature/rock_single_B", "decoration/nature/rock_single_C", "decoration/nature/rock_single_D",
+        "decoration/nature/rock_single_E",
     ]]),
     # Paid (Source tier), Quaternius Asset License: fine in this private repo; the
     # licence forbids sharing the files themselves.
