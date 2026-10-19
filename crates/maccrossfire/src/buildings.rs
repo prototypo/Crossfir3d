@@ -485,10 +485,23 @@ fn teleporter() -> Vec<Part> {
 /// A dark blue ring standing on its edge round a blue glow, facing south.
 fn magic_portal() -> Vec<Part> {
     let standing = |shape, color| Part { yaw_deg: 90.0, tilt_deg: 90.0, ..part(shape, [0.0, 0.42, 0.0], 0.0, [1.0; 3], Some(color)) };
-    vec![
-        standing(Shape::Cylinder { radius: 0.4, height: 0.06 }, [0.12, 0.12, 0.45]),
-        standing(Shape::RoundLamp { radius: 0.33, height: 0.08 }, [0.25, 0.45, 1.0]),
-    ]
+    let mut out = vec![
+        standing(Shape::Cylinder { radius: 0.4, height: 0.05 }, [0.15, 0.1, 0.3]),
+        standing(Shape::RoundLamp { radius: 0.35, height: 0.06 }, [0.45, 0.25, 1.0]),
+    ];
+    // Three pale arms that curl in to the middle, like a whirlpool.
+    for arm in 0..3 {
+        for j in 0..13 {
+            let t = j as f32 / 12.0;
+            let (r, a) = (0.04 + 0.27 * t, arm as f32 * 120.0 + t * 220.0);
+            let (sin, cos) = a.to_radians().sin_cos();
+            out.push(Part {
+                tilt_deg: -(a + 90.0),
+                ..cube([0.04 + 0.09 * t, 0.02 + 0.025 * t, 0.09], [r * cos, 0.42 + r * sin, 0.0], [0.75, 0.9, 1.0])
+            });
+        }
+    }
+    out
 }
 
 /// A ring of stones round crossed logs; lit, a fire burns on them and lights round it.
