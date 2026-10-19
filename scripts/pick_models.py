@@ -70,8 +70,9 @@ PICK = [
     ("props", "fantasy-props-megakit/License_Standard.txt", [f"{PROPS}/{n}.gltf" for n in [
         "Chest_Wood", "Key_Gold", "Key_Metal", "Chair_1", "Stool", "Table_Large",
         "Bag", "Pouch_Large", "Bookcase_2", "Crate_Wooden", "Cauldron", "Workbench", "Cabinet", "Barrel",
+        "CandleStick_Stand",
     ]]),
-    ("kaykit", "kaykit-dungeon-remastered/License.txt", [f"{KAYKIT}/{n}.gltf" for n in ["stairs"]]),
+    ("kaykit", "kaykit-dungeon-remastered/License.txt", [f"{KAYKIT}/{n}.gltf" for n in ["stairs", "torch", "torch_lit"]]),
     # Paid (Source tier), Quaternius Asset License: fine in this private repo; the
     # licence forbids sharing the files themselves.
     ("monsters", "dungeon-monsters-kit-source/License_Source.txt", [f"{MONSTERS}/{n}.glb" for n in [

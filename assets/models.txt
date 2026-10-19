@@ -543,6 +543,38 @@ town_* flat
 oakdoor model castle/door.glb 2.2 90 0
 oakdoor_1 model castle/door.glb 2.2 0 0
 
+# --- Lights and altars. Altars are built from shapes, with a cloth in their god's colour. ---
+altar building altar
+altarnone building altar
+altargnarg building altar
+altarmostr building altar
+altarrugg building altar
+altarvalk building altar
+altargaea building altar_green
+altarlyth building altar_green
+altardevo building altar_black
+altargoro building altar_red
+altarvalr building altar_white
+altarixalovh building altar_blue
+altarsori building altar_blue
+brazier building brazier
+unlit_brazier building brazier_unlit
+firepot building brazier
+hangingfirepot building brazier
+lantern building lantern
+lantern2 building lantern
+lantern_off building lantern_off
+lantern2_off building lantern_off
+chandelier_2 model props/CandleStick_Stand.gltf 0.7 0 0
+chandelier_2_copper model props/CandleStick_Stand.gltf 0.7 0 0 1.0,0.6,0.4
+# KayKit torches stand 0.4 below their middle.
+torch_cyan model kaykit/torch_lit.gltf 0.6 0 0.24 0.5,1.0,1.0
+torch_indigo model kaykit/torch_lit.gltf 0.6 0 0.24 0.6,0.5,1.0
+torch_vermilion model kaykit/torch_lit.gltf 0.6 0 0.24 1.0,0.5,0.4
+torch_unlit model kaykit/torch.gltf 0.6 0 0.24
+tikitorch model kaykit/torch_lit.gltf 0.9 0 0.36
+unlit_tikitorch model kaykit/torch.gltf 0.9 0 0.36
+
 # --- Small items, made from their pictures (experiments/sprite3d/auto.py: Hunyuan3D-2mini +
 # clean-up; inflated voxels for foot, mint, topaz). Half the size of the picture card. ---
 a_helmet model auto/a_helmet.glb 0.5 0 0
