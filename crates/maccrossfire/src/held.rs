@@ -1,6 +1,7 @@
 //! What the player's character holds: a model for each applied weapon, bow, or shield,
 //! picked by the item's client type (the server's item kind) and name. The models are
-//! Quaternius' Medieval Weapons Pack, under `assets/models/weapons/`.
+//! Quaternius' Medieval Weapons Pack, under `assets/models/weapons/`. Also what it
+//! wears: an outfit and its colour for applied body armour.
 
 use cfproto::Item;
 
@@ -47,6 +48,42 @@ pub fn held(carried: &[&Item]) -> Vec<(&'static str, Hand)> {
     out
 }
 
+/// The free outfits: peasant clothes, a ranger's leathers, and the ranger outfit in grey
+/// (for metal, tinted to its colour).
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Garb {
+    Peasant,
+    Ranger,
+    Metal,
+}
+
+/// The outfit and tint for applied body armour (client types 250-257), or None: the
+/// character's own clothes. Metal armour is the grey ranger outfit tinted like its metal
+/// (above 1 brightens the grey); leather is the ranger outfit as made; robes, dresses,
+/// and aprons are peasant clothes in their colour.
+pub fn worn(carried: &[&Item]) -> Option<(Garb, [f32; 3])> {
+    let item = carried.iter().find(|i| i.applied() && (250..=257).contains(&i.kind))?;
+    let name = item.name.to_ascii_lowercase();
+    let has = |w: &str| name.contains(w);
+    let metal = |tint| Some((Garb::Metal, tint));
+    let peasant = |tint| Some((Garb::Peasant, tint));
+    match item.kind {
+        _ if has("robe") => peasant(if has("midnight") { [0.2, 0.2, 0.45] } else { [0.4, 0.3, 0.65] }),
+        250 => metal([1.6, 1.65, 1.8]),
+        251 if has("black") => metal([0.5, 0.5, 0.55]),
+        251 if has("blue") => metal([0.6, 0.8, 1.7]),
+        251 if has("green") => metal([0.6, 1.4, 0.6]),
+        251 => metal([1.5, 0.55, 0.45]),
+        252 if has("black") => metal([0.55, 0.55, 0.6]),
+        252 => metal([1.35, 1.38, 1.45]),
+        253 => metal([1.1, 1.12, 1.18]),
+        254 => Some((Garb::Ranger, [1.0, 1.0, 1.0])),
+        255 => peasant([0.8, 0.5, 0.65]),
+        257 => peasant([0.9, 0.9, 0.85]),
+        _ => peasant([0.6, 0.5, 0.35]),
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -90,6 +127,19 @@ mod tests {
             [("weapons/Sword.gltf", Hand::Right), ("weapons/Shield_Round.gltf", Hand::Left)]
         );
         assert!(held(&[&spare]).is_empty());
+    }
+
+    #[test]
+    fn worn_armour_picks_outfit_and_colour() {
+        let plate = item(252, "plate mail", true);
+        let spare = item(253, "chain mail", false);
+        let robe = item(256, "robe", true);
+        let sword = item(101, "sword", true);
+        assert_eq!(worn(&[&spare, &sword, &plate]), Some((Garb::Metal, [1.35, 1.38, 1.45])));
+        assert_eq!(worn(&[&item(254, "leather armour", true)]).map(|w| w.0), Some(Garb::Ranger));
+        assert_eq!(worn(&[&robe]).map(|w| w.0), Some(Garb::Peasant));
+        assert_eq!(worn(&[&item(251, "blue dragon mail", true)]), Some((Garb::Metal, [0.6, 0.8, 1.7])));
+        assert_eq!(worn(&[&spare, &sword]), None);
     }
 
     #[test]
