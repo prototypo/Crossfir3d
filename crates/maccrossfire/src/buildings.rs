@@ -57,9 +57,10 @@ const GABLE_Y: f32 = 0.75;
 /// square in front of it, where they step out to.
 const DOORSTEP: f32 = 0.5;
 
-pub const RECIPES: [&str; 18] = [
+pub const RECIPES: [&str; 28] = [
     "cottage", "house", "tavern", "barn", "temple", "tower", "castle", "shop", "well", "fountain", "signpost", "crossroads",
-    "noticeboard", "lamppost", "clock", "lever", "lever_pulled", "ladder_down",
+    "noticeboard", "lamppost", "clock", "lever", "lever_pulled", "ladder_down", "altar", "altar_green", "altar_black",
+    "altar_red", "altar_white", "altar_blue", "brazier", "brazier_unlit", "lantern", "lantern_off",
 ];
 pub const WALL_STYLES: [&str; 6] = ["stone", "brick", "plaster", "wood", "hedge", "rock"];
 
@@ -150,6 +151,16 @@ pub fn parts(recipe: &str, w: u32, h: u32) -> Option<Vec<Part>> {
         "lever" => Some(lever(35.0)),
         "lever_pulled" => Some(lever(-35.0)),
         "ladder_down" => Some(ladder_down()),
+        "altar" => Some(altar(None)),
+        "altar_green" => Some(altar(Some([0.15, 0.5, 0.2]))),
+        "altar_black" => Some(altar(Some([0.08, 0.08, 0.08]))),
+        "altar_red" => Some(altar(Some([0.6, 0.08, 0.06]))),
+        "altar_white" => Some(altar(Some([0.9, 0.9, 0.88]))),
+        "altar_blue" => Some(altar(Some([0.1, 0.25, 0.7]))),
+        "brazier" => Some(brazier(true)),
+        "brazier_unlit" => Some(brazier(false)),
+        "lantern" => Some(lantern(true)),
+        "lantern_off" => Some(lantern(false)),
         "castle" => Some(castle(w, h)),
         "shop" => Some(shop(w, h)),
         _ => style(recipe).map(|s| village(&s, w, h)),
@@ -374,6 +385,48 @@ fn ladder_down() -> Vec<Part> {
         cube([0.5, 0.025, 0.5], [0.0, 0.0125, 0.0], INSIDE),
         model("platformer/Ladder_medium.gltf", [0.0, -0.95, -0.2], 0.0, 0.55),
     ]
+}
+
+/// A stone block under a wider slab, with a god's cloth over the top and down the front.
+fn altar(cloth: Option<[f32; 3]>) -> Vec<Part> {
+    let mut out = vec![cube([0.7, 0.5, 0.45], [0.0, 0.25, 0.0], STONE), cube([0.8, 0.06, 0.55], [0.0, 0.53, 0.0], STONE)];
+    if let Some(c) = cloth {
+        out.push(cube([0.4, 0.01, 0.56], [0.0, 0.565, 0.0], c));
+        out.push(cube([0.4, 0.3, 0.01], [0.0, 0.41, 0.28], c));
+    }
+    out
+}
+
+/// An iron bowl on three legs; lit, its fire lights round it, unlit it holds ash.
+fn brazier(lit: bool) -> Vec<Part> {
+    const IRON: [f32; 3] = [0.2, 0.2, 0.22];
+    let fill = if lit {
+        part(Shape::Lamp([0.25, 0.12, 0.25]), [0.0, 0.7, 0.0], 0.0, [1.0; 3], Some([1.0, 0.55, 0.15]))
+    } else {
+        cube([0.25, 0.02, 0.25], [0.0, 0.67, 0.0], [0.3, 0.3, 0.3])
+    };
+    let mut out = vec![cylinder(0.22, 0.12, [0.0, 0.6, 0.0], IRON), fill];
+    for yaw in [0.0_f32, 120.0, 240.0] {
+        let (s, c) = yaw.to_radians().sin_cos();
+        out.push(cube([0.04, 0.6, 0.04], [s * 0.15, 0.3, c * 0.15], IRON));
+    }
+    out
+}
+
+/// A lamp in a little iron frame that stands on the ground; unlit, its glass is dark.
+fn lantern(lit: bool) -> Vec<Part> {
+    const IRON: [f32; 3] = [0.15, 0.15, 0.17];
+    let glass = if lit {
+        part(Shape::Lamp([0.12, 0.16, 0.12]), [0.0, 0.14, 0.0], 0.0, [1.0; 3], Some([1.0, 0.85, 0.35]))
+    } else {
+        cube([0.12, 0.16, 0.12], [0.0, 0.14, 0.0], [0.25, 0.25, 0.2])
+    };
+    let mut out = vec![cube([0.2, 0.04, 0.2], [0.0, 0.02, 0.0], IRON), glass, cube([0.2, 0.04, 0.2], [0.0, 0.24, 0.0], IRON)];
+    out.push(cylinder(0.03, 0.08, [0.0, 0.3, 0.0], IRON));
+    for (x, z) in [(-1.0, -1.0), (1.0, -1.0), (1.0, 1.0), (-1.0, 1.0)] {
+        out.push(cube([0.02, 0.2, 0.02], [x * 0.08, 0.13, z * 0.08], IRON));
+    }
+    out
 }
 
 /// A wide board between two posts, under a little roof.
