@@ -1,0 +1,28 @@
+# One object per Crossfire arch category (more for weapons, armour, monsters).
+# category  arch  picture (under upstream/crossfire-arch)
+armour       helmet       armour/helmet/helmet.base.111.png
+armour       cloak        armour/cloak/cloak.base.111.png
+armour       shield       armour/shield/shield.base.111.png
+weapon       sword        weapon/sword/sword_1.base.111.png
+weapon       bow          weapon/bow/bow.base.111.png
+talisman     ring         talisman/ring.base.111.png
+talisman     amulet       talisman/amulet.base.111.png
+jewel        ruby         jewel/gems/ruby.base.111.png
+potion       potioncha    spell/Potion/potiongen.base.111.png
+food         apple        food/produce/apple.base.111.png
+readable     scroll       readable/scrollr.base.111.png
+readable     book_clasp   readable/book_clasp.base.111.png
+indoor       barrel       indoor/barrel.base.111.png
+light        brazier      light/brazier.base.111.png
+misc         chest        misc/Container/chest_1.base.111.png
+misc         statue       misc/statue.base.111.png
+connect      altar        connect/altar.base.111.png
+door         key          door/key1.base.111.png
+traps        trap_blades  traps/blades.base.111.png
+transport    fishboat     transport/fishboat.base.x11.png
+monster      goblin       monster/goblin/goblin.base.151.png
+monster      baby_dragon  monster/dragon/baby_drag.base.111.png
+spell        wand         spell/Wand/wand.base.111.png
+crafting     slicingknife crafting/Tools/slicingknife.base.111.png
+flesh        goblin_head  flesh/goblin/goblin_head.base.111.png
+inorganic    ashes        inorganic/ashes.base.111.png

@@ -2,3 +2,6 @@ target/
 upstream/
 captures/
 .superpowers/
+experiments/sprite3d/.venv/
+assets/models/experiment/
+__pycache__/
