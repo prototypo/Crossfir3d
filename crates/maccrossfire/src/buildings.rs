@@ -59,13 +59,13 @@ const GABLE_Y: f32 = 0.75;
 /// square in front of it, where they step out to.
 const DOORSTEP: f32 = 0.5;
 
-pub const RECIPES: [&str; 45] = [
+pub const RECIPES: [&str; 47] = [
     "cottage", "house", "tavern", "barn", "temple", "tower", "castle", "shop", "well", "fountain", "signpost", "crossroads",
     "noticeboard", "lamppost", "clock", "lever", "lever_pulled", "ladder_down", "altar", "altar_green", "altar_black",
     "altar_red", "altar_white", "altar_blue", "brazier", "brazier_unlit", "lantern", "lantern_off",
     "torch", "torch_cyan", "torch_indigo", "torch_vermilion", "tikitorch", "mountain1", "mountain2", "mountain3",
     "mountain4", "mountain5", "grave", "coffin", "lair", "nest", "portal",
-    "campfire", "campfire_out",
+    "campfire", "campfire_out", "teleporter", "magic_portal",
 ];
 pub const WALL_STYLES: [&str; 6] = ["stone", "brick", "plaster", "wood", "hedge", "rock"];
 
@@ -171,6 +171,8 @@ pub fn parts(recipe: &str, w: u32, h: u32) -> Option<Vec<Part>> {
         "torch_indigo" => Some(torch(0.6, [0.5, 0.4, 1.0])),
         "torch_vermilion" => Some(torch(0.6, [1.0, 0.35, 0.2])),
         "tikitorch" => Some(torch(0.9, FLAME)),
+        "teleporter" => Some(teleporter()),
+        "magic_portal" => Some(magic_portal()),
         "campfire" => Some(campfire(true)),
         "campfire_out" => Some(campfire(false)),
         "grave" => Some(grave()),
@@ -467,6 +469,27 @@ fn mountain(file: &'static str, yaw: f32, scale: f32, seed: u32) -> Vec<Part> {
 }
 
 const DIRT: [f32; 3] = [0.35, 0.25, 0.15];
+
+const GOLD: [f32; 3] = [0.95, 0.75, 0.25];
+
+/// A gold ring on the floor round a cyan glow, with a gold cross over it.
+fn teleporter() -> Vec<Part> {
+    vec![
+        cylinder(0.42, 0.03, [0.0, 0.015, 0.0], GOLD),
+        part(Shape::RoundLamp { radius: 0.34, height: 0.02 }, [0.0, 0.025, 0.0], 0.0, [1.0; 3], Some([0.3, 0.9, 1.0])),
+        cube([0.06, 0.012, 0.6], [0.0, 0.04, 0.0], GOLD),
+        cube([0.6, 0.012, 0.06], [0.0, 0.04, 0.0], GOLD),
+    ]
+}
+
+/// A dark blue ring standing on its edge round a blue glow, facing south.
+fn magic_portal() -> Vec<Part> {
+    let standing = |shape, color| Part { yaw_deg: 90.0, tilt_deg: 90.0, ..part(shape, [0.0, 0.42, 0.0], 0.0, [1.0; 3], Some(color)) };
+    vec![
+        standing(Shape::Cylinder { radius: 0.4, height: 0.06 }, [0.12, 0.12, 0.45]),
+        standing(Shape::RoundLamp { radius: 0.33, height: 0.08 }, [0.25, 0.45, 1.0]),
+    ]
+}
 
 /// A ring of stones round crossed logs; lit, a fire burns on them and lights round it.
 fn campfire(lit: bool) -> Vec<Part> {
