@@ -517,6 +517,30 @@ odoorn2* model castle/door.glb 2.2 45 0
 odoorn2.111 model castle/door.glb 2.2 90 0
 odoorn2.114 model castle/door.glb 2.2 0 0
 
+# --- Exits (exit/): stairs up are KayKit stairs; ways down (stairs into the floor,
+# holes, ladders and ropes down) and world-map town squares lie on the ground. ---
+stair_up* model kaykit/stairs.gltf 0.2 0 0
+stair2_up model kaykit/stairs.gltf 0.2 0 0
+stair3_up model kaykit/stairs.gltf 0.2 0 0
+stair3_gstone_up model kaykit/stairs.gltf 0.2 0 0 0.6,0.8,0.6
+stair3_ystone_up model kaykit/stairs.gltf 0.2 0 0 1.0,0.9,0.6
+stair_down* flat
+stair2_do flat
+stair3_do flat
+stair3_gstone_do flat
+stair3_ystone_do flat
+ladder_down flat
+ladder2_do flat
+rope_down flat
+rope_hole_down flat
+chole_* flat
+sewer_access flat
+smallpark flat
+ruins flat
+town_* flat
+oakdoor model castle/door.glb 2.2 90 0
+oakdoor_1 model castle/door.glb 2.2 0 0
+
 # --- Small items, made from their pictures (experiments/sprite3d/auto.py: Hunyuan3D-2mini +
 # clean-up; inflated voxels for foot, mint, topaz). Half the size of the picture card. ---
 a_helmet model auto/a_helmet.glb 0.5 0 0
