@@ -95,6 +95,27 @@ TEXTURE_SWAP = {
 # Our copies change their first node: the Kenney door is a block as thick as a wall
 # (a dungeon door is about a hand thick); the KayKit stairs start at the model's middle.
 NODE = {"door.glb": {"scale": [0.25, 1, 1]}, "stairs.gltf": {"translation": [0, 0, -2]}}
+# Our copies move texture coordinates (u0, u1, v0, v1) -> (u0, u1, v0, v1) in the shared
+# texture: the hexagon well's blue roof takes the planks of its posts, keeping its stripes.
+UV_MOVE = {"building_well_blue.gltf": ((0.0, 0.11, 0.29, 1.0), (0.70, 0.84, 0.05, 0.20))}
+
+
+def move_uvs(g: dict, bin_path: pathlib.Path, box, to):
+    """Moves every TEXCOORD_0 inside `box` to the same place inside `to`, in the .bin."""
+    (u0, u1, v0, v1), (U0, U1, V0, V1) = box, to
+    data = bytearray(bin_path.read_bytes())
+    for mesh in g["meshes"]:
+        for prim in mesh["primitives"]:
+            a = g["accessors"][prim["attributes"]["TEXCOORD_0"]]
+            view = g["bufferViews"][a["bufferView"]]
+            at = view.get("byteOffset", 0) + a.get("byteOffset", 0)
+            step = view.get("byteStride", 8)
+            for i in range(a["count"]):
+                u, v = struct.unpack_from("<2f", data, at + i * step)
+                if u0 <= u <= u1 and v0 <= v <= v1:
+                    u, v = U0 + (u - u0) / (u1 - u0) * (U1 - U0), V0 + (v - v0) / (v1 - v0) * (V1 - V0)
+                    struct.pack_into("<2f", data, at + i * step, u, v)
+    bin_path.write_bytes(data)
 
 
 def find(folder: pathlib.Path, uri: str):
@@ -176,6 +197,8 @@ def copy_model(src: pathlib.Path, dest: pathlib.Path):
             item["uri"] = f.name
     if src.name in NODE:
         g["nodes"][0].update(NODE[src.name])
+    if src.name in UV_MOVE:
+        move_uvs(g, dest / g["buffers"][0]["uri"], *UV_MOVE[src.name])
     (dest / src.name).write_text(json.dumps(g))
 
 
