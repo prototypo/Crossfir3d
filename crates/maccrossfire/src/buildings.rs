@@ -57,9 +57,9 @@ const GABLE_Y: f32 = 0.75;
 /// square in front of it, where they step out to.
 const DOORSTEP: f32 = 0.5;
 
-pub const RECIPES: [&str; 17] = [
+pub const RECIPES: [&str; 18] = [
     "cottage", "house", "tavern", "barn", "temple", "tower", "castle", "shop", "well", "fountain", "signpost", "crossroads",
-    "noticeboard", "lamppost", "clock", "lever", "lever_pulled",
+    "noticeboard", "lamppost", "clock", "lever", "lever_pulled", "ladder_down",
 ];
 pub const WALL_STYLES: [&str; 6] = ["stone", "brick", "plaster", "wood", "hedge", "rock"];
 
@@ -149,6 +149,7 @@ pub fn parts(recipe: &str, w: u32, h: u32) -> Option<Vec<Part>> {
         "clock" => Some(clock()),
         "lever" => Some(lever(35.0)),
         "lever_pulled" => Some(lever(-35.0)),
+        "ladder_down" => Some(ladder_down()),
         "castle" => Some(castle(w, h)),
         "shop" => Some(shop(w, h)),
         _ => style(recipe).map(|s| village(&s, w, h)),
@@ -363,6 +364,15 @@ fn lever(tilt_deg: f32) -> Vec<Part> {
         cylinder(0.18, 0.2, [0.0, 0.1, 0.0], IRON),
         Part { tilt_deg, ..cube([0.05, LENGTH, 0.05], [x, y, 0.0], WOOD) },
         cube([0.1, 0.1, 0.1], [grip.0, grip.1, 0.0], [0.6, 0.1, 0.1]),
+    ]
+}
+
+/// A dark hole in a wooden frame, with the top of the up-ladder (the same model) poking out.
+fn ladder_down() -> Vec<Part> {
+    vec![
+        cube([0.6, 0.02, 0.6], [0.0, 0.01, 0.0], WOOD),
+        cube([0.5, 0.025, 0.5], [0.0, 0.0125, 0.0], INSIDE),
+        model("platformer/Ladder_medium.gltf", [0.0, -0.95, -0.2], 0.0, 0.55),
     ]
 }
 
