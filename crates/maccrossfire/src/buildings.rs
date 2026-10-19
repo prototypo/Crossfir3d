@@ -57,11 +57,12 @@ const GABLE_Y: f32 = 0.75;
 /// square in front of it, where they step out to.
 const DOORSTEP: f32 = 0.5;
 
-pub const RECIPES: [&str; 33] = [
+pub const RECIPES: [&str; 38] = [
     "cottage", "house", "tavern", "barn", "temple", "tower", "castle", "shop", "well", "fountain", "signpost", "crossroads",
     "noticeboard", "lamppost", "clock", "lever", "lever_pulled", "ladder_down", "altar", "altar_green", "altar_black",
     "altar_red", "altar_white", "altar_blue", "brazier", "brazier_unlit", "lantern", "lantern_off",
-    "torch", "torch_cyan", "torch_indigo", "torch_vermilion", "tikitorch",
+    "torch", "torch_cyan", "torch_indigo", "torch_vermilion", "tikitorch", "mountain1", "mountain2", "mountain3",
+    "mountain4", "mountain5",
 ];
 pub const WALL_STYLES: [&str; 6] = ["stone", "brick", "plaster", "wood", "hedge", "rock"];
 
@@ -167,6 +168,11 @@ pub fn parts(recipe: &str, w: u32, h: u32) -> Option<Vec<Part>> {
         "torch_indigo" => Some(torch(0.6, [0.5, 0.4, 1.0])),
         "torch_vermilion" => Some(torch(0.6, [1.0, 0.35, 0.2])),
         "tikitorch" => Some(torch(0.9, FLAME)),
+        "mountain1" => Some(mountain("hexagon/mountain_A.gltf", 0.0, 0.8, 1)),
+        "mountain2" => Some(mountain("hexagon/mountain_B.gltf", 60.0, 0.8, 2)),
+        "mountain3" => Some(mountain("hexagon/mountain_C.gltf", 120.0, 0.8, 3)),
+        "mountain4" => Some(mountain("hexagon/mountain_A.gltf", 180.0, 0.85, 4)),
+        "mountain5" => Some(mountain("hexagon/mountain_B.gltf", 240.0, 0.85, 5)),
         "castle" => Some(castle(w, h)),
         "shop" => Some(shop(w, h)),
         _ => style(recipe).map(|s| village(&s, w, h)),
@@ -415,6 +421,37 @@ fn brazier(lit: bool) -> Vec<Part> {
     for yaw in [0.0_f32, 120.0, 240.0] {
         let (s, c) = yaw.to_radians().sin_cos();
         out.push(cube([0.04, 0.6, 0.04], [s * 0.15, 0.3, c * 0.15], IRON));
+    }
+    out
+}
+
+/// Mountains are as tall as a two-storey house: the hexagon mountain stretched up this much.
+const MOUNTAIN_STRETCH: f32 = 2.4;
+/// Mountain squares are raised this much (`terrain::ground_height`); the mountain starts
+/// at the ground round it.
+const MOUNTAIN_RAISE: f32 = 0.6;
+const ROCKS: [&str; 4] =
+    ["hexagon/rock_single_B.gltf", "hexagon/rock_single_C.gltf", "hexagon/rock_single_D.gltf", "hexagon/rock_single_E.gltf"];
+
+/// A stretched hexagon mountain (`scale` wide, turned `yaw`), with rocks set into its
+/// sides so the stretched faces look like rock again. `seed` picks where they go.
+fn mountain(file: &'static str, yaw: f32, scale: f32, seed: u32) -> Vec<Part> {
+    let mut r = seed.wrapping_mul(2_654_435_761);
+    let mut rand = || {
+        r = r.wrapping_mul(1_103_515_245).wrapping_add(12_345);
+        (r >> 16 & 0x7fff) as f32 / 32_768.0
+    };
+    let base = -MOUNTAIN_RAISE;
+    let mut out = vec![part(Shape::Model(file), [0.0, base, 0.0], yaw, [scale, scale * MOUNTAIN_STRETCH, scale], None)];
+    // Rocks round the sides, more of them low down (squared). Low ones stick out further
+    // and are bigger; higher up they sit closer in and get smaller, as the mountain narrows.
+    for i in 0..16 {
+        let angle = (i as f32 * 22.5 + rand() * 20.0).to_radians();
+        let up = 0.05 + rand().powi(2) * 0.9;
+        let reach = 0.68 - up * 0.4;
+        let pos = [angle.sin() * reach, base + up * 2.6, angle.cos() * reach];
+        let size = (1.6 + rand() * 1.4) * (1.3 - up * 0.5);
+        out.push(part(Shape::Model(ROCKS[i % ROCKS.len()]), pos, rand() * 360.0, [size, size * (0.8 + rand()), size], None));
     }
     out
 }
