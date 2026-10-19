@@ -27,6 +27,7 @@ CASTLE = "kenney-castle-kit/Models/GLB format"
 PROPS = "fantasy-props-megakit/Exports/glTF"
 MONSTERS = "dungeon-monsters-kit-source/Exports/GLB (Godot-Unreal)"
 KAYKIT = "kaykit-dungeon-remastered/Assets/gltf"
+HEX = "kaykit-medieval-hexagon/Assets/gltf"
 
 # (destination folder, pack licence file, source files relative to PACKS)
 PICK = [
@@ -73,6 +74,11 @@ PICK = [
         "CandleStick_Stand",
     ]]),
     ("kaykit", "kaykit-dungeon-remastered/License.txt", [f"{KAYKIT}/{n}.gltf" for n in ["stairs", "torch", "torch_lit"]]),
+    ("hexagon", "kaykit-medieval-hexagon/License.txt", [f"{HEX}/{n}.gltf" for n in [
+        "decoration/nature/mountain_A", "decoration/nature/mountain_B", "decoration/nature/mountain_C",
+        "decoration/nature/hills_A", "decoration/nature/hills_C", "buildings/blue/building_well_blue",
+        "decoration/props/wheelbarrow",
+    ]]),
     # Paid (Source tier), Quaternius Asset License: fine in this private repo; the
     # licence forbids sharing the files themselves.
     ("monsters", "dungeon-monsters-kit-source/License_Source.txt", [f"{MONSTERS}/{n}.glb" for n in [
