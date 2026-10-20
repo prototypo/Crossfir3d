@@ -4,19 +4,19 @@ Made by `catalog.py` from the `base` picture set (6799 pictures). Every picture 
 
 | Group | Pictures | Things |
 | --- | ---: | ---: |
-| existing | 3618 | 2146 |
+| existing | 3656 | 2181 |
 | flat | 1283 | 669 |
 | rigged | 1176 | 332 |
 | skip | 524 | 396 |
-| scratch | 198 | 138 |
+| scratch | 160 | 103 |
 
 ## Why (top reasons per group)
 
 | Group | Reason | Pictures |
 | --- | --- | ---: |
-| existing | models.txt: model | 1331 |
+| existing | models.txt: model | 1332 |
 | existing | models.txt: wall | 949 |
-| existing | models.txt: building | 609 |
+| existing | models.txt: building | 646 |
 | existing | player character | 259 |
 | existing | folder player/ | 214 |
 | existing | models.txt: monster | 91 |
@@ -39,7 +39,6 @@ Made by `catalog.py` from the `base` picture set (6799 pictures). Every picture 
 | rigged | alive: a creature | 1064 |
 | rigged | folder monster/ | 112 |
 | scratch | big picture | 41 |
-| scratch | type EXIT: boxy, drawn from an angle, or furniture | 38 |
 | scratch | folder misc/ | 37 |
 | scratch | a monster generator | 19 |
 | scratch | type CONTAINER: boxy, drawn from an angle, or furniture | 14 |

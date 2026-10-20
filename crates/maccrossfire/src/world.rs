@@ -242,6 +242,8 @@ struct Textures {
     card: Handle<Mesh>,
     cylinder: Handle<Mesh>,
     cone: Handle<Mesh>,
+    frustum: Handle<Mesh>,
+    ball: Handle<Mesh>,
     wedge: Handle<Mesh>,
     bricks: Handle<Image>,
     waves: Handle<Image>,
@@ -283,6 +285,8 @@ fn setup(
     textures.cube = meshes.add(Cuboid::new(1.0, 1.0, 1.0));
     textures.cylinder = meshes.add(Cylinder::new(1.0, 1.0));
     textures.cone = meshes.add(Cone::new(1.0, 1.0));
+    textures.frustum = meshes.add(ConicalFrustum { radius_top: 0.4, radius_bottom: 1.0, height: 1.0 });
+    textures.ball = meshes.add(Sphere::new(1.0));
     // Unit wedge: base on y = 0 along x, peak at y = 1, running along z.
     let triangle = Triangle2d::new(Vec2::new(-0.5, 0.0), Vec2::new(0.5, 0.0), Vec2::new(0.0, 1.0));
     textures.wedge = meshes.add(Extrusion::new(triangle, 1.0));
@@ -804,6 +808,8 @@ fn spawn_part(
         }
         Shape::Cylinder { radius, height } => (textures.cylinder.clone(), Vec3::new(radius, height, radius)),
         Shape::Cone { radius, height } => (textures.cone.clone(), Vec3::new(radius, height, radius)),
+        Shape::Frustum { radius, height } => (textures.frustum.clone(), Vec3::new(radius, height, radius)),
+        Shape::Ball(radius) => (textures.ball.clone(), Vec3::splat(radius)),
         Shape::Wedge(size) => (textures.wedge.clone(), Vec3::from(size)),
         Shape::Lamp(_) | Shape::RoundLamp { .. } => {
             let (mesh, size) = match p.shape {
@@ -822,6 +828,21 @@ fn spawn_part(
             // The light is a child of the scaled shape: undo the scale so its range is in squares.
             let unscaled = Transform::from_scale(Vec3::ONE / t.scale);
             return commands.spawn((Mesh3d(mesh), MeshMaterial3d(glow), t, Visibility::Hidden, NotShadowCaster)).with_child((light, unscaled)).id();
+        }
+        Shape::Fire { .. } | Shape::Glow(_) => {
+            let glow = materials.add(StandardMaterial {
+                base_color: color,
+                emissive: LinearRgba::from(color) * LAMP_GLOW,
+                unlit: true,
+                ..default()
+            });
+            let (mesh, size) = match p.shape {
+                Shape::Fire { radius, height } => (textures.cone.clone(), Vec3::new(radius, height, radius)),
+                Shape::Glow(size) => (textures.cube.clone(), Vec3::from(size)),
+                _ => unreachable!(),
+            };
+            let t = Transform { scale: t.scale * size, ..t };
+            return commands.spawn((Mesh3d(mesh), MeshMaterial3d(glow), t, Visibility::Hidden, NotShadowCaster)).id();
         }
         Shape::Sign([w, h]) => {
             let Some((material, aspect)) = sign else { return commands.spawn((t, Visibility::Hidden)).id() };

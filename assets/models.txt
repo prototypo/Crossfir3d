@@ -129,6 +129,35 @@ a_civic* building castle
 treehouse model nature/CommonTree_3.gltf 0.6 0 0
 treefort* model nature/CommonTree_4.gltf 0.7 0 0
 
+# Burning buildings: the building with flames on its roof (buildings.rs).
+burning_barn* building burning/barn
+burning_cathedral* building burning/temple
+burning_church* building burning/temple
+burning_collesium* building burning/castle
+burning_courthouse* building burning/castle
+burning_fort* building burning/castle
+burning_guild* building burning/castle
+burning_house* building burning/house
+burning_t_house* building burning/house
+burning_l_shop* building burning/tavern
+burning_market* building burning/tavern
+burning_shrine* building burning/temple
+burning_smalltemple* building burning/temple
+burning_temple* building burning/temple
+burning_store_alch* building burning/shop ALCHEMY potion
+burning_store_armo* building burning/shop ARMOUR shield
+burning_store_gene* building burning/shop GENERAL_STORE sack
+burning_store_magi* building burning/shop MAGIC wand
+burning_store_weap* building burning/shop WEAPONS sword
+burning_stronghold* building burning/castle
+flamingtower* building burning/tower
+dragon_guild2* building castle
+zoo* building castle
+volcano_hi* building volcano
+lava_well building lava_well
+rope_up building rope_up
+empty.111 building hidden
+
 # --- Wells, fountains, signs (no free model; built from shapes in code) ---
 well model hexagon/building_well_blue.gltf 1.2 0 0
 bloodwell building well
@@ -392,7 +421,7 @@ timberwall* wall wood
 # hedge and rock
 hedge* wall hedge
 cave* wall rock
-cave_stair_up_2 card
+cave_stair_up_2 model kaykit/stairs.gltf 0.2 0 0 0.75,0.7,0.65
 mine wall rock
 mine_* wall rock
 # Mine secret doors: the last frames are open (the rock slides away).
