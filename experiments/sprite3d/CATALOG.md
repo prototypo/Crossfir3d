@@ -14,13 +14,13 @@ Made by `catalog.py` from the `base` picture set (6799 pictures). Every picture 
 | --- | --- | ---: |
 | existing | models.txt: model | 1375 |
 | existing | models.txt: wall | 955 |
-| existing | models.txt: building | 889 |
+| existing | models.txt: building | 911 |
 | existing | models.txt: beast | 548 |
 | existing | models.txt: person | 405 |
 | existing | player character | 251 |
 | existing | folder player/ | 210 |
 | existing | models.txt: monster | 137 |
-| existing | models.txt: flat | 106 |
+| existing | models.txt: flat | 84 |
 | existing | drawn as wall blocks | 67 |
 | flat | folder ground/: ground and its smoothing edges | 282 |
 | flat | folder spell/ | 216 |
