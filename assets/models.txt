@@ -800,6 +800,80 @@ woman2 person other 1.0 0.92,0.63,0.37 0.34,0.11,0.15 0.21,0.04,0.68 dress 0.31,
 woman3 person other 1.0 0.65,0.45,0.26 0.40,0.19,0.05 0.87,0.90,0.33 dress 0.90,0.97,0.35
 womangreenpink person other 1.0 0.94,0.65,0.37 0.91,0.52,0.05 0.59,0.29,0.55 dress 0.82,0.13,0.67
 
+# --- Beasts: Quaternius' animated packs (beasts/, CC0), each with its own clips ---
+#   beast <file> <scale> [r,g,b]   (scale = height in the world (a person: 1.08) / the model's own height)
+wolf beast beasts/animals/Wolf.gltf 0.243
+dwolf beast beasts/animals/Wolf.gltf 0.261 0.45,0.45,0.5
+s_mastif beast beasts/animals/Wolf.gltf 0.261 0.3,0.3,0.35
+hellhound beast beasts/animals/Wolf.gltf 0.261 1,0.45,0.3
+greater_hellhound beast beasts/animals/Wolf.gltf 0.336 1,0.35,0.2
+dog beast beasts/animals/Husky.gltf 0.172
+mastif beast beasts/animals/Husky.gltf 0.204 0.85,0.65,0.45
+pup beast beasts/animals/ShibaInu.gltf 0.113
+horse beast beasts/animals/Horse.gltf 0.290
+unicorn beast beasts/animals/Horse_White.gltf 0.290
+nightmare beast beasts/animals/Horse.gltf 0.290 0.25,0.2,0.25
+behemoth beast beasts/animals/Bull.gltf 0.392 0.5,0.4,0.35
+bat beast beasts/cute/Bat.gltf 0.229
+giant_bat beast beasts/cute/Bat.gltf 0.400
+chicken beast beasts/cute/Chicken.gltf 0.217
+goose beast beasts/cute/Chicken.gltf 0.280
+cyclops beast beasts/cute/Cyclops.gltf 1.078
+ghost beast beasts/flying/Ghost.gltf 0.355
+spectre beast beasts/flying/Ghost.gltf 0.355 0.7,0.8,1
+wraith beast beasts/flying/Ghost.gltf 0.355 0.4,0.4,0.5
+holyghost beast beasts/flying/Ghost.gltf 0.355 1,1,0.85
+banshee beast beasts/cute/Ghost.gltf 0.643 1,0.9,0.95
+skull beast beasts/cute/Skull.gltf 0.226
+deathshead beast beasts/cute/Skull.gltf 0.258 0.9,0.85,0.8
+bone_head beast beasts/cute/Skull.gltf 0.258
+ent beast beasts/cute/Tree.gltf 0.702
+deathtree beast beasts/cute/Tree.gltf 0.632 0.5,0.4,0.4
+fungus beast beasts/cute/Mushroom.gltf 0.242
+gen_mushroom beast beasts/cute/Mushroom.gltf 0.242
+mushman1 beast beasts/cute/Mushroom.gltf 0.435
+baby_drag beast beasts/cute/YellowDragon.gltf 0.364
+fire_drag beast beasts/cute/YellowDragon.gltf 0.364 1,0.5,0.4
+cold_drag beast beasts/cute/YellowDragon.gltf 0.364 0.6,0.8,1
+elec_drag beast beasts/cute/YellowDragon.gltf 0.364 1,1,0.5
+grey_drag beast beasts/cute/YellowDragon.gltf 0.364 0.7,0.7,0.7
+fae_drag beast beasts/cute/YellowDragon.gltf 0.273 0.9,0.7,1
+quaathu beast beasts/cute/Cthulhu.gltf 0.577
+crawling_chaos beast beasts/cute/Cthulhu.gltf 0.769 0.6,0.4,0.7
+bear beast beasts/cute/Panda.gltf 0.671 0.55,0.38,0.25
+polarbear beast beasts/cute/Panda.gltf 0.732
+fiend beast beasts/cute/Demon.gltf 0.494
+dragon beast beasts/flying/Dragon.gltf 0.637
+dragon_ac beast beasts/flying/Dragon.gltf 0.637
+wyvern beast beasts/flying/Dragon.gltf 0.510 0.6,0.8,0.5
+Cwyvern beast beasts/flying/Dragon.gltf 0.510 0.8,0.6,0.9
+s_wyvern beast beasts/flying/Dragon.gltf 0.510 0.3,0.3,0.4
+chaos_dragon beast beasts/flying/Dragon_Evolved.gltf 0.823 0.8,0.5,0.9
+shadow_dragon beast beasts/flying/Dragon_Evolved.gltf 0.823 0.3,0.3,0.35
+elec_dr beast beasts/flying/Dragon_Evolved.gltf 0.759 1,1,0.6
+worthless_dragon beast beasts/flying/Dragon.gltf 0.446 0.7,0.7,0.6
+chinese_dr beast beasts/flying/Dragon_Evolved.gltf 0.759 1,0.5,0.4
+beholder beast beasts/flying/Glub.gltf 0.349
+beholder_leader beast beasts/flying/Glub.gltf 0.402 1,0.8,0.8
+dread beast beasts/flying/Glub.gltf 0.402 0.5,0.4,0.5
+elem_air beast beasts/flying/Hywirl.gltf 0.433
+bird beast beasts/flying/Pigeon.gltf 0.204
+slime beast beasts/blob/GreenBlob.gltf 0.270
+greenslime beast beasts/blob/GreenBlob.gltf 0.270
+acidsphere beast beasts/blob/GreenBlob.gltf 0.216 0.7,1,0.5
+bpudding beast beasts/blob/PinkBlob.gltf 0.249 0.3,0.3,0.35
+bpudding_g beast beasts/blob/PinkBlob.gltf 0.249 0.5,0.8,0.4
+bpudding_s beast beasts/blob/PinkBlob.gltf 0.249 0.8,0.8,0.85
+slimecrawler beast beasts/blob/GreenSpikyBlob.gltf 0.145
+neko beast beasts/blob/Cat.gltf 0.232
+GreatDemon beast beasts/big/Demon.gltf 0.609
+evil_master beast beasts/big/Demon.gltf 0.449 0.7,0.5,0.9
+evil_master2 beast beasts/big/Demon.gltf 0.449 0.5,0.7,0.9
+evil_master3 beast beasts/big/Demon.gltf 0.449 0.9,0.7,0.5
+evil_master4 beast beasts/big/Demon.gltf 0.449 0.6,0.9,0.6
+ape beast beasts/big/Monkroose.gltf 0.401
+ologhi beast beasts/big/Orc_Skull.gltf 0.428
+
 # --- Monsters (monsters/: Quaternius' Bestiary - Dungeon Monsters Kit, Source tier) ---
 #   monster <file> <scale> [r,g,b]   (scale 1 = a person's body scale; heights at scale 1:
 #   Puglin 0.56, Imp 1.0, Skeleton 1.08, Lycan 1.2, Hellwarden 1.36, Tidebreaker 1.56)

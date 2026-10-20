@@ -27,6 +27,8 @@ pub enum Visual {
     Person { body: Body, look: Look, dress: Option<[f32; 3]>, broom: bool, armour: bool, wide: f32, head: f32 },
     /// A rigged creature model (one file) moved like a person.
     Monster { file: String, scale: f32, tint: Option<[f32; 3]> },
+    /// An animal or monster model with its own skeleton and animations (idle, walk).
+    Beast { file: String, scale: f32, tint: Option<[f32; 3]> },
     Flat,
     Card,
 }
@@ -122,6 +124,9 @@ fn parse_visual(words: &[&str]) -> Option<Visual> {
         }
         ["monster", file, scale, ref rest @ ..] => {
             Visual::Monster { file: file.to_string(), scale: scale.parse().ok()?, tint: tint(rest)? }
+        }
+        ["beast", file, scale, ref rest @ ..] => {
+            Visual::Beast { file: file.to_string(), scale: scale.parse().ok()?, tint: tint(rest)? }
         }
         ["statue", ref rest @ ..] => Visual::Statue { tint: tint(rest)? },
         ["building", recipe] => Visual::Building { recipe: recipe.to_string(), sign: None, icon: None },
@@ -240,6 +245,13 @@ bad model x.glb notanumber 0 0
         let m = ModelMap::parse("statue statue\nstatue_gold statue 1,0.8,0.3\n");
         assert_eq!(m.lookup("statue.111"), &Visual::Statue { tint: None });
         assert_eq!(m.lookup("statue_gold"), &Visual::Statue { tint: Some([1.0, 0.8, 0.3]) });
+    }
+
+    #[test]
+    fn beast_parsed() {
+        let m = ModelMap::parse("wolf beast beasts/Wolf.gltf 0.6\nfox beast beasts/Fox.gltf 0.5 1,0.5,0.5\n");
+        assert_eq!(m.lookup("wolf.131"), &Visual::Beast { file: "beasts/Wolf.gltf".into(), scale: 0.6, tint: None });
+        assert_eq!(m.lookup("fox"), &Visual::Beast { file: "beasts/Fox.gltf".into(), scale: 0.5, tint: Some([1.0, 0.5, 0.5]) });
     }
 
     #[test]
