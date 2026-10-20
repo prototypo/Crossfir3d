@@ -4,11 +4,11 @@ Made by `catalog.py` from the `base` picture set (6799 pictures). Every picture 
 
 | Group | Pictures | Things |
 | --- | ---: | ---: |
-| existing | 3470 | 2047 |
+| existing | 3487 | 2055 |
 | flat | 1288 | 670 |
 | rigged | 1176 | 332 |
 | skip | 524 | 396 |
-| scratch | 341 | 236 |
+| scratch | 324 | 228 |
 
 ## Why (top reasons per group)
 
@@ -16,7 +16,7 @@ Made by `catalog.py` from the `base` picture set (6799 pictures). Every picture 
 | --- | --- | ---: |
 | existing | models.txt: model | 1310 |
 | existing | models.txt: wall | 949 |
-| existing | models.txt: building | 490 |
+| existing | models.txt: building | 507 |
 | existing | player character | 259 |
 | existing | folder player/ | 214 |
 | existing | models.txt: monster | 91 |
@@ -38,8 +38,8 @@ Made by `catalog.py` from the `base` picture set (6799 pictures). Every picture 
 | flat | type SPINNER: on the ground or an effect | 13 |
 | rigged | alive: a creature | 1064 |
 | rigged | folder monster/ | 112 |
-| scratch | type EXIT: boxy, drawn from an angle, or furniture | 45 |
 | scratch | big picture | 41 |
+| scratch | type EXIT: boxy, drawn from an angle, or furniture | 38 |
 | scratch | type ARMOUR: worn on the body: must fit the 3D character | 37 |
 | scratch | folder misc/ | 37 |
 | scratch | type GATE: boxy, drawn from an angle, or furniture | 23 |
@@ -49,7 +49,6 @@ Made by `catalog.py` from the `base` picture set (6799 pictures). Every picture 
 | scratch | type CONTAINER: boxy, drawn from an angle, or furniture | 14 |
 | scratch | folder armour/ | 13 |
 | scratch | type TRIGGER_ALTAR: boxy, drawn from an angle, or furniture | 12 |
-| scratch | type TRANSPORT: boxy, drawn from an angle, or furniture | 10 |
 | skip | a spell or skill icon | 247 |
 | skip | folder system/ | 162 |
 | skip | folder skills/ | 36 |
