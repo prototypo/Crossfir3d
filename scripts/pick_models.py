@@ -85,6 +85,22 @@ PICK = [
         "decoration/nature/rock_single_B", "decoration/nature/rock_single_C", "decoration/nature/rock_single_D",
         "decoration/nature/rock_single_E",
     ]]),
+    # Quaternius' animated packs (CC0), each model with its own skeleton and clips.
+    ("beasts/animals", "ultimate-animals/License.txt", [f"ultimate-animals/glTF/{n}.gltf" for n in [
+        "Wolf", "Husky", "ShibaInu", "Horse", "Horse_White", "Bull",
+    ]]),
+    ("beasts/cute", "cute-monsters/License.txt", [f"cute-monsters/glTF/{n}.gltf" for n in [
+        "Bat", "Chicken", "Cyclops", "Ghost", "Skull", "Tree", "Mushroom", "YellowDragon", "Cthulhu", "Panda", "Demon",
+    ]]),
+    ("beasts/flying", "ultimate-monsters/License.txt", [f"ultimate-monsters/Flying/glTF/{n}.gltf" for n in [
+        "Dragon", "Dragon_Evolved", "Ghost", "Glub", "Hywirl", "Pigeon",
+    ]]),
+    ("beasts/blob", "ultimate-monsters/License.txt", [f"ultimate-monsters/Blob/glTF/{n}.gltf" for n in [
+        "GreenBlob", "PinkBlob", "GreenSpikyBlob", "Cat",
+    ]]),
+    ("beasts/big", "ultimate-monsters/License.txt", [f"ultimate-monsters/Big/glTF/{n}.gltf" for n in [
+        "Demon", "Monkroose", "Orc_Skull",
+    ]]),
     # Paid (Source tier), Quaternius Asset License: fine in this private repo; the
     # licence forbids sharing the files themselves.
     ("monsters", "dungeon-monsters-kit-source/License_Source.txt", [f"{MONSTERS}/{n}.glb" for n in [
