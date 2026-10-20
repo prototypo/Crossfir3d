@@ -12,6 +12,7 @@
 //! - `flat` (a floor decoration lying on the ground)
 //! - `card` (keep the picture card)
 
+use crate::held::{class_look, ClassLook};
 use crate::races::{Body, Look};
 
 #[derive(Clone, Debug, PartialEq)]
@@ -23,8 +24,8 @@ pub enum Visual {
     Statue { tint: Option<[f32; 3]> },
     /// A creature drawn as a 3D character with this body and look, maybe in a long
     /// skirt of this colour, maybe with a broom in the right hand, maybe in metal armour,
-    /// `wide` times as broad and with its head `head` times as big.
-    Person { body: Body, look: Look, dress: Option<[f32; 3]>, broom: bool, armour: bool, wide: f32, head: f32 },
+    /// `wide` times as broad and with its head `head` times as big, maybe dressed as a class.
+    Person { body: Body, look: Look, dress: Option<[f32; 3]>, broom: bool, armour: bool, wide: f32, head: f32, class: Option<ClassLook> },
     /// A rigged creature model (one file) moved like a person.
     Monster { file: String, scale: f32, tint: Option<[f32; 3]> },
     /// An animal or monster model with its own skeleton and animations (idle, walk).
@@ -96,7 +97,7 @@ fn parse_visual(words: &[&str]) -> Option<Visual> {
             tint: tint(rest)?,
         },
         ["person", body, scale, skin, hair, clothes, ref rest @ ..] => {
-            let (mut dress, mut broom, mut armour, mut wide, mut head) = (None, false, false, 1.0, 1.0);
+            let (mut dress, mut broom, mut armour, mut wide, mut head, mut class) = (None, false, false, 1.0, 1.0, None);
             let mut words = rest.iter();
             while let Some(&w) = words.next() {
                 match w {
@@ -105,6 +106,7 @@ fn parse_visual(words: &[&str]) -> Option<Visual> {
                     "armour" => armour = true,
                     "wide" => wide = words.next()?.parse().ok()?,
                     "head" => head = words.next()?.parse().ok()?,
+                    "class" => class = Some(class_look(words.next()?)?),
                     _ => return None,
                 }
             }
@@ -120,6 +122,7 @@ fn parse_visual(words: &[&str]) -> Option<Visual> {
                 armour,
                 wide,
                 head,
+                class,
             }
         }
         ["monster", file, scale, ref rest @ ..] => {
@@ -264,7 +267,7 @@ bad model x.glb notanumber 0 0
              bad2 person other 1 1,1,1 1,1,1 1,1,1 dress\n",
         );
         let look = Look { scale: 0.7, skin: [0.3, 0.5, 0.2], hair: [0.1, 0.1, 0.1], clothes: [0.4, 0.3, 0.2] };
-        let person = |body, dress, broom, armour, wide, head| Visual::Person { body, look, dress, broom, armour, wide, head };
+        let person = |body, dress, broom, armour, wide, head| Visual::Person { body, look, dress, broom, armour, wide, head, class: None };
         assert_eq!(m.lookup("goblin.131"), &person(Body::Regular, None, false, false, 1.0, 1.0));
         assert_eq!(m.lookup("maid"), &person(Body::Other, Some([0.6, 0.2, 0.2]), true, false, 1.0, 1.0));
         assert_eq!(m.lookup("dwarf"), &person(Body::Regular, None, false, true, 1.3, 1.2));

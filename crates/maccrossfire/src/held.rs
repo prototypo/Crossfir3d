@@ -90,6 +90,70 @@ pub fn helmet(carried: &[&Item]) -> Option<[f32; 3]> {
     Some(if item.name.to_ascii_lowercase().contains("crown") { [0.95, 0.75, 0.25] } else { [0.6, 0.62, 0.66] })
 }
 
+/// What a class wears on its head when nothing else is there.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum Headwear {
+    /// The ranger's hood, worn in place of the hair, in the clothes' colour.
+    Hood,
+    PointedHat([f32; 3]),
+    Skullcap([f32; 3]),
+    BrimHat([f32; 3]),
+    /// A dark cloth over the lower face.
+    Mask,
+}
+
+/// What a class carries in a hand when that hand holds nothing else.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum Carry {
+    /// A model file under assets/models (a weapon, shield or bow).
+    Model(&'static str),
+    /// A wooden staff, with a glowing orb of this colour on top, or none.
+    Staff(Option<[f32; 3]>),
+    /// A small potion bottle.
+    Potion,
+}
+
+/// A class's own look: its outfit and the outfit's tint (multipliers for the model's own
+/// colours, as from `worn`), its headwear, and what it carries in each hand.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct ClassLook {
+    pub garb: Garb,
+    pub tint: [f32; 3],
+    pub head: Option<Headwear>,
+    pub right: Option<Carry>,
+    pub left: Option<Carry>,
+}
+
+/// The look for a class, by arch ("wizard_class") or name ("Wizard"). Unknown: None.
+pub fn class_look(class: &str) -> Option<ClassLook> {
+    use Carry::{Model, Potion, Staff};
+    use Headwear::{BrimHat, Hood, Mask, PointedHat, Skullcap};
+    let key = class.to_ascii_lowercase();
+    let key = key.strip_suffix("_class").unwrap_or(&key);
+    let look = |garb, tint, head, right, left| Some(ClassLook { garb, tint, head, right, left });
+    // Peasant tints are over its brown cloth (1 keeps it); metal tints are over grey.
+    let (white, dark) = ([2.0, 2.2, 2.8], [0.3, 0.32, 0.4]);
+    match key {
+        "warrior" => look(Garb::Metal, [1.3, 1.32, 1.38], None, Some(Model("weapons/Sword.gltf")), Some(Model("weapons/Shield_Round.gltf"))),
+        "barbarian" => look(Garb::Peasant, [1.0, 0.75, 0.65], None, Some(Model("weapons/Axe_Double.gltf")), None),
+        "paladin" => look(Garb::Metal, [1.65, 1.68, 1.8], None, Some(Model("weapons/Sword_Golden.gltf")), Some(Model("weapons/Shield_Heater.gltf"))),
+        "ranger" => look(Garb::Ranger, [1.0; 3], Some(Hood), None, Some(Model("weapons/Bow_Wooden.gltf"))),
+        "thief" => look(Garb::Ranger, [0.35, 0.35, 0.4], Some(Hood), Some(Model("weapons/Dagger.gltf")), None),
+        "ninja" => look(Garb::Peasant, dark, Some(Mask), Some(Model("weapons/Sword_2.gltf")), None),
+        "swashbuckler" => look(Garb::Peasant, [1.4, 0.5, 0.65], Some(BrimHat([0.15, 0.12, 0.1])), Some(Model("weapons/Sword.gltf")), None),
+        "monk" => look(Garb::Peasant, [1.9, 1.85, 1.8], None, Some(Staff(None)), None),
+        "priest" => look(Garb::Peasant, white, Some(Skullcap([0.92, 0.92, 0.88])), Some(Model("weapons/Hammer_Small.gltf")), None),
+        "devotee" => look(Garb::Peasant, white, Some(PointedHat([0.95, 0.95, 0.92])), Some(Staff(Some([1.0, 1.0, 0.95]))), None),
+        "wizard" => look(Garb::Peasant, [0.55, 0.75, 2.2], Some(PointedHat([0.2, 0.25, 0.65])), Some(Staff(Some([0.4, 0.6, 1.0]))), None),
+        "evoker" => look(Garb::Peasant, [1.7, 0.75, 0.5], Some(PointedHat([0.7, 0.2, 0.1])), Some(Staff(Some([1.0, 0.4, 0.1]))), None),
+        "sorcerer" => look(Garb::Peasant, [1.0, 0.5, 1.8], Some(PointedHat([0.4, 0.15, 0.5])), Some(Staff(Some([0.8, 0.4, 1.0]))), None),
+        "summoner" => look(Garb::Peasant, [1.7, 1.6, 0.6], Some(PointedHat([0.75, 0.62, 0.15])), Some(Staff(Some([1.0, 0.9, 0.3]))), None),
+        "warlock" => look(Garb::Peasant, [0.55, 0.3, 0.9], Some(Hood), Some(Staff(Some([0.4, 1.0, 0.4]))), None),
+        "alchemist" => look(Garb::Peasant, [1.1, 0.95, 0.75], None, Some(Potion), None),
+        _ => None,
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -166,5 +230,15 @@ mod tests {
             let (file, _) = held_model(kind, name).unwrap();
             assert!(root.join(file).is_file(), "missing {file}");
         }
+    }
+
+    #[test]
+    fn class_looks_by_arch_or_name() {
+        let wizard = class_look("wizard_class").unwrap();
+        assert_eq!(class_look("Wizard"), Some(wizard));
+        assert_eq!(wizard.head, Some(Headwear::PointedHat([0.2, 0.25, 0.65])));
+        assert_eq!(class_look("paladin").unwrap().garb, Garb::Metal);
+        assert_eq!(class_look("ranger").unwrap().left, Some(Carry::Model("weapons/Bow_Wooden.gltf")));
+        assert_eq!(class_look("bard"), None);
     }
 }

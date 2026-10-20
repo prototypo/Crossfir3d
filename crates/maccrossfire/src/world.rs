@@ -24,8 +24,8 @@ use maccrossfire::walls::wall_masks;
 use maccrossfire::clock::{sun_pose, SunPose, FALLBACK_HOUR};
 use maccrossfire::settings::Quality;
 
-use maccrossfire::held::Garb;
-use crate::characters3d::{character_files, outfit_file, spawn_beast, spawn_character, spawn_monster, Character, Outfit, OwnCharacter, OwnLook, PartOf, StatueFigure};
+use maccrossfire::held::{class_look, Garb};
+use crate::characters3d::{character_files, class_dressed, ClassGear, outfit_file, spawn_beast, spawn_character, spawn_monster, Character, Outfit, OwnCharacter, OwnLook, PartOf, StatueFigure};
 use crate::graphics::CurrentSettings;
 use crate::input::{CameraHeading, CameraView, DoorExit, Facing};
 use maccrossfire::camera::{compass, pull_in, sight_blocked, zoom, PIXELS_PER_LINE};
@@ -555,16 +555,23 @@ fn sync_visuals(
         // Players (a race or class picture) are 3D characters; the own one in the middle.
         // So are creatures listed as `person`.
         let own_tile = (x, y) == player && classify_player_face(name).is_some();
+        // A player's class look: the own one's from the login, another's from a class picture.
+        let class = match (classify_player_face(name), models.map.lookup(name)) {
+            _ if own_tile => own.class,
+            (Some(PlayerFace::Class(arch)), _) => class_look(arch),
+            (None, Visual::Person { class, .. }) => *class,
+            _ => None,
+        };
         let who = match (classify_player_face(name), models.map.lookup(name)) {
             _ if own_tile => Some((own.look, own.body, None)),
             (Some(kind), _) => Some((other_look(kind), Body::Regular, None)),
-            (None, &Visual::Person { body, look, dress, broom, armour, wide, head }) => {
+            (None, &Visual::Person { body, look, dress, broom, armour, wide, head, .. }) => {
                 Some((look, body, Some(Outfit { scale: look.scale, dress, broom, armour, wide, head })))
             }
             _ => None,
         };
         if glides(layer) && let Some((look, body, outfit)) = who {
-            let mut files = character_files(body);
+            let (look, mut files) = class_dressed(look, body, class);
             if outfit.is_some_and(|o| o.armour) {
                 files[2] = outfit_file(body, Garb::Metal);
             }
@@ -576,6 +583,8 @@ fn sync_visuals(
                 commands.entity(e).insert(Assembled(files.iter().map(|f| f.to_string()).collect()));
                 if own_tile {
                     commands.entity(e).insert(OwnCharacter);
+                } else if let Some(class) = class {
+                    commands.entity(e).insert(ClassGear(class, look.scale));
                 }
                 if let Some(outfit) = outfit {
                     commands.entity(e).insert(outfit);
