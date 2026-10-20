@@ -571,7 +571,7 @@ fn sync_visuals(
             _ => None,
         };
         if glides(layer) && let Some((look, body, outfit)) = who {
-            let (look, mut files) = class_dressed(look, body, class);
+            let (look, mut files) = class_dressed(look, body, class, outfit.is_some());
             if outfit.is_some_and(|o| o.armour) {
                 files[2] = outfit_file(body, Garb::Metal);
             }
