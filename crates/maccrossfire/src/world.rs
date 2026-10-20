@@ -15,7 +15,7 @@ use bevy::light::NotShadowCaster;
 use bevy::prelude::*;
 use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat};
 use bevy::world_serialization::{WorldAsset, WorldAssetRoot, WorldInstanceReady};
-use maccrossfire::buildings::{brick_pixels, doorstep, footprint, parts, wall_parts, wave_pixels, Part, Shape, BRICK_TILE, WAVE_TILE};
+use maccrossfire::buildings::{beast_wings, brick_pixels, doorstep, footprint, parts, wall_parts, wave_pixels, Part, Shape, BRICK_TILE, WAVE_TILE};
 use maccrossfire::models::{all_loaded, Load, ModelMap, Visual};
 use maccrossfire::races::{classify_player_face, clothes_for_class, look_for_race, Body, Look, PlayerFace};
 use maccrossfire::terrain::{ground_height, is_wall};
@@ -585,15 +585,19 @@ fn sync_visuals(
             }
         }
         if glides(layer)
-            && let Visual::Beast { file, scale, tint } = models.map.lookup(name)
+            && let Visual::Beast { file, scale, tint, wings } = models.map.lookup(name)
             && !models.failed.contains(file)
         {
             let pos = tile + Vec3::new(0.5, 0.0, 0.5);
-            let (file, scale, tint) = (file.clone(), *scale, tint.unwrap_or([1.0; 3]));
+            let (file, scale, tint, wings) = (file.clone(), *scale, tint.unwrap_or([1.0; 3]), *wings);
             let scene = models.scene(&server, &file);
             let at = Transform::from_translation(pos);
             let extra = (tv, Glide { target: pos }, Assembled(vec![file.clone()]));
             let e = spawn_beast(&mut commands, scene, &file, scale, tint, at, extra);
+            for p in wings.map(beast_wings).unwrap_or_default() {
+                let child = spawn_part(&mut commands, &p, shade, &textures, None, &server, &mut models, &mut materials);
+                commands.entity(e).add_child(child);
+            }
             stand_in(&mut commands, e, pos);
             continue;
         }
