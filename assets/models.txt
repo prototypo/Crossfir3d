@@ -212,6 +212,11 @@ window_1 wall stone
 cwall* wall stone
 redcwall* wall stone
 westcwall* wall stone
+redcwindow* wall stone
+westcwindow* wall stone
+cityport* wall gate
+redcityport* wall gate
+westcityport* wall gate
 guard_ho* wall stone
 redguard_ho* wall stone
 westguard_ho* wall stone
@@ -252,11 +257,36 @@ cave* wall rock
 cave_stair_up_2 card
 mine wall rock
 mine_* wall rock
+# Mine secret doors: the last frames are open (the rock slides away).
+minedoor* wall rock
+minedoor_4.x17 flat
+minedoor_4.x18 flat
+minedoor_4.x19 flat
+minedoor_8.x17 flat
+minedoor_8.x18 flat
+minedoor_8.x19 flat
 red_cave* wall rock
 dark_blue_cave* wall rock
 light_blue_cave* wall rock
 
 # --- Floor decorations ---
+moat_0 building moat_0
+moat_1 building moat_1
+moat_2 building moat_2
+moat_3 building moat_3
+moat_4 building moat_4
+moat_5 building moat_5
+moat_6 building moat_6
+moat_7 building moat_7
+moat_8 building moat_8
+moat_9 building moat_9
+moat_A building moat_A
+moat_B building moat_B
+moat_C building moat_C
+moat_D building moat_D
+moat_E building moat_E
+moat_F building moat_F
+pier_* building pier
 pentagram flat
 
 # --- Missiles in flight (frame .1d1: d = direction 1 north .. 8 northwest; .101 lies on the ground) ---

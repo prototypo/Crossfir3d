@@ -75,6 +75,7 @@ PICK = [
     ]]),
     ("kaykit", "kaykit-dungeon-remastered/License.txt", [f"{KAYKIT}/{n}.gltf" for n in [
         "stairs", "torch", "torch_lit", "rubble_large", "pillar", "keyring",
+        "wall", "wall_corner", "wall_Tsplit", "wall_crossing", "wall_doorway",
     ]]),
     ("hexagon", "kaykit-medieval-hexagon/License.txt", [f"{HEX}/{n}.gltf" for n in [
         "decoration/nature/mountain_A", "decoration/nature/mountain_B", "decoration/nature/mountain_C",
@@ -97,8 +98,13 @@ TEXTURE_SWAP = {
     "Bush_Common_Flowers.gltf": {"Leaves_TwistedTree_C.png": "Leaves_NormalTree_C.png"},
 }
 # Our copies change their first node: the Kenney door is a block as thick as a wall
-# (a dungeon door is about a hand thick); the KayKit stairs start at the model's middle.
-NODE = {"door.glb": {"scale": [0.25, 1, 1]}, "stairs.gltf": {"translation": [0, 0, -2]}}
+# (a dungeon door is about a hand thick); the KayKit stairs start at the model's middle;
+# the KayKit doorway's door is shrunk to nothing, leaving an open way through (a city gate).
+NODE = {
+    "door.glb": {"scale": [0.25, 1, 1]},
+    "stairs.gltf": {"translation": [0, 0, -2]},
+    "wall_doorway.gltf": {"scale": [0, 0, 0]},
+}
 # Our copies move texture coordinates (u0, u1, v0, v1) -> (u0, u1, v0, v1) in the shared
 # texture: the hexagon well's blue roof takes the planks of its posts, keeping its stripes.
 UV_MOVE = {"building_well_blue.gltf": ((0.0, 0.11, 0.29, 1.0), (0.70, 0.84, 0.05, 0.20))}

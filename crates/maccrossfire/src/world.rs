@@ -8,14 +8,14 @@ use std::collections::{HashMap, HashSet};
 
 use bevy::asset::{RecursiveDependencyLoadState, RenderAssetUsages};
 use bevy::gltf::GltfAssetLabel;
-use bevy::image::{CompressedImageFormats, ImageSampler, ImageType};
+use bevy::image::{CompressedImageFormats, ImageAddressMode, ImageSampler, ImageSamplerDescriptor, ImageType};
 use bevy::input::gestures::PinchGesture;
 use bevy::input::mouse::{AccumulatedMouseScroll, MouseScrollUnit};
 use bevy::light::NotShadowCaster;
 use bevy::prelude::*;
 use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat};
 use bevy::world_serialization::{WorldAsset, WorldAssetRoot, WorldInstanceReady};
-use maccrossfire::buildings::{doorstep, footprint, parts, wall_parts, Part, Shape};
+use maccrossfire::buildings::{brick_pixels, doorstep, footprint, parts, wall_parts, wave_pixels, Part, Shape, BRICK_TILE, WAVE_TILE};
 use maccrossfire::models::{all_loaded, Load, ModelMap, Visual};
 use maccrossfire::races::{classify_player_face, clothes_for_class, look_for_race, Body, Look, PlayerFace};
 use maccrossfire::terrain::{ground_height, is_wall};
@@ -93,6 +93,7 @@ impl Plugin for WorldPlugin {
                     .chain()
                     .run_if(in_state(AppState::InGame)),
             )
+            .add_systems(Update, move_waves.run_if(in_state(AppState::InGame)))
             .add_systems(OnEnter(AppState::InGame), spawn_arrow)
             .add_systems(OnExit(AppState::InGame), (despawn_visuals, despawn_arrow));
     }
@@ -241,9 +242,42 @@ struct Textures {
     card: Handle<Mesh>,
     cylinder: Handle<Mesh>,
     wedge: Handle<Mesh>,
+    bricks: Handle<Image>,
+    waves: Handle<Image>,
 }
 
-fn setup(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>, mut textures: ResMut<Textures>) {
+/// Water whose wave picture drifts; how many times the picture repeats across it.
+#[derive(Component)]
+struct Waves(Vec2);
+
+/// Slides each water's waves slowly along, swaying a little from side to side.
+fn move_waves(time: Res<Time>, waves: Query<(&MeshMaterial3d<StandardMaterial>, &Waves)>, mut materials: ResMut<Assets<StandardMaterial>>) {
+    let t = time.elapsed_secs();
+    let drift = Vec2::new(0.03 * (t * 0.4).sin(), 0.04 * t);
+    for (material, Waves(repeats)) in &waves {
+        if let Some(mut m) = materials.get_mut(&material.0) {
+            m.uv_transform = bevy::math::Affine2::from_scale_angle_translation(*repeats, 0.0, drift);
+        }
+    }
+}
+
+/// A picture that repeats across a face.
+fn tiled((w, h, px): (u32, u32, Vec<u8>), sampler: ImageSamplerDescriptor) -> Image {
+    let size = Extent3d { width: w, height: h, depth_or_array_layers: 1 };
+    let mut image = Image::new(size, TextureDimension::D2, px, TextureFormat::Rgba8UnormSrgb, RenderAssetUsages::RENDER_WORLD);
+    let repeat = ImageAddressMode::Repeat;
+    image.sampler = ImageSampler::Descriptor(ImageSamplerDescriptor { address_mode_u: repeat, address_mode_v: repeat, ..sampler });
+    image
+}
+
+fn setup(
+    mut commands: Commands,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut images: ResMut<Assets<Image>>,
+    mut textures: ResMut<Textures>,
+) {
+    textures.bricks = images.add(tiled(brick_pixels(), ImageSamplerDescriptor::nearest()));
+    textures.waves = images.add(tiled(wave_pixels(), ImageSamplerDescriptor::linear()));
     textures.ground = meshes.add(Plane3d::default().mesh().size(1.0, 1.0));
     textures.cube = meshes.add(Cuboid::new(1.0, 1.0, 1.0));
     textures.cylinder = meshes.add(Cylinder::new(1.0, 1.0));
@@ -737,6 +771,27 @@ fn spawn_part(
             return commands.spawn((WorldAssetRoot(handle), t, ModelTint(color), Visibility::Hidden)).id();
         }
         Shape::Box(size) => (textures.cube.clone(), Vec3::from(size)),
+        Shape::Bricks([x, y, z]) | Shape::Water([x, y, z]) => {
+            // One scale for every face of the box: bricks by length and height, waves
+            // across the top, so the pattern keeps its size on long and short boxes.
+            let (image, repeats) = match p.shape {
+                Shape::Bricks(_) => (&textures.bricks, Vec2::new(x.max(z) / BRICK_TILE[0], y / BRICK_TILE[1])),
+                _ => (&textures.waves, Vec2::new(x, z) / WAVE_TILE),
+            };
+            let material = materials.add(StandardMaterial {
+                base_color: color,
+                base_color_texture: Some(image.clone()),
+                uv_transform: bevy::math::Affine2::from_scale(repeats),
+                perceptual_roughness: 0.9,
+                ..default()
+            });
+            let t = Transform { scale: t.scale * Vec3::new(x, y, z), ..t };
+            let mut part = commands.spawn((Mesh3d(textures.cube.clone()), MeshMaterial3d(material), t, Visibility::Hidden));
+            if let Shape::Water(_) = p.shape {
+                part.insert(Waves(repeats));
+            }
+            return part.id();
+        }
         Shape::Cylinder { radius, height } => (textures.cylinder.clone(), Vec3::new(radius, height, radius)),
         Shape::Wedge(size) => (textures.wedge.clone(), Vec3::from(size)),
         Shape::Lamp(_) | Shape::RoundLamp { .. } => {
