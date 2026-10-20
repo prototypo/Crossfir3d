@@ -18,10 +18,17 @@ use crate::{HudState, Inv, KeyMode, LastAction, LastComc, Msgs, NcomSeq, PlayerS
 pub struct CameraHeading(pub Heading);
 
 /// Tab: the top view, north up. F (held): looking at the player's face.
-#[derive(Resource, Default)]
+#[derive(Resource)]
 pub struct CameraView {
     pub top: bool,
     pub face: bool,
+}
+
+impl Default for CameraView {
+    /// MACCROSSFIRE_TOP: start in the top view (screenshots).
+    fn default() -> Self {
+        CameraView { top: std::env::var_os("MACCROSSFIRE_TOP").is_some(), face: false }
+    }
 }
 
 /// In a house (shown on its doorstep): the move from the player's square to the square

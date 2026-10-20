@@ -15,6 +15,8 @@ pub enum Shape {
     Box([f32; 3]),
     /// An upright cylinder, centred on `pos`.
     Cylinder { radius: f32, height: f32 },
+    /// An upright cone, point up, centred on `pos`.
+    Cone { radius: f32, height: f32 },
     /// A wedge (triangle running north-south) this wide, tall and long, its base on `pos`.
     Wedge([f32; 3]),
     /// The building's sign text, fitted inside this width and height, its bottom middle on `pos`.
@@ -61,14 +63,14 @@ const GABLE_Y: f32 = 0.75;
 /// square in front of it, where they step out to.
 const DOORSTEP: f32 = 0.5;
 
-pub const RECIPES: [&str; 55] = [
+pub const RECIPES: [&str; 56] = [
     "cottage", "house", "tavern", "barn", "temple", "tower", "castle", "shop", "well", "fountain", "signpost", "crossroads",
     "noticeboard", "lamppost", "clock", "lever", "lever_pulled", "ladder_down", "altar", "altar_green", "altar_black",
     "altar_red", "altar_white", "altar_blue", "brazier", "brazier_unlit", "lantern", "lantern_off",
     "torch", "torch_cyan", "torch_indigo", "torch_vermilion", "tikitorch", "mountain1", "mountain2", "mountain3",
     "mountain4", "mountain5", "grave", "coffin", "lair", "nest", "portal",
     "campfire", "campfire_out", "teleporter", "magic_portal", "pier",
-    "rowboat", "longship", "fishboat", "galleon", "big_galleon", "big_galleon_west", "wagon",
+    "rowboat", "longship", "fishboat", "galleon", "big_galleon", "big_galleon_west", "wagon", "hidden",
 ];
 pub const WALL_STYLES: [&str; 7] = ["stone", "brick", "plaster", "wood", "hedge", "rock", "gate"];
 
@@ -148,10 +150,26 @@ pub fn parts(recipe: &str, w: u32, h: u32) -> Option<Vec<Part>> {
             "moat" => return Some(moat(mask)),
             // A rowboat facing one of 8 ways: 1 north, 3 east, 5 south, 7 west.
             "rowboat" if (1..=8).contains(&mask) => return Some(turned(rowboat(), (mask as f32 - 3.0) * 45.0)),
+            // Spike gates: the digit is how far up the spikes are, 0 down to all the way up.
+            "spike" => return Some(spike(mask as f32 / 11.0)),
+            "spikes" => return Some(spikes(mask as f32 / 8.0)),
+            _ => {}
+        }
+    }
+    // Clothes and armour lying on the ground, in the colour after the colon.
+    if let Some((kind, rgb)) = recipe.split_once(':')
+        && let [Ok(r), Ok(g), Ok(b)] = rgb.split(',').map(str::parse::<f32>).collect::<Vec<_>>()[..]
+    {
+        match kind {
+            "armour" => return Some(armour([r, g, b])),
+            "garment" => return Some(garment([r, g, b], false)),
+            "cloak" => return Some(garment([r, g, b], true)),
             _ => {}
         }
     }
     match recipe {
+        // Something there that the player must not see, like a hidden trap.
+        "hidden" => Some(Vec::new()),
         "well" => Some(well()),
         "fountain" => Some(fountain()),
         "signpost" => Some(signpost()),
@@ -814,6 +832,66 @@ fn wagon() -> Vec<Part> {
     out
 }
 
+/// A breastplate lying on its back, neck to the north, with shoulder pads and a belt.
+fn armour(color: [f32; 3]) -> Vec<Part> {
+    let dark = color.map(|c| c * 0.6);
+    let mut out = vec![
+        cube([0.34, 0.06, 0.38], [0.0, 0.03, 0.0], color),
+        cube([0.36, 0.07, 0.05], [0.0, 0.035, 0.17], dark),
+        cube([0.1, 0.07, 0.04], [0.0, 0.035, -0.19], dark),
+    ];
+    for side in [-1.0, 1.0] {
+        out.push(cube([0.12, 0.08, 0.13], [side * 0.2, 0.04, -0.12], color));
+    }
+    out
+}
+
+/// Cloth folded in a pile, with its sleeves folded over; a cloak has a gold clasp.
+fn garment(color: [f32; 3], clasp: bool) -> Vec<Part> {
+    let fold = color.map(|c| c * 0.8);
+    let mut out = vec![
+        cube([0.4, 0.04, 0.32], [0.0, 0.02, 0.0], color),
+        cube([0.4, 0.03, 0.18], [0.0, 0.055, -0.06], fold),
+    ];
+    if clasp {
+        out.push(cylinder(0.035, 0.02, [0.0, 0.08, -0.08], GOLD));
+    } else {
+        out.extend([-0.12, 0.12].map(|x| cube([0.07, 0.03, 0.26], [x, 0.085, 0.0], color)));
+    }
+    out
+}
+
+/// A cone standing on `pos`.
+fn point(radius: f32, height: f32, pos: [f32; 3], color: [f32; 3]) -> Part {
+    part(Shape::Cone { radius, height }, [pos[0], pos[1] + height / 2.0, pos[2]], 0.0, [1.0; 3], Some(color))
+}
+
+const STEEL: [f32; 3] = [0.7, 0.72, 0.75];
+
+/// One big spike, `up` of the way out of a dark hole in the ground (0 is down).
+fn spike(up: f32) -> Vec<Part> {
+    let mut out = vec![cylinder(0.25, 0.01, [0.0, 0.005, 0.0], INSIDE)];
+    if up > 0.0 {
+        out.push(point(0.2, 0.9, [0.0, 0.9 * (up - 1.0), 0.0], STEEL));
+    }
+    out
+}
+
+/// A bed of small spikes, `up` of the way out of their slots in the ground.
+fn spikes(up: f32) -> Vec<Part> {
+    let mut out = Vec::new();
+    for j in 0..4 {
+        for i in 0..4 {
+            let (x, z) = (-0.33 + i as f32 * 0.22, -0.33 + j as f32 * 0.22);
+            out.push(cube([0.12, 0.01, 0.04], [x, 0.005, z], INSIDE));
+            if up > 0.0 {
+                out.push(point(0.04, 0.35, [x, 0.35 * (up - 1.0), z], STEEL));
+            }
+        }
+    }
+    out
+}
+
 /// A ring of stones round crossed logs; lit, a fire burns on them and lights round it.
 fn campfire(lit: bool) -> Vec<Part> {
     let mut out: Vec<Part> = (0..8)
@@ -1102,6 +1180,21 @@ mod tests {
         assert_eq!(moat(N | E | S | W).len(), 1 + 4);
         assert_eq!(moat(N | S).len(), 1 + 2);
         assert_eq!(moat(N | E).len(), 1 + 2 + 1);
+    }
+
+    #[test]
+    fn clothes_take_their_colour_from_the_recipe() {
+        let p = parts("cloak:0.5,0.25,1", 1, 1).unwrap();
+        assert_eq!(p[0].color, Some([0.5, 0.25, 1.0]));
+        assert!(parts("armour:red", 1, 1).is_none());
+    }
+
+    #[test]
+    fn spikes_rise_out_of_the_ground() {
+        let top = |p: &[Part]| p.iter().map(|p| p.pos[1]).fold(f32::MIN, f32::max);
+        assert!(top(&parts("spike_B", 1, 1).unwrap()) > 0.4, "the middle of a cone 0.9 high");
+        assert_eq!(parts("spike_0", 1, 1).unwrap().len(), 1, "only the hole");
+        assert!(top(&parts("spikes_4", 1, 1).unwrap()) < top(&parts("spikes_8", 1, 1).unwrap()));
     }
 
     #[test]

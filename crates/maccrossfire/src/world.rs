@@ -241,6 +241,7 @@ struct Textures {
     cube: Handle<Mesh>,
     card: Handle<Mesh>,
     cylinder: Handle<Mesh>,
+    cone: Handle<Mesh>,
     wedge: Handle<Mesh>,
     bricks: Handle<Image>,
     waves: Handle<Image>,
@@ -281,6 +282,7 @@ fn setup(
     textures.ground = meshes.add(Plane3d::default().mesh().size(1.0, 1.0));
     textures.cube = meshes.add(Cuboid::new(1.0, 1.0, 1.0));
     textures.cylinder = meshes.add(Cylinder::new(1.0, 1.0));
+    textures.cone = meshes.add(Cone::new(1.0, 1.0));
     // Unit wedge: base on y = 0 along x, peak at y = 1, running along z.
     let triangle = Triangle2d::new(Vec2::new(-0.5, 0.0), Vec2::new(0.5, 0.0), Vec2::new(0.0, 1.0));
     textures.wedge = meshes.add(Extrusion::new(triangle, 1.0));
@@ -793,6 +795,7 @@ fn spawn_part(
             return part.id();
         }
         Shape::Cylinder { radius, height } => (textures.cylinder.clone(), Vec3::new(radius, height, radius)),
+        Shape::Cone { radius, height } => (textures.cone.clone(), Vec3::new(radius, height, radius)),
         Shape::Wedge(size) => (textures.wedge.clone(), Vec3::from(size)),
         Shape::Lamp(_) | Shape::RoundLamp { .. } => {
             let (mesh, size) = match p.shape {
