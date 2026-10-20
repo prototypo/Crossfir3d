@@ -4,24 +4,23 @@ Made by `catalog.py` from the `base` picture set (6799 pictures). Every picture 
 
 | Group | Pictures | Things |
 | --- | ---: | ---: |
-| existing | 4329 | 2417 |
+| existing | 4951 | 2596 |
 | flat | 1279 | 666 |
-| rigged | 622 | 179 |
 | skip | 569 | 416 |
 
 ## Why (top reasons per group)
 
 | Group | Reason | Pictures |
 | --- | --- | ---: |
-| existing | models.txt: model | 1341 |
+| existing | models.txt: model | 1375 |
 | existing | models.txt: wall | 955 |
-| existing | models.txt: building | 743 |
-| existing | models.txt: beast | 307 |
-| existing | models.txt: person | 265 |
+| existing | models.txt: building | 889 |
+| existing | models.txt: beast | 548 |
+| existing | models.txt: person | 405 |
 | existing | player character | 251 |
 | existing | folder player/ | 210 |
-| existing | models.txt: flat | 91 |
-| existing | models.txt: monster | 91 |
+| existing | models.txt: monster | 137 |
+| existing | models.txt: flat | 106 |
 | existing | drawn as wall blocks | 67 |
 | flat | folder ground/: ground and its smoothing edges | 282 |
 | flat | folder spell/ | 216 |
@@ -36,8 +35,6 @@ Made by `catalog.py` from the `base` picture set (6799 pictures). Every picture 
 | flat | type RUNE: on the ground or an effect | 27 |
 | flat | type HOLE: on the ground or an effect | 14 |
 | flat | type SPINNER: on the ground or an effect | 13 |
-| rigged | alive: a creature | 571 |
-| rigged | folder monster/ | 51 |
 | skip | a spell or skill icon | 247 |
 | skip | folder system/ | 162 |
 | skip | unused: no object or map shows it | 45 |
