@@ -39,14 +39,14 @@ a_bridge1.111	road/a_bridge/a_bridge1.base.111.png	32x32	a_bridge1	flat	folder r
 a_bridge2.111	road/a_bridge/a_bridge2.base.111.png	32x32	a_bridge2	flat	folder road/: road
 a_civic.x11	construct/town/a_civic.base.x11.png	96x96	a_civic,a_civic_2,a_civic_3	existing	models.txt: building
 a_civic2.x11	construct/town/a_civic2.base.x11.png	96x96		existing	models.txt: building
-a_guard_h.111	monster/humanoid/Arabic/a_guard_h.base.111.png	32x32	a_guard_h	rigged	alive: a creature
-a_guard_l.111	monster/humanoid/Arabic/a_guard_l.base.111.png	32x32	a_guard_l	rigged	alive: a creature
-a_guard_m.111	monster/humanoid/Arabic/a_guard_m.base.111.png	32x32	a_guard_m	rigged	alive: a creature
+a_guard_h.111	monster/humanoid/Arabic/a_guard_h.base.111.png	32x32	a_guard_h	existing	models.txt: person
+a_guard_l.111	monster/humanoid/Arabic/a_guard_l.base.111.png	32x32	a_guard_l	existing	models.txt: person
+a_guard_m.111	monster/humanoid/Arabic/a_guard_m.base.111.png	32x32	a_guard_m	existing	models.txt: person
 a_helmet.111	armour/helmet/a_helmet.base.111.png	32x32	a_helmet	existing	models.txt: model
-a_priest.111	monster/humanoid/Arabic/a_priest.base.111.png	32x32	a_priest	rigged	alive: a creature
-a_townsman.111	monster/humanoid/Arabic/a_townsman.base.111.png	32x32	a_townsman	rigged	alive: a creature
-a_townsman2.111	monster/humanoid/Arabic/a_townsman2.base.111.png	32x32	a_townsman2	rigged	alive: a creature
-a_townsman3.111	monster/humanoid/Arabic/a_townsman3.base.111.png	32x32	a_townsman3	rigged	alive: a creature
+a_priest.111	monster/humanoid/Arabic/a_priest.base.111.png	32x32	a_priest	existing	models.txt: person
+a_townsman.111	monster/humanoid/Arabic/a_townsman.base.111.png	32x32	a_townsman	existing	models.txt: person
+a_townsman2.111	monster/humanoid/Arabic/a_townsman2.base.111.png	32x32	a_townsman2	existing	models.txt: person
+a_townsman3.111	monster/humanoid/Arabic/a_townsman3.base.111.png	32x32	a_townsman3	existing	models.txt: person
 acid.111	ground/acid.base.111.png	32x32	acid,permanent_acid	flat	folder ground/: ground and its smoothing edges
 acid.112	ground/acid.base.112.png	32x32	acid,permanent_acid	flat	folder ground/: ground and its smoothing edges
 acid.113	ground/acid.base.113.png	32x32	acid,permanent_acid	flat	folder ground/: ground and its smoothing edges
@@ -205,10 +205,10 @@ archon.444	monster/chaos/archon.base.444.png	32x32	archon	rigged	alive: a creatu
 archtree.111	exit/archtree.base.111.png	32x32	archway_tree	existing	models.txt: model
 archwood.111	exit/archwood.base.111.png	32x32	archway	existing	models.txt: model
 arm.111	flesh/human/arm.base.111.png	32x32	arm	existing	models.txt: model
-armless_cook.111	monster/humanoid/Human/armless_cook.base.111.png	32x32	armless_cook	rigged	alive: a creature
-armless_cook.131	monster/humanoid/Human/armless_cook.base.131.png	32x32	armless_cook	rigged	alive: a creature
-armless_cook.151	monster/humanoid/Human/armless_cook.base.151.png	32x32	armless_cook	rigged	alive: a creature
-armless_cook.171	monster/humanoid/Human/armless_cook.base.171.png	32x32	armless_cook	rigged	alive: a creature
+armless_cook.111	monster/humanoid/Human/armless_cook.base.111.png	32x32	armless_cook	existing	models.txt: person
+armless_cook.131	monster/humanoid/Human/armless_cook.base.131.png	32x32	armless_cook	existing	models.txt: person
+armless_cook.151	monster/humanoid/Human/armless_cook.base.151.png	32x32	armless_cook	existing	models.txt: person
+armless_cook.171	monster/humanoid/Human/armless_cook.base.171.png	32x32	armless_cook	existing	models.txt: person
 armourtroll2.111	monster/troll/armourtroll2.base.111.png	32x32	armour_troll2	existing	models.txt: monster
 armourtroll2.112	monster/troll/armourtroll2.base.112.png	32x32	armour_troll2	existing	models.txt: monster
 armourtroll3.111	monster/troll/armourtroll3.base.111.png	32x32	armour_troll3	existing	models.txt: monster
@@ -460,7 +460,7 @@ bee.112	monster/insect/bee/bee.base.112.png	32x32	bee	existing	models.txt: build
 bee_gen.111	monster/insect/bee/bee_gen.base.111.png	32x32	generate_bee	existing	models.txt: model
 beehive.111	monster/insect/bee/beehive.base.111.png	32x32	beehive	existing	models.txt: building
 beehive.112	monster/insect/bee/beehive.base.112.png	32x32	beehive	existing	models.txt: building
-beggar.111	monster/humanoid/Arabic/beggar.base.111.png	32x32	beggar	rigged	alive: a creature
+beggar.111	monster/humanoid/Arabic/beggar.base.111.png	32x32	beggar	existing	models.txt: person
 behemoth.x31	monster/animal/Behemoth/behemoth.base.x31.png	64x64	behemoth,behemoth_2,behemoth_3	rigged	alive: a creature
 behemoth.x32	monster/animal/Behemoth/behemoth.base.x32.png	64x64	behemoth,behemoth_2,behemoth_3	rigged	alive: a creature
 behemoth.x33	monster/animal/Behemoth/behemoth.base.x33.png	64x64	behemoth,behemoth_2,behemoth_3	rigged	alive: a creature
@@ -521,7 +521,7 @@ big_demon.x71	monster/demon/Big_Demon/big_demon.base.x71.png	96x128	big_demon,bi
 big_dragon_dragon_wing.111	flesh/dragon/big_dragon_dragon_wing.base.111.png	32x32		existing	models.txt: model
 big_elec_dragon_wing.111	flesh/dragon/big_elec_dragon_wing.base.111.png	32x32		existing	models.txt: model
 big_eye.111	flesh/generic/big_eye.base.111.png	32x32	big_eye	existing	models.txt: model
-big_slave.111	monster/humanoid/Arabic/big_slave.base.111.png	32x32	big_slave	rigged	alive: a creature
+big_slave.111	monster/humanoid/Arabic/big_slave.base.111.png	32x32	big_slave	existing	models.txt: person
 big_wiz.x11	monster/giant/Big_Wiz/big_wiz.base.x11.png	96x96	big_wiz,big_wiz2,big_wiz3	rigged	alive: a creature
 big_wiz.x12	monster/giant/Big_Wiz/big_wiz.base.x12.png	96x96	big_wiz,big_wiz2,big_wiz3	rigged	alive: a creature
 big_wiz.x13	monster/giant/Big_Wiz/big_wiz.base.x13.png	96x96	big_wiz,big_wiz2,big_wiz3	rigged	alive: a creature
@@ -1281,8 +1281,8 @@ chicken.131	monster/animal/farmyard/chicken.base.131.png	32x32	chicken	rigged	al
 chicken.132	monster/animal/farmyard/chicken.base.132.png	32x32	chicken	rigged	alive: a creature
 chicken.171	monster/animal/farmyard/chicken.base.171.png	32x32	chicken	rigged	alive: a creature
 chicken.172	monster/animal/farmyard/chicken.base.172.png	32x32	chicken	rigged	alive: a creature
-child.151	monster/humanoid/Human/child.base.151.png	32x32	child,child_thief	rigged	alive: a creature
-child2.111	monster/humanoid/Human/child2.base.111.png	32x32	child2	rigged	alive: a creature
+child.151	monster/humanoid/Human/child.base.151.png	32x32	child,child_thief	existing	models.txt: person
+child2.111	monster/humanoid/Human/child2.base.111.png	32x32	child2	existing	models.txt: person
 chinese_dr.x31	monster/dragon/Chinese_Dra/chinese_dr.base.x31.png	64x64	ancient_chinese_dragon,ancient_chinese_dragon_2,ancient_chinese_dragon_3	rigged	alive: a creature
 chinese_dr.x32	monster/dragon/Chinese_Dra/chinese_dr.base.x32.png	64x64	ancient_chinese_dragon,ancient_chinese_dragon_2,ancient_chinese_dragon_3	rigged	alive: a creature
 chinese_dr.x33	monster/dragon/Chinese_Dra/chinese_dr.base.x33.png	64x64	ancient_chinese_dragon,ancient_chinese_dragon_2,ancient_chinese_dragon_3	rigged	alive: a creature
@@ -1307,14 +1307,14 @@ city_tower_northwest.x11	construct/tower/city_tower_northwest.base.x11.png	32x64
 cityport_0.111	wall/cwall/cityport_0.base.111.png	32x32	cityport_b	existing	models.txt: wall
 cityport_1.111	wall/cwall/cityport_1.base.111.png	32x32	cityport_a	existing	models.txt: wall
 claypipe.111	misc/claypipe.base.111.png	32x32	claypipe,pipe_lythander,smoking_pipe	existing	models.txt: model
-cleric.111	player/class/Religious/cleric.base.111.png	32x32	cleric	rigged	alive: a creature
-cleric.112	player/class/Religious/cleric.base.112.png	32x32		existing	folder player/ (no object uses it)
-cleric.131	player/class/Religious/cleric.base.131.png	32x32	cleric	rigged	alive: a creature
-cleric.132	player/class/Religious/cleric.base.132.png	32x32		existing	folder player/ (no object uses it)
-cleric.151	player/class/Religious/cleric.base.151.png	32x32	cleric	rigged	alive: a creature
-cleric.152	player/class/Religious/cleric.base.152.png	32x32		existing	folder player/ (no object uses it)
-cleric.171	player/class/Religious/cleric.base.171.png	32x32	cleric	rigged	alive: a creature
-cleric.172	player/class/Religious/cleric.base.172.png	32x32		existing	folder player/ (no object uses it)
+cleric.111	player/class/Religious/cleric.base.111.png	32x32	cleric	existing	models.txt: person
+cleric.112	player/class/Religious/cleric.base.112.png	32x32		existing	models.txt: person
+cleric.131	player/class/Religious/cleric.base.131.png	32x32	cleric	existing	models.txt: person
+cleric.132	player/class/Religious/cleric.base.132.png	32x32		existing	models.txt: person
+cleric.151	player/class/Religious/cleric.base.151.png	32x32	cleric	existing	models.txt: person
+cleric.152	player/class/Religious/cleric.base.152.png	32x32		existing	models.txt: person
+cleric.171	player/class/Religious/cleric.base.171.png	32x32	cleric	existing	models.txt: person
+cleric.172	player/class/Religious/cleric.base.172.png	32x32		existing	models.txt: person
 cloak.111	armour/cloak/cloak.base.111.png	32x32	cloak	existing	models.txt: building
 cloak_acid_proofing.111	armour/cloak/cloak_acid_proofing.base.111.png	32x32		existing	models.txt: building
 cloak_black.111	armour/cloak/cloak_black.base.111.png	32x32		existing	models.txt: building
@@ -1374,7 +1374,7 @@ cloud_5_1.x11	ground/sky/cloud_5_1.base.x11.png	32x32	cloud_5_1_1	flat	folder gr
 cloud_5_2.x11	ground/sky/cloud_5_2.base.x11.png	32x32	cloud_5_2_1	flat	folder ground/: ground and its smoothing edges
 cloud_5_3.x11	ground/sky/cloud_5_3.base.x11.png	32x32	cloud_5_3_1	flat	folder ground/: ground and its smoothing edges
 clover.111	food/produce/clover.base.111.png	32x32	clover	existing	models.txt: model
-clown.111	monster/humanoid/Human/clown.base.111.png	32x32	clown	rigged	alive: a creature
+clown.111	monster/humanoid/Human/clown.base.111.png	32x32	clown	existing	models.txt: person
 club.111	weapon/club/club.base.111.png	32x32	club	existing	models.txt: model
 cmarsh.111	ground/cmarsh.base.111.png	32x32	cmarsh	flat	folder ground/: ground and its smoothing edges
 cobblesto1.111	floor/cobblesto1.base.111.png	32x32	cobblestones2	flat	folder floor/: floor
@@ -1402,9 +1402,9 @@ confusion.111	spell/Cone/confusion.base.111.png	32x32	chaos,chaos_ball,color_spr
 confusion.112	spell/Cone/confusion.base.112.png	32x32	confusion	flat	type SPELL_EFFECT: on the ground or an effect
 confusion.113	spell/Cone/confusion.base.113.png	32x32	confusion	flat	type SPELL_EFFECT: on the ground or an effect
 confusion.114	spell/Cone/confusion.base.114.png	32x32	confusion	flat	type SPELL_EFFECT: on the ground or an effect
-conjurer.111	monster/humanoid/Class/conjurer.base.111.png	32x32	conjurer,conjurer2	rigged	alive: a creature
-conjurer.112	monster/humanoid/Class/conjurer.base.112.png	32x32	conjurer,conjurer2	rigged	alive: a creature
-conjurer.113	monster/humanoid/Class/conjurer.base.113.png	32x32	conjurer,conjurer2	rigged	alive: a creature
+conjurer.111	monster/humanoid/Class/conjurer.base.111.png	32x32	conjurer,conjurer2	existing	models.txt: person
+conjurer.112	monster/humanoid/Class/conjurer.base.112.png	32x32	conjurer,conjurer2	existing	models.txt: person
+conjurer.113	monster/humanoid/Class/conjurer.base.113.png	32x32	conjurer,conjurer2	existing	models.txt: person
 conv.111	shop/conv.base.111.png	32x32	identify_table	existing	models.txt: building
 cookingpot.111	crafting/Materials/cookingpot.base.111.png	32x32	cookpot	existing	models.txt: model
 copperbar.111	jewel/bars/copperbar.base.111.png	32x32	copperbar	existing	models.txt: model
@@ -1419,14 +1419,14 @@ counterwall.131	spell/MagicWall/counterwall.base.131.png	32x32	counterwall	exist
 counterwall.132	spell/MagicWall/counterwall.base.132.png	32x32	counterwall	existing	drawn as wall blocks
 counterwall.141	spell/MagicWall/counterwall.base.141.png	32x32	counterwall	existing	drawn as wall blocks
 counterwall.142	spell/MagicWall/counterwall.base.142.png	32x32	counterwall	existing	drawn as wall blocks
-courier.111	monster/humanoid/Human/courier.base.111.png	32x32	courier	rigged	alive: a creature
-courierblue.111	monster/humanoid/Human/courierblue.base.111.png	32x32		rigged	folder monster/ (no object uses it)
-couriergreen.111	monster/humanoid/Human/couriergreen.base.111.png	32x32		rigged	folder monster/ (no object uses it)
-couriermagenta.111	monster/humanoid/Human/couriermagenta.base.111.png	32x32		rigged	folder monster/ (no object uses it)
-courierorange.111	monster/humanoid/Human/courierorange.base.111.png	32x32		rigged	folder monster/ (no object uses it)
-courierpurple.111	monster/humanoid/Human/courierpurple.base.111.png	32x32		rigged	folder monster/ (no object uses it)
-courierturquoise.111	monster/humanoid/Human/courierturquoise.base.111.png	32x32		rigged	folder monster/ (no object uses it)
-courieryellow.111	monster/humanoid/Human/courieryellow.base.111.png	32x32		rigged	folder monster/ (no object uses it)
+courier.111	monster/humanoid/Human/courier.base.111.png	32x32	courier	existing	models.txt: person
+courierblue.111	monster/humanoid/Human/courierblue.base.111.png	32x32		existing	models.txt: person
+couriergreen.111	monster/humanoid/Human/couriergreen.base.111.png	32x32		existing	models.txt: person
+couriermagenta.111	monster/humanoid/Human/couriermagenta.base.111.png	32x32		existing	models.txt: person
+courierorange.111	monster/humanoid/Human/courierorange.base.111.png	32x32		existing	models.txt: person
+courierpurple.111	monster/humanoid/Human/courierpurple.base.111.png	32x32		existing	models.txt: person
+courierturquoise.111	monster/humanoid/Human/courierturquoise.base.111.png	32x32		existing	models.txt: person
+courieryellow.111	monster/humanoid/Human/courieryellow.base.111.png	32x32		existing	models.txt: person
 courthouse.x11	construct/town/courthouse.base.x11.png	64x64	courthouse,courthouse_2,courthouse_3	existing	models.txt: building
 cplate.111	misc/cplate.base.111.png	32x32	cplate	existing	models.txt: model
 crater.111	ground/Stone/crater.base.111.png	32x32	crater	flat	folder ground/: ground and its smoothing edges
@@ -1435,14 +1435,14 @@ crawling_chaos.112	monster/misc/crawl/crawling_chaos.base.112.png	32x32	crawling
 crawling_chaos.113	monster/misc/crawl/crawling_chaos.base.113.png	32x32	crawling_chaos,creeping_chaos	rigged	alive: a creature
 crea_serp_c.111	shop/crea_serp_c.base.111.png	32x32	create_serpent_cloak	existing	models.txt: building
 creator.111	system/creator.base.111.png	32x32	creator,marker,trigger_marker	skip	type TRIGGER_MARKER: a UI icon or system object
-crone.111	monster/humanoid/Human/crone.base.111.png	32x32	crone	rigged	alive: a creature
-crone.121	monster/humanoid/Human/crone.base.121.png	32x32	crone	rigged	alive: a creature
-crone.131	monster/humanoid/Human/crone.base.131.png	32x32	crone	rigged	alive: a creature
-crone.141	monster/humanoid/Human/crone.base.141.png	32x32	crone	rigged	alive: a creature
-crone.151	monster/humanoid/Human/crone.base.151.png	32x32	crone	rigged	alive: a creature
-crone.161	monster/humanoid/Human/crone.base.161.png	32x32	crone	rigged	alive: a creature
-crone.171	monster/humanoid/Human/crone.base.171.png	32x32	crone	rigged	alive: a creature
-crone.181	monster/humanoid/Human/crone.base.181.png	32x32	crone	rigged	alive: a creature
+crone.111	monster/humanoid/Human/crone.base.111.png	32x32	crone	existing	models.txt: person
+crone.121	monster/humanoid/Human/crone.base.121.png	32x32	crone	existing	models.txt: person
+crone.131	monster/humanoid/Human/crone.base.131.png	32x32	crone	existing	models.txt: person
+crone.141	monster/humanoid/Human/crone.base.141.png	32x32	crone	existing	models.txt: person
+crone.151	monster/humanoid/Human/crone.base.151.png	32x32	crone	existing	models.txt: person
+crone.161	monster/humanoid/Human/crone.base.161.png	32x32	crone	existing	models.txt: person
+crone.171	monster/humanoid/Human/crone.base.171.png	32x32	crone	existing	models.txt: person
+crone.181	monster/humanoid/Human/crone.base.181.png	32x32	crone	existing	models.txt: person
 crossbow.111	weapon/bow/crossbow.base.111.png	32x32	crossbow	existing	models.txt: model
 crossroad.111	readable/crossroad.base.111.png	32x32	cross_sign	existing	models.txt: building
 crown.111	armour/helmet/crown.base.111.png	32x32	crown	existing	models.txt: model
@@ -1553,9 +1553,9 @@ dagger_f.112	weapon/artifact/Fdagger/dagger_f.base.112.png	32x32	dagger_f	existi
 dagger_f.113	weapon/artifact/Fdagger/dagger_f.base.113.png	32x32	dagger_f	existing	models.txt: model
 dagger_f.114	weapon/artifact/Fdagger/dagger_f.base.114.png	32x32	dagger_f	existing	models.txt: model
 dagger_r.111	weapon/sword/dagger_r.base.111.png	32x32		existing	models.txt: model
-dancing_girl.111	monster/humanoid/Arabic/dancing_girl.base.111.png	32x32	dancing_girl	rigged	alive: a creature
-dancing_girl.112	monster/humanoid/Arabic/dancing_girl.base.112.png	32x32	dancing_girl	rigged	alive: a creature
-dancing_girl.113	monster/humanoid/Arabic/dancing_girl.base.113.png	32x32	dancing_girl	rigged	alive: a creature
+dancing_girl.111	monster/humanoid/Arabic/dancing_girl.base.111.png	32x32	dancing_girl	existing	models.txt: person
+dancing_girl.112	monster/humanoid/Arabic/dancing_girl.base.112.png	32x32	dancing_girl	existing	models.txt: person
+dancing_girl.113	monster/humanoid/Arabic/dancing_girl.base.113.png	32x32	dancing_girl	existing	models.txt: person
 dancingsword.111	monster/misc/dancingsword.base.111.png	32x32	dancingsword	rigged	alive: a creature
 dancingsword.112	monster/misc/dancingsword.base.112.png	32x32	dancingsword	rigged	alive: a creature
 dancingsword.113	monster/misc/dancingsword.base.113.png	32x32	dancingsword	rigged	alive: a creature
@@ -1614,16 +1614,16 @@ dark_blue_cave_8.111	wall/dark_blue_cave/dark_blue_cave_8.base.111.png	32x32	dar
 dark_blue_cave_8.112	wall/dark_blue_cave/dark_blue_cave_8.base.112.png	32x32	dark_blue_cave_8	existing	models.txt: wall
 dark_blue_cave_9.111	wall/dark_blue_cave/dark_blue_cave_9.base.111.png	32x32	dark_blue_cave_9	existing	models.txt: wall
 dark_blue_cave_9.112	wall/dark_blue_cave/dark_blue_cave_9.base.112.png	32x32	dark_blue_cave_9	existing	models.txt: wall
-dark_elf.111	monster/humanoid/Elf/dark_elf.base.111.png	32x32	dark_elf,shadow_elf	rigged	alive: a creature
-dark_elf.112	monster/humanoid/Elf/dark_elf.base.112.png	32x32	dark_elf,shadow_elf	rigged	alive: a creature
-dark_elf.131	monster/humanoid/Elf/dark_elf.base.131.png	32x32		rigged	folder monster/ (no object uses it)
-dark_elf.132	monster/humanoid/Elf/dark_elf.base.132.png	32x32		rigged	folder monster/ (no object uses it)
-dark_elf.171	monster/humanoid/Elf/dark_elf.base.171.png	32x32		rigged	folder monster/ (no object uses it)
-dark_elf.172	monster/humanoid/Elf/dark_elf.base.172.png	32x32		rigged	folder monster/ (no object uses it)
-dark_elf2.131	monster/humanoid/Elf/dark_elf2.base.131.png	32x32	dark_elf2	rigged	alive: a creature
-dark_elf2.132	monster/humanoid/Elf/dark_elf2.base.132.png	32x32	dark_elf2	rigged	alive: a creature
-dark_elf2.171	monster/humanoid/Elf/dark_elf2.base.171.png	32x32	dark_elf2	rigged	alive: a creature
-dark_elf2.172	monster/humanoid/Elf/dark_elf2.base.172.png	32x32	dark_elf2	rigged	alive: a creature
+dark_elf.111	monster/humanoid/Elf/dark_elf.base.111.png	32x32	dark_elf,shadow_elf	existing	models.txt: person
+dark_elf.112	monster/humanoid/Elf/dark_elf.base.112.png	32x32	dark_elf,shadow_elf	existing	models.txt: person
+dark_elf.131	monster/humanoid/Elf/dark_elf.base.131.png	32x32		existing	models.txt: person
+dark_elf.132	monster/humanoid/Elf/dark_elf.base.132.png	32x32		existing	models.txt: person
+dark_elf.171	monster/humanoid/Elf/dark_elf.base.171.png	32x32		existing	models.txt: person
+dark_elf.172	monster/humanoid/Elf/dark_elf.base.172.png	32x32		existing	models.txt: person
+dark_elf2.131	monster/humanoid/Elf/dark_elf2.base.131.png	32x32	dark_elf2	existing	models.txt: person
+dark_elf2.132	monster/humanoid/Elf/dark_elf2.base.132.png	32x32	dark_elf2	existing	models.txt: person
+dark_elf2.171	monster/humanoid/Elf/dark_elf2.base.171.png	32x32	dark_elf2	existing	models.txt: person
+dark_elf2.172	monster/humanoid/Elf/dark_elf2.base.172.png	32x32	dark_elf2	existing	models.txt: person
 dark_palace.x11	construct/Palace/dark_palace.base.x11.png	128x96	dark_palace,dark_palace_10,dark_palace_11	existing	models.txt: building
 darkblade.111	weapon/artifact/Darkblade/darkblade.base.111.png	32x32	darkblade	existing	models.txt: model
 darkblade.112	weapon/artifact/Darkblade/darkblade.base.112.png	32x32	darkblade	existing	models.txt: model
@@ -2035,8 +2035,8 @@ dwall_C.111	wall/dwall/dwall_C.base.111.png	32x32	dwall_2_2_3	existing	models.tx
 dwall_D.111	wall/dwall/dwall_D.base.111.png	32x32	dwall_3_4	existing	models.txt: wall
 dwall_E.111	wall/dwall/dwall_E.base.111.png	32x32	dwall_3_3	existing	models.txt: wall
 dwall_F.111	wall/dwall/dwall_F.base.111.png	32x32	dwall_4	existing	models.txt: wall
-dwarf.111	monster/humanoid/Dwarf/dwarf.base.111.png	32x32	Mostrai,dwarf,mostrai_avatar	rigged	alive: a creature
-dwarf.112	monster/humanoid/Dwarf/dwarf.base.112.png	32x32	Mostrai,dwarf,mostrai_avatar	rigged	alive: a creature
+dwarf.111	monster/humanoid/Dwarf/dwarf.base.111.png	32x32	Mostrai,dwarf,mostrai_avatar	existing	models.txt: person
+dwarf.112	monster/humanoid/Dwarf/dwarf.base.112.png	32x32	Mostrai,dwarf,mostrai_avatar	existing	models.txt: person
 dwarf_p.111	player/race/dwarf_p.base.111.png	32x32	dwarf_player	existing	player character (3D bodies)
 dwarf_p.112	player/race/dwarf_p.base.112.png	32x32	dwarf_player	existing	player character (3D bodies)
 dwarf_p.131	player/race/dwarf_p.base.131.png	32x32	dwarf_player	existing	player character (3D bodies)
@@ -2053,13 +2053,13 @@ dwarf_player_class_barbarian.151	player/race/dwarf_player_class_barbarian.base.1
 dwarf_player_class_barbarian.152	player/race/dwarf_player_class_barbarian.base.152.png	32x32		existing	folder player/ (no object uses it)
 dwarf_player_class_barbarian.171	player/race/dwarf_player_class_barbarian.base.171.png	32x32		existing	folder player/ (no object uses it)
 dwarf_player_class_barbarian.172	player/race/dwarf_player_class_barbarian.base.172.png	32x32		existing	folder player/ (no object uses it)
-dwarf_pr.111	monster/humanoid/Dwarf/dwarf_pr.base.111.png	32x32	dwarf_priest,renegade_priest	rigged	alive: a creature
-dwarf_pr.112	monster/humanoid/Dwarf/dwarf_pr.base.112.png	32x32	dwarf_priest,renegade_priest	rigged	alive: a creature
-dwarf_pr.113	monster/humanoid/Dwarf/dwarf_pr.base.113.png	32x32	dwarf_priest,renegade_priest	rigged	alive: a creature
+dwarf_pr.111	monster/humanoid/Dwarf/dwarf_pr.base.111.png	32x32	dwarf_priest,renegade_priest	existing	models.txt: person
+dwarf_pr.112	monster/humanoid/Dwarf/dwarf_pr.base.112.png	32x32	dwarf_priest,renegade_priest	existing	models.txt: person
+dwarf_pr.113	monster/humanoid/Dwarf/dwarf_pr.base.113.png	32x32	dwarf_priest,renegade_priest	existing	models.txt: person
 dwarf_stoned.111	player/stoned/dwarf_stoned.base.111.png	32x32		existing	folder player/ (no object uses it)
-dwarf_wiz.111	monster/humanoid/Dwarf/dwarf_wiz.base.111.png	32x32	dwarf_wiz,renegade_wizard	rigged	alive: a creature
-dwarf_wiz.112	monster/humanoid/Dwarf/dwarf_wiz.base.112.png	32x32	dwarf_wiz,renegade_wizard	rigged	alive: a creature
-dwarf_wiz.113	monster/humanoid/Dwarf/dwarf_wiz.base.113.png	32x32	dwarf_wiz,renegade_wizard	rigged	alive: a creature
+dwarf_wiz.111	monster/humanoid/Dwarf/dwarf_wiz.base.111.png	32x32	dwarf_wiz,renegade_wizard	existing	models.txt: person
+dwarf_wiz.112	monster/humanoid/Dwarf/dwarf_wiz.base.112.png	32x32	dwarf_wiz,renegade_wizard	existing	models.txt: person
+dwarf_wiz.113	monster/humanoid/Dwarf/dwarf_wiz.base.113.png	32x32	dwarf_wiz,renegade_wizard	existing	models.txt: person
 dwindow_0.111	wall/dwall/dwindow_0.base.111.png	32x32	dwall_win1	existing	models.txt: wall
 dwindow_1.111	wall/dwall/dwindow_1.base.111.png	32x32	dwall_win2	existing	models.txt: wall
 dwindow_2.111	wall/dwall/dwindow_2.base.111.png	32x32	dwall_win3	existing	models.txt: wall
@@ -2109,16 +2109,16 @@ elf.151	player/race/elf.base.151.png	32x32	elf,elf_player	existing	player charac
 elf.152	player/race/elf.base.152.png	32x32	elf_player	existing	player character (3D bodies)
 elf.171	player/race/elf.base.171.png	32x32	elf,elf_player	existing	player character (3D bodies)
 elf.172	player/race/elf.base.172.png	32x32	elf_player	existing	player character (3D bodies)
-elf_1.111	monster/humanoid/Elf/elf_1.base.111.png	32x32	Lythander,elf_1,lythander_avatar	rigged	alive: a creature
-elf_1.112	monster/humanoid/Elf/elf_1.base.112.png	32x32	Lythander,elf_1,lythander_avatar	rigged	alive: a creature
-elf_1.113	monster/humanoid/Elf/elf_1.base.113.png	32x32	Lythander,elf_1,lythander_avatar	rigged	alive: a creature
-elf_guard.111	monster/humanoid/Elf/elf_guard.base.111.png	32x32	elf_guard	rigged	alive: a creature
-elf_guard.112	monster/humanoid/Elf/elf_guard.base.112.png	32x32	elf_guard	rigged	alive: a creature
-elf_guard.113	monster/humanoid/Elf/elf_guard.base.113.png	32x32	elf_guard	rigged	alive: a creature
-elf_lad.111	monster/humanoid/Elf/elf_lad.base.111.png	32x32	elf_man	rigged	alive: a creature
-elf_lad.112	monster/humanoid/Elf/elf_lad.base.112.png	32x32	elf_man	rigged	alive: a creature
-elf_lass.111	monster/humanoid/Elf/elf_lass.base.111.png	32x32	elf_lass	rigged	alive: a creature
-elf_lass.112	monster/humanoid/Elf/elf_lass.base.112.png	32x32	elf_lass	rigged	alive: a creature
+elf_1.111	monster/humanoid/Elf/elf_1.base.111.png	32x32	Lythander,elf_1,lythander_avatar	existing	models.txt: person
+elf_1.112	monster/humanoid/Elf/elf_1.base.112.png	32x32	Lythander,elf_1,lythander_avatar	existing	models.txt: person
+elf_1.113	monster/humanoid/Elf/elf_1.base.113.png	32x32	Lythander,elf_1,lythander_avatar	existing	models.txt: person
+elf_guard.111	monster/humanoid/Elf/elf_guard.base.111.png	32x32	elf_guard	existing	models.txt: person
+elf_guard.112	monster/humanoid/Elf/elf_guard.base.112.png	32x32	elf_guard	existing	models.txt: person
+elf_guard.113	monster/humanoid/Elf/elf_guard.base.113.png	32x32	elf_guard	existing	models.txt: person
+elf_lad.111	monster/humanoid/Elf/elf_lad.base.111.png	32x32	elf_man	existing	models.txt: person
+elf_lad.112	monster/humanoid/Elf/elf_lad.base.112.png	32x32	elf_man	existing	models.txt: person
+elf_lass.111	monster/humanoid/Elf/elf_lass.base.111.png	32x32	elf_lass	existing	models.txt: person
+elf_lass.112	monster/humanoid/Elf/elf_lass.base.112.png	32x32	elf_lass	existing	models.txt: person
 elf_player_class_ranger.111	player/race/elf_player_class_ranger.base.111.png	32x32		existing	folder player/ (no object uses it)
 elf_player_class_ranger.112	player/race/elf_player_class_ranger.base.112.png	32x32		existing	folder player/ (no object uses it)
 elf_player_class_ranger.131	player/race/elf_player_class_ranger.base.131.png	32x32		existing	folder player/ (no object uses it)
@@ -2170,7 +2170,7 @@ evil_master3.111	monster/demon/evil_master3.base.111.png	32x32	evil_master3	rigg
 evil_master3.112	monster/demon/evil_master3.base.112.png	32x32	evil_master3	rigged	alive: a creature
 evil_master4.111	monster/demon/evil_master4.base.111.png	32x32	evil_master4	rigged	alive: a creature
 evil_master4.112	monster/demon/evil_master4.base.112.png	32x32	evil_master4	rigged	alive: a creature
-evilclown.111	monster/humanoid/Human/evilclown.base.111.png	32x32	evilclown	rigged	alive: a creature
+evilclown.111	monster/humanoid/Human/evilclown.base.111.png	32x32	evilclown	existing	models.txt: person
 evoker.111	player/class/Wizardry/evoker.base.111.png	32x32	evoker_class	existing	player character (3D bodies)
 evoker.112	player/class/Wizardry/evoker.base.112.png	32x32	evoker_class	existing	player character (3D bodies)
 evoker.131	player/class/Wizardry/evoker.base.131.png	32x32	evoker_class	existing	player character (3D bodies)
@@ -2229,12 +2229,12 @@ falls.111	ground/falls.base.111.png	32x32	falls	flat	folder ground/: ground and 
 falls2.111	ground/falls2.base.111.png	32x32	falls_2	flat	folder ground/: ground and its smoothing edges
 falls3.111	ground/falls3.base.111.png	32x32	falls_3	flat	folder ground/: ground and its smoothing edges
 falls4.111	ground/falls4.base.111.png	32x32	falls_4	flat	folder ground/: ground and its smoothing edges
-farmer.111	monster/humanoid/Human/farmer.base.111.png	32x32	farmer	rigged	alive: a creature
-farmer.112	monster/humanoid/Human/farmer.base.112.png	32x32	farmer	rigged	alive: a creature
+farmer.111	monster/humanoid/Human/farmer.base.111.png	32x32	farmer	existing	models.txt: person
+farmer.112	monster/humanoid/Human/farmer.base.112.png	32x32	farmer	existing	models.txt: person
 farmhouse.x11	construct/house/farmhouse.base.x11.png	64x32	farmhouse,farmhouse_2	existing	models.txt: building
 farmland.111	ground/farmland.base.111.png	32x32	farmland	flat	folder ground/: ground and its smoothing edges
-fatman.111	monster/humanoid/Human/fatman.base.111.png	32x32	fatman	rigged	alive: a creature
-fatwoman.111	monster/humanoid/Human/fatwoman.base.111.png	32x32	fatwoman	rigged	alive: a creature
+fatman.111	monster/humanoid/Human/fatman.base.111.png	32x32	fatman	existing	models.txt: person
+fatwoman.111	monster/humanoid/Human/fatwoman.base.111.png	32x32	fatwoman	existing	models.txt: person
 fcross-blue.111	floor/fcross-blue.base.111.png	32x32	fcross-blue	flat	folder floor/: floor
 fcross-white.111	floor/fcross-white.base.111.png	32x32	fcross-white	flat	folder floor/: floor
 fear.111	spell/Cone/fear.base.111.png	32x32	chaos,chaos_ball,color_spray	flat	is_floor
@@ -2356,9 +2356,9 @@ fernsdense.111	ground/new/fernsdense.base.111.png	32x32	fernsdense	flat	folder g
 fernssparse.111	ground/new/fernssparse.base.111.png	32x32	fernssparse	flat	folder ground/: ground and its smoothing edges
 fiend.111	monster/demon/fiend.base.111.png	32x32	fiend	rigged	alive: a creature
 fiend.112	monster/demon/fiend.base.112.png	32x32	fiend	rigged	alive: a creature
-fighter.111	monster/humanoid/Class/fighter.base.111.png	32x32	fighter	rigged	alive: a creature
-fighter.112	monster/humanoid/Class/fighter.base.112.png	32x32	fighter	rigged	alive: a creature
-fighter.113	monster/humanoid/Class/fighter.base.113.png	32x32	fighter	rigged	alive: a creature
+fighter.111	monster/humanoid/Class/fighter.base.111.png	32x32	fighter	existing	models.txt: person
+fighter.112	monster/humanoid/Class/fighter.base.112.png	32x32	fighter	existing	models.txt: person
+fighter.113	monster/humanoid/Class/fighter.base.113.png	32x32	fighter	existing	models.txt: person
 figurine_clay.111	spell/Potion/figurine_clay.base.111.png	32x32		flat	folder spell/ (no object uses it)
 figurine_flame.111	spell/Potion/figurine_flame.base.111.png	32x32		flat	folder spell/ (no object uses it)
 figurine_gen.111	spell/Potion/figurine_gen.base.111.png	32x32	figurine_generic	existing	models.txt: model
@@ -2591,8 +2591,8 @@ gard_gate.111	connect/Garden_gate/gard_gate.base.111.png	32x32	ggate_breakable,g
 gard_gate.112	connect/Garden_gate/gard_gate.base.112.png	32x32	ggate_breakable,ggate_closed,ggate_open	existing	models.txt: model
 gard_gate.113	connect/Garden_gate/gard_gate.base.113.png	32x32	ggate_breakable,ggate_closed,ggate_open	existing	models.txt: model
 gard_gate.114	connect/Garden_gate/gard_gate.base.114.png	32x32	ggate_breakable,ggate_closed,ggate_open	existing	models.txt: model
-gardengnome.111	monster/humanoid/Gnome/gardengnome.base.111.png	32x32	gardengnome	rigged	alive: a creature
-gardengnome.112	monster/humanoid/Gnome/gardengnome.base.112.png	32x32	gardengnome	rigged	alive: a creature
+gardengnome.111	monster/humanoid/Gnome/gardengnome.base.111.png	32x32	gardengnome	existing	models.txt: person
+gardengnome.112	monster/humanoid/Gnome/gardengnome.base.112.png	32x32	gardengnome	existing	models.txt: person
 gargoyle.111	monster/misc/gargoyle.base.111.png	32x32	gargoyle,large_gargoyle	rigged	alive: a creature
 gargoyle.112	monster/misc/gargoyle.base.112.png	32x32	gargoyle,large_gargoyle	rigged	alive: a creature
 garnet.111	jewel/gems/garnet.base.111.png	32x32	garnet	existing	models.txt: model
@@ -2671,10 +2671,10 @@ gnoll.112	monster/goblin/gnoll.base.112.png	32x32	gnoll	existing	models.txt: mon
 gnoll_chief.111	monster/goblin/gnoll_chief.base.111.png	32x32	gnoll_chief_arc	existing	models.txt: monster
 gnoll_gen.111	monster/goblin/gnoll_gen.base.111.png	32x32	generate_gnoll	existing	models.txt: building
 gnoll_leader.111	monster/goblin/gnoll_leader.base.111.png	32x32	gnoll_leader_arc	existing	models.txt: monster
-gnome.111	monster/humanoid/Gnome/gnome.base.111.png	32x32	gnome	rigged	alive: a creature
-gnome.112	monster/humanoid/Gnome/gnome.base.112.png	32x32	gnome	rigged	alive: a creature
-gnome2.111	monster/humanoid/Gnome/gnome2.base.111.png	32x32	gnome2	rigged	alive: a creature
-gnome2.112	monster/humanoid/Gnome/gnome2.base.112.png	32x32	gnome2	rigged	alive: a creature
+gnome.111	monster/humanoid/Gnome/gnome.base.111.png	32x32	gnome	existing	models.txt: person
+gnome.112	monster/humanoid/Gnome/gnome.base.112.png	32x32	gnome	existing	models.txt: person
+gnome2.111	monster/humanoid/Gnome/gnome2.base.111.png	32x32	gnome2	existing	models.txt: person
+gnome2.112	monster/humanoid/Gnome/gnome2.base.112.png	32x32	gnome2	existing	models.txt: person
 gnome_p.111	player/race/gnome_p.base.111.png	32x32	gnome_player	existing	player character (3D bodies)
 gnome_p.112	player/race/gnome_p.base.112.png	32x32	gnome_player	existing	player character (3D bodies)
 gnome_p.131	player/race/gnome_p.base.131.png	32x32	gnome_player	existing	player character (3D bodies)
@@ -2776,8 +2776,8 @@ gravestone2.111	misc/gravestone2.base.111.png	32x32	gravestone2	existing	models.
 gray-white-h-marble.111	floor/inlayed/gray-white-h-marble.base.111.png	32x32	gray-white-h-marble_111	flat	folder floor/: floor
 gray-white-h-marble.112	floor/inlayed/gray-white-h-marble.base.112.png	32x32	gray-white-h-marble_112	flat	folder floor/: floor
 graymarble.111	floor/graymarble.base.111.png	32x32	graymarble	flat	folder floor/: floor
-greater_dwarven_guard.111	monster/humanoid/Dwarf/greater_dwarven_guard.base.111.png	32x32	greater_dwarven_guard	rigged	alive: a creature
-greater_dwarven_guard.112	monster/humanoid/Dwarf/greater_dwarven_guard.base.112.png	32x32	greater_dwarven_guard	rigged	alive: a creature
+greater_dwarven_guard.111	monster/humanoid/Dwarf/greater_dwarven_guard.base.111.png	32x32	greater_dwarven_guard	existing	models.txt: person
+greater_dwarven_guard.112	monster/humanoid/Dwarf/greater_dwarven_guard.base.112.png	32x32	greater_dwarven_guard	existing	models.txt: person
 greater_hellhound.131	monster/demon/greater_hellhound.base.131.png	32x32	gr_hellhound	rigged	alive: a creature
 greater_hellhound.132	monster/demon/greater_hellhound.base.132.png	32x32	gr_hellhound	rigged	alive: a creature
 greater_hellhound.133	monster/demon/greater_hellhound.base.133.png	32x32	gr_hellhound	rigged	alive: a creature
@@ -2830,13 +2830,13 @@ gu_horn.112	spell/Wand/gu_horn.base.112.png	32x32	gu_horn	existing	models.txt: m
 gu_horn.113	spell/Wand/gu_horn.base.113.png	32x32	gu_horn	existing	models.txt: model
 gu_horn.114	spell/Wand/gu_horn.base.114.png	32x32	gu_horn	existing	models.txt: model
 gu_horn.115	spell/Wand/gu_horn.base.115.png	32x32	gu_horn	existing	models.txt: model
-guard_hard.111	monster/humanoid/Guard/guard_hard.base.111.png	32x32	guard	rigged	alive: a creature
+guard_hard.111	monster/humanoid/Guard/guard_hard.base.111.png	32x32	guard	existing	models.txt: person
 guard_ho_1.111	wall/cwall/guard_ho_1.base.111.png	32x32	guard_house_4	existing	models.txt: wall
 guard_ho_2.111	wall/cwall/guard_ho_2.base.111.png	32x32	guard_house_2	existing	models.txt: wall
 guard_ho_4.111	wall/cwall/guard_ho_4.base.111.png	32x32	guard_house_3	existing	models.txt: wall
 guard_ho_8.111	wall/cwall/guard_ho_8.base.111.png	32x32	guard_house_1	existing	models.txt: wall
-guard_ligh.111	monster/humanoid/Guard/guard_ligh.base.111.png	32x32	light_guard	rigged	alive: a creature
-guard_med.111	monster/humanoid/Guard/guard_med.base.111.png	32x32	medium_guard	rigged	alive: a creature
+guard_ligh.111	monster/humanoid/Guard/guard_ligh.base.111.png	32x32	light_guard	existing	models.txt: person
+guard_med.111	monster/humanoid/Guard/guard_med.base.111.png	32x32	medium_guard	existing	models.txt: person
 guide_jeweler.111	readable/guide/guide_jeweler.base.111.png	32x32	guide_jeweler_from_nuggets,guide_jeweler_to_nuggets	existing	models.txt: model
 guild.x11	construct/town/guild.base.x11.png	64x64	guild,guild_2,guild_3	existing	models.txt: building
 guild2.x11	construct/town/guild2.base.x11.png	64x64	guild2,guild2_2,guild2_3	existing	models.txt: building
@@ -2850,7 +2850,7 @@ guild2storage_west.x11	construct/town/guild2storage_west.base.x11.png	64x64	guil
 guild_fant.x11	construct/town/guild_fant.base.x11.png	64x64	guild_2_fant,guild_3_fant,guild_4_fant	existing	models.txt: building
 guild_northwest.x11	construct/town/guild_northwest.base.x11.png	64x64	guild_2_northwest,guild_3_northwest,guild_4_northwest	existing	models.txt: building
 guild_west.x11	construct/town/guild_west.base.x11.png	64x64	guild_2_west,guild_3_west,guild_4_west	existing	models.txt: building
-guildmaste.111	monster/humanoid/Human/guildmaste.base.111.png	32x32	guildmaster	rigged	alive: a creature
+guildmaste.111	monster/humanoid/Human/guildmaste.base.111.png	32x32	guildmaster	existing	models.txt: person
 gwall_0.111	wall/gwall/gwall_0.base.111.png	32x32	gwall_0	existing	models.txt: wall
 gwall_1.111	wall/gwall/gwall_1.base.111.png	32x32	gwall_1_2	existing	models.txt: wall
 gwall_2.111	wall/gwall/gwall_2.base.111.png	32x32	gwall_1_4	existing	models.txt: wall
@@ -2884,10 +2884,10 @@ halfling.151	player/race/halfling.base.151.png	32x32	halfling,halfling_p,halflin
 halfling.152	player/race/halfling.base.152.png	32x32	halfling,halfling_player	existing	player character (3D bodies)
 halfling.171	player/race/halfling.base.171.png	32x32	halfling_p,halfling_player	existing	player character (3D bodies)
 halfling.172	player/race/halfling.base.172.png	32x32	halfling_player	existing	player character (3D bodies)
-halfling2.151	monster/humanoid/Halfling/halfling2.base.151.png	32x32	halfling2	rigged	alive: a creature
-halfling2.152	monster/humanoid/Halfling/halfling2.base.152.png	32x32	halfling2	rigged	alive: a creature
-halfling3.151	monster/humanoid/Halfling/halfling3.base.151.png	32x32	halfling3	rigged	alive: a creature
-halfling3.152	monster/humanoid/Halfling/halfling3.base.152.png	32x32	halfling3	rigged	alive: a creature
+halfling2.151	monster/humanoid/Halfling/halfling2.base.151.png	32x32	halfling2	existing	models.txt: person
+halfling2.152	monster/humanoid/Halfling/halfling2.base.152.png	32x32	halfling2	existing	models.txt: person
+halfling3.151	monster/humanoid/Halfling/halfling3.base.151.png	32x32	halfling3	existing	models.txt: person
+halfling3.152	monster/humanoid/Halfling/halfling3.base.152.png	32x32	halfling3	existing	models.txt: person
 halfling_stoned.111	player/stoned/halfling_stoned.base.111.png	32x32		existing	folder player/ (no object uses it)
 hammer_1.111	weapon/hammer/hammer_1.base.111.png	32x32	hammer	existing	models.txt: model
 hammer_2.101	weapon/hammer/hammer_2.base.101.png	32x32	hammer_2	existing	models.txt: model
@@ -2996,9 +2996,9 @@ holy_effect.111	spell/Bullet/holy_effect.base.111.png	32x32	holy_effect	flat	typ
 holy_effect.112	spell/Bullet/holy_effect.base.112.png	32x32	holy_effect	flat	type SPELL_EFFECT: on the ground or an effect
 holy_effect.113	spell/Bullet/holy_effect.base.113.png	32x32	holy_effect	flat	type SPELL_EFFECT: on the ground or an effect
 holy_orb.111	spell/Bullet/holy_orb.base.111.png	32x32	holy_orb	flat	type SPELL_EFFECT: on the ground or an effect
-holy_priest.111	monster/humanoid/Arabic/holy_priest.base.111.png	32x32	holy_priest	rigged	alive: a creature
-holy_priest.211	monster/humanoid/Arabic/holy_priest.base.211.png	32x32	holy_priest	rigged	alive: a creature
-holy_priest.311	monster/humanoid/Arabic/holy_priest.base.311.png	32x32		rigged	folder monster/ (no object uses it)
+holy_priest.111	monster/humanoid/Arabic/holy_priest.base.111.png	32x32	holy_priest	existing	models.txt: person
+holy_priest.211	monster/humanoid/Arabic/holy_priest.base.211.png	32x32	holy_priest	existing	models.txt: person
+holy_priest.311	monster/humanoid/Arabic/holy_priest.base.311.png	32x32		existing	models.txt: person
 holy_symbol.111	skills/Skill_Tools/holy_symbol.base.111.png	32x32	holy_symbol,paladin_holy_symbol	existing	player character (3D bodies)
 holy_symbol_calling.111	skills/Skill_Tools/holy_symbol_calling.base.111.png	32x32		skip	folder skills/ (no object uses it)
 holy_symbol_dark_path.111	skills/Skill_Tools/holy_symbol_dark_path.base.111.png	32x32		skip	folder skills/ (no object uses it)
@@ -3316,11 +3316,11 @@ killerbee.111	monster/insect/bee/killerbee.base.111.png	32x32	killer_bee	existin
 killerbee.112	monster/insect/bee/killerbee.base.112.png	32x32	killer_bee	existing	models.txt: building
 kite_shield.111	armour/shield/kite_shield.base.111.png	32x32	kite_shield	existing	models.txt: model
 knife.111	misc/cutlery/knife.base.111.png	32x32	knife	existing	models.txt: model
-knight.111	monster/humanoid/Guard/knight.base.111.png	32x32	Valkyrie,knight	rigged	alive: a creature
-knight.112	monster/humanoid/Guard/knight.base.112.png	32x32	Valkyrie,knight	rigged	alive: a creature
-knight.113	monster/humanoid/Guard/knight.base.113.png	32x32	Valkyrie,knight	rigged	alive: a creature
-knight.114	monster/humanoid/Guard/knight.base.114.png	32x32	Valkyrie,knight	rigged	alive: a creature
-knight.115	monster/humanoid/Guard/knight.base.115.png	32x32	Valkyrie,knight	rigged	alive: a creature
+knight.111	monster/humanoid/Guard/knight.base.111.png	32x32	Valkyrie,knight	existing	models.txt: person
+knight.112	monster/humanoid/Guard/knight.base.112.png	32x32	Valkyrie,knight	existing	models.txt: person
+knight.113	monster/humanoid/Guard/knight.base.113.png	32x32	Valkyrie,knight	existing	models.txt: person
+knight.114	monster/humanoid/Guard/knight.base.114.png	32x32	Valkyrie,knight	existing	models.txt: person
+knight.115	monster/humanoid/Guard/knight.base.115.png	32x32	Valkyrie,knight	existing	models.txt: person
 knowledge_generic.111	system/knowledge/knowledge_generic.base.111.png	32x32		skip	folder system/ (no object uses it)
 knowledge_gods.111	system/knowledge/knowledge_gods.base.111.png	32x32		skip	folder system/ (no object uses it)
 knowledge_messages.111	system/knowledge/knowledge_messages.base.111.png	32x32		skip	folder system/ (no object uses it)
@@ -3490,8 +3490,8 @@ leech.172	monster/animal/leech/leech.base.172.png	32x32	leech	rigged	alive: a cr
 leech.173	monster/animal/leech/leech.base.173.png	32x32	leech	rigged	alive: a creature
 leg.111	flesh/human/leg.base.111.png	32x32	leg	existing	models.txt: model
 leg_mutton.111	food/leg_mutton.base.111.png	32x32	leg_mutton	existing	models.txt: model
-lesser_dwarven_guard.111	monster/humanoid/Dwarf/lesser_dwarven_guard.base.111.png	32x32	lesser_dwarven_guard	rigged	alive: a creature
-lesser_dwarven_guard.112	monster/humanoid/Dwarf/lesser_dwarven_guard.base.112.png	32x32	lesser_dwarven_guard	rigged	alive: a creature
+lesser_dwarven_guard.111	monster/humanoid/Dwarf/lesser_dwarven_guard.base.111.png	32x32	lesser_dwarven_guard	existing	models.txt: person
+lesser_dwarven_guard.112	monster/humanoid/Dwarf/lesser_dwarven_guard.base.112.png	32x32	lesser_dwarven_guard	existing	models.txt: person
 letter.111	readable/letter.base.111.png	32x32	letter	existing	models.txt: building
 lev_boots.111	armour/boots/lev_boots.base.111.png	32x32	levitationboots	existing	models.txt: model
 lever.111	connect/lever.base.111.png	32x32	button_lever	existing	models.txt: building
@@ -3743,12 +3743,12 @@ magma.113	planes/fire/magma.base.113.png	32x32	magma	existing	models.txt: flat
 magma.114	planes/fire/magma.base.114.png	32x32	magma	existing	models.txt: flat
 magnifier.111	misc/magnifier.base.111.png	32x32	magnifier	existing	models.txt: model
 mailbox.111	misc/Container/mailbox.base.111.png	32x32	mailbox	existing	models.txt: building
-man.131	monster/humanoid/Human/man.base.131.png	32x32	c_man,man,shopkeeper	rigged	alive: a creature
-man.151	monster/humanoid/Human/man.base.151.png	32x32	c_man,man,shopkeeper	rigged	alive: a creature
-man.171	monster/humanoid/Human/man.base.171.png	32x32	c_man,man,shopkeeper	rigged	alive: a creature
-man2.131	monster/humanoid/Human/man2.base.131.png	32x32	man2	rigged	alive: a creature
-man2.151	monster/humanoid/Human/man2.base.151.png	32x32	man2	rigged	alive: a creature
-man2.171	monster/humanoid/Human/man2.base.171.png	32x32	man2	rigged	alive: a creature
+man.131	monster/humanoid/Human/man.base.131.png	32x32	c_man,man,shopkeeper	existing	models.txt: person
+man.151	monster/humanoid/Human/man.base.151.png	32x32	c_man,man,shopkeeper	existing	models.txt: person
+man.171	monster/humanoid/Human/man.base.171.png	32x32	c_man,man,shopkeeper	existing	models.txt: person
+man2.131	monster/humanoid/Human/man2.base.131.png	32x32	man2	existing	models.txt: person
+man2.151	monster/humanoid/Human/man2.base.151.png	32x32	man2	existing	models.txt: person
+man2.171	monster/humanoid/Human/man2.base.171.png	32x32	man2	existing	models.txt: person
 manaball.111	spell/Bullet/manaball.base.111.png	32x32	manaball	flat	type SPELL_EFFECT: on the ground or an effect
 manaball.112	spell/Bullet/manaball.base.112.png	32x32	manaball	flat	type SPELL_EFFECT: on the ground or an effect
 manaball.113	spell/Bullet/manaball.base.113.png	32x32	manaball	flat	type SPELL_EFFECT: on the ground or an effect
@@ -3843,9 +3843,9 @@ mbworkbench.111	mapbuilding/mbworkbench.base.111.png	32x32	building_workbench	sk
 mdemon.x11	monster/demon/medium_demon/mdemon.base.x11.png	64x64	medium_demon,medium_demon_2,medium_demon_3	existing	models.txt: monster
 mdemon.x12	monster/demon/medium_demon/mdemon.base.x12.png	64x64	medium_demon,medium_demon_2,medium_demon_3	existing	models.txt: monster
 mediumston.111	ground/Stone/mediumston.base.111.png	32x32	medium_stones	flat	folder ground/: ground and its smoothing edges
-merchant.111	monster/humanoid/Arabic/merchant.base.111.png	32x32	merchant	rigged	alive: a creature
-merchant.131	monster/humanoid/Arabic/merchant.base.131.png	32x32	merchant	rigged	alive: a creature
-merchant.171	monster/humanoid/Arabic/merchant.base.171.png	32x32	merchant	rigged	alive: a creature
+merchant.111	monster/humanoid/Arabic/merchant.base.111.png	32x32	merchant	existing	models.txt: person
+merchant.131	monster/humanoid/Arabic/merchant.base.131.png	32x32	merchant	existing	models.txt: person
+merchant.171	monster/humanoid/Arabic/merchant.base.171.png	32x32	merchant	existing	models.txt: person
 mercury.111	inorganic/mercury.base.111.png	32x32	mercury	existing	models.txt: model
 mesangel.111	monster/angel/mesangel.base.111.png	32x32	mesangel	rigged	alive: a creature
 mesangel.112	monster/angel/mesangel.base.112.png	32x32	mesangel	rigged	alive: a creature
@@ -4026,20 +4026,20 @@ ninja.151	player/class/Thief/ninja.base.151.png	32x32	ninja,ninja_1,ninja_class	
 ninja.152	player/class/Thief/ninja.base.152.png	32x32	ninja_class	existing	player character (3D bodies)
 ninja.171	player/class/Thief/ninja.base.171.png	32x32	ninja,ninja_1,ninja_class	existing	player character (3D bodies)
 ninja.172	player/class/Thief/ninja.base.172.png	32x32	ninja_class	existing	player character (3D bodies)
-ninja_2.111	monster/humanoid/Class/ninja_2.base.111.png	32x32	ninja2	rigged	alive: a creature
-ninja_2.112	monster/humanoid/Class/ninja_2.base.112.png	32x32	ninja2	rigged	alive: a creature
-ninja_2.113	monster/humanoid/Class/ninja_2.base.113.png	32x32	ninja2	rigged	alive: a creature
+ninja_2.111	monster/humanoid/Class/ninja_2.base.111.png	32x32	ninja2	existing	models.txt: person
+ninja_2.112	monster/humanoid/Class/ninja_2.base.112.png	32x32	ninja2	existing	models.txt: person
+ninja_2.113	monster/humanoid/Class/ninja_2.base.113.png	32x32	ninja2	existing	models.txt: person
 no_magic.111	floor/no_magic.base.111.png	32x32	magic_banned	flat	folder floor/: floor
 no_spells.111	floor/no_spells.base.111.png	32x32	dungeon_magic	flat	folder floor/: floor
-northman.111	monster/humanoid/Class/northman.base.111.png	32x32	northman	rigged	alive: a creature
-northman.112	monster/humanoid/Class/northman.base.112.png	32x32	northman	rigged	alive: a creature
+northman.111	monster/humanoid/Class/northman.base.111.png	32x32	northman	existing	models.txt: person
+northman.112	monster/humanoid/Class/northman.base.112.png	32x32	northman	existing	models.txt: person
 note.111	readable/note.base.111.png	32x32	note	existing	models.txt: flat
 nugget_huge.111	jewel/nugget_huge.base.111.png	32x32	hugenugget	existing	models.txt: model
 nugget_lar.111	jewel/nugget_lar.base.111.png	32x32	largenugget	existing	models.txt: model
 nugget_sma.111	jewel/nugget_sma.base.111.png	32x32	smallnugget	existing	models.txt: model
-nun.131	monster/humanoid/Human/nun.base.131.png	32x32	nun	rigged	alive: a creature
-nun.151	monster/humanoid/Human/nun.base.151.png	32x32	nun	rigged	alive: a creature
-nun.171	monster/humanoid/Human/nun.base.171.png	32x32	nun	rigged	alive: a creature
+nun.131	monster/humanoid/Human/nun.base.131.png	32x32	nun	existing	models.txt: person
+nun.151	monster/humanoid/Human/nun.base.151.png	32x32	nun	existing	models.txt: person
+nun.171	monster/humanoid/Human/nun.base.171.png	32x32	nun	existing	models.txt: person
 nunchacu_1.111	weapon/chained/nunchacu_1.base.111.png	32x32	nunchacu_1	existing	models.txt: model
 nunchacu_2.111	weapon/chained/nunchacu_2.base.111.png	32x32	nunchacu_2	existing	models.txt: model
 oakdoor.111	exit/oakdoor.base.111.png	32x32	oakdoor	existing	models.txt: model
@@ -4290,10 +4290,10 @@ pink-beige-c-marble.114	floor/inlayed/pink-beige-c-marble.base.114.png	32x32	pin
 pinkmarble.111	floor/pinkmarble.base.111.png	32x32	pinkmarble	flat	folder floor/: floor
 pipe.111	weapon/other/pipe.base.111.png	32x32	pipe	existing	models.txt: model
 pipeweed.111	food/produce/pipeweed.base.111.png	32x32	pipeweed	existing	models.txt: model
-pir_lass.111	monster/humanoid/Human/pir_lass.base.111.png	32x32	pirate_lass	rigged	alive: a creature
-pir_lass.112	monster/humanoid/Human/pir_lass.base.112.png	32x32	pirate_lass	rigged	alive: a creature
-pirate.111	monster/humanoid/Class/pirate.base.111.png	32x32	pirate	rigged	alive: a creature
-pirate.112	monster/humanoid/Class/pirate.base.112.png	32x32	pirate	rigged	alive: a creature
+pir_lass.111	monster/humanoid/Human/pir_lass.base.111.png	32x32	pirate_lass	existing	models.txt: person
+pir_lass.112	monster/humanoid/Human/pir_lass.base.112.png	32x32	pirate_lass	existing	models.txt: person
+pirate.111	monster/humanoid/Class/pirate.base.111.png	32x32	pirate	existing	models.txt: person
+pirate.112	monster/humanoid/Class/pirate.base.112.png	32x32	pirate	existing	models.txt: person
 pirate_hat.111	misc/social/pirate_hat.base.111.png	32x32	pirate_hat	existing	models.txt: model
 pix_dust.111	flesh/misc/pix_dust.base.111.png	32x32	pix_dust	existing	models.txt: model
 pix_wing.111	flesh/misc/pix_wing.base.111.png	32x32	pix_wing	existing	models.txt: model
@@ -4473,10 +4473,10 @@ polymorph.111	spell/Misc/polymorph.base.111.png	32x32	alchemy_diamond_converter,
 polymorph.112	spell/Misc/polymorph.base.112.png	32x32	alchemy_diamond_converter,alchemy_pearl_converter,alchemy_ruby_converter	existing	models.txt: building
 polymorph.113	spell/Misc/polymorph.base.113.png	32x32	alchemy_diamond_converter,alchemy_pearl_converter,alchemy_ruby_converter	existing	models.txt: building
 polymorph.114	spell/Misc/polymorph.base.114.png	32x32	alchemy_diamond_converter,alchemy_pearl_converter,alchemy_ruby_converter	existing	models.txt: building
-postman.131	monster/humanoid/Human/postman/postman.base.131.png	32x32	postman	rigged	alive: a creature
-postman.132	monster/humanoid/Human/postman/postman.base.132.png	32x32	postman	rigged	alive: a creature
-postman.171	monster/humanoid/Human/postman/postman.base.171.png	32x32	postman	rigged	alive: a creature
-postman.172	monster/humanoid/Human/postman/postman.base.172.png	32x32	postman	rigged	alive: a creature
+postman.131	monster/humanoid/Human/postman/postman.base.131.png	32x32	postman	existing	models.txt: person
+postman.132	monster/humanoid/Human/postman/postman.base.132.png	32x32	postman	existing	models.txt: person
+postman.171	monster/humanoid/Human/postman/postman.base.171.png	32x32	postman	existing	models.txt: person
+postman.172	monster/humanoid/Human/postman/postman.base.172.png	32x32	postman	existing	models.txt: person
 postman_gen.111	monster/humanoid/Human/postman/postman_gen.base.111.png	32x32	generate_postman	existing	models.txt: building
 potato.111	food/produce/potato.base.111.png	32x32	potato	existing	models.txt: model
 potion_aether.111	spell/Potion/potion_aether.base.111.png	32x32	potion_aethereality	existing	models.txt: model
@@ -4539,13 +4539,13 @@ priestnew.111	player/class/Religious/priestnew.base.111.png	32x32		existing	fold
 priestnew.131	player/class/Religious/priestnew.base.131.png	32x32		existing	folder player/ (no object uses it)
 priestnew.151	player/class/Religious/priestnew.base.151.png	32x32		existing	folder player/ (no object uses it)
 priestnew.171	player/class/Religious/priestnew.base.171.png	32x32	priest_class	existing	player character (3D bodies)
-princess.111	monster/humanoid/Human/princess.base.111.png	32x32	princess	rigged	alive: a creature
-princess.112	monster/humanoid/Human/princess.base.112.png	32x32	princess	rigged	alive: a creature
-princess.113	monster/humanoid/Human/princess.base.113.png	32x32	princess	rigged	alive: a creature
+princess.111	monster/humanoid/Human/princess.base.111.png	32x32	princess	existing	models.txt: person
+princess.112	monster/humanoid/Human/princess.base.112.png	32x32	princess	existing	models.txt: person
+princess.113	monster/humanoid/Human/princess.base.113.png	32x32	princess	existing	models.txt: person
 prison.x11	construct/town/prison.base.x11.png	64x64	prison,prison_2,prison_3	existing	models.txt: building
 prison_fant.x11	construct/town/prison_fant.base.x11.png	64x64	prison_2_fant,prison_3_fant,prison_4_fant	existing	models.txt: building
-prisoner.111	monster/humanoid/Human/prisoner.base.111.png	32x32	prisoner	rigged	alive: a creature
-prisoner.112	monster/humanoid/Human/prisoner.base.112.png	32x32	prisoner	rigged	alive: a creature
+prisoner.111	monster/humanoid/Human/prisoner.base.111.png	32x32	prisoner	existing	models.txt: person
+prisoner.112	monster/humanoid/Human/prisoner.base.112.png	32x32	prisoner	existing	models.txt: person
 protection.111	spell/Change_Ability/protection.base.111.png	32x32	protection	flat	folder spell/
 protection.112	spell/Change_Ability/protection.base.112.png	32x32	protection	flat	folder spell/
 protection.113	spell/Change_Ability/protection.base.113.png	32x32	protection	flat	folder spell/
@@ -4983,13 +4983,13 @@ s_wyvern.x71	monster/elemental/Shadow/s_wyvern.base.x71.png	64x32	s_wyvern,s_wyv
 s_wyvern.x72	monster/elemental/Shadow/s_wyvern.base.x72.png	64x32	s_wyvern,s_wyvern_2	rigged	alive: a creature
 sabre.111	weapon/sword/sabre.base.111.png	32x32	sabre	existing	models.txt: model
 sack.111	misc/Container/sack.base.111.png	32x32	sack	existing	models.txt: model
-sage.111	monster/humanoid/Human/sage.base.111.png	32x32	c_sage,sage	rigged	alive: a creature
-sage.131	monster/humanoid/Human/sage.base.131.png	32x32	c_sage,sage	rigged	alive: a creature
-sage.151	monster/humanoid/Human/sage.base.151.png	32x32	c_sage,sage	rigged	alive: a creature
-sage.171	monster/humanoid/Human/sage.base.171.png	32x32	c_sage,sage	rigged	alive: a creature
+sage.111	monster/humanoid/Human/sage.base.111.png	32x32	c_sage,sage	existing	models.txt: person
+sage.131	monster/humanoid/Human/sage.base.131.png	32x32	c_sage,sage	existing	models.txt: person
+sage.151	monster/humanoid/Human/sage.base.151.png	32x32	c_sage,sage	existing	models.txt: person
+sage.171	monster/humanoid/Human/sage.base.171.png	32x32	c_sage,sage	existing	models.txt: person
 sai_1.111	weapon/misc/sai_1.base.111.png	32x32	sai1	existing	models.txt: model
 sai_2.111	weapon/misc/sai_2.base.111.png	32x32	sai2	existing	models.txt: model
-sailor.111	monster/humanoid/Human/sailor.base.111.png	32x32	blade_dancer,blade_dancer_master,sailor	rigged	alive: a creature
+sailor.111	monster/humanoid/Human/sailor.base.111.png	32x32	blade_dancer,blade_dancer_master,sailor	existing	models.txt: person
 salt.111	inorganic/salt.base.111.png	32x32	salt,saltpeter	existing	models.txt: model
 sanctuary_mark.000	spell/Aura/sanctuary_mark.base.000.png	32x32	sanctuary,sanctuary_mark	flat	type SPELL_EFFECT: on the ground or an effect
 sanctuary_mark.001	spell/Aura/sanctuary_mark.base.001.png	32x32		flat	folder spell/ (no object uses it)
@@ -5266,7 +5266,7 @@ sky.x11	ground/sky/sky.base.x11.png	32x32	empty_sky	flat	folder ground/: ground 
 slate_b.111	floor/slate_b.base.111.png	32x32	blackslate	flat	folder floor/: floor
 slate_r.111	floor/slate_r.base.111.png	32x32	redslate	flat	folder floor/: floor
 slate_w.111	floor/slate_w.base.111.png	32x32	whiteslate	flat	folder floor/: floor
-slave.111	monster/humanoid/Arabic/slave.base.111.png	32x32	slave	rigged	alive: a creature
+slave.111	monster/humanoid/Arabic/slave.base.111.png	32x32	slave	existing	models.txt: person
 sleep_floor.111	system/mood_floors/sleep_floor.base.111.png	32x32	sleep_floor	flat	type MOOD_FLOOR: on the ground or an effect
 slevel_0.111	wall/slevel/slevel_0.base.111.png	32x32	slevel_0	existing	models.txt: wall
 slevel_1.111	wall/slevel/slevel_1.base.111.png	32x32	slevel_1_2	existing	models.txt: wall
@@ -5700,8 +5700,8 @@ spit_ant.171	monster/insect/ant/spit_ant.base.171.png	32x32	spit_ant	rigged	aliv
 spit_ant.172	monster/insect/ant/spit_ant.base.172.png	32x32	spit_ant	rigged	alive: a creature
 spit_ant.173	monster/insect/ant/spit_ant.base.173.png	32x32	spit_ant	rigged	alive: a creature
 splint.111	spell/Bomb/splint.base.111.png	32x32	splint	flat	type SPELL_EFFECT: on the ground or an effect
-spock.111	monster/humanoid/Elf/spock.base.111.png	32x32		rigged	folder monster/ (no object uses it)
-spock.112	monster/humanoid/Elf/spock.base.112.png	32x32		rigged	folder monster/ (no object uses it)
+spock.111	monster/humanoid/Elf/spock.base.111.png	32x32		existing	models.txt: person
+spock.112	monster/humanoid/Elf/spock.base.112.png	32x32		existing	models.txt: person
 spoon.111	misc/cutlery/spoon.base.111.png	32x32	spoon	existing	models.txt: model
 ssword_1.111	weapon/sword/ssword_1.base.111.png	32x32	shortsword	existing	models.txt: model
 ssword_2.111	weapon/sword/ssword_2.base.111.png	32x32	shortsword_2	existing	models.txt: model
@@ -6245,54 +6245,54 @@ vampire.111	monster/undead/vampire.base.111.png	32x32	vampire	rigged	alive: a cr
 vampire.112	monster/undead/vampire.base.112.png	32x32	vampire	rigged	alive: a creature
 vampiregen.111	monster/undead/vampiregen.base.111.png	32x32	generate_vampire	existing	models.txt: building
 vampiregen.112	monster/undead/vampiregen.base.112.png	32x32	generate_vampire	existing	models.txt: building
-veiled_woman.111	monster/humanoid/Arabic/veiled_woman.base.111.png	32x32	veiled_woman	rigged	alive: a creature
-veiled_woman.112	monster/humanoid/Arabic/veiled_woman.base.112.png	32x32	veiled_woman	rigged	alive: a creature
-veiled_woman.121	monster/humanoid/Arabic/veiled_woman.base.121.png	32x32	veiled_woman	rigged	alive: a creature
-veiled_woman.122	monster/humanoid/Arabic/veiled_woman.base.122.png	32x32	veiled_woman	rigged	alive: a creature
-veiled_woman.131	monster/humanoid/Arabic/veiled_woman.base.131.png	32x32	veiled_woman	rigged	alive: a creature
-veiled_woman.132	monster/humanoid/Arabic/veiled_woman.base.132.png	32x32	veiled_woman	rigged	alive: a creature
-veiled_woman.141	monster/humanoid/Arabic/veiled_woman.base.141.png	32x32	veiled_woman	rigged	alive: a creature
-veiled_woman.142	monster/humanoid/Arabic/veiled_woman.base.142.png	32x32	veiled_woman	rigged	alive: a creature
-veiled_woman.151	monster/humanoid/Arabic/veiled_woman.base.151.png	32x32	veiled_woman	rigged	alive: a creature
-veiled_woman.152	monster/humanoid/Arabic/veiled_woman.base.152.png	32x32	veiled_woman	rigged	alive: a creature
-veiled_woman.161	monster/humanoid/Arabic/veiled_woman.base.161.png	32x32	veiled_woman	rigged	alive: a creature
-veiled_woman.162	monster/humanoid/Arabic/veiled_woman.base.162.png	32x32	veiled_woman	rigged	alive: a creature
-veiled_woman.171	monster/humanoid/Arabic/veiled_woman.base.171.png	32x32	veiled_woman	rigged	alive: a creature
-veiled_woman.172	monster/humanoid/Arabic/veiled_woman.base.172.png	32x32	veiled_woman	rigged	alive: a creature
-veiled_woman.181	monster/humanoid/Arabic/veiled_woman.base.181.png	32x32	veiled_woman	rigged	alive: a creature
-veiled_woman.182	monster/humanoid/Arabic/veiled_woman.base.182.png	32x32	veiled_woman	rigged	alive: a creature
-veiled_woman2.111	monster/humanoid/Arabic/veiled_woman2.base.111.png	32x32	veiled_woman2	rigged	alive: a creature
-veiled_woman2.112	monster/humanoid/Arabic/veiled_woman2.base.112.png	32x32	veiled_woman2	rigged	alive: a creature
-veiled_woman2.121	monster/humanoid/Arabic/veiled_woman2.base.121.png	32x32	veiled_woman2	rigged	alive: a creature
-veiled_woman2.122	monster/humanoid/Arabic/veiled_woman2.base.122.png	32x32	veiled_woman2	rigged	alive: a creature
-veiled_woman2.131	monster/humanoid/Arabic/veiled_woman2.base.131.png	32x32	veiled_woman2	rigged	alive: a creature
-veiled_woman2.132	monster/humanoid/Arabic/veiled_woman2.base.132.png	32x32	veiled_woman2	rigged	alive: a creature
-veiled_woman2.141	monster/humanoid/Arabic/veiled_woman2.base.141.png	32x32	veiled_woman2	rigged	alive: a creature
-veiled_woman2.142	monster/humanoid/Arabic/veiled_woman2.base.142.png	32x32	veiled_woman2	rigged	alive: a creature
-veiled_woman2.151	monster/humanoid/Arabic/veiled_woman2.base.151.png	32x32	veiled_woman2	rigged	alive: a creature
-veiled_woman2.152	monster/humanoid/Arabic/veiled_woman2.base.152.png	32x32	veiled_woman2	rigged	alive: a creature
-veiled_woman2.161	monster/humanoid/Arabic/veiled_woman2.base.161.png	32x32	veiled_woman2	rigged	alive: a creature
-veiled_woman2.162	monster/humanoid/Arabic/veiled_woman2.base.162.png	32x32	veiled_woman2	rigged	alive: a creature
-veiled_woman2.171	monster/humanoid/Arabic/veiled_woman2.base.171.png	32x32	veiled_woman2	rigged	alive: a creature
-veiled_woman2.172	monster/humanoid/Arabic/veiled_woman2.base.172.png	32x32	veiled_woman2	rigged	alive: a creature
-veiled_woman2.181	monster/humanoid/Arabic/veiled_woman2.base.181.png	32x32	veiled_woman2	rigged	alive: a creature
-veiled_woman2.182	monster/humanoid/Arabic/veiled_woman2.base.182.png	32x32	veiled_woman2	rigged	alive: a creature
-veiled_woman3.111	monster/humanoid/Arabic/veiled_woman3.base.111.png	32x32	veiled_woman3	rigged	alive: a creature
-veiled_woman3.112	monster/humanoid/Arabic/veiled_woman3.base.112.png	32x32	veiled_woman3	rigged	alive: a creature
-veiled_woman3.121	monster/humanoid/Arabic/veiled_woman3.base.121.png	32x32	veiled_woman3	rigged	alive: a creature
-veiled_woman3.122	monster/humanoid/Arabic/veiled_woman3.base.122.png	32x32	veiled_woman3	rigged	alive: a creature
-veiled_woman3.131	monster/humanoid/Arabic/veiled_woman3.base.131.png	32x32	veiled_woman3	rigged	alive: a creature
-veiled_woman3.132	monster/humanoid/Arabic/veiled_woman3.base.132.png	32x32	veiled_woman3	rigged	alive: a creature
-veiled_woman3.141	monster/humanoid/Arabic/veiled_woman3.base.141.png	32x32	veiled_woman3	rigged	alive: a creature
-veiled_woman3.142	monster/humanoid/Arabic/veiled_woman3.base.142.png	32x32	veiled_woman3	rigged	alive: a creature
-veiled_woman3.151	monster/humanoid/Arabic/veiled_woman3.base.151.png	32x32	veiled_woman3	rigged	alive: a creature
-veiled_woman3.152	monster/humanoid/Arabic/veiled_woman3.base.152.png	32x32	veiled_woman3	rigged	alive: a creature
-veiled_woman3.161	monster/humanoid/Arabic/veiled_woman3.base.161.png	32x32	veiled_woman3	rigged	alive: a creature
-veiled_woman3.162	monster/humanoid/Arabic/veiled_woman3.base.162.png	32x32	veiled_woman3	rigged	alive: a creature
-veiled_woman3.171	monster/humanoid/Arabic/veiled_woman3.base.171.png	32x32	veiled_woman3	rigged	alive: a creature
-veiled_woman3.172	monster/humanoid/Arabic/veiled_woman3.base.172.png	32x32	veiled_woman3	rigged	alive: a creature
-veiled_woman3.181	monster/humanoid/Arabic/veiled_woman3.base.181.png	32x32	veiled_woman3	rigged	alive: a creature
-veiled_woman3.182	monster/humanoid/Arabic/veiled_woman3.base.182.png	32x32	veiled_woman3	rigged	alive: a creature
+veiled_woman.111	monster/humanoid/Arabic/veiled_woman.base.111.png	32x32	veiled_woman	existing	models.txt: person
+veiled_woman.112	monster/humanoid/Arabic/veiled_woman.base.112.png	32x32	veiled_woman	existing	models.txt: person
+veiled_woman.121	monster/humanoid/Arabic/veiled_woman.base.121.png	32x32	veiled_woman	existing	models.txt: person
+veiled_woman.122	monster/humanoid/Arabic/veiled_woman.base.122.png	32x32	veiled_woman	existing	models.txt: person
+veiled_woman.131	monster/humanoid/Arabic/veiled_woman.base.131.png	32x32	veiled_woman	existing	models.txt: person
+veiled_woman.132	monster/humanoid/Arabic/veiled_woman.base.132.png	32x32	veiled_woman	existing	models.txt: person
+veiled_woman.141	monster/humanoid/Arabic/veiled_woman.base.141.png	32x32	veiled_woman	existing	models.txt: person
+veiled_woman.142	monster/humanoid/Arabic/veiled_woman.base.142.png	32x32	veiled_woman	existing	models.txt: person
+veiled_woman.151	monster/humanoid/Arabic/veiled_woman.base.151.png	32x32	veiled_woman	existing	models.txt: person
+veiled_woman.152	monster/humanoid/Arabic/veiled_woman.base.152.png	32x32	veiled_woman	existing	models.txt: person
+veiled_woman.161	monster/humanoid/Arabic/veiled_woman.base.161.png	32x32	veiled_woman	existing	models.txt: person
+veiled_woman.162	monster/humanoid/Arabic/veiled_woman.base.162.png	32x32	veiled_woman	existing	models.txt: person
+veiled_woman.171	monster/humanoid/Arabic/veiled_woman.base.171.png	32x32	veiled_woman	existing	models.txt: person
+veiled_woman.172	monster/humanoid/Arabic/veiled_woman.base.172.png	32x32	veiled_woman	existing	models.txt: person
+veiled_woman.181	monster/humanoid/Arabic/veiled_woman.base.181.png	32x32	veiled_woman	existing	models.txt: person
+veiled_woman.182	monster/humanoid/Arabic/veiled_woman.base.182.png	32x32	veiled_woman	existing	models.txt: person
+veiled_woman2.111	monster/humanoid/Arabic/veiled_woman2.base.111.png	32x32	veiled_woman2	existing	models.txt: person
+veiled_woman2.112	monster/humanoid/Arabic/veiled_woman2.base.112.png	32x32	veiled_woman2	existing	models.txt: person
+veiled_woman2.121	monster/humanoid/Arabic/veiled_woman2.base.121.png	32x32	veiled_woman2	existing	models.txt: person
+veiled_woman2.122	monster/humanoid/Arabic/veiled_woman2.base.122.png	32x32	veiled_woman2	existing	models.txt: person
+veiled_woman2.131	monster/humanoid/Arabic/veiled_woman2.base.131.png	32x32	veiled_woman2	existing	models.txt: person
+veiled_woman2.132	monster/humanoid/Arabic/veiled_woman2.base.132.png	32x32	veiled_woman2	existing	models.txt: person
+veiled_woman2.141	monster/humanoid/Arabic/veiled_woman2.base.141.png	32x32	veiled_woman2	existing	models.txt: person
+veiled_woman2.142	monster/humanoid/Arabic/veiled_woman2.base.142.png	32x32	veiled_woman2	existing	models.txt: person
+veiled_woman2.151	monster/humanoid/Arabic/veiled_woman2.base.151.png	32x32	veiled_woman2	existing	models.txt: person
+veiled_woman2.152	monster/humanoid/Arabic/veiled_woman2.base.152.png	32x32	veiled_woman2	existing	models.txt: person
+veiled_woman2.161	monster/humanoid/Arabic/veiled_woman2.base.161.png	32x32	veiled_woman2	existing	models.txt: person
+veiled_woman2.162	monster/humanoid/Arabic/veiled_woman2.base.162.png	32x32	veiled_woman2	existing	models.txt: person
+veiled_woman2.171	monster/humanoid/Arabic/veiled_woman2.base.171.png	32x32	veiled_woman2	existing	models.txt: person
+veiled_woman2.172	monster/humanoid/Arabic/veiled_woman2.base.172.png	32x32	veiled_woman2	existing	models.txt: person
+veiled_woman2.181	monster/humanoid/Arabic/veiled_woman2.base.181.png	32x32	veiled_woman2	existing	models.txt: person
+veiled_woman2.182	monster/humanoid/Arabic/veiled_woman2.base.182.png	32x32	veiled_woman2	existing	models.txt: person
+veiled_woman3.111	monster/humanoid/Arabic/veiled_woman3.base.111.png	32x32	veiled_woman3	existing	models.txt: person
+veiled_woman3.112	monster/humanoid/Arabic/veiled_woman3.base.112.png	32x32	veiled_woman3	existing	models.txt: person
+veiled_woman3.121	monster/humanoid/Arabic/veiled_woman3.base.121.png	32x32	veiled_woman3	existing	models.txt: person
+veiled_woman3.122	monster/humanoid/Arabic/veiled_woman3.base.122.png	32x32	veiled_woman3	existing	models.txt: person
+veiled_woman3.131	monster/humanoid/Arabic/veiled_woman3.base.131.png	32x32	veiled_woman3	existing	models.txt: person
+veiled_woman3.132	monster/humanoid/Arabic/veiled_woman3.base.132.png	32x32	veiled_woman3	existing	models.txt: person
+veiled_woman3.141	monster/humanoid/Arabic/veiled_woman3.base.141.png	32x32	veiled_woman3	existing	models.txt: person
+veiled_woman3.142	monster/humanoid/Arabic/veiled_woman3.base.142.png	32x32	veiled_woman3	existing	models.txt: person
+veiled_woman3.151	monster/humanoid/Arabic/veiled_woman3.base.151.png	32x32	veiled_woman3	existing	models.txt: person
+veiled_woman3.152	monster/humanoid/Arabic/veiled_woman3.base.152.png	32x32	veiled_woman3	existing	models.txt: person
+veiled_woman3.161	monster/humanoid/Arabic/veiled_woman3.base.161.png	32x32	veiled_woman3	existing	models.txt: person
+veiled_woman3.162	monster/humanoid/Arabic/veiled_woman3.base.162.png	32x32	veiled_woman3	existing	models.txt: person
+veiled_woman3.171	monster/humanoid/Arabic/veiled_woman3.base.171.png	32x32	veiled_woman3	existing	models.txt: person
+veiled_woman3.172	monster/humanoid/Arabic/veiled_woman3.base.172.png	32x32	veiled_woman3	existing	models.txt: person
+veiled_woman3.181	monster/humanoid/Arabic/veiled_woman3.base.181.png	32x32	veiled_woman3	existing	models.txt: person
+veiled_woman3.182	monster/humanoid/Arabic/veiled_woman3.base.182.png	32x32	veiled_woman3	existing	models.txt: person
 vial_blue.111	potion/vial_blue.base.111.png	32x32	vial_blue	existing	models.txt: model
 vial_cyan.111	potion/vial_cyan.base.111.png	32x32	vial_cyan	existing	models.txt: model
 vial_empty.111	potion/vial_empty.base.111.png	32x32	vial_empty	existing	models.txt: model
@@ -6382,46 +6382,46 @@ warrior.151	player/class/Warrior/warrior.base.151.png	32x32	warrior,warrior_1,wa
 warrior.152	player/class/Warrior/warrior.base.152.png	32x32	warrior_class	existing	player character (3D bodies)
 warrior.171	player/class/Warrior/warrior.base.171.png	32x32	warrior,warrior_1,warrior_class	existing	player character (3D bodies)
 warrior.172	player/class/Warrior/warrior.base.172.png	32x32	warrior_class	existing	player character (3D bodies)
-warrior_blue.111	monster/humanoid/Class/Warrior/warrior_blue.base.111.png	32x32		rigged	folder monster/ (no object uses it)
-warrior_blue.112	monster/humanoid/Class/Warrior/warrior_blue.base.112.png	32x32		rigged	folder monster/ (no object uses it)
-warrior_blue.131	monster/humanoid/Class/Warrior/warrior_blue.base.131.png	32x32		rigged	folder monster/ (no object uses it)
-warrior_blue.132	monster/humanoid/Class/Warrior/warrior_blue.base.132.png	32x32		rigged	folder monster/ (no object uses it)
-warrior_blue.151	monster/humanoid/Class/Warrior/warrior_blue.base.151.png	32x32		rigged	folder monster/ (no object uses it)
-warrior_blue.152	monster/humanoid/Class/Warrior/warrior_blue.base.152.png	32x32		rigged	folder monster/ (no object uses it)
-warrior_blue.171	monster/humanoid/Class/Warrior/warrior_blue.base.171.png	32x32		rigged	folder monster/ (no object uses it)
-warrior_blue.172	monster/humanoid/Class/Warrior/warrior_blue.base.172.png	32x32		rigged	folder monster/ (no object uses it)
-warrior_green.111	monster/humanoid/Class/Warrior/warrior_green.base.111.png	32x32		rigged	folder monster/ (no object uses it)
-warrior_green.112	monster/humanoid/Class/Warrior/warrior_green.base.112.png	32x32		rigged	folder monster/ (no object uses it)
-warrior_green.131	monster/humanoid/Class/Warrior/warrior_green.base.131.png	32x32		rigged	folder monster/ (no object uses it)
-warrior_green.132	monster/humanoid/Class/Warrior/warrior_green.base.132.png	32x32		rigged	folder monster/ (no object uses it)
-warrior_green.151	monster/humanoid/Class/Warrior/warrior_green.base.151.png	32x32		rigged	folder monster/ (no object uses it)
-warrior_green.152	monster/humanoid/Class/Warrior/warrior_green.base.152.png	32x32		rigged	folder monster/ (no object uses it)
-warrior_green.171	monster/humanoid/Class/Warrior/warrior_green.base.171.png	32x32		rigged	folder monster/ (no object uses it)
-warrior_green.172	monster/humanoid/Class/Warrior/warrior_green.base.172.png	32x32		rigged	folder monster/ (no object uses it)
-warrior_grey.111	monster/humanoid/Class/Warrior/warrior_grey.base.111.png	32x32		rigged	folder monster/ (no object uses it)
-warrior_grey.112	monster/humanoid/Class/Warrior/warrior_grey.base.112.png	32x32		rigged	folder monster/ (no object uses it)
-warrior_grey.131	monster/humanoid/Class/Warrior/warrior_grey.base.131.png	32x32		rigged	folder monster/ (no object uses it)
-warrior_grey.132	monster/humanoid/Class/Warrior/warrior_grey.base.132.png	32x32		rigged	folder monster/ (no object uses it)
-warrior_grey.151	monster/humanoid/Class/Warrior/warrior_grey.base.151.png	32x32		rigged	folder monster/ (no object uses it)
-warrior_grey.152	monster/humanoid/Class/Warrior/warrior_grey.base.152.png	32x32		rigged	folder monster/ (no object uses it)
-warrior_grey.171	monster/humanoid/Class/Warrior/warrior_grey.base.171.png	32x32		rigged	folder monster/ (no object uses it)
-warrior_grey.172	monster/humanoid/Class/Warrior/warrior_grey.base.172.png	32x32		rigged	folder monster/ (no object uses it)
-warrior_lblue.111	monster/humanoid/Class/Warrior/warrior_lblue.base.111.png	32x32		rigged	folder monster/ (no object uses it)
-warrior_lblue.112	monster/humanoid/Class/Warrior/warrior_lblue.base.112.png	32x32		rigged	folder monster/ (no object uses it)
-warrior_lblue.131	monster/humanoid/Class/Warrior/warrior_lblue.base.131.png	32x32		rigged	folder monster/ (no object uses it)
-warrior_lblue.132	monster/humanoid/Class/Warrior/warrior_lblue.base.132.png	32x32		rigged	folder monster/ (no object uses it)
-warrior_lblue.151	monster/humanoid/Class/Warrior/warrior_lblue.base.151.png	32x32		rigged	folder monster/ (no object uses it)
-warrior_lblue.152	monster/humanoid/Class/Warrior/warrior_lblue.base.152.png	32x32		rigged	folder monster/ (no object uses it)
-warrior_lblue.171	monster/humanoid/Class/Warrior/warrior_lblue.base.171.png	32x32		rigged	folder monster/ (no object uses it)
-warrior_lblue.172	monster/humanoid/Class/Warrior/warrior_lblue.base.172.png	32x32		rigged	folder monster/ (no object uses it)
-warrior_red.111	monster/humanoid/Class/Warrior/warrior_red.base.111.png	32x32		rigged	folder monster/ (no object uses it)
-warrior_red.112	monster/humanoid/Class/Warrior/warrior_red.base.112.png	32x32		rigged	folder monster/ (no object uses it)
-warrior_red.131	monster/humanoid/Class/Warrior/warrior_red.base.131.png	32x32		rigged	folder monster/ (no object uses it)
-warrior_red.132	monster/humanoid/Class/Warrior/warrior_red.base.132.png	32x32		rigged	folder monster/ (no object uses it)
-warrior_red.151	monster/humanoid/Class/Warrior/warrior_red.base.151.png	32x32		rigged	folder monster/ (no object uses it)
-warrior_red.152	monster/humanoid/Class/Warrior/warrior_red.base.152.png	32x32		rigged	folder monster/ (no object uses it)
-warrior_red.171	monster/humanoid/Class/Warrior/warrior_red.base.171.png	32x32		rigged	folder monster/ (no object uses it)
-warrior_red.172	monster/humanoid/Class/Warrior/warrior_red.base.172.png	32x32		rigged	folder monster/ (no object uses it)
+warrior_blue.111	monster/humanoid/Class/Warrior/warrior_blue.base.111.png	32x32		existing	models.txt: person
+warrior_blue.112	monster/humanoid/Class/Warrior/warrior_blue.base.112.png	32x32		existing	models.txt: person
+warrior_blue.131	monster/humanoid/Class/Warrior/warrior_blue.base.131.png	32x32		existing	models.txt: person
+warrior_blue.132	monster/humanoid/Class/Warrior/warrior_blue.base.132.png	32x32		existing	models.txt: person
+warrior_blue.151	monster/humanoid/Class/Warrior/warrior_blue.base.151.png	32x32		existing	models.txt: person
+warrior_blue.152	monster/humanoid/Class/Warrior/warrior_blue.base.152.png	32x32		existing	models.txt: person
+warrior_blue.171	monster/humanoid/Class/Warrior/warrior_blue.base.171.png	32x32		existing	models.txt: person
+warrior_blue.172	monster/humanoid/Class/Warrior/warrior_blue.base.172.png	32x32		existing	models.txt: person
+warrior_green.111	monster/humanoid/Class/Warrior/warrior_green.base.111.png	32x32		existing	models.txt: person
+warrior_green.112	monster/humanoid/Class/Warrior/warrior_green.base.112.png	32x32		existing	models.txt: person
+warrior_green.131	monster/humanoid/Class/Warrior/warrior_green.base.131.png	32x32		existing	models.txt: person
+warrior_green.132	monster/humanoid/Class/Warrior/warrior_green.base.132.png	32x32		existing	models.txt: person
+warrior_green.151	monster/humanoid/Class/Warrior/warrior_green.base.151.png	32x32		existing	models.txt: person
+warrior_green.152	monster/humanoid/Class/Warrior/warrior_green.base.152.png	32x32		existing	models.txt: person
+warrior_green.171	monster/humanoid/Class/Warrior/warrior_green.base.171.png	32x32		existing	models.txt: person
+warrior_green.172	monster/humanoid/Class/Warrior/warrior_green.base.172.png	32x32		existing	models.txt: person
+warrior_grey.111	monster/humanoid/Class/Warrior/warrior_grey.base.111.png	32x32		existing	models.txt: person
+warrior_grey.112	monster/humanoid/Class/Warrior/warrior_grey.base.112.png	32x32		existing	models.txt: person
+warrior_grey.131	monster/humanoid/Class/Warrior/warrior_grey.base.131.png	32x32		existing	models.txt: person
+warrior_grey.132	monster/humanoid/Class/Warrior/warrior_grey.base.132.png	32x32		existing	models.txt: person
+warrior_grey.151	monster/humanoid/Class/Warrior/warrior_grey.base.151.png	32x32		existing	models.txt: person
+warrior_grey.152	monster/humanoid/Class/Warrior/warrior_grey.base.152.png	32x32		existing	models.txt: person
+warrior_grey.171	monster/humanoid/Class/Warrior/warrior_grey.base.171.png	32x32		existing	models.txt: person
+warrior_grey.172	monster/humanoid/Class/Warrior/warrior_grey.base.172.png	32x32		existing	models.txt: person
+warrior_lblue.111	monster/humanoid/Class/Warrior/warrior_lblue.base.111.png	32x32		existing	models.txt: person
+warrior_lblue.112	monster/humanoid/Class/Warrior/warrior_lblue.base.112.png	32x32		existing	models.txt: person
+warrior_lblue.131	monster/humanoid/Class/Warrior/warrior_lblue.base.131.png	32x32		existing	models.txt: person
+warrior_lblue.132	monster/humanoid/Class/Warrior/warrior_lblue.base.132.png	32x32		existing	models.txt: person
+warrior_lblue.151	monster/humanoid/Class/Warrior/warrior_lblue.base.151.png	32x32		existing	models.txt: person
+warrior_lblue.152	monster/humanoid/Class/Warrior/warrior_lblue.base.152.png	32x32		existing	models.txt: person
+warrior_lblue.171	monster/humanoid/Class/Warrior/warrior_lblue.base.171.png	32x32		existing	models.txt: person
+warrior_lblue.172	monster/humanoid/Class/Warrior/warrior_lblue.base.172.png	32x32		existing	models.txt: person
+warrior_red.111	monster/humanoid/Class/Warrior/warrior_red.base.111.png	32x32		existing	models.txt: person
+warrior_red.112	monster/humanoid/Class/Warrior/warrior_red.base.112.png	32x32		existing	models.txt: person
+warrior_red.131	monster/humanoid/Class/Warrior/warrior_red.base.131.png	32x32		existing	models.txt: person
+warrior_red.132	monster/humanoid/Class/Warrior/warrior_red.base.132.png	32x32		existing	models.txt: person
+warrior_red.151	monster/humanoid/Class/Warrior/warrior_red.base.151.png	32x32		existing	models.txt: person
+warrior_red.152	monster/humanoid/Class/Warrior/warrior_red.base.152.png	32x32		existing	models.txt: person
+warrior_red.171	monster/humanoid/Class/Warrior/warrior_red.base.171.png	32x32		existing	models.txt: person
+warrior_red.172	monster/humanoid/Class/Warrior/warrior_red.base.172.png	32x32		existing	models.txt: person
 wasteland.111	ground/wasteland.base.111.png	32x32	wasteland	flat	folder ground/: ground and its smoothing edges
 wasteland_S.111	ground/smooth/wasteland_S.base.111.png	512x64		flat	folder ground/: ground and its smoothing edges
 water.111	food/water.base.111.png	32x32	water,water_poison	existing	models.txt: model
@@ -6602,15 +6602,15 @@ witch_water.112	monster/elemental/witch_water.base.112.png	32x32	Ixalovh,chaos_w
 wiz_hat.111	armour/helmet/wiz_hat.base.111.png	32x32	wiz_hat	existing	models.txt: model
 wiz_hat.112	armour/helmet/wiz_hat.base.112.png	32x32	wiz_hat	existing	models.txt: model
 wiz_hat.113	armour/helmet/wiz_hat.base.113.png	32x32	wiz_hat	existing	models.txt: model
-wizard.111	player/class/Wizardry/wizard.base.111.png	32x32	wizard,wizard_class	existing	player character (3D bodies)
-wizard.112	player/class/Wizardry/wizard.base.112.png	32x32	wizard_class	existing	player character (3D bodies)
-wizard.131	player/class/Wizardry/wizard.base.131.png	32x32	wizard,wizard_class	existing	player character (3D bodies)
-wizard.132	player/class/Wizardry/wizard.base.132.png	32x32	wizard_class	existing	player character (3D bodies)
-wizard.151	player/class/Wizardry/wizard.base.151.png	32x32	wizard	rigged	alive: a creature
-wizard.152	player/class/Wizardry/wizard.base.152.png	32x32	wizard_class	existing	player character (3D bodies)
-wizard.153	player/class/Wizardry/wizard.base.153.png	32x32	wizard_class	existing	player character (3D bodies)
-wizard.171	player/class/Wizardry/wizard.base.171.png	32x32	wizard,wizard_class	existing	player character (3D bodies)
-wizard.172	player/class/Wizardry/wizard.base.172.png	32x32	wizard_class	existing	player character (3D bodies)
+wizard.111	player/class/Wizardry/wizard.base.111.png	32x32	wizard,wizard_class	existing	models.txt: person
+wizard.112	player/class/Wizardry/wizard.base.112.png	32x32	wizard_class	existing	models.txt: person
+wizard.131	player/class/Wizardry/wizard.base.131.png	32x32	wizard,wizard_class	existing	models.txt: person
+wizard.132	player/class/Wizardry/wizard.base.132.png	32x32	wizard_class	existing	models.txt: person
+wizard.151	player/class/Wizardry/wizard.base.151.png	32x32	wizard	existing	models.txt: person
+wizard.152	player/class/Wizardry/wizard.base.152.png	32x32	wizard_class	existing	models.txt: person
+wizard.153	player/class/Wizardry/wizard.base.153.png	32x32	wizard_class	existing	models.txt: person
+wizard.171	player/class/Wizardry/wizard.base.171.png	32x32	wizard,wizard_class	existing	models.txt: person
+wizard.172	player/class/Wizardry/wizard.base.172.png	32x32	wizard_class	existing	models.txt: person
 wizard_blue.111	player/class/Wizardry/wizard_blue.base.111.png	32x32		existing	folder player/ (no object uses it)
 wizard_blue.131	player/class/Wizardry/wizard_blue.base.131.png	32x32		existing	folder player/ (no object uses it)
 wizard_blue.151	player/class/Wizardry/wizard_blue.base.151.png	32x32		existing	folder player/ (no object uses it)
@@ -6644,18 +6644,18 @@ wolf.131	monster/animal/Wolf/wolf.base.131.png	32x32	wolf	rigged	alive: a creatu
 wolf.132	monster/animal/Wolf/wolf.base.132.png	32x32	wolf	rigged	alive: a creature
 wolf.171	monster/animal/Wolf/wolf.base.171.png	32x32	wolf	rigged	alive: a creature
 wolf.172	monster/animal/Wolf/wolf.base.172.png	32x32	wolf	rigged	alive: a creature
-woman.131	monster/humanoid/Human/woman.base.131.png	32x32	c_woman,woman	rigged	alive: a creature
-woman.151	monster/humanoid/Human/woman.base.151.png	32x32	c_woman,woman	rigged	alive: a creature
-woman.171	monster/humanoid/Human/woman.base.171.png	32x32	c_woman,woman	rigged	alive: a creature
-woman2.111	monster/humanoid/Human/woman2.base.111.png	32x32	woman2	rigged	alive: a creature
-woman2.112	monster/humanoid/Human/woman2.base.112.png	32x32	woman2	rigged	alive: a creature
-woman2.113	monster/humanoid/Human/woman2.base.113.png	32x32	woman2	rigged	alive: a creature
-woman3.111	monster/humanoid/Human/woman3.base.111.png	32x32	woman3	rigged	alive: a creature
-woman3.112	monster/humanoid/Human/woman3.base.112.png	32x32	woman3	rigged	alive: a creature
-woman3.113	monster/humanoid/Human/woman3.base.113.png	32x32	woman3	rigged	alive: a creature
-womangreenpink.131	monster/humanoid/Human/womangreenpink.base.131.png	32x32		rigged	folder monster/ (no object uses it)
-womangreenpink.151	monster/humanoid/Human/womangreenpink.base.151.png	32x32		rigged	folder monster/ (no object uses it)
-womangreenpink.171	monster/humanoid/Human/womangreenpink.base.171.png	32x32		rigged	folder monster/ (no object uses it)
+woman.131	monster/humanoid/Human/woman.base.131.png	32x32	c_woman,woman	existing	models.txt: person
+woman.151	monster/humanoid/Human/woman.base.151.png	32x32	c_woman,woman	existing	models.txt: person
+woman.171	monster/humanoid/Human/woman.base.171.png	32x32	c_woman,woman	existing	models.txt: person
+woman2.111	monster/humanoid/Human/woman2.base.111.png	32x32	woman2	existing	models.txt: person
+woman2.112	monster/humanoid/Human/woman2.base.112.png	32x32	woman2	existing	models.txt: person
+woman2.113	monster/humanoid/Human/woman2.base.113.png	32x32	woman2	existing	models.txt: person
+woman3.111	monster/humanoid/Human/woman3.base.111.png	32x32	woman3	existing	models.txt: person
+woman3.112	monster/humanoid/Human/woman3.base.112.png	32x32	woman3	existing	models.txt: person
+woman3.113	monster/humanoid/Human/woman3.base.113.png	32x32	woman3	existing	models.txt: person
+womangreenpink.131	monster/humanoid/Human/womangreenpink.base.131.png	32x32		existing	models.txt: person
+womangreenpink.151	monster/humanoid/Human/womangreenpink.base.151.png	32x32		existing	models.txt: person
+womangreenpink.171	monster/humanoid/Human/womangreenpink.base.171.png	32x32		existing	models.txt: person
 wooddoor_1.111	door/wooddoor_1.base.111.png	32x32	door_look_1,look_door_exit_1	existing	models.txt: model
 wooddoor_2.111	door/wooddoor_2.base.111.png	32x32	door_look_2,look_door_exit_2	existing	models.txt: model
 woodfloor.111	floor/woodfloor.base.111.png	32x32	goldfloor,woodfloor	flat	folder floor/: floor

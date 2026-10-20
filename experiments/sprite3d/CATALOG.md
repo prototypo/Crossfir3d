@@ -4,9 +4,9 @@ Made by `catalog.py` from the `base` picture set (6799 pictures). Every picture 
 
 | Group | Pictures | Things |
 | --- | ---: | ---: |
-| existing | 3779 | 2268 |
+| existing | 4022 | 2346 |
 | flat | 1279 | 666 |
-| rigged | 1172 | 330 |
+| rigged | 929 | 250 |
 | skip | 569 | 416 |
 
 ## Why (top reasons per group)
@@ -16,12 +16,12 @@ Made by `catalog.py` from the `base` picture set (6799 pictures). Every picture 
 | existing | models.txt: model | 1341 |
 | existing | models.txt: wall | 955 |
 | existing | models.txt: building | 743 |
-| existing | player character | 259 |
-| existing | folder player/ | 214 |
+| existing | models.txt: person | 265 |
+| existing | player character | 251 |
+| existing | folder player/ | 210 |
 | existing | models.txt: flat | 91 |
 | existing | models.txt: monster | 91 |
 | existing | drawn as wall blocks | 67 |
-| existing | models.txt: person | 10 |
 | flat | folder ground/: ground and its smoothing edges | 282 |
 | flat | folder spell/ | 216 |
 | flat | type SPELL_EFFECT: on the ground or an effect | 214 |
@@ -35,8 +35,8 @@ Made by `catalog.py` from the `base` picture set (6799 pictures). Every picture 
 | flat | type RUNE: on the ground or an effect | 27 |
 | flat | type HOLE: on the ground or an effect | 14 |
 | flat | type SPINNER: on the ground or an effect | 13 |
-| rigged | alive: a creature | 1060 |
-| rigged | folder monster/ | 112 |
+| rigged | alive: a creature | 874 |
+| rigged | folder monster/ | 55 |
 | skip | a spell or skill icon | 247 |
 | skip | folder system/ | 162 |
 | skip | unused: no object or map shows it | 45 |

@@ -22,8 +22,9 @@ pub enum Visual {
     /// A person in stone on a plinth: a half-size 3D character, maybe tinted (bronze).
     Statue { tint: Option<[f32; 3]> },
     /// A creature drawn as a 3D character with this body and look, maybe in a long
-    /// skirt of this colour, maybe with a broom in the right hand.
-    Person { body: Body, look: Look, dress: Option<[f32; 3]>, broom: bool },
+    /// skirt of this colour, maybe with a broom in the right hand, maybe in metal armour,
+    /// `wide` times as broad and with its head `head` times as big.
+    Person { body: Body, look: Look, dress: Option<[f32; 3]>, broom: bool, armour: bool, wide: f32, head: f32 },
     /// A rigged creature model (one file) moved like a person.
     Monster { file: String, scale: f32, tint: Option<[f32; 3]> },
     Flat,
@@ -93,12 +94,15 @@ fn parse_visual(words: &[&str]) -> Option<Visual> {
             tint: tint(rest)?,
         },
         ["person", body, scale, skin, hair, clothes, ref rest @ ..] => {
-            let (mut dress, mut broom) = (None, false);
+            let (mut dress, mut broom, mut armour, mut wide, mut head) = (None, false, false, 1.0, 1.0);
             let mut words = rest.iter();
             while let Some(&w) = words.next() {
                 match w {
                     "dress" => dress = Some(rgb(words.next()?)?),
                     "broom" => broom = true,
+                    "armour" => armour = true,
+                    "wide" => wide = words.next()?.parse().ok()?,
+                    "head" => head = words.next()?.parse().ok()?,
                     _ => return None,
                 }
             }
@@ -111,6 +115,9 @@ fn parse_visual(words: &[&str]) -> Option<Visual> {
                 look: Look { scale: scale.parse().ok()?, skin: rgb(skin)?, hair: rgb(hair)?, clothes: rgb(clothes)? },
                 dress,
                 broom,
+                armour,
+                wide,
+                head,
             }
         }
         ["monster", file, scale, ref rest @ ..] => {
@@ -240,12 +247,15 @@ bad model x.glb notanumber 0 0
         let m = ModelMap::parse(
             "goblin person regular 0.7 0.3,0.5,0.2 0.1,0.1,0.1 0.4,0.3,0.2\n\
              maid person other 0.7 0.3,0.5,0.2 0.1,0.1,0.1 0.4,0.3,0.2 dress 0.6,0.2,0.2 broom\n\
+             dwarf person regular 0.7 0.3,0.5,0.2 0.1,0.1,0.1 0.4,0.3,0.2 armour wide 1.3 head 1.2\n\
              bad person tall 1 1,1,1 1,1,1 1,1,1\n\
              bad2 person other 1 1,1,1 1,1,1 1,1,1 dress\n",
         );
         let look = Look { scale: 0.7, skin: [0.3, 0.5, 0.2], hair: [0.1, 0.1, 0.1], clothes: [0.4, 0.3, 0.2] };
-        assert_eq!(m.lookup("goblin.131"), &Visual::Person { body: Body::Regular, look, dress: None, broom: false });
-        assert_eq!(m.lookup("maid"), &Visual::Person { body: Body::Other, look, dress: Some([0.6, 0.2, 0.2]), broom: true });
+        let person = |body, dress, broom, armour, wide, head| Visual::Person { body, look, dress, broom, armour, wide, head };
+        assert_eq!(m.lookup("goblin.131"), &person(Body::Regular, None, false, false, 1.0, 1.0));
+        assert_eq!(m.lookup("maid"), &person(Body::Other, Some([0.6, 0.2, 0.2]), true, false, 1.0, 1.0));
+        assert_eq!(m.lookup("dwarf"), &person(Body::Regular, None, false, true, 1.3, 1.2));
         assert_eq!(m.lookup("bad"), &Visual::Card);
         assert_eq!(m.lookup("bad2"), &Visual::Card);
     }
