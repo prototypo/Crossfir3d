@@ -45,6 +45,9 @@ PICK = [
         f"{OUTFITS}/Female_Peasant.gltf",
         f"{OUTFITS}/Male_Ranger.gltf",
         f"{OUTFITS}/Female_Ranger.gltf",
+        # Hoods for the hooded classes (ranger, thief, warlock): worn in place of the hair.
+        f"{OUTFITS}/../Modular Parts/Male_Ranger_Head_Hood.gltf",
+        f"{OUTFITS}/../Modular Parts/Female_Ranger_Head_Hood.gltf",
     ]),
     ("animations", "universal-animation-library/License.txt", [
         "universal-animation-library/Unreal-Godot/UAL1_Standard.glb",
