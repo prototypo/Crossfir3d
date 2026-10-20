@@ -284,18 +284,18 @@ crea_serp_c.111 building converter:0.1,0.7,0.2
 diamond_converter.111 building converter:0.75,0.9,1.0
 diploma.111 model props/Scroll_1.gltf 2.5 0 0 1.00,0.95,0.75
 evoker_book.111 model props/Book_5.gltf 1.5 0 0.045 0.31,0.37,1.00
-futon.111 flat
-futon.121 flat
-futon.131 flat
-futon_save.101 flat
+futon.111 building futon:0.42,0.4,0.52
+futon.121 building futon:0.42,0.4,0.52
+futon.131 building futon:0.42,0.4,0.52
+futon_save.101 building futon:0.9,0.8,0.25
 god_grace_limit.111 model props/Book_5.gltf 1.5 0 0.045 1.00,0.11,0.11
 gold_converter.111 building converter:1.0,0.8,0.2
 gold_converter2.111 building converter:1.0,0.8,0.2
 guide_jeweler.111 model props/Book_5.gltf 1.5 0 0.045 1.00,0.48,0.04
 jade_converter.111 building converter:0.2,0.75,0.4
 jade_converter2.111 building converter:0.2,0.75,0.4
-letter.111 flat
-mat.111 flat
+letter.111 building letter
+mat.111 building mat
 naz_report.111 model props/Scroll_1.gltf 2.5 0 0 1.00,0.94,0.50
 note.111 flat
 pearl_converter.111 building converter:0.95,0.93,0.88
@@ -352,10 +352,10 @@ harpsichord3 building harpsichord:0.7,0.42,0.18
 harpsichord4 building harpsichord:0.92,0.92,0.9
 icecube building icecube
 smallicecube building smallicecube
-magic_whistle flat
+magic_whistle building whistle
 magicmouth flat
 mailbox building mailbox
-map flat
+map building map
 messageboard_red building noticeboard
 monument building grave
 quiver building quiver
@@ -366,6 +366,56 @@ slotmachine2* building slotmachine:0.75,0.15,0.15
 slotmachine3* building slotmachine:0.2,0.3,0.8
 statue_ruined model kaykit/rubble_large.gltf 0.12 0 0
 stove* building stove
+
+# Monster generators and odd things (built shapes, buildings.rs, or props models).
+acid_pool* flat
+anchor building anchor
+beehive* building beehive
+bee building bee
+killerbee building bee
+bolt_silk building bolt_silk
+bouquet flat
+chandelier_1 model props/Chandelier.gltf 0.6 0 2.4
+chemney_* building chimney
+closemail building mailbox
+postman_gen building mailbox
+coldmagma* flat
+magma* flat
+crystalball building crystalball
+dice* building dice
+fireplace* building fireplace
+fog* building fog
+steam* building steam
+spider_web* building spider_web
+intermediate_window_* wall stone
+window_2* wall stone
+window_3* wall stone
+window_4* wall stone
+window_arcade_* wall stone
+roof_1 building roof:0.4,0.4,0.42
+roof_2 building roof:0.4,0.4,0.42
+roof_1blue building roof:0.3,0.35,0.65
+roof_2blue building roof:0.3,0.35,0.65
+roof_1green building roof:0.3,0.55,0.3
+roof_2green building roof:0.3,0.55,0.3
+roof_1red building roof:0.55,0.12,0.1
+roof_2red building roof:0.55,0.12,0.1
+shipswheel building shipswheel
+skull_gen* building skull
+ten_kilo building ten_kilo
+thewheel_tall* building wheel_tall
+thewheel_short* building wheel_short
+tissu building tissue
+utensils building utensils
+card_skull flat
+r_foot building rabbit_foot
+unluck flat
+crown2 model auto/crown.glb 0.5 0 0 1.0,0.45,0.4
+shield2 model auto/shield.glb 0.5 0 0 1.0,0.3,0.3
+doll building doll
+neko_kago building cat_basket
+spinningwheel building spinningwheel
+machine building machine
 
 # --- Arches (exit/) ---
 archgold model castle/wall-doorway.glb 1.0 0 0 0.9,0.75,0.3
