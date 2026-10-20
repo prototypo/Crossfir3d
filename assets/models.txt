@@ -367,6 +367,47 @@ slotmachine3* building slotmachine:0.2,0.3,0.8
 statue_ruined model kaykit/rubble_large.gltf 0.12 0 0
 stove* building stove
 
+# Monster generators and odd things (built shapes, buildings.rs, or props models).
+acid_pool* flat
+anchor building anchor
+beehive* building beehive
+bee building bee
+killerbee building bee
+bolt_silk building bolt_silk
+bouquet flat
+chandelier_1 model props/Chandelier.gltf 0.6 0 2.4
+chemney_* building chimney
+closemail building mailbox
+postman_gen building mailbox
+coldmagma* flat
+magma* flat
+crystalball building crystalball
+dice* building dice
+fireplace* building fireplace
+fog* flat
+steam* flat
+spider_web* flat
+intermediate_window_* wall stone
+window_2* wall stone
+window_3* wall stone
+window_4* wall stone
+window_arcade_* wall stone
+roof_1 building roof:0.4,0.4,0.42
+roof_2 building roof:0.4,0.4,0.42
+roof_1blue building roof:0.3,0.35,0.65
+roof_2blue building roof:0.3,0.35,0.65
+roof_1green building roof:0.3,0.55,0.3
+roof_2green building roof:0.3,0.55,0.3
+roof_1red building roof:0.55,0.12,0.1
+roof_2red building roof:0.55,0.12,0.1
+shipswheel building shipswheel
+skull_gen* building skull
+ten_kilo building ten_kilo
+thewheel_tall* building wheel_tall
+thewheel_short* building wheel_short
+tissu building tissue
+utensils flat
+
 # --- Arches (exit/) ---
 archgold model castle/wall-doorway.glb 1.0 0 0 0.9,0.75,0.3
 archgreen model castle/wall-doorway.glb 1.0 0 0 0.4,0.7,0.4

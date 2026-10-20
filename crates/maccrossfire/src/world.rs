@@ -509,7 +509,9 @@ fn sync_visuals(
                 let (_, mut tv, glide, character) = existing.get_mut(e).unwrap();
                 (tv.x, tv.y, tv.darkness, tv.face) = (x, y, darkness, face);
                 if let Some(mut g) = glide {
-                    g.target = if character {
+                    // 3D characters and built creatures (bees) stand in the middle of the square.
+                    let built = matches!(models.map.lookup(name), Visual::Building { .. });
+                    g.target = if character || built {
                         tile + Vec3::new(0.5, 0.0, 0.5)
                     } else {
                         model_spot(models.map.lookup(name), tile).unwrap_or_else(|| card_position(tile, *size, layer))
@@ -606,6 +608,9 @@ fn sync_visuals(
             let files: Vec<String> =
                 parts.iter().filter_map(|p| if let Shape::Model(f) = p.shape { Some(f.to_string()) } else { None }).collect();
             let parent = commands.spawn((tv, span, Assembled(files), Transform::from_translation(at), Visibility::default())).id();
+            if glides(layer) {
+                commands.entity(parent).insert(Glide { target: at });
+            }
             if let Visual::Building { recipe, .. } = models.map.lookup(name)
                 && let Some(step) = doorstep(recipe, fw, fh)
             {
@@ -811,8 +816,9 @@ fn spawn_part(
         Shape::Frustum { radius, height } => (textures.frustum.clone(), Vec3::new(radius, height, radius)),
         Shape::Ball(radius) => (textures.ball.clone(), Vec3::splat(radius)),
         Shape::Wedge(size) => (textures.wedge.clone(), Vec3::from(size)),
-        Shape::Lamp(_) | Shape::RoundLamp { .. } => {
+        Shape::Lamp(_) | Shape::RoundLamp { .. } | Shape::Orb(_) => {
             let (mesh, size) = match p.shape {
+                Shape::Orb(radius) => (textures.ball.clone(), Vec3::splat(radius)),
                 Shape::RoundLamp { radius, height } => (textures.cylinder.clone(), Vec3::new(radius, height, radius)),
                 Shape::Lamp(size) => (textures.cube.clone(), Vec3::from(size)),
                 _ => unreachable!(),
