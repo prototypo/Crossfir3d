@@ -11,7 +11,8 @@ Groups (see RESULTS.md for why):
   rigged    creatures: rigged kit models, like players and monsters today
   scratch   boxy, big, worn, or furniture-like things: model from scratch
   flat      ground, floor marks, spell effects: stay pictures
-  skip      never seen as a thing in the world (UI icons, invisible system objects)
+  skip      never seen as a thing in the world (UI icons, invisible system objects,
+            things to model that no object or map shows)
   review    no rule fits well; a person decides
 
 Each picture is linked to the objects (.arc) that show it, directly (`face`) or in an
@@ -29,6 +30,7 @@ from PIL import Image
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(os.path.dirname(HERE))
 ARCH = os.path.join(ROOT, "upstream/crossfire-arch")
+MAPS = os.path.join(ROOT, "upstream/crossfire-maps")
 SHOTS = os.path.join(HERE, "shots")
 
 # Crossfire object types (crossfire-server/include/object.h).
@@ -191,6 +193,18 @@ def pictures():
     return out
 
 
+def map_faces():
+    """Picture and animation names that maps set on their objects (`face` / `animation`)."""
+    out = set()
+    for dirpath, _, files in os.walk(MAPS):
+        for fn in files:
+            with open(os.path.join(dirpath, fn), errors="ignore") as f:
+                for line in f:
+                    if line.startswith(("face ", "animation ")):
+                        out.add(line.split()[1].split(".")[0] if len(line.split()) > 1 else "")
+    return out
+
+
 def classify(face, users, maps, size, folder):
     """(group, reason) for one picture. `users` are the objects that show it; `folder`
     is where the picture is (used when no object shows it)."""
@@ -241,11 +255,15 @@ def catalog():
         for face in shown:
             users[face].append(o)
     maps = model_map()
+    in_maps = map_faces()
     rows = []
     for face, path in sorted(pictures().items()):
         size = Image.open(path).size
         us = users.get(face, [])
         group, why = classify(face, us, maps, size, os.path.relpath(os.path.dirname(path), ARCH))
+        # A thing to model that no object or map shows never appears in the game.
+        if group == "scratch" and not us and face.split(".")[0] not in in_maps:
+            group, why = "skip", "unused: no object or map shows it"
         names = ",".join(sorted({u["name"] for u in us})[:3]) if us else ""
         rows.append((face, os.path.relpath(path, ARCH), f"{size[0]}x{size[1]}", names, group, why))
     return rows
@@ -293,8 +311,8 @@ def test():
     """The pilot's verdicts (RESULTS.md) still come out of the rules. The pilot's auto items
     now have models (auto.py, models.txt), so they count as existing."""
     want = {"sword_1.111": "existing", "ring.111": "existing", "ruby.111": "existing", "goblin_head.111": "existing",
-            "baby_drag.111": "rigged", "book_clasp.111": "scratch", "statue.111": "existing",
-            "grass.111": "flat", "skull_gen.111": "scratch", "centipede.111": "rigged", "spell_aggravation.111": "skip",
+            "baby_drag.111": "rigged", "book_clasp.111": "existing", "statue.111": "existing",
+            "grass.111": "flat", "skull_gen.111": "existing", "centipede.111": "rigged", "spell_aggravation.111": "skip",
             "mb_lavawell.111": "skip", "stwall_0.111": "existing"}
     got = {r[0]: r[4] for r in catalog()}
     bad = {f: (got.get(f), g) for f, g in want.items() if got.get(f) != g}
