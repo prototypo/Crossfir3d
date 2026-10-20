@@ -751,7 +751,7 @@ bomb.112	spell/Bomb/bomb.base.112.png	32x32	bomb	flat	type SPELL_EFFECT: on the 
 bomb.113	spell/Bomb/bomb.base.113.png	32x32	bomb	flat	type SPELL_EFFECT: on the ground or an effect
 bomb.114	spell/Bomb/bomb.base.114.png	32x32	bomb	flat	type SPELL_EFFECT: on the ground or an effect
 bomb_shell.111	spell/Bomb/bomb_shell.base.111.png	32x32	bomb_shell	flat	folder spell/
-bomb_unlit.111	spell/Bomb/bomb_unlit.base.111.png	32x32	bomb_unlit	scratch	type LIGHTABLE: boxy, drawn from an angle, or furniture
+bomb_unlit.111	spell/Bomb/bomb_unlit.base.111.png	32x32	bomb_unlit	existing	models.txt: building
 bone_drake.x11	monster/dragon/bone_drake/bone_drake.base.x11.png	64x64	bone_drake,bone_drake_2,bone_drake_3	rigged	alive: a creature
 bone_drake.x12	monster/dragon/bone_drake/bone_drake.base.x12.png	64x64	bone_drake,bone_drake_2,bone_drake_3	rigged	alive: a creature
 bone_head.111	monster/demon/bone_head.base.111.png	32x32	bone_head,immunity,symptom	rigged	alive: a creature
@@ -769,9 +769,9 @@ book_read.111	readable/book_read.base.111.png	32x32	book_read,guide_building_bas
 book_red.111	readable/guide/book_red.base.111.png	32x32	book_red,guide_alchemy,guide_melee	existing	models.txt: model
 bookshelf.111	misc/Container/bookshelf.base.111.png	32x32	bookshelf,close_shelf	existing	models.txt: model
 bookshelf2.111	misc/Container/bookshelf2.base.111.png	32x32	bookshelf2,close_shelf2	existing	models.txt: model
-bookshelf_bottom.111	misc/Container/bookshelf_bottom.base.111.png	32x32	bookshelf_bottom,bookshelf_bottom_close	scratch	type CONTAINER: boxy, drawn from an angle, or furniture
-bookshelf_left.111	misc/Container/bookshelf_left.base.111.png	32x32	bookshelf_left,bookshelf_left_close	scratch	type CONTAINER: boxy, drawn from an angle, or furniture
-bookshelf_right.111	misc/Container/bookshelf_right.base.111.png	32x32	bookshelf_right,bookshelf_right_close	scratch	type CONTAINER: boxy, drawn from an angle, or furniture
+bookshelf_bottom.111	misc/Container/bookshelf_bottom.base.111.png	32x32	bookshelf_bottom,bookshelf_bottom_close	existing	models.txt: model
+bookshelf_left.111	misc/Container/bookshelf_left.base.111.png	32x32	bookshelf_left,bookshelf_left_close	existing	models.txt: model
+bookshelf_right.111	misc/Container/bookshelf_right.base.111.png	32x32	bookshelf_right,bookshelf_right_close	existing	models.txt: model
 booze.111	food/booze.base.111.png	32x32	booze,poison	existing	models.txt: model
 boozebottle_empty.111	food/boozebottle_empty.base.111.png	32x32	boozebottle_empty	existing	models.txt: model
 boulder.111	misc/boulder.base.111.png	32x32	boulder,t_boulder,t_lboulder	existing	models.txt: model
@@ -976,10 +976,10 @@ burnout.11P	spell/Burnout/burnout.base.11P.png	32x32	burnout	flat	folder spell/
 burnout.11Q	spell/Burnout/burnout.base.11Q.png	32x32	burnout	flat	folder spell/
 butterflysword_1.111	weapon/sword/butterflysword_1.base.111.png	32x32	butterflysword_1	existing	models.txt: model
 butterflysword_2.111	weapon/sword/butterflysword_2.base.111.png	32x32	butterflysword_2	existing	models.txt: model
-button_big.111	connect/button_big.base.111.png	32x32	button_plate	scratch	type BUTTON: boxy, drawn from an angle, or furniture
-button_big.112	connect/button_big.base.112.png	32x32	button_plate	scratch	type BUTTON: boxy, drawn from an angle, or furniture
-button_sma.111	connect/button_sma.base.111.png	32x32	button_small,button_trigger	scratch	type BUTTON: boxy, drawn from an angle, or furniture
-button_sma.112	connect/button_sma.base.112.png	32x32	button_small,button_trigger	scratch	type BUTTON: boxy, drawn from an angle, or furniture
+button_big.111	connect/button_big.base.111.png	32x32	button_plate	existing	models.txt: building
+button_big.112	connect/button_big.base.112.png	32x32	button_plate	existing	models.txt: building
+button_sma.111	connect/button_sma.base.111.png	32x32	button_small,button_trigger	existing	models.txt: building
+button_sma.112	connect/button_sma.base.112.png	32x32	button_small,button_trigger	existing	models.txt: building
 bwall_0.111	wall/bwall/bwall_0.base.111.png	32x32	bwall_0	existing	models.txt: wall
 bwall_1.111	wall/bwall/bwall_1.base.111.png	32x32	bwall_1_2	existing	models.txt: wall
 bwall_2.111	wall/bwall/bwall_2.base.111.png	32x32	bwall_1_4	existing	models.txt: wall
@@ -1257,7 +1257,7 @@ charwoman.171	monster/humanoid/Human/charwoman.base.171.png	32x32	charwoman	exis
 charwoman.172	monster/humanoid/Human/charwoman.base.172.png	32x32	charwoman	existing	models.txt: person
 check_floor.111	system/mood_floors/check_floor.base.111.png	32x32	check_floor	skip	type CHECK_INV: a UI icon or system object
 check_inv.111	connect/check_inv.base.111.png	32x32	check_inv	skip	type CHECK_INV: a UI icon or system object
-checkbook.111	misc/Container/checkbook.base.111.png	32x32	checkbook	scratch	type CONTAINER: boxy, drawn from an angle, or furniture
+checkbook.111	misc/Container/checkbook.base.111.png	32x32	checkbook	existing	models.txt: model
 checkered-black_gray.111	floor/checkered-black_gray.base.111.png	32x32	checkered-black_gray	flat	folder floor/: floor
 chemney_1.111	construct/roof/chemney_1.base.111.png	32x64	chemney_1	scratch	big picture (32x64)
 chemney_2.111	construct/roof/chemney_2.base.111.png	32x64	chemney_2	scratch	big picture (32x64)
@@ -1350,7 +1350,7 @@ close_present_box_3.111	misc/Container/close_present_box_3.base.111.png	32x32	cl
 close_present_box_4.111	misc/Container/close_present_box_4.base.111.png	32x32	close_present_box_4	existing	models.txt: model
 close_present_box_5.111	misc/Container/close_present_box_5.base.111.png	32x32	close_present_box_5	existing	models.txt: model
 close_present_box_6.111	misc/Container/close_present_box_6.base.111.png	32x32	close_present_box_6	existing	models.txt: model
-close_quiv.111	misc/Container/close_quiv.base.111.png	32x32	close_quiver,close_quiver_throwing	scratch	folder misc/
+close_quiv.111	misc/Container/close_quiv.base.111.png	32x32	close_quiver,close_quiver_throwing	existing	models.txt: building
 close_rsack.111	misc/Container/close_rsack.base.111.png	32x32	close_rsack,close_scrollcase	existing	models.txt: model
 close_sack.111	misc/Container/close_sack.base.111.png	32x32	close_sack	existing	models.txt: model
 close_sarcophagus.111	misc/Container/close_sarcophagus.base.111.png	32x32	sarcophagus_container2	existing	models.txt: building
@@ -1693,7 +1693,7 @@ demonbane.117	weapon/artifact/Demonbane/demonbane.base.117.png	32x32	demonbane	e
 demonbane.118	weapon/artifact/Demonbane/demonbane.base.118.png	32x32	demonbane	existing	models.txt: model
 demonbane.119	weapon/artifact/Demonbane/demonbane.base.119.png	32x32	demonbane	existing	models.txt: model
 demonhorn.111	flesh/demon/demonhorn.base.111.png	32x32	demonhorn	existing	models.txt: model
-depositbox.111	misc/Container/depositbox.base.111.png	32x32	depositbox	scratch	type CONTAINER: boxy, drawn from an angle, or furniture
+depositbox.111	misc/Container/depositbox.base.111.png	32x32	depositbox	existing	models.txt: model
 desert.111	ground/desert.base.111.png	32x32	desert	flat	folder ground/: ground and its smoothing edges
 desert_S.111	ground/smooth/desert_S.base.111.png	512x64		flat	folder ground/: ground and its smoothing edges
 desk.111	misc/Container/desk.base.111.png	32x32	desk	existing	models.txt: model
@@ -2073,9 +2073,9 @@ earth_shield.111	gods/items/earth_shield/earth_shield.base.111.png	32x32	shield_
 earth_shield.112	gods/items/earth_shield/earth_shield.base.112.png	32x32	shield_gaea	existing	models.txt: model
 earth_shield.113	gods/items/earth_shield/earth_shield.base.113.png	32x32	shield_gaea	existing	models.txt: model
 earth_shield.114	gods/items/earth_shield/earth_shield.base.114.png	32x32	shield_gaea	existing	models.txt: model
-earthquake.111	spell/Aura/earthquake.base.111.png	32x32	earthquake,earthquake_mark	flat	type SPELL_EFFECT: on the ground or an effect
-earthquake.112	spell/Aura/earthquake.base.112.png	32x32	earthquake_mark	scratch	type SIGN: boxy, drawn from an angle, or furniture
-earthquake.113	spell/Aura/earthquake.base.113.png	32x32	earthquake_mark	scratch	type SIGN: boxy, drawn from an angle, or furniture
+earthquake.111	spell/Aura/earthquake.base.111.png	32x32	earthquake,earthquake_mark	existing	models.txt: flat
+earthquake.112	spell/Aura/earthquake.base.112.png	32x32	earthquake_mark	existing	models.txt: flat
+earthquake.113	spell/Aura/earthquake.base.113.png	32x32	earthquake_mark	existing	models.txt: flat
 earthwall.111	wall/bwall/earthwall.base.111.png	32x32	block_door_closed,block_door_open,earthwall	existing	models.txt: wall
 earthwall.112	wall/bwall/earthwall.base.112.png	32x32	earthwall	existing	models.txt: wall
 earthwall.113	wall/bwall/earthwall.base.113.png	32x32	earthwall	existing	models.txt: wall
@@ -2534,9 +2534,9 @@ footpath_F.111	road/footpath/footpath_F.base.111.png	32x32	footpath_4	flat	folde
 ford_ns.111	river/ford_ns.base.111.png	32x32	river_ford_ns	flat	folder river/: river
 ford_we.111	river/ford_we.base.111.png	32x32	river_ford_we	flat	folder river/: river
 forestsparse.111	ground/new/forestsparse.base.111.png	32x32	forestsparse	flat	folder ground/: ground and its smoothing edges
-forge.111	crafting/Container/forge.base.111.png	32x32	forge	scratch	type CONTAINER: boxy, drawn from an angle, or furniture
-forge.112	crafting/Container/forge.base.112.png	32x32	forge	scratch	type CONTAINER: boxy, drawn from an angle, or furniture
-forge.113	crafting/Container/forge.base.113.png	32x32	forge	scratch	type CONTAINER: boxy, drawn from an angle, or furniture
+forge.111	crafting/Container/forge.base.111.png	32x32	forge	existing	models.txt: building
+forge.112	crafting/Container/forge.base.112.png	32x32	forge	existing	models.txt: building
+forge.113	crafting/Container/forge.base.113.png	32x32	forge	existing	models.txt: building
 fork.111	misc/cutlery/fork.base.111.png	32x32	fork	existing	models.txt: model
 fort.x11	construct/fort/fort.base.x11.png	64x64	fort,fort_2,fort_3	existing	models.txt: building
 fort_sym.111	construct/fort/fort_sym.base.111.png	32x32	fort_sym	existing	models.txt: building
@@ -2558,8 +2558,8 @@ frostbolt.171	spell/Bolt/frostbolt.base.171.png	32x32	frostbolt	flat	type SPELL_
 frostbolt.181	spell/Bolt/frostbolt.base.181.png	32x32	frostbolt	flat	type SPELL_EFFECT: on the ground or an effect
 frostbrand.111	weapon/artifact/frostbrand.base.111.png	32x32	frostbrand	existing	models.txt: model
 frostshield.111	armour/shield/frostshield.base.111.png	32x32	frostshield	existing	models.txt: model
-frypan_closed.111	misc/Container/frypan_closed.base.111.png	32x32	frypan_closed	scratch	type CONTAINER: boxy, drawn from an angle, or furniture
-frypan_opened.111	misc/Container/frypan_opened.base.111.png	32x32	frypan_opened	scratch	folder misc/
+frypan_closed.111	misc/Container/frypan_closed.base.111.png	32x32	frypan_closed	existing	models.txt: building
+frypan_opened.111	misc/Container/frypan_opened.base.111.png	32x32	frypan_opened	existing	models.txt: building
 fullhelmet.111	armour/helmet/fullhelmet.base.111.png	32x32	full_helmet	existing	models.txt: model
 fungus.111	monster/animal/fungus.base.111.png	32x32	fungus	rigged	alive: a creature
 fungus.112	monster/animal/fungus.base.112.png	32x32	fungus	rigged	alive: a creature
@@ -2737,13 +2737,13 @@ goose.172	monster/animal/farmyard/goose.base.172.png	32x32	goose	rigged	alive: a
 gorokh_cathedral.x11	construct/temple/gorokh_cathedral.base.x11.png	96x128	gorokh_cathedral,gorokh_cathedral_10,gorokh_cathedral_11	existing	models.txt: building
 gorokh_church.x11	construct/temple/gorokh_church.base.x11.png	64x64	gorokh_church,gorokh_church_2,gorokh_church_3	existing	models.txt: building
 gorokh_temple.111	construct/temple/gorokh_temple.base.111.png	32x32	gorokh_temple	existing	models.txt: building
-gps.111	misc/gps.base.111.png	32x32	gps	scratch	type CLOCK: boxy, drawn from an angle, or furniture
+gps.111	misc/gps.base.111.png	32x32	gps	existing	models.txt: flat
 gram.111	weapon/artifact/Gram/gram.base.111.png	32x32	gram	existing	models.txt: model
 gram.112	weapon/artifact/Gram/gram.base.112.png	32x32	gram	existing	models.txt: model
 gram.113	weapon/artifact/Gram/gram.base.113.png	32x32	gram	existing	models.txt: model
 gram.114	weapon/artifact/Gram/gram.base.114.png	32x32	gram	existing	models.txt: model
-grand_piano_black.x11	misc/music/grand_piano_black.base.x11.png	64x64	grand_piano_2_black,grand_piano_3_black,grand_piano_4_black	scratch	type TRIGGER_ALTAR: boxy, drawn from an angle, or furniture
-grand_piano_white.x11	misc/music/grand_piano_white.base.x11.png	64x64	grand_piano_2_white,grand_piano_3_white,grand_piano_4_white	scratch	type TRIGGER_ALTAR: boxy, drawn from an angle, or furniture
+grand_piano_black.x11	misc/music/grand_piano_black.base.x11.png	64x64	grand_piano_2_black,grand_piano_3_black,grand_piano_4_black	existing	models.txt: building
+grand_piano_white.x11	misc/music/grand_piano_white.base.x11.png	64x64	grand_piano_2_white,grand_piano_3_white,grand_piano_4_white	existing	models.txt: building
 graphite.111	inorganic/graphite.base.111.png	32x32	blackpowder,graphite	existing	models.txt: model
 grass.111	ground/grass.base.111.png	32x32	goldgrass,grass,grass_only	flat	folder ground/: ground and its smoothing edges
 grass_S.111	ground/smooth/grass_S.base.111.png	512x64		flat	folder ground/: ground and its smoothing edges
@@ -2914,10 +2914,10 @@ hangingfirepot.112	light/hangingfirepot.base.112.png	32x32	hangingfirepot	existi
 hangingfirepot.113	light/hangingfirepot.base.113.png	32x32	hangingfirepot	existing	models.txt: building
 hangingfirepot.114	light/hangingfirepot.base.114.png	32x32	hangingfirepot	existing	models.txt: building
 harakiri.111	weapon/artifact/harakiri.base.111.png	32x32	harakiri	existing	models.txt: model
-harpsichord1.x11	indoor/harpsichord1.base.x11.png	64x64	harpsichord1,harpsichord1_2,harpsichord1_3	scratch	type TRIGGER_ALTAR: boxy, drawn from an angle, or furniture
-harpsichord2.x11	indoor/harpsichord2.base.x11.png	64x64	harpsichord2,harpsichord2_2,harpsichord2_3	scratch	type TRIGGER_ALTAR: boxy, drawn from an angle, or furniture
-harpsichord3.x11	indoor/harpsichord3.base.x11.png	64x64	harpsichord3,harpsichord3_2,harpsichord3_3	scratch	type TRIGGER_ALTAR: boxy, drawn from an angle, or furniture
-harpsichord4.x11	indoor/harpsichord4.base.x11.png	64x64	harpsichord4,harpsichord4_2,harpsichord4_3	scratch	type TRIGGER_ALTAR: boxy, drawn from an angle, or furniture
+harpsichord1.x11	indoor/harpsichord1.base.x11.png	64x64	harpsichord1,harpsichord1_2,harpsichord1_3	existing	models.txt: building
+harpsichord2.x11	indoor/harpsichord2.base.x11.png	64x64	harpsichord2,harpsichord2_2,harpsichord2_3	existing	models.txt: building
+harpsichord3.x11	indoor/harpsichord3.base.x11.png	64x64	harpsichord3,harpsichord3_2,harpsichord3_3	existing	models.txt: building
+harpsichord4.x11	indoor/harpsichord4.base.x11.png	64x64	harpsichord4,harpsichord4_2,harpsichord4_3	existing	models.txt: building
 head.111	flesh/human/head.base.111.png	32x32	head	existing	models.txt: model
 healing.111	spell/Healing/healing.base.111.png	32x32	healing	flat	type SPELL_EFFECT: on the ground or an effect
 healing.112	spell/Healing/healing.base.112.png	32x32	healing	flat	type SPELL_EFFECT: on the ground or an effect
@@ -3197,7 +3197,7 @@ hut_vert.x11	construct/house/hut_vert.base.x11.png	32x64	hut_vert,hut_vert_2	exi
 ice.111	ground/Winter/ice.base.111.png	32x32	ice	flat	folder ground/: ground and its smoothing edges
 ice2.111	ground/Winter/ice2.base.111.png	32x32	ice2	flat	folder ground/: ground and its smoothing edges
 ice_warrior.x11	monster/elemental/ice_warrior.base.x11.png	64x128	ice_warrior,ice_warrior_2,ice_warrior_3	rigged	alive: a creature
-icecube.111	misc/icecube.base.111.png	32x32	icecube	scratch	type LIGHTABLE: boxy, drawn from an angle, or furniture
+icecube.111	misc/icecube.base.111.png	32x32	icecube	existing	models.txt: building
 icestorm.111	spell/Cone/icestorm.base.111.png	32x32	chaos,chaos_ball,color_spray	flat	is_floor
 icestorm.112	spell/Cone/icestorm.base.112.png	32x32	icestorm,snowstorm	flat	type SPELL_EFFECT: on the ground or an effect
 icestorm.113	spell/Cone/icestorm.base.113.png	32x32	icestorm,snowstorm,snowstorm_0	flat	type SPELL_EFFECT: on the ground or an effect
@@ -3735,14 +3735,14 @@ magic_portal_failed.116	exit/magic_portal/magic_portal_failed.base.116.png	32x32
 magic_portal_failed.117	exit/magic_portal/magic_portal_failed.base.117.png	32x32	town_portal_failed	existing	models.txt: building
 magic_portal_failed.118	exit/magic_portal/magic_portal_failed.base.118.png	32x32	town_portal_failed	existing	models.txt: building
 magic_resist.111	armour/cloak/magic_resist.base.111.png	32x32	magic_resist	existing	models.txt: building
-magic_whistle.111	misc/magic_whistle.base.111.png	32x32	magic_whistle	scratch	type CLOCK: boxy, drawn from an angle, or furniture
-magicmouth.111	connect/magicmouth.base.111.png	32x32	magic_mouth	scratch	type SIGN: boxy, drawn from an angle, or furniture
+magic_whistle.111	misc/magic_whistle.base.111.png	32x32	magic_whistle	existing	models.txt: flat
+magicmouth.111	connect/magicmouth.base.111.png	32x32	magic_mouth	existing	models.txt: flat
 magma.111	planes/fire/magma.base.111.png	32x32	magma	scratch	a monster generator (a building or object)
 magma.112	planes/fire/magma.base.112.png	32x32	magma	scratch	a monster generator (a building or object)
 magma.113	planes/fire/magma.base.113.png	32x32	magma	scratch	a monster generator (a building or object)
 magma.114	planes/fire/magma.base.114.png	32x32	magma	scratch	a monster generator (a building or object)
 magnifier.111	misc/magnifier.base.111.png	32x32	magnifier	existing	models.txt: model
-mailbox.111	misc/Container/mailbox.base.111.png	32x32	mailbox	scratch	type CONTAINER: boxy, drawn from an angle, or furniture
+mailbox.111	misc/Container/mailbox.base.111.png	32x32	mailbox	existing	models.txt: building
 man.131	monster/humanoid/Human/man.base.131.png	32x32	c_man,man,shopkeeper	rigged	alive: a creature
 man.151	monster/humanoid/Human/man.base.151.png	32x32	c_man,man,shopkeeper	rigged	alive: a creature
 man.171	monster/humanoid/Human/man.base.171.png	32x32	c_man,man,shopkeeper	rigged	alive: a creature
@@ -3777,7 +3777,7 @@ manhole.111	connect/Hole/manhole.base.111.png	64x64	manhole_closed_1,manhole_clo
 manhole.112	connect/Hole/manhole.base.112.png	64x64	manhole_closed_1,manhole_closed_1a,manhole_closed_1b	flat	type HOLE: on the ground or an effect
 manhole.113	connect/Hole/manhole.base.113.png	64x64	manhole_closed_1,manhole_closed_1a,manhole_closed_1b	flat	type HOLE: on the ground or an effect
 manhole.114	connect/Hole/manhole.base.114.png	64x64	manhole_closed_1,manhole_closed_1a,manhole_closed_1b	flat	type HOLE: on the ground or an effect
-map.111	system/map.base.111.png	32x32	map,map_navar_city,map_nexus	scratch	type MAP: boxy, drawn from an angle, or furniture
+map.111	system/map.base.111.png	32x32	map,map_navar_city,map_nexus	existing	models.txt: flat
 marble.111	floor/marble.base.111.png	32x32	marble	flat	folder floor/: floor
 marble_blgr.111	floor/marble_blgr.base.111.png	32x32	marble_blgr	flat	folder floor/: floor
 marble_coffin_container_closed.111	misc/Container/marble_coffin_container_closed.base.111.png	32x32	marble_coffin_container_closed	existing	models.txt: building
@@ -3852,7 +3852,7 @@ mesangel.112	monster/angel/mesangel.base.112.png	32x32	mesangel	rigged	alive: a 
 mesangel.113	monster/angel/mesangel.base.113.png	32x32	mesangel	rigged	alive: a creature
 mesangel.114	monster/angel/mesangel.base.114.png	32x32	mesangel	rigged	alive: a creature
 messageboard.111	readable/messageboard.base.111.png	32x32	messageboard	existing	models.txt: building
-messageboard_red.111	readable/messageboard_red.base.111.png	32x32	messageboard_red	scratch	type SIGN: boxy, drawn from an angle, or furniture
+messageboard_red.111	readable/messageboard_red.base.111.png	32x32	messageboard_red	existing	models.txt: building
 metalrobe.111	armour/mail/metalrobe.base.111.png	32x32		existing	models.txt: building
 meteor.111	spell/Bullet/meteor.base.111.png	32x32	meteor	flat	type SPELL_EFFECT: on the ground or an effect
 min_oil.111	inorganic/min_oil.base.111.png	32x32	min_oil,phil_oil	existing	models.txt: model
@@ -3931,7 +3931,7 @@ monk.151	player/class/Religious/monk.base.151.png	32x32	monk_class	existing	play
 monk.152	player/class/Religious/monk.base.152.png	32x32	monk_class	existing	player character (3D bodies)
 monk.171	player/class/Religious/monk.base.171.png	32x32	monk_class	existing	player character (3D bodies)
 monk.172	player/class/Religious/monk.base.172.png	32x32	monk_class	existing	player character (3D bodies)
-monument.111	readable/monument.base.111.png	32x32	monument	scratch	type SIGN: boxy, drawn from an angle, or furniture
+monument.111	readable/monument.base.111.png	32x32	monument	existing	models.txt: building
 moonstone.111	jewel/gems/moonstone.base.111.png	32x32	moonstone	existing	models.txt: model
 mornstar.111	weapon/chained/mornstar.base.111.png	32x32	morningstar	existing	models.txt: model
 mos_temple.111	construct/temple/mos_temple.base.111.png	32x32	mos_temple	existing	models.txt: building
@@ -4625,7 +4625,7 @@ quicksilver_sea_S.111	ground/smooth/quicksilver_sea_S.base.111.png	512x64		flat	
 quicksilver_sea_S.112	ground/smooth/quicksilver_sea_S.base.112.png	512x64		flat	folder ground/: ground and its smoothing edges
 quicksilver_sea_S.113	ground/smooth/quicksilver_sea_S.base.113.png	512x64		flat	folder ground/: ground and its smoothing edges
 quicksilver_sea_S.114	ground/smooth/quicksilver_sea_S.base.114.png	512x64		flat	folder ground/: ground and its smoothing edges
-quiver.111	misc/Container/quiver.base.111.png	32x32	quiver,quiver_throwing	scratch	type CONTAINER: boxy, drawn from an angle, or furniture
+quiver.111	misc/Container/quiver.base.111.png	32x32	quiver,quiver_throwing	existing	models.txt: building
 quiver_arrow.111	misc/Container/quiver_arrow.base.111.png	32x32		scratch	folder misc/ (no object uses it)
 quiver_bolt.111	misc/Container/quiver_bolt.base.111.png	32x32		scratch	folder misc/ (no object uses it)
 r-draughts.111	misc/draughts/r-draughts.base.111.png	32x32	red_draught	existing	models.txt: flat
@@ -4926,7 +4926,7 @@ rune_frost.111	spell/Rune/rune_frost.base.111.png	32x32	rune_frost	flat	type RUN
 rune_heal.111	spell/Rune/rune_heal.base.111.png	32x32	rune_heal,rune_restoration	flat	type RUNE: on the ground or an effect
 rune_icestorm.111	spell/Rune/rune_icestorm.base.111.png	32x32	rune_icestorm,rune_large_icestorm	flat	type RUNE: on the ground or an effect
 rune_lightning.111	spell/Rune/rune_lightning.base.111.png	32x32	rune_small_lightning	flat	type RUNE: on the ground or an effect
-rune_mark.111	spell/Misc/rune_mark.base.111.png	32x32	rune_mark	scratch	type SIGN: boxy, drawn from an angle, or furniture
+rune_mark.111	spell/Misc/rune_mark.base.111.png	32x32	rune_mark	existing	models.txt: flat
 rune_paralysis.111	spell/Rune/rune_paralysis.base.111.png	32x32	rune_paralysis	flat	type RUNE: on the ground or an effect
 rune_paralysis.112	spell/Rune/rune_paralysis.base.112.png	32x32	rune_paralysis	flat	type RUNE: on the ground or an effect
 rune_pcloud.111	spell/Rune/rune_pcloud.base.111.png	32x32	rune_poison_cloud	flat	type RUNE: on the ground or an effect
@@ -5291,12 +5291,12 @@ slime.113	monster/acid/slime.base.113.png	32x32	slime	rigged	alive: a creature
 slimecrawler.111	monster/acid/slimecrawler/slimecrawler.base.111.png	32x32	slimecrawler	rigged	alive: a creature
 slimecrawler.112	monster/acid/slimecrawler/slimecrawler.base.112.png	32x32	slimecrawler	rigged	alive: a creature
 slimecrawler.113	monster/acid/slimecrawler/slimecrawler.base.113.png	32x32	slimecrawler	rigged	alive: a creature
-slotmachine1.111	connect/Casino/slotmachine1.base.111.png	32x32	slotmachine1	scratch	type TRIGGER_ALTAR: boxy, drawn from an angle, or furniture
-slotmachine1.112	connect/Casino/slotmachine1.base.112.png	32x32	slotmachine1	scratch	type TRIGGER_ALTAR: boxy, drawn from an angle, or furniture
-slotmachine2.111	connect/Casino/slotmachine2.base.111.png	32x32	slotmachine2	scratch	type TRIGGER_ALTAR: boxy, drawn from an angle, or furniture
-slotmachine2.112	connect/Casino/slotmachine2.base.112.png	32x32	slotmachine2	scratch	type TRIGGER_ALTAR: boxy, drawn from an angle, or furniture
-slotmachine3.111	connect/Casino/slotmachine3.base.111.png	32x32	slotmachine3	scratch	type TRIGGER_ALTAR: boxy, drawn from an angle, or furniture
-slotmachine3.112	connect/Casino/slotmachine3.base.112.png	32x32	slotmachine3	scratch	type TRIGGER_ALTAR: boxy, drawn from an angle, or furniture
+slotmachine1.111	connect/Casino/slotmachine1.base.111.png	32x32	slotmachine1	existing	models.txt: building
+slotmachine1.112	connect/Casino/slotmachine1.base.112.png	32x32	slotmachine1	existing	models.txt: building
+slotmachine2.111	connect/Casino/slotmachine2.base.111.png	32x32	slotmachine2	existing	models.txt: building
+slotmachine2.112	connect/Casino/slotmachine2.base.112.png	32x32	slotmachine2	existing	models.txt: building
+slotmachine3.111	connect/Casino/slotmachine3.base.111.png	32x32	slotmachine3	existing	models.txt: building
+slotmachine3.112	connect/Casino/slotmachine3.base.112.png	32x32	slotmachine3	existing	models.txt: building
 slow.111	spell/Cone/slow.base.111.png	32x32	chaos,chaos_ball,color_spray	flat	is_floor
 slow.112	spell/Cone/slow.base.112.png	32x32	slow	flat	type SPELL_EFFECT: on the ground or an effect
 slow.113	spell/Cone/slow.base.113.png	32x32	slow	flat	type SPELL_EFFECT: on the ground or an effect
@@ -5309,7 +5309,7 @@ slum1.x11	construct/town/slum1.base.x11.png	32x64	slum1,slum1_2	existing	models.
 slum2.x11	construct/town/slum2.base.x11.png	32x64	slum2,slum2_2	existing	models.txt: building
 slum3.x11	construct/town/slum3.base.x11.png	32x64	slum3,slum3_2	existing	models.txt: building
 small_shie.111	armour/shield/small_shie.base.111.png	32x32	small_shield	existing	models.txt: model
-smallicecube.111	misc/smallicecube.base.111.png	32x32	smallicecube	scratch	type LIGHTABLE: boxy, drawn from an angle, or furniture
+smallicecube.111	misc/smallicecube.base.111.png	32x32	smallicecube	existing	models.txt: building
 smallpark.111	exit/smallpark.base.111.png	32x32	smallpark	existing	models.txt: flat
 smallstone.111	ground/Stone/smallstone.base.111.png	32x32	small_stones	flat	folder ground/: ground and its smoothing edges
 smallt_green.111	monster/troll/smallt_green.base.111.png	32x32		rigged	folder monster/ (no object uses it)
@@ -5740,7 +5740,7 @@ statue_bronze.111	misc/statue_bronze.base.111.png	32x32		existing	models.txt: st
 statue_gargoyle.111	misc/statue_gargoyle.base.111.png	32x32		existing	models.txt: model
 statue_gold.111	misc/statue_gold.base.111.png	32x32		existing	models.txt: statue
 statue_knight.111	misc/statue_knight.base.111.png	32x32		existing	models.txt: statue
-statue_ruined.x11	misc/statue_ruined.base.x11.png	64x64	statue_ruined,statue_ruined2,statue_ruined_3	scratch	type SIGN: boxy, drawn from an angle, or furniture
+statue_ruined.x11	misc/statue_ruined.base.x11.png	64x64	statue_ruined,statue_ruined2,statue_ruined_3	existing	models.txt: model
 steam.111	spell/Bolt/steam.base.111.png	32x32	steambolt	scratch	a monster generator (a building or object)
 steam.112	spell/Bolt/steam.base.112.png	32x32	steambolt	scratch	a monster generator (a building or object)
 steel_ssword_1.111	weapon/sword/steel_ssword_1.base.111.png	32x32	steel_shortsword	existing	models.txt: model
@@ -5806,9 +5806,9 @@ store_weap.x11	shop/store_weap.base.x11.png	64x64	store_weapons,store_weapons_2,
 store_weap_east.x11	shop/store_weap_east.base.x11.png	64x64	store_weapons_2_east,store_weapons_3_east,store_weapons_4_east	existing	models.txt: building
 store_weap_fant.x11	shop/store_weap_fant.base.x11.png	64x64	store_weapons_2_fant,store_weapons_3_fant,store_weapons_4_fant	existing	models.txt: building
 stormbring.111	weapon/artifact/stormbring.base.111.png	32x32	stormbringer	existing	models.txt: model
-stove.111	crafting/Container/stove.base.111.png	32x32	stove	scratch	type CONTAINER: boxy, drawn from an angle, or furniture
-stove.112	crafting/Container/stove.base.112.png	32x32	stove	scratch	type CONTAINER: boxy, drawn from an angle, or furniture
-stove.113	crafting/Container/stove.base.113.png	32x32	stove	scratch	type CONTAINER: boxy, drawn from an angle, or furniture
+stove.111	crafting/Container/stove.base.111.png	32x32	stove	existing	models.txt: building
+stove.112	crafting/Container/stove.base.112.png	32x32	stove	existing	models.txt: building
+stove.113	crafting/Container/stove.base.113.png	32x32	stove	existing	models.txt: building
 strangefloor.111	floor/strangefloor.base.111.png	32x32	strangefloor	flat	folder floor/: floor
 stronghold.x11	construct/hold/stronghold.base.x11.png	96x96	stronghold,stronghold_2,stronghold_3	existing	models.txt: building
 stronghold_east.x11	construct/hold/stronghold_east.base.x11.png	96x96	stronghold_2_east,stronghold_3_east,stronghold_4_east	existing	models.txt: building
