@@ -4,22 +4,21 @@ Made by `catalog.py` from the `base` picture set (6799 pictures). Every picture 
 
 | Group | Pictures | Things |
 | --- | ---: | ---: |
-| existing | 3770 | 2259 |
+| existing | 3779 | 2268 |
 | flat | 1279 | 666 |
 | rigged | 1172 | 330 |
-| skip | 524 | 396 |
-| scratch | 54 | 29 |
+| skip | 569 | 416 |
 
 ## Why (top reasons per group)
 
 | Group | Reason | Pictures |
 | --- | --- | ---: |
-| existing | models.txt: model | 1339 |
+| existing | models.txt: model | 1341 |
 | existing | models.txt: wall | 955 |
-| existing | models.txt: building | 720 |
+| existing | models.txt: building | 743 |
 | existing | player character | 259 |
 | existing | folder player/ | 214 |
-| existing | models.txt: flat | 107 |
+| existing | models.txt: flat | 91 |
 | existing | models.txt: monster | 91 |
 | existing | drawn as wall blocks | 67 |
 | existing | models.txt: person | 10 |
@@ -38,10 +37,9 @@ Made by `catalog.py` from the `base` picture set (6799 pictures). Every picture 
 | flat | type SPINNER: on the ground or an effect | 13 |
 | rigged | alive: a creature | 1060 |
 | rigged | folder monster/ | 112 |
-| scratch | big picture | 27 |
-| scratch | folder misc/ | 16 |
 | skip | a spell or skill icon | 247 |
 | skip | folder system/ | 162 |
+| skip | unused: no object or map shows it | 45 |
 | skip | folder skills/ | 36 |
 | skip | folder mapbuilding/: a building-kit icon | 34 |
 | skip | folder random/: a placeholder for a random item | 18 |

@@ -549,14 +549,14 @@ black_dragon2.152	monster/humanoid/Dragon/black_dragon2.base.152.png	32x32	black
 black_dragon2.171	monster/humanoid/Dragon/black_dragon2.base.171.png	32x32	black_dragon2	rigged	alive: a creature
 black_dragon2.172	monster/humanoid/Dragon/black_dragon2.base.172.png	32x32	black_dragon2	rigged	alive: a creature
 blackdragonmail.111	armour/mail/blackdragonmail.base.111.png	32x32	black_dragon_mail	existing	models.txt: building
-blackfirebullet.111	misc/blackfirebullet.base.111.png	32x32		scratch	folder misc/ (no object uses it)
-blackfirebullet.121	misc/blackfirebullet.base.121.png	32x32		scratch	folder misc/ (no object uses it)
-blackfirebullet.131	misc/blackfirebullet.base.131.png	32x32		scratch	folder misc/ (no object uses it)
-blackfirebullet.141	misc/blackfirebullet.base.141.png	32x32		scratch	folder misc/ (no object uses it)
-blackfirebullet.151	misc/blackfirebullet.base.151.png	32x32		scratch	folder misc/ (no object uses it)
-blackfirebullet.161	misc/blackfirebullet.base.161.png	32x32		scratch	folder misc/ (no object uses it)
-blackfirebullet.171	misc/blackfirebullet.base.171.png	32x32		scratch	folder misc/ (no object uses it)
-blackfirebullet.181	misc/blackfirebullet.base.181.png	32x32		scratch	folder misc/ (no object uses it)
+blackfirebullet.111	misc/blackfirebullet.base.111.png	32x32		skip	unused: no object or map shows it
+blackfirebullet.121	misc/blackfirebullet.base.121.png	32x32		skip	unused: no object or map shows it
+blackfirebullet.131	misc/blackfirebullet.base.131.png	32x32		skip	unused: no object or map shows it
+blackfirebullet.141	misc/blackfirebullet.base.141.png	32x32		skip	unused: no object or map shows it
+blackfirebullet.151	misc/blackfirebullet.base.151.png	32x32		skip	unused: no object or map shows it
+blackfirebullet.161	misc/blackfirebullet.base.161.png	32x32		skip	unused: no object or map shows it
+blackfirebullet.171	misc/blackfirebullet.base.171.png	32x32		skip	unused: no object or map shows it
+blackfirebullet.181	misc/blackfirebullet.base.181.png	32x32		skip	unused: no object or map shows it
 blackmarble.111	floor/blackmarble.base.111.png	32x32	blackmarble	flat	folder floor/: floor
 blackrock.111	ground/blackrock.base.111.png	32x32	blackrock	flat	folder ground/: ground and its smoothing edges
 blackrock_S.111	ground/smooth/blackrock_S.base.111.png	512x64		flat	folder ground/: ground and its smoothing edges
@@ -1044,12 +1044,12 @@ capitalhold_east.x11	construct/keep/capitalhold_east.base.x11.png	96x96	capitalh
 capitalhold_west.x11	construct/keep/capitalhold_west.base.x11.png	160x96	capitalhold_10_west,capitalhold_11_west,capitalhold_12_west	existing	models.txt: building
 caramel.111	food/caramel.base.111.png	32x32	caramel	existing	models.txt: model
 card.111	readable/card.base.111.png	32x32	card	existing	models.txt: flat
-card_crown.111	readable/card_crown.base.111.png	32x32		scratch	folder readable/ (no object uses it)
-card_cup.111	readable/card_cup.base.111.png	32x32		scratch	folder readable/ (no object uses it)
-card_dragon.111	readable/card_dragon.base.111.png	32x32		scratch	folder readable/ (no object uses it)
-card_ring.111	readable/card_ring.base.111.png	32x32		scratch	folder readable/ (no object uses it)
-card_skull.111	readable/card_skull.base.111.png	32x32		scratch	folder readable/ (no object uses it)
-card_sword.111	readable/card_sword.base.111.png	32x32		scratch	folder readable/ (no object uses it)
+card_crown.111	readable/card_crown.base.111.png	32x32		skip	unused: no object or map shows it
+card_cup.111	readable/card_cup.base.111.png	32x32		skip	unused: no object or map shows it
+card_dragon.111	readable/card_dragon.base.111.png	32x32		skip	unused: no object or map shows it
+card_ring.111	readable/card_ring.base.111.png	32x32		skip	unused: no object or map shows it
+card_skull.111	readable/card_skull.base.111.png	32x32		existing	models.txt: flat
+card_sword.111	readable/card_sword.base.111.png	32x32		skip	unused: no object or map shows it
 carrot.111	food/produce/carrot.base.111.png	32x32	carrot	existing	models.txt: model
 carton_box_1.111	misc/Container/carton_box_1.base.111.png	32x32	carton_box_1	existing	models.txt: model
 carton_box_1_open.111	misc/Container/carton_box_1_open.base.111.png	32x32	close_carton_box_1	existing	models.txt: model
@@ -1289,10 +1289,10 @@ chinese_dr.x33	monster/dragon/Chinese_Dra/chinese_dr.base.x33.png	64x64	ancient_
 chinese_dr.x71	monster/dragon/Chinese_Dra/chinese_dr.base.x71.png	64x64	ancient_chinese_dragon,ancient_chinese_dragon_2,ancient_chinese_dragon_3	rigged	alive: a creature
 chinese_dr.x72	monster/dragon/Chinese_Dra/chinese_dr.base.x72.png	64x64	ancient_chinese_dragon,ancient_chinese_dragon_2,ancient_chinese_dragon_3	rigged	alive: a creature
 chinese_dr.x73	monster/dragon/Chinese_Dra/chinese_dr.base.x73.png	64x64	ancient_chinese_dragon,ancient_chinese_dragon_2,ancient_chinese_dragon_3	rigged	alive: a creature
-chinese_dr_spellcasting.x31	monster/dragon/Chinese_Dra/chinese_dr_spellcasting.base.x31.png	64x64		scratch	big picture (64x64)
-chinese_dr_spellcasting.x32	monster/dragon/Chinese_Dra/chinese_dr_spellcasting.base.x32.png	64x64		scratch	big picture (64x64)
-chinese_dr_spellcasting.x71	monster/dragon/Chinese_Dra/chinese_dr_spellcasting.base.x71.png	64x64		scratch	big picture (64x64)
-chinese_dr_spellcasting.x72	monster/dragon/Chinese_Dra/chinese_dr_spellcasting.base.x72.png	64x64		scratch	big picture (64x64)
+chinese_dr_spellcasting.x31	monster/dragon/Chinese_Dra/chinese_dr_spellcasting.base.x31.png	64x64		skip	unused: no object or map shows it
+chinese_dr_spellcasting.x32	monster/dragon/Chinese_Dra/chinese_dr_spellcasting.base.x32.png	64x64		skip	unused: no object or map shows it
+chinese_dr_spellcasting.x71	monster/dragon/Chinese_Dra/chinese_dr_spellcasting.base.x71.png	64x64		skip	unused: no object or map shows it
+chinese_dr_spellcasting.x72	monster/dragon/Chinese_Dra/chinese_dr_spellcasting.base.x72.png	64x64		skip	unused: no object or map shows it
 chocolate.111	food/chocolate.base.111.png	32x32	chocolate	existing	models.txt: model
 chole_1.111	exit/chole_1.base.111.png	32x32	chole_1	existing	models.txt: flat
 chole_2.111	exit/chole_2.base.111.png	32x32	chole_2	existing	models.txt: flat
@@ -1446,7 +1446,7 @@ crone.181	monster/humanoid/Human/crone.base.181.png	32x32	crone	rigged	alive: a 
 crossbow.111	weapon/bow/crossbow.base.111.png	32x32	crossbow	existing	models.txt: model
 crossroad.111	readable/crossroad.base.111.png	32x32	cross_sign	existing	models.txt: building
 crown.111	armour/helmet/crown.base.111.png	32x32	crown	existing	models.txt: model
-crown2.111	armour/helmet/crown2.base.111.png	32x32		scratch	folder armour/ (no object uses it)
+crown2.111	armour/helmet/crown2.base.111.png	32x32		existing	models.txt: model
 crown_dark.111	armour/helmet/crown_dark.base.111.png	32x32	crown_dark	existing	models.txt: model
 crown_gray.111	armour/helmet/crown_gray.base.111.png	32x32	crown_gray	existing	models.txt: model
 crown_r.111	armour/helmet/crown_r.base.111.png	32x32	crown_r	existing	models.txt: model
@@ -1852,7 +1852,7 @@ dog.133	monster/animal/Dog/dog.base.133.png	32x32	dog	rigged	alive: a creature
 dog.171	monster/animal/Dog/dog.base.171.png	32x32	dog	rigged	alive: a creature
 dog.172	monster/animal/Dog/dog.base.172.png	32x32	dog	rigged	alive: a creature
 dog.173	monster/animal/Dog/dog.base.173.png	32x32	dog	rigged	alive: a creature
-doll.111	misc/doll.base.111.png	32x32		scratch	folder misc/ (no object uses it)
+doll.111	misc/doll.base.111.png	32x32		existing	models.txt: building
 door_0.111	door/Door/door_0.base.111.png	32x32	door_0	rigged	alive: a creature
 door_1.111	door/Door/door_1.base.111.png	32x32	door_1_1	rigged	alive: a creature
 door_2.111	door/Door/door_2.base.111.png	32x32	door_1_3	rigged	alive: a creature
@@ -1897,12 +1897,12 @@ dragon_guild2.x11	construct/town/dragon_guild2.base.x11.png	64x64	Dragon Guild 2
 dragon_orange_scale.111	flesh/dragon/dragon_orange_scale.base.111.png	32x32	orange_dragon_scale	existing	models.txt: model
 dragon_sca.111	flesh/dragon/dragon_sca.base.111.png	32x32	dragon_scale	existing	models.txt: model
 dragon_shi.111	armour/shield/dragon_shi.base.111.png	32x32	dragon_shield	existing	models.txt: model
-dragon_spellcasting.x31	monster/dragon/Dragon/dragon_spellcasting.base.x31.png	96x64		scratch	big picture (96x64)
-dragon_spellcasting.x32	monster/dragon/Dragon/dragon_spellcasting.base.x32.png	96x64		scratch	big picture (96x64)
-dragon_spellcasting.x33	monster/dragon/Dragon/dragon_spellcasting.base.x33.png	96x64		scratch	big picture (96x64)
-dragon_spellcasting.x71	monster/dragon/Dragon/dragon_spellcasting.base.x71.png	96x64		scratch	big picture (96x64)
-dragon_spellcasting.x72	monster/dragon/Dragon/dragon_spellcasting.base.x72.png	96x64		scratch	big picture (96x64)
-dragon_spellcasting.x73	monster/dragon/Dragon/dragon_spellcasting.base.x73.png	96x64		scratch	big picture (96x64)
+dragon_spellcasting.x31	monster/dragon/Dragon/dragon_spellcasting.base.x31.png	96x64		skip	unused: no object or map shows it
+dragon_spellcasting.x32	monster/dragon/Dragon/dragon_spellcasting.base.x32.png	96x64		skip	unused: no object or map shows it
+dragon_spellcasting.x33	monster/dragon/Dragon/dragon_spellcasting.base.x33.png	96x64		skip	unused: no object or map shows it
+dragon_spellcasting.x71	monster/dragon/Dragon/dragon_spellcasting.base.x71.png	96x64		skip	unused: no object or map shows it
+dragon_spellcasting.x72	monster/dragon/Dragon/dragon_spellcasting.base.x72.png	96x64		skip	unused: no object or map shows it
+dragon_spellcasting.x73	monster/dragon/Dragon/dragon_spellcasting.base.x73.png	96x64		skip	unused: no object or map shows it
 dragon_stoned.111	player/stoned/dragon_stoned.base.111.png	32x32		existing	folder player/ (no object uses it)
 dragon_wing.111	flesh/dragon/dragon_wing.base.111.png	32x32	dragon_wing	existing	models.txt: model
 dragoncave.111	monster/dragon/dragoncave.base.111.png	32x32	generate_dragon	existing	models.txt: building
@@ -2082,9 +2082,9 @@ earthwall.113	wall/bwall/earthwall.base.113.png	32x32	earthwall	existing	models.
 ectoplasm.111	flesh/misc/ectoplasm.base.111.png	32x32	ectoplasm	existing	models.txt: model
 elec_dr.x11	monster/dragon/Electric/elec_dr.base.x11.png	64x96	big_elec,big_elec_2,big_elec_3	rigged	alive: a creature
 elec_dr.x12	monster/dragon/Electric/elec_dr.base.x12.png	64x96	big_elec,big_elec_2,big_elec_3	rigged	alive: a creature
-elec_dr_spellcasting.x11	monster/dragon/Electric/elec_dr_spellcasting.base.x11.png	64x96		scratch	big picture (64x96)
-elec_dr_spellcasting.x12	monster/dragon/Electric/elec_dr_spellcasting.base.x12.png	64x96		scratch	big picture (64x96)
-elec_dr_spellcasting.x13	monster/dragon/Electric/elec_dr_spellcasting.base.x13.png	64x96		scratch	big picture (64x96)
+elec_dr_spellcasting.x11	monster/dragon/Electric/elec_dr_spellcasting.base.x11.png	64x96		skip	unused: no object or map shows it
+elec_dr_spellcasting.x12	monster/dragon/Electric/elec_dr_spellcasting.base.x12.png	64x96		skip	unused: no object or map shows it
+elec_dr_spellcasting.x13	monster/dragon/Electric/elec_dr_spellcasting.base.x13.png	64x96		skip	unused: no object or map shows it
 elec_drag.131	monster/dragon/Hatchlings/elec_drag.base.131.png	32x32	elec_dragon	rigged	alive: a creature
 elec_drag.132	monster/dragon/Hatchlings/elec_drag.base.132.png	32x32	elec_dragon	rigged	alive: a creature
 elec_drag.171	monster/dragon/Hatchlings/elec_drag.base.171.png	32x32	elec_dragon	rigged	alive: a creature
@@ -2397,15 +2397,15 @@ fire_drag.131	monster/dragon/Hatchlings/fire_drag.base.131.png	32x32	fire_dragon
 fire_drag.132	monster/dragon/Hatchlings/fire_drag.base.132.png	32x32	fire_dragon	rigged	alive: a creature
 fire_drag.171	monster/dragon/Hatchlings/fire_drag.base.171.png	32x32	fire_dragon	rigged	alive: a creature
 fire_drag.172	monster/dragon/Hatchlings/fire_drag.base.172.png	32x32	fire_dragon	rigged	alive: a creature
-fire_troll.x11	monster/troll/Troll/fire_troll.base.x11.png	64x64		scratch	big picture (64x64)
-fire_troll.x12	monster/troll/Troll/fire_troll.base.x12.png	64x64		scratch	big picture (64x64)
-fire_troll.x13	monster/troll/Troll/fire_troll.base.x13.png	64x64		scratch	big picture (64x64)
+fire_troll.x11	monster/troll/Troll/fire_troll.base.x11.png	64x64		skip	unused: no object or map shows it
+fire_troll.x12	monster/troll/Troll/fire_troll.base.x12.png	64x64		skip	unused: no object or map shows it
+fire_troll.x13	monster/troll/Troll/fire_troll.base.x13.png	64x64		skip	unused: no object or map shows it
 fireball.111	spell/Bullet/Fire/fireball.base.111.png	32x32	chaos,chaos_ball,color_spray	flat	is_floor
 fireball.112	spell/Bullet/Fire/fireball.base.112.png	32x32	fireball,firebreath	flat	type SPELL_EFFECT: on the ground or an effect
 fireball.113	spell/Bullet/Fire/fireball.base.113.png	32x32	fireball,firebreath	flat	type SPELL_EFFECT: on the ground or an effect
-fireball_S.111	spell/Bullet/Fire/fireball_S.base.111.png	512x64		scratch	big picture (512x64)
-fireball_S.112	spell/Bullet/Fire/fireball_S.base.112.png	512x64		scratch	big picture (512x64)
-fireball_S.113	spell/Bullet/Fire/fireball_S.base.113.png	512x64		scratch	big picture (512x64)
+fireball_S.111	spell/Bullet/Fire/fireball_S.base.111.png	512x64		skip	unused: no object or map shows it
+fireball_S.112	spell/Bullet/Fire/fireball_S.base.112.png	512x64		skip	unused: no object or map shows it
+fireball_S.113	spell/Bullet/Fire/fireball_S.base.113.png	512x64		skip	unused: no object or map shows it
 firebolt.111	spell/Bolt/firebolt.base.111.png	32x32	firebolt	flat	type SPELL_EFFECT: on the ground or an effect
 firebolt.121	spell/Bolt/firebolt.base.121.png	32x32	firebolt	flat	type SPELL_EFFECT: on the ground or an effect
 firebolt.131	spell/Bolt/firebolt.base.131.png	32x32	firebolt	flat	type SPELL_EFFECT: on the ground or an effect
@@ -2414,7 +2414,7 @@ firebolt.151	spell/Bolt/firebolt.base.151.png	32x32	firebolt	flat	type SPELL_EFF
 firebolt.161	spell/Bolt/firebolt.base.161.png	32x32	firebolt	flat	type SPELL_EFFECT: on the ground or an effect
 firebolt.171	spell/Bolt/firebolt.base.171.png	32x32	firebolt	flat	type SPELL_EFFECT: on the ground or an effect
 firebolt.181	spell/Bolt/firebolt.base.181.png	32x32	firebolt	flat	type SPELL_EFFECT: on the ground or an effect
-firebolt_S.111	spell/Bolt/firebolt_S.base.111.png	512x64		scratch	big picture (512x64)
+firebolt_S.111	spell/Bolt/firebolt_S.base.111.png	512x64		skip	unused: no object or map shows it
 fireborn.111	player/race/fireborn.base.111.png	32x32	fireborn,fireborn_player	existing	player character (3D bodies)
 fireborn.222	player/race/fireborn.base.222.png	32x32	fireborn,fireborn_player	existing	player character (3D bodies)
 fireborn.333	player/race/fireborn.base.333.png	32x32	fireborn,fireborn_player	existing	player character (3D bodies)
@@ -2492,11 +2492,11 @@ fly_ant.131	monster/insect/ant/fly_ant.base.131.png	32x32	fly_ant	rigged	alive: 
 fly_ant.132	monster/insect/ant/fly_ant.base.132.png	32x32	fly_ant	rigged	alive: a creature
 fly_ant.171	monster/insect/ant/fly_ant.base.171.png	32x32	fly_ant	rigged	alive: a creature
 fly_ant.172	monster/insect/ant/fly_ant.base.172.png	32x32	fly_ant	rigged	alive: a creature
-fog.111	ground/fog.base.111.png	32x32	cloudfloor,fog,fog_wall	existing	models.txt: flat
-fog.112	ground/fog.base.112.png	32x32	cloudwall,fog,fog_wall	existing	models.txt: flat
-fog_2.111	ground/fog_2.base.111.png	32x32	thickcloudfloor	existing	models.txt: flat
-fog_S.111	ground/smooth/fog_S.base.111.png	512x64		existing	models.txt: flat
-fog_S.112	ground/smooth/fog_S.base.112.png	512x64		existing	models.txt: flat
+fog.111	ground/fog.base.111.png	32x32	cloudfloor,fog,fog_wall	existing	models.txt: building
+fog.112	ground/fog.base.112.png	32x32	cloudwall,fog,fog_wall	existing	models.txt: building
+fog_2.111	ground/fog_2.base.111.png	32x32	thickcloudfloor	existing	models.txt: building
+fog_S.111	ground/smooth/fog_S.base.111.png	512x64		existing	models.txt: building
+fog_S.112	ground/smooth/fog_S.base.112.png	512x64		existing	models.txt: building
 food.111	food/food.base.111.png	32x32	food	existing	models.txt: model
 foot.111	flesh/human/foot.base.111.png	32x32	foot	existing	models.txt: model
 footbridge_0.111	road/footbridge/footbridge_0.base.111.png	32x32	footbridge_0	flat	folder road/: road
@@ -2567,10 +2567,10 @@ fungus.113	monster/animal/fungus.base.113.png	32x32	fungus	rigged	alive: a creat
 fungus.114	monster/animal/fungus.base.114.png	32x32	fungus	rigged	alive: a creature
 fungus.115	monster/animal/fungus.base.115.png	32x32	fungus	rigged	alive: a creature
 furious_floor.111	system/mood_floors/furious_floor.base.111.png	32x32	furious_floor	flat	type MOOD_FLOOR: on the ground or an effect
-futon.111	indoor/futon.base.111.png	32x32	futon.2	existing	models.txt: flat
-futon.121	indoor/futon.base.121.png	32x32	futon.3	existing	models.txt: flat
-futon.131	indoor/futon.base.131.png	32x32	futon.4	existing	models.txt: flat
-futon_save.101	indoor/futon_save.base.101.png	32x32	futon_save	existing	models.txt: flat
+futon.111	indoor/futon.base.111.png	32x32	futon.2	existing	models.txt: building
+futon.121	indoor/futon.base.121.png	32x32	futon.3	existing	models.txt: building
+futon.131	indoor/futon.base.131.png	32x32	futon.4	existing	models.txt: building
+futon_save.101	indoor/futon_save.base.101.png	32x32	futon_save	existing	models.txt: building
 g_worm.x31	monster/animal/giant_worm/g_worm.base.x31.png	64x64	g_worm,g_worm_2,g_worm_3	rigged	alive: a creature
 g_worm.x32	monster/animal/giant_worm/g_worm.base.x32.png	64x64	g_worm,g_worm_2,g_worm_3	rigged	alive: a creature
 g_worm.x71	monster/animal/giant_worm/g_worm.base.x71.png	64x64	g_worm,g_worm_2,g_worm_3	rigged	alive: a creature
@@ -2951,8 +2951,8 @@ hellhound.171	monster/demon/hellhound.base.171.png	32x32	hellhound	rigged	alive:
 hellhound.172	monster/demon/hellhound.base.172.png	32x32	hellhound	rigged	alive: a creature
 hellhound.173	monster/demon/hellhound.base.173.png	32x32	hellhound	rigged	alive: a creature
 helmet.111	armour/helmet/helmet.base.111.png	32x32	helmet	existing	models.txt: model
-helmet2.111	armour/helmet/helmet2.base.111.png	32x32		scratch	folder armour/ (no object uses it)
-helmet3.111	armour/helmet/helmet3.base.111.png	32x32		scratch	folder armour/ (no object uses it)
+helmet2.111	armour/helmet/helmet2.base.111.png	32x32		skip	unused: no object or map shows it
+helmet3.111	armour/helmet/helmet3.base.111.png	32x32		skip	unused: no object or map shows it
 helmet_bri.111	armour/helmet/helmet_bri.base.111.png	32x32	helmet_of_brilliance	existing	models.txt: model
 helmetxray.111	armour/helmet/helmetxray.base.111.png	32x32	helmet_of_xrays	existing	models.txt: model
 helmetxray.112	armour/helmet/helmetxray.base.112.png	32x32	helmet_of_xrays	existing	models.txt: model
@@ -3229,7 +3229,7 @@ improve_pow.111	spell/Scroll/improve_pow.base.111.png	32x32		flat	folder spell/ 
 improve_str.111	spell/Scroll/improve_str.base.111.png	32x32		flat	folder spell/ (no object uses it)
 improve_weight.111	spell/Scroll/improve_weight.base.111.png	32x32		flat	folder spell/ (no object uses it)
 improve_wis.111	spell/Scroll/improve_wis.base.111.png	32x32		flat	folder spell/ (no object uses it)
-infernaldevice_1.111	misc/infernaldevice_1.base.111.png	32x32		scratch	folder misc/ (no object uses it)
+infernaldevice_1.111	misc/infernaldevice_1.base.111.png	32x32		skip	unused: no object or map shows it
 inn.x11	construct/house/inn.base.x11.png	64x32	inn,inn_2	existing	models.txt: building
 inn_fant.x11	construct/house/inn_fant.base.x11.png	64x32	inn_fant,inn_fant_2	existing	models.txt: building
 insect_sting.111	flesh/misc/insect_sting.base.111.png	32x32	insect_stinger	existing	models.txt: model
@@ -3259,9 +3259,9 @@ iron_gate2.115	connect/Gates/iron_gate2.base.115.png	32x32	igateTrg2,igate_close
 iron_gate2.116	connect/Gates/iron_gate2.base.116.png	32x32	igateTrg2,igate_closed_2,igate_open_2	existing	models.txt: model
 ironbar.111	jewel/bars/ironbar.base.111.png	32x32	ironbar	existing	models.txt: model
 istone.111	ground/Winter/istone.base.111.png	32x32	istone	flat	folder ground/: ground and its smoothing edges
-ixalovh.x11	gods/elemental/ixalovh.base.x11.png	64x71		scratch	big picture (64x71)
-ixalovh.x12	gods/elemental/ixalovh.base.x12.png	64x71		scratch	big picture (64x71)
-ixalovh.x13	gods/elemental/ixalovh.base.x13.png	64x70		scratch	big picture (64x70)
+ixalovh.x11	gods/elemental/ixalovh.base.x11.png	64x71		skip	unused: no object or map shows it
+ixalovh.x12	gods/elemental/ixalovh.base.x12.png	64x71		skip	unused: no object or map shows it
+ixalovh.x13	gods/elemental/ixalovh.base.x13.png	64x70		skip	unused: no object or map shows it
 ixalovh_cathedral.x11	construct/temple/ixalovh_cathedral.base.x11.png	96x128	ixalovh_cathedral,ixalovh_cathedral_10,ixalovh_cathedral_11	existing	models.txt: building
 ixalovh_church.x11	construct/temple/ixalovh_church.base.x11.png	64x64	ixalovh_church,ixalovh_church_2,ixalovh_church_3	existing	models.txt: building
 ixalovh_temple.111	construct/temple/ixalovh_temple.base.111.png	32x32	ixalovh_temple	existing	models.txt: building
@@ -3492,7 +3492,7 @@ leg.111	flesh/human/leg.base.111.png	32x32	leg	existing	models.txt: model
 leg_mutton.111	food/leg_mutton.base.111.png	32x32	leg_mutton	existing	models.txt: model
 lesser_dwarven_guard.111	monster/humanoid/Dwarf/lesser_dwarven_guard.base.111.png	32x32	lesser_dwarven_guard	rigged	alive: a creature
 lesser_dwarven_guard.112	monster/humanoid/Dwarf/lesser_dwarven_guard.base.112.png	32x32	lesser_dwarven_guard	rigged	alive: a creature
-letter.111	readable/letter.base.111.png	32x32	letter	existing	models.txt: flat
+letter.111	readable/letter.base.111.png	32x32	letter	existing	models.txt: building
 lev_boots.111	armour/boots/lev_boots.base.111.png	32x32	levitationboots	existing	models.txt: model
 lever.111	connect/lever.base.111.png	32x32	button_lever	existing	models.txt: building
 lever.112	connect/lever.base.112.png	32x32	button_lever	existing	models.txt: building
@@ -3674,7 +3674,7 @@ mabu.x12	monster/giant/mabu.base.x12.png	32x64	mabu,mabu_2	rigged	alive: a creat
 mabu.x13	monster/giant/mabu.base.x13.png	32x64	mabu,mabu_2	rigged	alive: a creature
 mace_1.111	weapon/mace/mace_1.base.111.png	32x32	mace	existing	models.txt: model
 mace_2.111	weapon/mace/mace_2.base.111.png	32x32	mace_2	existing	models.txt: model
-machine.x11	misc/machine.base.x11.png	96x128	Machine.1,Machine.2,Machine.3	scratch	big picture (96x128)
+machine.x11	misc/machine.base.x11.png	96x128	Machine.1,Machine.2,Machine.3	existing	models.txt: building
 madman.111	monster/humanoid/madman.base.111.png	32x32	madman	rigged	alive: a creature
 madman.112	monster/humanoid/madman.base.112.png	32x32	madman	rigged	alive: a creature
 madman_gen.111	monster/humanoid/madman_gen.base.111.png	32x32	generate_madman	existing	models.txt: building
@@ -3735,7 +3735,7 @@ magic_portal_failed.116	exit/magic_portal/magic_portal_failed.base.116.png	32x32
 magic_portal_failed.117	exit/magic_portal/magic_portal_failed.base.117.png	32x32	town_portal_failed	existing	models.txt: building
 magic_portal_failed.118	exit/magic_portal/magic_portal_failed.base.118.png	32x32	town_portal_failed	existing	models.txt: building
 magic_resist.111	armour/cloak/magic_resist.base.111.png	32x32	magic_resist	existing	models.txt: building
-magic_whistle.111	misc/magic_whistle.base.111.png	32x32	magic_whistle	existing	models.txt: flat
+magic_whistle.111	misc/magic_whistle.base.111.png	32x32	magic_whistle	existing	models.txt: building
 magicmouth.111	connect/magicmouth.base.111.png	32x32	magic_mouth	existing	models.txt: flat
 magma.111	planes/fire/magma.base.111.png	32x32	magma	existing	models.txt: flat
 magma.112	planes/fire/magma.base.112.png	32x32	magma	existing	models.txt: flat
@@ -3777,7 +3777,7 @@ manhole.111	connect/Hole/manhole.base.111.png	64x64	manhole_closed_1,manhole_clo
 manhole.112	connect/Hole/manhole.base.112.png	64x64	manhole_closed_1,manhole_closed_1a,manhole_closed_1b	flat	type HOLE: on the ground or an effect
 manhole.113	connect/Hole/manhole.base.113.png	64x64	manhole_closed_1,manhole_closed_1a,manhole_closed_1b	flat	type HOLE: on the ground or an effect
 manhole.114	connect/Hole/manhole.base.114.png	64x64	manhole_closed_1,manhole_closed_1a,manhole_closed_1b	flat	type HOLE: on the ground or an effect
-map.111	system/map.base.111.png	32x32	map,map_navar_city,map_nexus	existing	models.txt: flat
+map.111	system/map.base.111.png	32x32	map,map_navar_city,map_nexus	existing	models.txt: building
 marble.111	floor/marble.base.111.png	32x32	marble	flat	folder floor/: floor
 marble_blgr.111	floor/marble_blgr.base.111.png	32x32	marble_blgr	flat	folder floor/: floor
 marble_coffin_container_closed.111	misc/Container/marble_coffin_container_closed.base.111.png	32x32	marble_coffin_container_closed	existing	models.txt: building
@@ -3800,7 +3800,7 @@ mastif.133	monster/animal/Dog/mastif.base.133.png	32x32	mastif	rigged	alive: a c
 mastif.171	monster/animal/Dog/mastif.base.171.png	32x32	mastif	rigged	alive: a creature
 mastif.172	monster/animal/Dog/mastif.base.172.png	32x32	mastif	rigged	alive: a creature
 mastif.173	monster/animal/Dog/mastif.base.173.png	32x32	mastif	rigged	alive: a creature
-mat.111	indoor/mat.base.111.png	32x32	mat	existing	models.txt: flat
+mat.111	indoor/mat.base.111.png	32x32	mat	existing	models.txt: building
 mb_burningfountain.111	mapbuilding/mb_burningfountain.base.111.png	32x32	building_burning_fountain	skip	folder mapbuilding/: a building-kit icon (shows what it builds)
 mb_lavawell.111	mapbuilding/mb_lavawell.base.111.png	32x32	building_lava_well	skip	folder mapbuilding/: a building-kit icon (shows what it builds)
 mbaltar_none.111	mapbuilding/mbaltar_none.base.111.png	32x32	building_altar	skip	folder mapbuilding/: a building-kit icon (shows what it builds)
@@ -4014,7 +4014,7 @@ neko.115	monster/animal/Neko/neko.base.115.png	32x32	neko	rigged	alive: a creatu
 neko.116	monster/animal/Neko/neko.base.116.png	32x32	neko	rigged	alive: a creature
 neko.117	monster/animal/Neko/neko.base.117.png	32x32	neko	rigged	alive: a creature
 neko.118	monster/animal/Neko/neko.base.118.png	32x32	neko	rigged	alive: a creature
-neko_kago.111	misc/neko_kago.base.111.png	32x32		scratch	folder misc/ (no object uses it)
+neko_kago.111	misc/neko_kago.base.111.png	32x32		existing	models.txt: building
 nightmare.111	monster/undead/nightmare.base.111.png	32x32	nightmare	rigged	alive: a creature
 nightmare.112	monster/undead/nightmare.base.112.png	32x32	nightmare	rigged	alive: a creature
 nineringsword.111	weapon/sword/nineringsword.base.111.png	32x32	nineringsword	existing	models.txt: model
@@ -4626,11 +4626,11 @@ quicksilver_sea_S.112	ground/smooth/quicksilver_sea_S.base.112.png	512x64		flat	
 quicksilver_sea_S.113	ground/smooth/quicksilver_sea_S.base.113.png	512x64		flat	folder ground/: ground and its smoothing edges
 quicksilver_sea_S.114	ground/smooth/quicksilver_sea_S.base.114.png	512x64		flat	folder ground/: ground and its smoothing edges
 quiver.111	misc/Container/quiver.base.111.png	32x32	quiver,quiver_throwing	existing	models.txt: building
-quiver_arrow.111	misc/Container/quiver_arrow.base.111.png	32x32		scratch	folder misc/ (no object uses it)
-quiver_bolt.111	misc/Container/quiver_bolt.base.111.png	32x32		scratch	folder misc/ (no object uses it)
+quiver_arrow.111	misc/Container/quiver_arrow.base.111.png	32x32		skip	unused: no object or map shows it
+quiver_bolt.111	misc/Container/quiver_bolt.base.111.png	32x32		skip	unused: no object or map shows it
 r-draughts.111	misc/draughts/r-draughts.base.111.png	32x32	red_draught	existing	models.txt: flat
 r-king-draughts.111	misc/draughts/r-king-draughts.base.111.png	32x32	red_draught_king	existing	models.txt: flat
-r_foot.111	misc/r_foot.base.111.png	32x32		scratch	folder misc/ (no object uses it)
+r_foot.111	misc/r_foot.base.111.png	32x32		existing	models.txt: building
 r_house1.111	construct/town/r_house1.base.111.png	32x32	r_house1	existing	models.txt: building
 r_house2.111	construct/town/r_house2.base.111.png	32x32	r_house2	existing	models.txt: building
 r_sack.111	misc/Container/r_sack.base.111.png	32x32	r_sack,scrollcase	existing	models.txt: model
@@ -4906,9 +4906,9 @@ ruby.112	jewel/gems/ruby.base.112.png	32x32	ruby	existing	models.txt: model
 ruby_converter.111	shop/ruby_converter.base.111.png	32x32	ruby_converter	existing	models.txt: building
 ruby_exceptional.111	jewel/gems/ruby_exceptional.base.111.png	32x32	raw_ruby_exceptional_beauty	existing	models.txt: model
 ruby_flawless.111	jewel/gems/ruby_flawless.base.111.png	32x32	raw_ruby_flawless_beauty	existing	models.txt: model
-ruggilli.x11	gods/elemental/ruggilli.base.x11.png	64x64		scratch	big picture (64x64)
-ruggilli.x12	gods/elemental/ruggilli.base.x12.png	64x64		scratch	big picture (64x64)
-ruggilli.x13	gods/elemental/ruggilli.base.x13.png	64x64		scratch	big picture (64x64)
+ruggilli.x11	gods/elemental/ruggilli.base.x11.png	64x64		skip	unused: no object or map shows it
+ruggilli.x12	gods/elemental/ruggilli.base.x12.png	64x64		skip	unused: no object or map shows it
+ruggilli.x13	gods/elemental/ruggilli.base.x13.png	64x64		skip	unused: no object or map shows it
 ruggilli_cathedral.x11	construct/temple/ruggilli_cathedral.base.x11.png	96x128	ruggilli_cathedral,ruggilli_cathedral_10,ruggilli_cathedral_11	existing	models.txt: building
 ruggilli_church.x11	construct/temple/ruggilli_church.base.x11.png	64x64	ruggilli_church,ruggilli_church_2,ruggilli_church_3	existing	models.txt: building
 ruggilli_temple.111	construct/temple/ruggilli_temple.base.111.png	32x32	ruggilli_temple	existing	models.txt: building
@@ -5156,7 +5156,7 @@ shell.181	spell/Bullet/Shell/shell.base.181.png	32x32	shell	flat	type SPELL_EFFE
 shellhorn1.111	spell/Wand/shellhorn1.base.111.png	32x32	horn_siren,shellhorn1	existing	models.txt: model
 shellhorn2.111	spell/Wand/shellhorn2.base.111.png	32x32	horn_waves,shellhorn2	existing	models.txt: model
 shield.111	armour/shield/shield.base.111.png	32x32	shield	existing	models.txt: model
-shield2.111	armour/shield/shield2.base.111.png	32x32		scratch	folder armour/ (no object uses it)
+shield2.111	armour/shield/shield2.base.111.png	32x32		existing	models.txt: model
 shield_imana.111	armour/shield/shield_imana.base.111.png	32x32	shield_imana	existing	models.txt: model
 shining_finger.111	armour/gauntlets/shining_finger.base.111.png	32x32	shining_finger	existing	models.txt: model
 shining_finger.112	armour/gauntlets/shining_finger.base.112.png	32x32	shining_finger	existing	models.txt: model
@@ -5652,8 +5652,8 @@ spider.181	monster/insect/spider/spider.base.181.png	32x32	spider	rigged	alive: 
 spider.182	monster/insect/spider/spider.base.182.png	32x32	spider	rigged	alive: a creature
 spider.183	monster/insect/spider/spider.base.183.png	32x32	spider	rigged	alive: a creature
 spider.184	monster/insect/spider/spider.base.184.png	32x32	spider	rigged	alive: a creature
-spider_web.111	monster/insect/spider/spider_web.base.111.png	32x32	spider_gen,spider_web,spider_web2	existing	models.txt: flat
-spider_web.112	monster/insect/spider/spider_web.base.112.png	32x32	spider_gen,spider_web,spider_web2	existing	models.txt: flat
+spider_web.111	monster/insect/spider/spider_web.base.111.png	32x32	spider_gen,spider_web,spider_web2	existing	models.txt: building
+spider_web.112	monster/insect/spider/spider_web.base.112.png	32x32	spider_gen,spider_web,spider_web2	existing	models.txt: building
 spike.110	connect/Gates/spike.base.110.png	32x32	spike_hidden	existing	models.txt: building
 spike.111	connect/Gates/spike.base.111.png	32x32	spike_closed,spike_hidden,spike_moving	existing	models.txt: building
 spike.112	connect/Gates/spike.base.112.png	32x32	spike_closed,spike_hidden,spike_moving	existing	models.txt: building
@@ -5692,7 +5692,7 @@ spinner.11A	connect/Spinner/spinner.base.11A.png	32x32	spinner_-45,spinner_-90,s
 spinner.11B	connect/Spinner/spinner.base.11B.png	32x32	spinner_-135,spinner_-45,spinner_-90	flat	type SPINNER: on the ground or an effect
 spinner.11C	connect/Spinner/spinner.base.11C.png	32x32	spinner_-45,spinner_-90,spinner_45	flat	type SPINNER: on the ground or an effect
 spinner.11D	connect/Spinner/spinner.base.11D.png	32x32	spinner_-135,spinner_-45,spinner_-90	flat	type SPINNER: on the ground or an effect
-spinningwheel.111	misc/spinningwheel.base.111.png	32x32		scratch	folder misc/ (no object uses it)
+spinningwheel.111	misc/spinningwheel.base.111.png	32x32		existing	models.txt: building
 spit_ant.131	monster/insect/ant/spit_ant.base.131.png	32x32	spit_ant	rigged	alive: a creature
 spit_ant.132	monster/insect/ant/spit_ant.base.132.png	32x32	spit_ant	rigged	alive: a creature
 spit_ant.133	monster/insect/ant/spit_ant.base.133.png	32x32	spit_ant	rigged	alive: a creature
@@ -5741,8 +5741,8 @@ statue_gargoyle.111	misc/statue_gargoyle.base.111.png	32x32		existing	models.txt
 statue_gold.111	misc/statue_gold.base.111.png	32x32		existing	models.txt: statue
 statue_knight.111	misc/statue_knight.base.111.png	32x32		existing	models.txt: statue
 statue_ruined.x11	misc/statue_ruined.base.x11.png	64x64	statue_ruined,statue_ruined2,statue_ruined_3	existing	models.txt: model
-steam.111	spell/Bolt/steam.base.111.png	32x32	steambolt	existing	models.txt: flat
-steam.112	spell/Bolt/steam.base.112.png	32x32	steambolt	existing	models.txt: flat
+steam.111	spell/Bolt/steam.base.111.png	32x32	steambolt	existing	models.txt: building
+steam.112	spell/Bolt/steam.base.112.png	32x32	steambolt	existing	models.txt: building
 steel_ssword_1.111	weapon/sword/steel_ssword_1.base.111.png	32x32	steel_shortsword	existing	models.txt: model
 steelbar.111	jewel/bars/steelbar.base.111.png	32x32	steelbar	existing	models.txt: model
 steppe.111	ground/steppe.base.111.png	32x32	steppe	flat	folder ground/: ground and its smoothing edges
@@ -6218,12 +6218,12 @@ unlit_brazier.111	light/unlit_brazier.base.111.png	32x32	unlit brazier	existing	
 unlit_tikitorch.111	light/unlit_tikitorch.base.111.png	32x32	unlit tiki torch	existing	models.txt: model
 unlocked_hwooddoor.111	door/unlocked_hwooddoor.base.111.png	32x32	lockable_hdoor	existing	models.txt: model
 unlocked_vwooddoor.111	door/unlocked_vwooddoor.base.111.png	32x32	lockable_vdoor	existing	models.txt: model
-unluck.111	misc/unluck.base.111.png	32x32		scratch	folder misc/ (no object uses it)
+unluck.111	misc/unluck.base.111.png	32x32		existing	models.txt: flat
 unusual_kobold.111	monster/goblin/Kobold/unusual_kobold.base.111.png	32x32	pygmy,pygmy_assassin,unusual_kobold	existing	models.txt: monster
 unusual_kobold.112	monster/goblin/Kobold/unusual_kobold.base.112.png	32x32	pygmy,pygmy_assassin,unusual_kobold	existing	models.txt: monster
 uranium.111	inorganic/uranium.base.111.png	32x32	depleteduraniumpile,enricheduraniumpile,uraniumpile	existing	models.txt: model
 uraniumbar.111	jewel/bars/uraniumbar.base.111.png	32x32	depleteduraniumbar,enricheduraniumbar,uraniumbar	existing	models.txt: model
-utensils.111	misc/cutlery/utensils.base.111.png	32x32	utensils	existing	models.txt: flat
+utensils.111	misc/cutlery/utensils.base.111.png	32x32	utensils	existing	models.txt: building
 uw_shield.111	armour/shield/uw_shield.base.111.png	32x32	uw_shield	existing	models.txt: model
 uw_sword.111	weapon/artifact/UW_Sword/uw_sword.base.111.png	32x32	uw_sword	existing	models.txt: model
 uw_sword.112	weapon/artifact/UW_Sword/uw_sword.base.112.png	32x32	uw_sword	existing	models.txt: model
@@ -6309,7 +6309,7 @@ viking.151	player/race/viking.base.151.png	32x32	northman_player,viking	existing
 viking.152	player/race/viking.base.152.png	32x32	northman_player	existing	player character (3D bodies)
 viking.171	player/race/viking.base.171.png	32x32	northman_player,viking	existing	player character (3D bodies)
 viking.172	player/race/viking.base.172.png	32x32	northman_player	existing	player character (3D bodies)
-village_0.111	wall/jcity/village_0.base.111.png	32x32		scratch	folder wall/ (no object uses it)
+village_0.111	wall/jcity/village_0.base.111.png	32x32		skip	unused: no object or map shows it
 violin.111	misc/music/violin.base.111.png	32x32	violin	existing	models.txt: model
 violin.112	misc/music/violin.base.112.png	32x32	violin	existing	models.txt: model
 violin.113	misc/music/violin.base.113.png	32x32	violin	existing	models.txt: model
