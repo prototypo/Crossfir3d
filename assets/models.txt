@@ -330,6 +330,43 @@ trapdoor_2.111 building trapdoor
 trapdoor_3.111 building trapdoor
 trapdoor_4.111 building trapdoor
 
+# Furniture, machines and things on the floor (built shapes, buildings.rs, or props models).
+bomb_unlit building bomb
+bookshelf_bottom* model props/Bookcase_2.gltf 0.45 180 0
+bookshelf_left* model props/Bookcase_2.gltf 0.45 270 0
+bookshelf_right* model props/Bookcase_2.gltf 0.45 90 0
+button_big* building button
+button_sma* building button_small
+checkbook model props/Book_7.gltf 1.5 0 0.045 1.0,0.8,0.4
+depositbox model props/Chest_Wood.gltf 0.3 0 0 0.8,0.55,0.35
+earthquake* flat
+forge* building forge
+frypan_closed building frypan
+frypan_opened building frypan
+gps flat
+grand_piano_black building piano:0.08,0.08,0.09
+grand_piano_white building piano:0.92,0.92,0.9
+harpsichord1 building harpsichord:0.5,0.18,0.12
+harpsichord2 building harpsichord:0.55,0.32,0.16
+harpsichord3 building harpsichord:0.7,0.42,0.18
+harpsichord4 building harpsichord:0.92,0.92,0.9
+icecube building icecube
+smallicecube building smallicecube
+magic_whistle flat
+magicmouth flat
+mailbox building mailbox
+map flat
+messageboard_red building noticeboard
+monument building grave
+quiver building quiver
+close_quiv building quiver
+rune_mark flat
+slotmachine1* building slotmachine:0.2,0.7,0.25
+slotmachine2* building slotmachine:0.75,0.15,0.15
+slotmachine3* building slotmachine:0.2,0.3,0.8
+statue_ruined model kaykit/rubble_large.gltf 0.12 0 0
+stove* building stove
+
 # --- Arches (exit/) ---
 archgold model castle/wall-doorway.glb 1.0 0 0 0.9,0.75,0.3
 archgreen model castle/wall-doorway.glb 1.0 0 0 0.4,0.7,0.4
@@ -484,7 +521,6 @@ statue2_bronze statue 0.8,0.55,0.3
 statue_gold statue 1.0,0.8,0.3
 statue2_gold statue 1.0,0.8,0.3
 statue_gargoyle model dungeon/Statue_Horse.gltf 0.28 0 0
-statue_ruined card
 
 # --- Furniture and loot (props/: Quaternius' Fantasy Props MegaKit) ---
 # Chairs face south unturned (rot 0). Frames: .101 north, .111 west, .121 south, .131 east.

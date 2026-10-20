@@ -71,7 +71,7 @@ const GABLE_Y: f32 = 0.75;
 /// square in front of it, where they step out to.
 const DOORSTEP: f32 = 0.5;
 
-pub const RECIPES: [&str; 62] = [
+pub const RECIPES: [&str; 72] = [
     "cottage", "house", "tavern", "barn", "temple", "tower", "castle", "shop", "well", "fountain", "signpost", "crossroads",
     "noticeboard", "lamppost", "clock", "lever", "lever_pulled", "ladder_down", "altar", "altar_green", "altar_black",
     "altar_red", "altar_white", "altar_blue", "brazier", "brazier_unlit", "lantern", "lantern_off",
@@ -79,6 +79,7 @@ pub const RECIPES: [&str; 62] = [
     "mountain4", "mountain5", "grave", "coffin", "lair", "nest", "portal",
     "campfire", "campfire_out", "teleporter", "magic_portal", "pier",
     "rowboat", "longship", "fishboat", "galleon", "big_galleon", "big_galleon_west", "wagon", "hidden", "pedestal", "alchemy_bath", "trapdoor", "lava_well", "rope_up", "volcano",
+    "bomb", "button", "button_small", "forge", "stove", "mailbox", "quiver", "frypan", "icecube", "smallicecube",
 ];
 pub const WALL_STYLES: [&str; 7] = ["stone", "brick", "plaster", "wood", "hedge", "rock", "gate"];
 
@@ -185,6 +186,9 @@ pub fn parts(recipe: &str, w: u32, h: u32) -> Option<Vec<Part>> {
             "garment" => return Some(garment([r, g, b], false)),
             "cloak" => return Some(garment([r, g, b], true)),
             "converter" => return Some(converter([r, g, b])),
+            "piano" => return Some(piano([r, g, b], false)),
+            "harpsichord" => return Some(piano([r, g, b], true)),
+            "slotmachine" => return Some(slot_machine([r, g, b])),
             _ => {}
         }
     }
@@ -192,6 +196,29 @@ pub fn parts(recipe: &str, w: u32, h: u32) -> Option<Vec<Part>> {
         // Something there that the player must not see, like a hidden trap.
         "hidden" => Some(Vec::new()),
         "alchemy_bath" => Some(alchemy_bath()),
+        "bomb" => Some(vec![
+            part(Shape::Ball(0.13), [0.0, 0.13, 0.0], 0.0, [1.0; 3], Some([0.08, 0.08, 0.1])),
+            cylinder(0.04, 0.05, [0.0, 0.27, 0.0], IRON),
+            cylinder(0.008, 0.1, [0.0, 0.34, 0.0], BOARD),
+            Part { tilt_deg: 40.0, ..cylinder(0.008, 0.05, [0.012, 0.4, 0.0], BOARD) },
+        ]),
+        // A metal plate set in the floor, pressed by stepping on it.
+        "button" => Some(vec![cylinder(0.25, 0.03, [0.0, 0.015, 0.0], IRON), cylinder(0.2, 0.05, [0.0, 0.025, 0.0], STEEL)]),
+        "button_small" => Some(vec![cylinder(0.12, 0.03, [0.0, 0.015, 0.0], IRON), cylinder(0.09, 0.05, [0.0, 0.025, 0.0], STEEL)]),
+        "forge" => Some(forge()),
+        "stove" => Some(stove()),
+        "mailbox" => Some(vec![
+            cube([0.05, 0.55, 0.05], [0.0, 0.275, 0.0], WOOD),
+            cube([0.2, 0.18, 0.4], [0.0, 0.64, 0.0], [0.25, 0.25, 0.3]),
+            cube([0.03, 0.12, 0.03], [0.115, 0.7, -0.1], [0.8, 0.15, 0.1]),
+        ]),
+        "quiver" => Some(quiver()),
+        "frypan" => Some(vec![
+            cylinder(0.2, 0.06, [0.0, 0.03, 0.0], [0.12, 0.12, 0.13]),
+            cube([0.3, 0.03, 0.05], [0.33, 0.04, 0.0], WOOD),
+        ]),
+        "icecube" => Some(vec![cube([0.35; 3], [0.0, 0.175, 0.0], [0.75, 0.9, 1.0])]),
+        "smallicecube" => Some(vec![cube([0.18; 3], [0.0, 0.09, 0.0], [0.75, 0.9, 1.0])]),
         "lava_well" => {
             let mut out = well();
             out[1] = part(Shape::RoundLamp { radius: 0.27, height: 0.52 }, [0.0, 0.26, 0.0], 0.0, [1.0; 3], Some([1.0, 0.35, 0.05]));
@@ -706,6 +733,18 @@ const HULL: [f32; 3] = [0.42, 0.25, 0.13];
 const DECK: [f32; 3] = [0.3, 0.18, 0.1];
 const SAIL: [f32; 3] = [0.92, 0.9, 0.82];
 
+/// Parts leaned `tilt_deg` toward the east, round their foot in the middle of the floor.
+fn tilted(parts: Vec<Part>, tilt_deg: f32) -> Vec<Part> {
+    let (sin, cos) = tilt_deg.to_radians().sin_cos();
+    parts
+        .into_iter()
+        .map(|p| {
+            let [x, y, z] = p.pos;
+            Part { pos: [x * cos + y * sin, y * cos - x * sin, z], tilt_deg: p.tilt_deg + tilt_deg, ..p }
+        })
+        .collect()
+}
+
 /// Parts turned `yaw_deg` clockwise (seen from above) round the middle.
 fn turned(parts: Vec<Part>, yaw_deg: f32) -> Vec<Part> {
     let (sin, cos) = yaw_deg.to_radians().sin_cos();
@@ -927,6 +966,104 @@ fn flames(w: u32, h: u32, y: f32, taller: f32) -> Vec<Part> {
         }
     }
     out
+}
+
+/// A grand piano in `color` (a harpsichord is longer and thinner) on three legs, with
+/// a keyboard sticking out on the south side and its lid propped up on a stick.
+fn piano(color: [f32; 3], harpsichord: bool) -> Vec<Part> {
+    let (len, wide) = if harpsichord { (1.0, 0.45) } else { (0.85, 0.6) };
+    let (y, high) = (0.6, 0.25);
+    let top = y + high / 2.0;
+    let front = wide / 2.0 - 0.05;
+    let mut out = vec![
+        cube([len, high, wide], [0.0, y, -0.05], color),
+        // The narrow tail end, turned like the curve of a grand piano; a little lower,
+        // so its top does not lie in the same plane as the body's.
+        Part { yaw_deg: 30.0, ..cube([0.35, high - 0.01, wide * 0.6], [len / 2.0 - 0.05, y - 0.005, -0.05 - wide * 0.15], color) },
+        cube([len * 0.7, 0.03, 0.14], [-0.03, y + 0.02, front], [0.95, 0.93, 0.88]),
+    ];
+    for k in 0..12 {
+        if k % 7 != 2 && k % 7 != 6 {
+            out.push(cube([0.025, 0.02, 0.06], [-0.03 - len * 0.33 + k as f32 * len * 0.06, y + 0.045, front + 0.02], [0.08, 0.08, 0.08]));
+        }
+    }
+    // The lid, hinged along the south edge of the top and lifted 35 degrees at the north.
+    let (lid, lean) = (wide * 0.9, 35f32.to_radians());
+    let (south, z) = (front - 0.1, front - 0.1 - lid / 2.0 * lean.cos());
+    out.push(Part { yaw_deg: 90.0, tilt_deg: -35.0, ..cube([lid, 0.02, len * 0.9], [0.0, top + lid / 2.0 * lean.sin(), z], color) });
+    out.push(cylinder(0.01, lid * lean.sin(), [0.1, top + lid * lean.sin() / 2.0, south - lid * lean.cos() * 0.9], WOOD));
+    for (x, z) in [(-len / 2.0 + 0.08, front - 0.05), (-len / 2.0 + 0.08, -wide / 2.0), (len / 2.0 - 0.05, -0.1)] {
+        out.push(cube([0.07, y - high / 2.0, 0.07], [x, (y - high / 2.0) / 2.0, z], color));
+    }
+    out
+}
+
+/// A slot machine: a cabinet in `color` with a dark window of reels, a tray and a pull
+/// handle on the east side.
+fn slot_machine(color: [f32; 3]) -> Vec<Part> {
+    vec![
+        cube([0.5, 0.9, 0.4], [0.0, 0.45, 0.0], color),
+        cube([0.4, 0.2, 0.02], [0.0, 0.65, 0.2], [0.1, 0.1, 0.12]),
+        cube([0.1, 0.16, 0.025], [-0.12, 0.65, 0.205], [0.95, 0.95, 0.9]),
+        cube([0.1, 0.16, 0.025], [0.0, 0.65, 0.205], [0.95, 0.95, 0.9]),
+        cube([0.1, 0.16, 0.025], [0.12, 0.65, 0.205], [0.95, 0.95, 0.9]),
+        cube([0.3, 0.06, 0.1], [0.0, 0.25, 0.23], GOLD),
+        cylinder(0.02, 0.3, [0.28, 0.75, 0.0], STEEL),
+        part(Shape::Ball(0.05), [0.28, 0.92, 0.0], 0.0, [1.0; 3], Some([0.85, 0.1, 0.1])),
+    ]
+}
+
+/// A smith's forge: a stone hearth with a bed of glowing coals and flames, a back wall,
+/// and a hood and chimney on it.
+fn forge() -> Vec<Part> {
+    let mut out = vec![
+        cube([0.8, 0.5, 0.6], [0.0, 0.25, 0.0], STONE),
+        part(Shape::Lamp([0.6, 0.04, 0.4]), [0.0, 0.5, 0.0], 0.0, [1.0; 3], Some(FLAME)),
+        cube([0.8, 0.12, 0.05], [0.0, 0.56, 0.28], STONE),
+        cube([0.8, 0.7, 0.12], [0.0, 0.85, -0.24], STONE),
+        cube([0.5, 0.35, 0.3], [0.0, 1.1, -0.1], STONE),
+        cube([0.25, 0.5, 0.2], [0.0, 1.5, -0.15], STONE),
+    ];
+    for (x, z, high) in [(-0.15, 0.0, 0.25), (0.1, -0.05, 0.35), (0.2, 0.08, 0.2)] {
+        out.push(part(Shape::Fire { radius: 0.07, height: high }, [x, 0.5 + high / 2.0, z], 0.0, [1.0; 3], Some([1.0, 0.45, 0.08])));
+    }
+    out
+}
+
+/// An iron cooking stove: a box on short legs with a glowing fire door and a chimney pipe.
+fn stove() -> Vec<Part> {
+    let dark = [0.18, 0.18, 0.2];
+    let mut out = vec![
+        cube([0.6, 0.5, 0.5], [0.0, 0.35, 0.0], dark),
+        part(Shape::Glow([0.2, 0.12, 0.02]), [0.0, 0.3, 0.255], 0.0, [1.0; 3], Some(FLAME)),
+        cylinder(0.12, 0.03, [-0.15, 0.615, 0.0], [0.3, 0.3, 0.32]),
+        cylinder(0.1, 0.03, [0.15, 0.615, 0.0], [0.3, 0.3, 0.32]),
+        cylinder(0.05, 0.9, [0.2, 1.05, -0.18], dark),
+    ];
+    for (x, z) in [(-0.25, -0.2), (0.25, -0.2), (-0.25, 0.2), (0.25, 0.2)] {
+        out.push(cube([0.05, 0.1, 0.05], [x, 0.05, z], dark));
+    }
+    out
+}
+
+/// A leather quiver leaning a little, full of arrows with their feathers showing, and
+/// a shoulder strap down one side.
+fn quiver() -> Vec<Part> {
+    let leather = [0.45, 0.25, 0.12];
+    let mut out = vec![
+        cylinder(0.06, 0.5, [0.0, 0.25, 0.0], leather),
+        cylinder(0.066, 0.03, [0.0, 0.49, 0.0], [0.3, 0.16, 0.08]),
+        cube([0.015, 0.4, 0.03], [-0.11, 0.27, 0.0], [0.3, 0.16, 0.08]),
+        cube([0.06, 0.015, 0.03], [-0.085, 0.46, 0.0], [0.3, 0.16, 0.08]),
+        cube([0.06, 0.015, 0.03], [-0.085, 0.08, 0.0], [0.3, 0.16, 0.08]),
+    ];
+    for (k, (x, z)) in [(-0.025, -0.02), (0.02, -0.025), (0.0, 0.0), (-0.02, 0.025), (0.025, 0.02)].into_iter().enumerate() {
+        let feather = if k % 2 == 0 { [0.92, 0.9, 0.85] } else { [0.8, 0.2, 0.15] };
+        out.push(cylinder(0.006, 0.25, [x, 0.58, z], BOARD));
+        out.push(cube([0.004, 0.07, 0.035], [x, 0.66, z], feather));
+        out.push(cube([0.035, 0.07, 0.004], [x, 0.66, z], feather));
+    }
+    tilted(out, 15.0)
 }
 
 /// The converter table with an iron tray of glowing lava on it.
@@ -1364,6 +1501,13 @@ mod tests {
         let burning = parts("burning/house", 2, 2).unwrap();
         assert!(burning.len() > house.len() && burning.starts_with(&house));
         assert!(parts("burning/nothing", 1, 1).is_none());
+    }
+
+    #[test]
+    fn tilted_parts_lean_east_round_their_foot() {
+        let p = tilted(vec![cube([0.1; 3], [0.0, 1.0, 0.0], WOOD)], 90.0).remove(0);
+        assert!((p.pos[0] - 1.0).abs() < 1e-6 && p.pos[1].abs() < 1e-6, "{:?}", p.pos);
+        assert_eq!(p.tilt_deg, 90.0);
     }
 
     #[test]
