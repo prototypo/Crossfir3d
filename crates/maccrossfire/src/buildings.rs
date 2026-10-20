@@ -21,6 +21,8 @@ pub enum Shape {
     Frustum { radius: f32, height: f32 },
     /// A ball, centred on `pos`.
     Ball(f32),
+    /// A glowing ball, centred on `pos`, that also lights round it.
+    Orb(f32),
     /// A glowing cone, a tongue of fire, centred on `pos` (no light of its own).
     Fire { radius: f32, height: f32 },
     /// A glowing box of this size, centred on `pos` (no light of its own).
@@ -71,7 +73,7 @@ const GABLE_Y: f32 = 0.75;
 /// square in front of it, where they step out to.
 const DOORSTEP: f32 = 0.5;
 
-pub const RECIPES: [&str; 72] = [
+pub const RECIPES: [&str; 86] = [
     "cottage", "house", "tavern", "barn", "temple", "tower", "castle", "shop", "well", "fountain", "signpost", "crossroads",
     "noticeboard", "lamppost", "clock", "lever", "lever_pulled", "ladder_down", "altar", "altar_green", "altar_black",
     "altar_red", "altar_white", "altar_blue", "brazier", "brazier_unlit", "lantern", "lantern_off",
@@ -79,7 +81,8 @@ pub const RECIPES: [&str; 72] = [
     "mountain4", "mountain5", "grave", "coffin", "lair", "nest", "portal",
     "campfire", "campfire_out", "teleporter", "magic_portal", "pier",
     "rowboat", "longship", "fishboat", "galleon", "big_galleon", "big_galleon_west", "wagon", "hidden", "pedestal", "alchemy_bath", "trapdoor", "lava_well", "rope_up", "volcano",
-    "bomb", "button", "button_small", "forge", "stove", "mailbox", "quiver", "frypan", "icecube", "smallicecube",
+    "bomb", "button", "button_small", "forge",
+    "chimney", "anchor", "bee", "beehive", "bolt_silk", "crystalball", "dice", "fireplace", "shipswheel", "skull", "ten_kilo", "wheel_tall", "wheel_short", "tissue", "stove", "mailbox", "quiver", "frypan", "icecube", "smallicecube",
 ];
 pub const WALL_STYLES: [&str; 7] = ["stone", "brick", "plaster", "wood", "hedge", "rock", "gate"];
 
@@ -189,6 +192,8 @@ pub fn parts(recipe: &str, w: u32, h: u32) -> Option<Vec<Part>> {
             "piano" => return Some(piano([r, g, b], false)),
             "harpsichord" => return Some(piano([r, g, b], true)),
             "slotmachine" => return Some(slot_machine([r, g, b])),
+            // A roof piece: a ridge running east-west over the square.
+            "roof" => return Some(vec![part(Shape::Wedge([1.0, 0.5, 1.0]), [0.0; 3], 90.0, [1.0; 3], Some([r, g, b]))]),
             _ => {}
         }
     }
@@ -206,6 +211,38 @@ pub fn parts(recipe: &str, w: u32, h: u32) -> Option<Vec<Part>> {
         "button" => Some(vec![cylinder(0.25, 0.03, [0.0, 0.015, 0.0], IRON), cylinder(0.2, 0.05, [0.0, 0.025, 0.0], STEEL)]),
         "button_small" => Some(vec![cylinder(0.12, 0.03, [0.0, 0.015, 0.0], IRON), cylinder(0.09, 0.05, [0.0, 0.025, 0.0], STEEL)]),
         "forge" => Some(forge()),
+        "chimney" => Some(vec![
+            part(Shape::Bricks([0.45, 1.2, 0.45]), [0.0, 0.6, 0.0], 0.0, [1.0; 3], None),
+            cube([0.55, 0.08, 0.55], [0.0, 1.24, 0.0], STONE),
+        ]),
+        "anchor" => Some(anchor()),
+        "bee" => Some(bee()),
+        // A straw beehive (a skep) on a stand, with its little door on the south side.
+        "beehive" => Some(vec![
+            cube([0.5, 0.3, 0.5], [0.0, 0.15, 0.0], WOOD),
+            part(Shape::Frustum { radius: 0.3, height: 0.4 }, [0.0, 0.5, 0.0], 0.0, [1.0; 3], Some([0.85, 0.7, 0.35])),
+            part(Shape::Ball(0.13), [0.0, 0.7, 0.0], 0.0, [1.0; 3], Some([0.85, 0.7, 0.35])),
+            cube([0.08, 0.05, 0.04], [0.0, 0.33, 0.27], INSIDE),
+        ]),
+        // A roll of silk cloth lying east-west.
+        "bolt_silk" => Some(vec![Part { tilt_deg: 90.0, ..cylinder(0.08, 0.5, [0.0, 0.08, 0.0], [0.4, 0.85, 0.95]) }]),
+        "crystalball" => Some(vec![
+            cylinder(0.12, 0.05, [0.0, 0.025, 0.0], GOLD),
+            part(Shape::Orb(0.13), [0.0, 0.17, 0.0], 0.0, [1.0; 3], Some([0.6, 0.8, 1.0])),
+        ]),
+        "dice" => Some([die([-0.06, 0.0, 0.0], 20.0, [5, 3, 1]), die([0.08, 0.0, 0.05], 65.0, [2, 6, 4])].concat()),
+        "fireplace" => Some(fireplace()),
+        "shipswheel" => Some(ships_wheel()),
+        "skull" => Some(skull()),
+        "ten_kilo" => Some(kettlebell()),
+        // A wheel of fortune on a post.
+        "wheel_tall" => Some(fortune_wheel(1.2)),
+        "wheel_short" => Some(fortune_wheel(0.6)),
+        "tissue" => Some(vec![
+            cube([0.25, 0.12, 0.15], [0.0, 0.06, 0.0], [0.15, 0.25, 0.8]),
+            cube([0.19, 0.09, 0.004], [0.0, 0.165, 0.0], [0.97, 0.97, 0.97]),
+            Part { yaw_deg: 12.0, ..cube([0.16, 0.07, 0.004], [0.0, 0.155, 0.01], [0.93, 0.93, 0.95]) },
+        ]),
         "stove" => Some(stove()),
         "mailbox" => Some(vec![
             cube([0.05, 0.55, 0.05], [0.0, 0.275, 0.0], WOOD),
@@ -1013,6 +1050,196 @@ fn slot_machine(color: [f32; 3]) -> Vec<Part> {
     ]
 }
 
+/// A big bee flying at head height, facing east: a black head, a brown furry thorax, a
+/// yellow body with black stripes and a sting, and two pale wings.
+fn bee() -> Vec<Part> {
+    let y = 0.9;
+    let ball = |r: f32, pos: [f32; 3], stretch: f32, color| part(Shape::Ball(r), pos, 0.0, [stretch, 1.0, 1.0], Some(color));
+    let black = [0.08, 0.07, 0.06];
+    let mut out = vec![
+        ball(0.07, [0.17, y, 0.0], 1.0, black),
+        ball(0.1, [0.05, y, 0.0], 1.0, [0.35, 0.22, 0.1]),
+        ball(0.12, [-0.15, y - 0.02, 0.0], 1.5, [0.95, 0.75, 0.15]),
+        // The sting: a cone laid on its side, pointing west from the end of the body.
+        Part { tilt_deg: -90.0, ..part(Shape::Cone { radius: 0.025, height: 0.08 }, [-0.35, y - 0.02, 0.0], 0.0, [1.0; 3], Some(black)) },
+    ];
+    for x in [-0.1, -0.2] {
+        out.push(Part { tilt_deg: 90.0, ..cylinder(0.118, 0.035, [x, y - 0.02, 0.0], black) });
+    }
+    // Big dark eyes on the sides of the head, each with a shine.
+    for side in [-1.0, 1.0] {
+        out.push(ball(0.04, [0.19, y + 0.015, side * 0.045], 1.0, [0.3, 0.14, 0.05]));
+        out.push(ball(0.012, [0.215, y + 0.035, side * 0.065], 1.0, [1.0, 1.0, 1.0]));
+    }
+    for side in [-1.0, 1.0] {
+        out.push(Part { yaw_deg: side * -20.0, ..cube([0.16, 0.006, 0.22], [-0.02, y + 0.11, side * 0.13], [0.88, 0.93, 1.0]) });
+    }
+    out
+}
+
+/// A curve of `n` boxes `thick` round `[x, y]` facing south, from `from` to `to`
+/// degrees (0 east, 90 up).
+fn arc([cx, cy]: [f32; 2], radius: f32, [from, to]: [f32; 2], n: usize, thick: f32, color: [f32; 3]) -> Vec<Part> {
+    let step = (to - from) / n as f32;
+    let len = 2.0 * radius * (step.to_radians() / 2.0).sin() * 1.15;
+    (0..n)
+        .map(|i| {
+            let a = from + step * (i as f32 + 0.5);
+            let (sin, cos) = a.to_radians().sin_cos();
+            Part { tilt_deg: -(a + 90.0), ..cube([len, thick, thick], [cx + radius * cos, cy + radius * sin, 0.0], color) }
+        })
+        .collect()
+}
+
+/// An anchor standing up, facing south: a ring at the top, a stock across with round
+/// ends, a curved crown with pointed flukes at its ends, and a rope wound round the
+/// shank and tied round the ring.
+fn anchor() -> Vec<Part> {
+    let iron = [0.12, 0.12, 0.13];
+    let mut out = vec![
+        cube([0.07, 0.62, 0.06], [0.0, 0.45, 0.0], iron),
+        cube([0.46, 0.05, 0.05], [0.0, 0.68, 0.0], iron),
+        part(Shape::Ball(0.04), [-0.24, 0.68, 0.0], 0.0, [1.0; 3], Some(iron)),
+        part(Shape::Ball(0.04), [0.24, 0.68, 0.0], 0.0, [1.0; 3], Some(iron)),
+        // The point at the bottom of the crown.
+        Part { tilt_deg: 180.0, ..part(Shape::Cone { radius: 0.045, height: 0.08 }, [0.0, 0.1, 0.0], 0.0, [1.0; 3], Some(iron)) },
+    ];
+    out.extend(arc([0.0, 0.86], 0.08, [0.0, 360.0], 10, 0.035, iron));
+    out.extend(arc([0.0, 0.42], 0.3, [195.0, 345.0], 9, 0.07, iron));
+    // Flukes: cones at the crown's ends, pointing up and out.
+    for side in [-1.0, 1.0] {
+        let (sin, cos) = 20f32.to_radians().sin_cos();
+        let end = [side * 0.29, 0.34];
+        let pos = [end[0] + side * sin * 0.09, end[1] + cos * 0.09, 0.0];
+        out.push(Part { tilt_deg: side * 20.0, ..part(Shape::Cone { radius: 0.06, height: 0.18 }, pos, 0.0, [1.0; 3], Some(iron)) });
+    }
+    // The rope winds up round the shank to the bottom of the ring, is tied round the
+    // ring in two turns, and its end hangs down.
+    const R: f32 = 0.055;
+    const STEPS: usize = 8;
+    const PITCH: f32 = 0.16;
+    let around = std::f32::consts::TAU * R / STEPS as f32;
+    let rise = PITCH / STEPS as f32;
+    let (len, slant) = (around.hypot(rise) * 1.1, rise.atan2(around).to_degrees());
+    for i in 0..((0.76 - 0.2) / rise) as usize {
+        let a = i as f32 * 360.0 / STEPS as f32;
+        let (sin, cos) = a.to_radians().sin_cos();
+        let piece = cube([len, 0.02, 0.02], [R * cos, 0.2 + i as f32 * rise, R * sin], BOARD);
+        out.push(Part { yaw_deg: a + 90.0, tilt_deg: -slant, ..piece });
+    }
+    for x in [-0.02, 0.02] {
+        let turn = turned(arc([0.0, 0.0], 0.035, [0.0, 360.0], 8, 0.012, BOARD), 90.0);
+        out.extend(turn.into_iter().map(|p| Part { pos: [p.pos[0] + x, p.pos[1] + 0.78, p.pos[2]], ..p }));
+    }
+    out.push(Part { tilt_deg: 15.0, ..cylinder(0.012, 0.1, [-0.05, 0.73, 0.03], BOARD) });
+    out
+}
+
+/// A die (`pos` its foot, turned `yaw` degrees) with the spots `faces` on its top, south
+/// and east faces.
+fn die(pos: [f32; 3], yaw: f32, faces: [u8; 3]) -> Vec<Part> {
+    const S: f32 = 0.1;
+    const D: f32 = 0.025;
+    let spots = |n: u8| -> &'static [(f32, f32)] {
+        match n {
+            1 => &[(0.0, 0.0)],
+            2 => &[(-1.0, -1.0), (1.0, 1.0)],
+            3 => &[(-1.0, -1.0), (0.0, 0.0), (1.0, 1.0)],
+            4 => &[(-1.0, -1.0), (1.0, 1.0), (-1.0, 1.0), (1.0, -1.0)],
+            5 => &[(-1.0, -1.0), (1.0, 1.0), (-1.0, 1.0), (1.0, -1.0), (0.0, 0.0)],
+            _ => &[(-1.0, -1.0), (1.0, 1.0), (-1.0, 1.0), (1.0, -1.0), (-1.0, 0.0), (1.0, 0.0)],
+        }
+    };
+    let dot = [0.08, 0.08, 0.08];
+    let mut out = vec![cube([S; 3], [0.0, S / 2.0, 0.0], [0.95, 0.93, 0.88])];
+    for &(u, v) in spots(faces[0]) {
+        out.push(cube([0.016, 0.006, 0.016], [u * D, S, v * D], dot));
+    }
+    for &(u, v) in spots(faces[1]) {
+        out.push(cube([0.016, 0.016, 0.006], [u * D, S / 2.0 + v * D, S / 2.0], dot));
+    }
+    for &(u, v) in spots(faces[2]) {
+        out.push(cube([0.006, 0.016, 0.016], [S / 2.0, S / 2.0 + v * D, u * D], dot));
+    }
+    turned(out, yaw).into_iter().map(|p| Part { pos: [p.pos[0] + pos[0], p.pos[1] + pos[1], p.pos[2] + pos[2]], ..p }).collect()
+}
+
+/// A skull facing south: a long round head, dark eye holes and nose, cheekbones, and a
+/// jaw with a row of teeth.
+fn skull() -> Vec<Part> {
+    let bone = [0.9, 0.88, 0.8];
+    let dark = [0.06, 0.05, 0.05];
+    let ball = |r: f32, pos: [f32; 3], scale: [f32; 3], color| part(Shape::Ball(r), pos, 0.0, scale, Some(color));
+    let mut out = vec![
+        ball(0.16, [0.0, 0.24, -0.03], [1.0, 0.95, 1.15], bone),
+        cube([0.2, 0.12, 0.13], [0.0, 0.13, 0.08], bone),
+        cube([0.15, 0.05, 0.1], [0.0, 0.045, 0.1], bone),
+        Part { tilt_deg: 180.0, ..part(Shape::Cone { radius: 0.025, height: 0.05 }, [0.0, 0.135, 0.146], 0.0, [1.0; 3], Some(dark)) },
+        cube([0.15, 0.03, 0.02], [0.0, 0.08, 0.14], dark),
+    ];
+    for side in [-1.0, 1.0] {
+        out.push(ball(0.048, [side * 0.06, 0.2, 0.13], [1.0, 1.1, 0.35], dark));
+        out.push(ball(0.035, [side * 0.09, 0.14, 0.12], [1.0; 3], bone));
+    }
+    for i in 0..6 {
+        out.push(cube([0.018, 0.03, 0.012], [-0.055 + i as f32 * 0.022, 0.08, 0.152], bone));
+    }
+    out
+}
+
+/// A kettlebell: a blue ball on a flat foot, with a black handle arching over it.
+fn kettlebell() -> Vec<Part> {
+    let blue = [0.15, 0.25, 0.65];
+    let mut out = vec![
+        cylinder(0.09, 0.02, [0.0, 0.01, 0.0], blue),
+        part(Shape::Ball(0.15), [0.0, 0.16, 0.0], 0.0, [1.0; 3], Some(blue)),
+        cylinder(0.035, 0.08, [-0.1, 0.3, 0.0], blue),
+        cylinder(0.035, 0.08, [0.1, 0.3, 0.0], blue),
+    ];
+    out.extend(arc([0.0, 0.34], 0.1, [0.0, 180.0], 7, 0.035, [0.05, 0.05, 0.05]));
+    out
+}
+
+/// A stone fireplace against a north wall: a hearth, two sides, a mantel and a fire.
+fn fireplace() -> Vec<Part> {
+    let mut out = vec![
+        cube([0.9, 0.06, 0.4], [0.0, 0.03, 0.0], STONE),
+        cube([0.9, 1.1, 0.12], [0.0, 0.55, -0.2], STONE),
+        cube([0.18, 0.7, 0.35], [-0.36, 0.35, 0.0], STONE),
+        cube([0.18, 0.7, 0.35], [0.36, 0.35, 0.0], STONE),
+        cube([0.95, 0.1, 0.42], [0.0, 0.75, 0.0], WOOD),
+        part(Shape::Lamp([0.3, 0.04, 0.15]), [0.0, 0.08, -0.02], 0.0, [1.0; 3], Some(FLAME)),
+    ];
+    for (x, high) in [(-0.08, 0.3), (0.06, 0.4), (0.14, 0.22)] {
+        out.push(part(Shape::Fire { radius: 0.07, height: high }, [x, 0.08 + high / 2.0, 0.0], 0.0, [1.0; 3], Some([1.0, 0.45, 0.08])));
+    }
+    out
+}
+
+/// A ship's wheel standing on its post, facing south, with handles round the rim.
+fn ships_wheel() -> Vec<Part> {
+    let mut out = vec![cube([0.12, 0.6, 0.12], [0.0, 0.3, -0.05], WOOD)];
+    out.extend(wheel(0.25, [0.0, 0.75, 0.05]));
+    for i in 0..8 {
+        let a = (i as f32 * 45.0).to_radians();
+        out.push(Part { tilt_deg: -(i as f32 * 45.0), ..cube([0.1, 0.03, 0.03], [0.3 * a.cos(), 0.75 + 0.3 * a.sin(), 0.05], WOOD) });
+    }
+    out
+}
+
+/// A wheel of fortune, painted red, on a post `high`, with a pointer.
+fn fortune_wheel(high: f32) -> Vec<Part> {
+    let mut out = vec![cube([0.08, high, 0.08], [0.0, high / 2.0, -0.05], WOOD), disc(0.32, 0.03, [0.0, high + 0.25, 0.0], [0.85, 0.2, 0.15])];
+    out.extend(wheel(0.3, [0.0, high + 0.25, 0.03]));
+    // A pointer like the big hand of a clock, pointing to one o'clock.
+    let (sin, cos) = 30f32.to_radians().sin_cos();
+    let at = |d: f32| [sin * d, high + 0.25 + cos * d, 0.075];
+    out.push(Part { tilt_deg: 30.0, ..cube([0.03, 0.26, 0.012], at(0.13), GOLD) });
+    out.push(Part { tilt_deg: 30.0, ..part(Shape::Cone { radius: 0.035, height: 0.07 }, at(0.29), 0.0, [1.0; 3], Some(GOLD)) });
+    out.push(disc(0.04, 0.03, [0.0, high + 0.25, 0.075], GOLD));
+    out
+}
+
 /// A smith's forge: a stone hearth with a bed of glowing coals and flames, a back wall,
 /// and a hood and chimney on it.
 fn forge() -> Vec<Part> {
@@ -1256,7 +1483,7 @@ fn volcano(w: u32, h: u32) -> Vec<Part> {
         out.push(on_slope(Shape::Glow, a, y, [0.03, len, 0.07 * r], 0.015, LAVA));
         let end = r - len * lean.to_radians().cos();
         let d = bottom - (bottom - top) * end / r + 0.02;
-        let (sin, cos) = (a as f32).to_radians().sin_cos();
+        let (sin, cos) = a.to_radians().sin_cos();
         out.push(part(Shape::Ball(0.05 * r), [d * cos, end, d * sin], 0.0, [1.0; 3], Some(LAVA)));
     }
     for (x, z, tilt) in [(-0.3, 0.1, 30.0), (0.32, -0.05, -30.0), (0.05, 0.3, 0.0)] {
