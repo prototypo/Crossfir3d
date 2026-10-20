@@ -72,7 +72,7 @@ PICK = [
         "Chest_Wood", "Key_Gold", "Key_Metal", "Chair_1", "Stool", "Table_Large",
         "Bag", "Pouch_Large", "Bookcase_2", "Crate_Wooden", "Cauldron", "Workbench", "Cabinet", "Barrel",
         "CandleStick_Stand", "Table_Fork", "Table_Knife", "Table_Spoon", "Table_Plate",
-        "Book_5", "Book_7", "Scroll_1", "Bed_Twin1", "Anvil",
+        "Book_5", "Book_7", "Scroll_1", "Bed_Twin1", "Anvil", "Chandelier",
     ]]),
     ("kaykit", "kaykit-dungeon-remastered/License.txt", [f"{KAYKIT}/{n}.gltf" for n in [
         "stairs", "torch", "torch_lit", "rubble_large", "pillar", "keyring",
