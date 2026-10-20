@@ -24,7 +24,8 @@ use maccrossfire::walls::wall_masks;
 use maccrossfire::clock::{sun_pose, SunPose, FALLBACK_HOUR};
 use maccrossfire::settings::Quality;
 
-use crate::characters3d::{character_files, spawn_character, spawn_monster, Character, Outfit, OwnCharacter, OwnLook, PartOf, StatueFigure};
+use maccrossfire::held::Garb;
+use crate::characters3d::{character_files, outfit_file, spawn_character, spawn_monster, Character, Outfit, OwnCharacter, OwnLook, PartOf, StatueFigure};
 use crate::graphics::CurrentSettings;
 use crate::input::{CameraHeading, CameraView, DoorExit, Facing};
 use maccrossfire::camera::{compass, pull_in, sight_blocked, zoom, PIXELS_PER_LINE};
@@ -557,11 +558,16 @@ fn sync_visuals(
         let who = match (classify_player_face(name), models.map.lookup(name)) {
             _ if own_tile => Some((own.look, own.body, None)),
             (Some(kind), _) => Some((other_look(kind), Body::Regular, None)),
-            (None, &Visual::Person { body, look, dress, broom }) => Some((look, body, Some(Outfit { scale: look.scale, dress, broom }))),
+            (None, &Visual::Person { body, look, dress, broom, armour, wide, head }) => {
+                Some((look, body, Some(Outfit { scale: look.scale, dress, broom, armour, wide, head })))
+            }
             _ => None,
         };
         if glides(layer) && let Some((look, body, outfit)) = who {
-            let files = character_files(body);
+            let mut files = character_files(body);
+            if outfit.is_some_and(|o| o.armour) {
+                files[2] = outfit_file(body, Garb::Metal);
+            }
             if !files.iter().any(|f| models.failed.contains(*f)) {
                 let pos = tile + Vec3::new(0.5, 0.0, 0.5);
                 let load = |f: &str| models.scene(&server, f);
