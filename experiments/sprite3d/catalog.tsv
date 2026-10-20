@@ -532,8 +532,8 @@ bigblue_wiz.x12	monster/giant/Big_Wiz/bigblue_wiz.base.x12.png	96x96	bigblue_wiz
 bigblue_wiz.x13	monster/giant/Big_Wiz/bigblue_wiz.base.x13.png	96x96	bigblue_wiz,bigblue_wiz2,bigblue_wiz3	rigged	alive: a creature
 bigblue_wiz.x14	monster/giant/Big_Wiz/bigblue_wiz.base.x14.png	96x96	bigblue_wiz,bigblue_wiz2,bigblue_wiz3	rigged	alive: a creature
 bigblue_wiz.x15	monster/giant/Big_Wiz/bigblue_wiz.base.x15.png	96x96	bigblue_wiz,bigblue_wiz2,bigblue_wiz3	rigged	alive: a creature
-biggalleon.x11	transport/biggalleon.base.x11.png	64x64	big_galleon,big_galleon_2,big_galleon_3	scratch	type EXIT: boxy, drawn from an angle, or furniture
-biggalleon.x71	transport/biggalleon.base.x71.png	64x64	sailing_big_galleon,sailing_big_galleon_2,sailing_big_galleon_3	scratch	type TRANSPORT: boxy, drawn from an angle, or furniture
+biggalleon.x11	transport/biggalleon.base.x11.png	64x64	big_galleon,big_galleon_2,big_galleon_3	existing	models.txt: building
+biggalleon.x71	transport/biggalleon.base.x71.png	64x64	sailing_big_galleon,sailing_big_galleon_2,sailing_big_galleon_3	existing	models.txt: building
 bighorn_he.111	armour/helmet/bighorn_he.base.111.png	32x32	bighorned_helmet,helmet_gnarg	existing	models.txt: model
 bird.111	monster/animal/bird.base.111.png	32x32	bird	rigged	alive: a creature
 bird.112	monster/animal/bird.base.112.png	32x32	bird	rigged	alive: a creature
@@ -2456,7 +2456,7 @@ fish_3.111	food/fish_3.base.111.png	32x32	fish_3	existing	models.txt: model
 fish_4.111	food/fish_4.base.111.png	32x32	fish_4	existing	models.txt: model
 fish_5.111	food/fish_5.base.111.png	32x32	fish_5	existing	models.txt: model
 fish_6.111	food/fish_6.base.111.png	32x32	fish_6	existing	models.txt: model
-fishboat.x11	transport/fishboat.base.x11.png	64x32	fishboat,fishboat_2	scratch	type EXIT: boxy, drawn from an angle, or furniture
+fishboat.x11	transport/fishboat.base.x11.png	64x32	fishboat,fishboat_2	existing	models.txt: building
 fishfood.111	food/fishfood.base.111.png	32x32	fishfood	existing	models.txt: model
 fishing_pole.111	skills/Skill_Tools/fishing_pole.base.111.png	32x32	fishing_pole	existing	models.txt: model
 fishing_pole2.111	skills/Skill_Tools/fishing_pole2.base.111.png	32x32	fishing_pole2	existing	models.txt: model
@@ -2585,8 +2585,8 @@ gaelotroll.x71	monster/troll/Gaelotroll/gaelotroll.base.x71.png	64x96	gaelotroll
 gaelotroll.x72	monster/troll/Gaelotroll/gaelotroll.base.x72.png	64x96	gaelotroll,gaelotroll_2,gaelotroll_3	existing	models.txt: monster
 gaelotroll.x73	monster/troll/Gaelotroll/gaelotroll.base.x73.png	64x96	gaelotroll,gaelotroll_2,gaelotroll_3	existing	models.txt: monster
 gale.111	armour/mail/gale.base.111.png	32x32	gale	scratch	type ARMOUR: worn on the body: must fit the 3D character
-galleon.111	transport/galleon.base.111.png	32x32	galleon,sailing_galleon	scratch	type EXIT: boxy, drawn from an angle, or furniture
-galleon.121	transport/galleon.base.121.png	32x32	sailing_galleon	scratch	type TRANSPORT: boxy, drawn from an angle, or furniture
+galleon.111	transport/galleon.base.111.png	32x32	galleon,sailing_galleon	existing	models.txt: building
+galleon.121	transport/galleon.base.121.png	32x32	sailing_galleon	existing	models.txt: building
 gard_gate.111	connect/Garden_gate/gard_gate.base.111.png	32x32	ggate_breakable,ggate_closed,ggate_open	existing	models.txt: model
 gard_gate.112	connect/Garden_gate/gard_gate.base.112.png	32x32	ggate_breakable,ggate_closed,ggate_open	existing	models.txt: model
 gard_gate.113	connect/Garden_gate/gard_gate.base.113.png	32x32	ggate_breakable,ggate_closed,ggate_open	existing	models.txt: model
@@ -3630,7 +3630,7 @@ lokanth.132	monster/misc/lokanth/lokanth.base.132.png	32x32	likanth,lokanth	rigg
 lokanth.171	monster/misc/lokanth/lokanth.base.171.png	32x32	likanth,lokanth	rigged	alive: a creature
 lokanth.172	monster/misc/lokanth/lokanth.base.172.png	32x32	likanth,lokanth	rigged	alive: a creature
 longbow.111	weapon/bow/longbow.base.111.png	32x32	longbow	existing	models.txt: model
-longship.x11	transport/longship.base.x11.png	64x32	longship,longship_2	scratch	type EXIT: boxy, drawn from an angle, or furniture
+longship.x11	transport/longship.base.x11.png	64x32	longship,longship_2	existing	models.txt: building
 longtable_0.111	wall/longtable/longtable_0.base.111.png	32x32	longtable_0	existing	models.txt: building
 longtable_1.111	wall/longtable/longtable_1.base.111.png	32x32	longtable_1_2	existing	models.txt: building
 longtable_2.111	wall/longtable/longtable_2.base.111.png	32x32	longtable_1_4	existing	models.txt: building
@@ -4897,7 +4897,7 @@ rough_D.111	wall/rough/rough_D.base.111.png	32x32	rough_wall_3_4,roughwall_3_4	e
 rough_E.111	wall/rough/rough_E.base.111.png	32x32	rough_wall_3_3,roughwall_3_3	existing	models.txt: wall
 rough_F.111	wall/rough/rough_F.base.111.png	32x32	rough_wall_4,roughwall_4	existing	models.txt: wall
 round_shiel.111	armour/shield/round_shiel.base.111.png	32x32	round_shield	existing	models.txt: model
-rowboat.x11	transport/rowboat.base.x11.png	64x32	rowboat,rowboat_2	scratch	type EXIT: boxy, drawn from an angle, or furniture
+rowboat.x11	transport/rowboat.base.x11.png	64x32	rowboat,rowboat_2	existing	models.txt: building
 rstone_3.111	ground/Pstone/rstone_3.base.111.png	32x32		flat	folder ground/: ground and its smoothing edges
 rstone_4.111	ground/Pstone/rstone_4.base.111.png	32x32		flat	folder ground/: ground and its smoothing edges
 rubble1.111	misc/rubble1.base.111.png	32x32	mountain_rubble,rubble	existing	models.txt: model
@@ -4968,7 +4968,7 @@ s_mastif.172	monster/elemental/Shadow/s_mastif.base.172.png	32x32	s_mastif	rigge
 s_mastif.173	monster/elemental/Shadow/s_mastif.base.173.png	32x32	s_mastif	rigged	alive: a creature
 s_moun_cave.111	ground/Mountain/s_moun_cave.base.111.png	32x32	s_mountain_cave	flat	folder ground/: ground and its smoothing edges
 s_mountain.111	ground/Mountain/s_mountain.base.111.png	32x32	s_mountain	existing	models.txt: model
-s_ship.x11	transport/s_ship.base.x11.png	64x64	s_ship,s_ship2,s_ship3	scratch	type EXIT: boxy, drawn from an angle, or furniture
+s_ship.x11	transport/s_ship.base.x11.png	64x64	s_ship,s_ship2,s_ship3	existing	models.txt: building
 s_shop1.111	construct/town/s_shop1.base.111.png	32x32	s_shop1	existing	models.txt: building
 s_shop2.111	construct/town/s_shop2.base.111.png	32x32	s_shop2	existing	models.txt: building
 s_tower1.x11	construct/tower/s_tower1.base.x11.png	32x64	s_tower1,s_tower1_2	existing	models.txt: building
@@ -6178,14 +6178,14 @@ true_lead.111	inorganic/true_lead.base.111.png	32x32	true_lead	existing	models.t
 tspikes.111	traps/tspikes.base.111.png	32x32	trap_spikes2	existing	models.txt: model
 tunic.111	armour/mail/tunic.base.111.png	32x32	tunic	scratch	type ARMOUR: worn on the body: must fit the 3D character
 turban.111	armour/helmet/turban.base.111.png	32x32	turban	existing	models.txt: model
-turningboat.x11	transport/turningboat.base.x11.png	64x64	turningboat,turningboat_2,turningboat_3	scratch	type TRANSPORT: boxy, drawn from an angle, or furniture
-turningboat.x21	transport/turningboat.base.x21.png	64x64	turningboat,turningboat_2,turningboat_3	scratch	type TRANSPORT: boxy, drawn from an angle, or furniture
-turningboat.x31	transport/turningboat.base.x31.png	64x64	turningboat,turningboat_2,turningboat_3	scratch	type TRANSPORT: boxy, drawn from an angle, or furniture
-turningboat.x41	transport/turningboat.base.x41.png	64x64	turningboat,turningboat_2,turningboat_3	scratch	type TRANSPORT: boxy, drawn from an angle, or furniture
-turningboat.x51	transport/turningboat.base.x51.png	64x64	turningboat,turningboat_2,turningboat_3	scratch	type TRANSPORT: boxy, drawn from an angle, or furniture
-turningboat.x61	transport/turningboat.base.x61.png	64x64	turningboat,turningboat_2,turningboat_3	scratch	type TRANSPORT: boxy, drawn from an angle, or furniture
-turningboat.x71	transport/turningboat.base.x71.png	64x65	turningboat,turningboat_2,turningboat_3	scratch	type TRANSPORT: boxy, drawn from an angle, or furniture
-turningboat.x81	transport/turningboat.base.x81.png	64x64	turningboat,turningboat_2,turningboat_3	scratch	type TRANSPORT: boxy, drawn from an angle, or furniture
+turningboat.x11	transport/turningboat.base.x11.png	64x64	turningboat,turningboat_2,turningboat_3	existing	models.txt: building
+turningboat.x21	transport/turningboat.base.x21.png	64x64	turningboat,turningboat_2,turningboat_3	existing	models.txt: building
+turningboat.x31	transport/turningboat.base.x31.png	64x64	turningboat,turningboat_2,turningboat_3	existing	models.txt: building
+turningboat.x41	transport/turningboat.base.x41.png	64x64	turningboat,turningboat_2,turningboat_3	existing	models.txt: building
+turningboat.x51	transport/turningboat.base.x51.png	64x64	turningboat,turningboat_2,turningboat_3	existing	models.txt: building
+turningboat.x61	transport/turningboat.base.x61.png	64x64	turningboat,turningboat_2,turningboat_3	existing	models.txt: building
+turningboat.x71	transport/turningboat.base.x71.png	64x65	turningboat,turningboat_2,turningboat_3	existing	models.txt: building
+turningboat.x81	transport/turningboat.base.x81.png	64x64	turningboat,turningboat_2,turningboat_3	existing	models.txt: building
 turnundead.111	spell/Cone/turnundead.base.111.png	32x32	turn_undead	flat	type SPELL_EFFECT: on the ground or an effect
 turnundead.112	spell/Cone/turnundead.base.112.png	32x32	turn_undead	flat	type SPELL_EFFECT: on the ground or an effect
 turnundead.113	spell/Cone/turnundead.base.113.png	32x32	turn_undead	flat	type SPELL_EFFECT: on the ground or an effect
@@ -6329,7 +6329,7 @@ volcano_hi.x11	exit/volcano_hi.base.x11.png	64x64	volcano_high,volcano_high_2,vo
 volcano_lo.x11	exit/volcano_lo.base.x11.png	64x32	active_volcano,active_volcano_2,volcano_low	flat	type FIREWALL: on the ground or an effect
 w_glass.111	food/w_glass.base.111.png	32x32	w_glass,w_glass_poison	existing	models.txt: model
 w_glass_empty.111	food/w_glass_empty.base.111.png	32x32	w_glass_empty	existing	models.txt: model
-wagon.111	transport/wagon.base.111.png	32x32	wagon	scratch	type EXIT: boxy, drawn from an angle, or furniture
+wagon.111	transport/wagon.base.111.png	32x32	wagon	existing	models.txt: building
 wall_0.111	wall/wall/wall_0.base.111.png	32x32	wall_0	existing	models.txt: wall
 wall_1.111	wall/wall/wall_1.base.111.png	32x32	wall_1_2	existing	models.txt: wall
 wall_1_ruin.111	wall/wall/wall_1_ruin.base.111.png	32x32	wall_1_2_ruin	existing	models.txt: wall

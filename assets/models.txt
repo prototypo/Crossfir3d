@@ -671,6 +671,24 @@ b-king-draughts flat
 r-draughts flat
 r-king-draughts flat
 
+# --- Ships and the wagon (built shapes, buildings.rs); they point east in their pictures ---
+rowboat* building rowboat
+longship* building longship
+fishboat* building fishboat
+galleon* building galleon
+biggalleon* building big_galleon
+biggalleon.x71 building big_galleon_west
+s_ship* building big_galleon
+wagon building wagon
+turningboat.x11 building rowboat_1
+turningboat.x21 building rowboat_2
+turningboat.x31 building rowboat_3
+turningboat.x41 building rowboat_4
+turningboat.x51 building rowboat_5
+turningboat.x61 building rowboat_6
+turningboat.x71 building rowboat_7
+turningboat.x81 building rowboat_8
+
 # --- Teleporters and portals (built shapes, buildings.rs) ---
 teleporter building teleporter
 magic_portal building magic_portal
