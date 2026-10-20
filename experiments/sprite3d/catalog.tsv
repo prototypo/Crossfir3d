@@ -883,36 +883,36 @@ bullet.161	spell/Bullet/bullet.base.161.png	32x32	bullet,bullet_mania	flat	type 
 bullet.171	spell/Bullet/bullet.base.171.png	32x32	bullet,bullet_mania	flat	type SPELL_EFFECT: on the ground or an effect
 bullet.181	spell/Bullet/bullet.base.181.png	32x32	bullet,bullet_mania	flat	type SPELL_EFFECT: on the ground or an effect
 bungalow.111	construct/bungalow.base.111.png	32x32	bungalow	existing	models.txt: building
-burning_barn.x11	planes/fire/burning_barn.base.x11.png	64x64	burning_barn,burning_barn_2,burning_barn_3	scratch	type EXIT: boxy, drawn from an angle, or furniture
-burning_cathedral.x11	planes/fire/burning_cathedral.base.x11.png	96x128	burning_cathedral,burning_cathedral_10,burning_cathedral_11	scratch	type EXIT: boxy, drawn from an angle, or furniture
-burning_church.x11	planes/fire/burning_church.base.x11.png	64x64	burning_church,burning_church_2,burning_church_3	scratch	type EXIT: boxy, drawn from an angle, or furniture
-burning_collesium.x11	planes/fire/burning_collesium.base.x11.png	160x96	burning_collesium,burning_collesium_10,burning_collesium_11	scratch	type EXIT: boxy, drawn from an angle, or furniture
-burning_courthouse.x11	planes/fire/burning_courthouse.base.x11.png	64x64	burning_courthouse,burning_courthouse_2,burning_courthouse_3	scratch	type EXIT: boxy, drawn from an angle, or furniture
-burning_fort.x11	planes/fire/burning_fort.base.x11.png	64x64	burning_fort,burning_fort_2,burning_fort_3	scratch	type EXIT: boxy, drawn from an angle, or furniture
-burning_fort_sym.111	planes/fire/burning_fort_sym.base.111.png	32x32	burning_fort_sym	scratch	type EXIT: boxy, drawn from an angle, or furniture
+burning_barn.x11	planes/fire/burning_barn.base.x11.png	64x64	burning_barn,burning_barn_2,burning_barn_3	existing	models.txt: building
+burning_cathedral.x11	planes/fire/burning_cathedral.base.x11.png	96x128	burning_cathedral,burning_cathedral_10,burning_cathedral_11	existing	models.txt: building
+burning_church.x11	planes/fire/burning_church.base.x11.png	64x64	burning_church,burning_church_2,burning_church_3	existing	models.txt: building
+burning_collesium.x11	planes/fire/burning_collesium.base.x11.png	160x96	burning_collesium,burning_collesium_10,burning_collesium_11	existing	models.txt: building
+burning_courthouse.x11	planes/fire/burning_courthouse.base.x11.png	64x64	burning_courthouse,burning_courthouse_2,burning_courthouse_3	existing	models.txt: building
+burning_fort.x11	planes/fire/burning_fort.base.x11.png	64x64	burning_fort,burning_fort_2,burning_fort_3	existing	models.txt: building
+burning_fort_sym.111	planes/fire/burning_fort_sym.base.111.png	32x32	burning_fort_sym	existing	models.txt: building
 burning_fountain.111	planes/fire/burning_fountain.base.111.png	32x32	burning_fountain	flat	folder planes/
 burning_fountain.112	planes/fire/burning_fountain.base.112.png	32x32	burning_fountain	flat	folder planes/
 burning_fountain.113	planes/fire/burning_fountain.base.113.png	32x32	burning_fountain	flat	folder planes/
-burning_guild.x11	planes/fire/burning_guild.base.x11.png	64x64	burning_guild,burning_guild_2,burning_guild_3	scratch	type EXIT: boxy, drawn from an angle, or furniture
-burning_house_1.111	planes/fire/burning_house_1.base.111.png	32x32	burning_house_1	scratch	type EXIT: boxy, drawn from an angle, or furniture
-burning_house_larg.x11	planes/fire/burning_house_larg.base.x11.png	64x32	burning_house_largish,burning_house_largish_2	scratch	type EXIT: boxy, drawn from an angle, or furniture
-burning_house_long.x11	planes/fire/burning_house_long.base.x11.png	64x32	burning_house_long,burning_house_long_2	scratch	type EXIT: boxy, drawn from an angle, or furniture
-burning_house_up.x11	planes/fire/burning_house_up.base.x11.png	32x64	burning_house_up,burning_house_up_2	scratch	type EXIT: boxy, drawn from an angle, or furniture
-burning_housesmall.111	planes/fire/burning_housesmall.base.111.png	32x32	burning_house_small	scratch	type EXIT: boxy, drawn from an angle, or furniture
-burning_l_shop1.x11	planes/fire/burning_l_shop1.base.x11.png	64x64	burning_l_shop1,burning_l_shop1_2,burning_l_shop1_3	scratch	type EXIT: boxy, drawn from an angle, or furniture
-burning_market1.111	planes/fire/burning_market1.base.111.png	32x32	burning_market1	scratch	type EXIT: boxy, drawn from an angle, or furniture
-burning_market2.111	planes/fire/burning_market2.base.111.png	32x32	burning_market2	scratch	type EXIT: boxy, drawn from an angle, or furniture
-burning_market3.111	planes/fire/burning_market3.base.111.png	32x32	burning_market3	scratch	type EXIT: boxy, drawn from an angle, or furniture
-burning_shrine.111	planes/fire/burning_shrine.base.111.png	32x32	burning_shrine	scratch	type EXIT: boxy, drawn from an angle, or furniture
-burning_smalltemple.111	planes/fire/burning_smalltemple.base.111.png	32x32	burning_small_temple	scratch	type EXIT: boxy, drawn from an angle, or furniture
-burning_store_alch.x11	planes/fire/burning_store_alch.base.x11.png	64x64	burning_store_alchemy,burning_store_alchemy_2,burning_store_alchemy_3	scratch	type EXIT: boxy, drawn from an angle, or furniture
-burning_store_armo.x11	planes/fire/burning_store_armo.base.x11.png	64x64	burning_store_armour,burning_store_armour_2,burning_store_armour_3	scratch	type EXIT: boxy, drawn from an angle, or furniture
-burning_store_gene.x11	planes/fire/burning_store_gene.base.x11.png	64x64	burning_store_general,burning_store_general_2,burning_store_general_3	scratch	type EXIT: boxy, drawn from an angle, or furniture
-burning_store_magi.x11	planes/fire/burning_store_magi.base.x11.png	64x64	burning_store_magic,burning_store_magic_2,burning_store_magic_3	scratch	type EXIT: boxy, drawn from an angle, or furniture
-burning_store_weap.x11	planes/fire/burning_store_weap.base.x11.png	64x64	burning_store_weapons,burning_store_weapons_2,burning_store_weapons_3	scratch	type EXIT: boxy, drawn from an angle, or furniture
-burning_stronghold.x11	planes/fire/burning_stronghold.base.x11.png	96x96	burning_stronghold,burning_stronghold_2,burning_stronghold_3	scratch	type EXIT: boxy, drawn from an angle, or furniture
-burning_t_house2.x11	planes/fire/burning_t_house2.base.x11.png	64x64	burning_t_house2,burning_t_house2_2,burning_t_house2_3	scratch	type EXIT: boxy, drawn from an angle, or furniture
-burning_temple1.x11	planes/fire/burning_temple1.base.x11.png	64x64	burning_temple1,burning_temple1_2,burning_temple1_3	scratch	type EXIT: boxy, drawn from an angle, or furniture
+burning_guild.x11	planes/fire/burning_guild.base.x11.png	64x64	burning_guild,burning_guild_2,burning_guild_3	existing	models.txt: building
+burning_house_1.111	planes/fire/burning_house_1.base.111.png	32x32	burning_house_1	existing	models.txt: building
+burning_house_larg.x11	planes/fire/burning_house_larg.base.x11.png	64x32	burning_house_largish,burning_house_largish_2	existing	models.txt: building
+burning_house_long.x11	planes/fire/burning_house_long.base.x11.png	64x32	burning_house_long,burning_house_long_2	existing	models.txt: building
+burning_house_up.x11	planes/fire/burning_house_up.base.x11.png	32x64	burning_house_up,burning_house_up_2	existing	models.txt: building
+burning_housesmall.111	planes/fire/burning_housesmall.base.111.png	32x32	burning_house_small	existing	models.txt: building
+burning_l_shop1.x11	planes/fire/burning_l_shop1.base.x11.png	64x64	burning_l_shop1,burning_l_shop1_2,burning_l_shop1_3	existing	models.txt: building
+burning_market1.111	planes/fire/burning_market1.base.111.png	32x32	burning_market1	existing	models.txt: building
+burning_market2.111	planes/fire/burning_market2.base.111.png	32x32	burning_market2	existing	models.txt: building
+burning_market3.111	planes/fire/burning_market3.base.111.png	32x32	burning_market3	existing	models.txt: building
+burning_shrine.111	planes/fire/burning_shrine.base.111.png	32x32	burning_shrine	existing	models.txt: building
+burning_smalltemple.111	planes/fire/burning_smalltemple.base.111.png	32x32	burning_small_temple	existing	models.txt: building
+burning_store_alch.x11	planes/fire/burning_store_alch.base.x11.png	64x64	burning_store_alchemy,burning_store_alchemy_2,burning_store_alchemy_3	existing	models.txt: building
+burning_store_armo.x11	planes/fire/burning_store_armo.base.x11.png	64x64	burning_store_armour,burning_store_armour_2,burning_store_armour_3	existing	models.txt: building
+burning_store_gene.x11	planes/fire/burning_store_gene.base.x11.png	64x64	burning_store_general,burning_store_general_2,burning_store_general_3	existing	models.txt: building
+burning_store_magi.x11	planes/fire/burning_store_magi.base.x11.png	64x64	burning_store_magic,burning_store_magic_2,burning_store_magic_3	existing	models.txt: building
+burning_store_weap.x11	planes/fire/burning_store_weap.base.x11.png	64x64	burning_store_weapons,burning_store_weapons_2,burning_store_weapons_3	existing	models.txt: building
+burning_stronghold.x11	planes/fire/burning_stronghold.base.x11.png	96x96	burning_stronghold,burning_stronghold_2,burning_stronghold_3	existing	models.txt: building
+burning_t_house2.x11	planes/fire/burning_t_house2.base.x11.png	64x64	burning_t_house2,burning_t_house2_2,burning_t_house2_3	existing	models.txt: building
+burning_temple1.x11	planes/fire/burning_temple1.base.x11.png	64x64	burning_temple1,burning_temple1_2,burning_temple1_3	existing	models.txt: building
 burningtail.111	gods/items/burning_tail/burningtail.base.111.png	32x32	burningtail	existing	models.txt: model
 burningtail.112	gods/items/burning_tail/burningtail.base.112.png	32x32	burningtail	existing	models.txt: model
 burningtail.113	gods/items/burning_tail/burningtail.base.113.png	32x32	burningtail	existing	models.txt: model
@@ -1118,7 +1118,7 @@ cave_6.111	wall/cave/cave_6.base.111.png	32x32	cave_6	existing	models.txt: wall
 cave_7.111	wall/cave/cave_7.base.111.png	32x32	cave_7	existing	models.txt: wall
 cave_8.111	wall/cave/cave_8.base.111.png	32x32	cave_8	existing	models.txt: wall
 cave_9.111	wall/cave/cave_9.base.111.png	32x32	cave_9	existing	models.txt: wall
-cave_stair_up_2.111	exit/Up_down/cave_stair_up_2.base.111.png	32x32	cave_stair_up_2	scratch	type EXIT: boxy, drawn from an angle, or furniture
+cave_stair_up_2.111	exit/Up_down/cave_stair_up_2.base.111.png	32x32	cave_stair_up_2	existing	models.txt: model
 centipede.111	monster/insect/centipede/centipede.base.111.png	32x32	centipede	rigged	alive: a creature
 centipede.112	monster/insect/centipede/centipede.base.112.png	32x32	centipede	rigged	alive: a creature
 centipede.113	monster/insect/centipede/centipede.base.113.png	32x32	centipede	rigged	alive: a creature
@@ -1893,7 +1893,7 @@ dragon_claw.111	flesh/dragon/dragon_claw.base.111.png	32x32	dragonclaw	existing	
 dragon_eye.111	flesh/dragon/dragon_eye.base.111.png	32x32	dragon_eye	existing	models.txt: model
 dragon_green_scale.111	flesh/dragon/dragon_green_scale.base.111.png	32x32	green_dragon_scale	existing	models.txt: model
 dragon_guild.x11	construct/town/dragon_guild.base.x11.png	64x64	Dragon Guild,dragon_guild_2,dragon_guild_3	existing	models.txt: building
-dragon_guild2.x11	construct/town/dragon_guild2.base.x11.png	64x64	Dragon Guild 2,dragon_guild2_2,dragon_guild2_3	scratch	type EXIT: boxy, drawn from an angle, or furniture
+dragon_guild2.x11	construct/town/dragon_guild2.base.x11.png	64x64	Dragon Guild 2,dragon_guild2_2,dragon_guild2_3	existing	models.txt: building
 dragon_orange_scale.111	flesh/dragon/dragon_orange_scale.base.111.png	32x32	orange_dragon_scale	existing	models.txt: model
 dragon_sca.111	flesh/dragon/dragon_sca.base.111.png	32x32	dragon_scale	existing	models.txt: model
 dragon_shi.111	armour/shield/dragon_shi.base.111.png	32x32	dragon_shield	existing	models.txt: model
@@ -2135,7 +2135,7 @@ emerald.111	jewel/gems/emerald.base.111.png	32x32	emerald	existing	models.txt: m
 emerald.112	jewel/gems/emerald.base.112.png	32x32	emerald	existing	models.txt: model
 emerald_exceptional.111	jewel/gems/emerald_exceptional.base.111.png	32x32	raw_emerald_exceptional_beauty	existing	models.txt: model
 emerald_flawless.111	jewel/gems/emerald_flawless.base.111.png	32x32	raw_emerald_flawless_beauty	existing	models.txt: model
-empty.111	system/empty.base.111.png	32x32	fogexit,whirlwind_exit	scratch	type EXIT: boxy, drawn from an angle, or furniture
+empty.111	system/empty.base.111.png	32x32	fogexit,whirlwind_exit	existing	models.txt: building
 empty_S.111	ground/smooth/empty_S.base.111.png	512x64		flat	folder ground/: ground and its smoothing edges
 ench_armour.111	spell/Scroll/ench_armour.base.111.png	32x32		flat	folder spell/ (no object uses it)
 enchantment.111	spell/Misc/enchantment.base.111.png	32x32	enchantment	flat	folder spell/
@@ -2482,10 +2482,10 @@ flagstone_F.111	wall/flagstone/flagstone_F.base.111.png	32x32	flagstone_4	existi
 flagstone_S.111	floor/smooth/flagstone_S.base.111.png	512x64		flat	folder floor/: floor
 flagstone_win0.111	wall/flagstone/flagstone_win0.base.111.png	32x32	flagstone_win0	existing	models.txt: wall
 flagstone_win1.111	wall/flagstone/flagstone_win1.base.111.png	32x32	flagstone_win1	existing	models.txt: wall
-flamingtower.x11	planes/fire/flamingtower.base.x11.png	32x64	flaming_tower,flaming_tower_2	scratch	type EXIT: boxy, drawn from an angle, or furniture
-flamingtower.x12	planes/fire/flamingtower.base.x12.png	32x64	flaming_tower,flaming_tower_2	scratch	type EXIT: boxy, drawn from an angle, or furniture
-flamingtower.x13	planes/fire/flamingtower.base.x13.png	32x64	flaming_tower,flaming_tower_2	scratch	type EXIT: boxy, drawn from an angle, or furniture
-flamingtower.x14	planes/fire/flamingtower.base.x14.png	32x64	flaming_tower,flaming_tower_2	scratch	type EXIT: boxy, drawn from an angle, or furniture
+flamingtower.x11	planes/fire/flamingtower.base.x11.png	32x64	flaming_tower,flaming_tower_2	existing	models.txt: building
+flamingtower.x12	planes/fire/flamingtower.base.x12.png	32x64	flaming_tower,flaming_tower_2	existing	models.txt: building
+flamingtower.x13	planes/fire/flamingtower.base.x13.png	32x64	flaming_tower,flaming_tower_2	existing	models.txt: building
+flamingtower.x14	planes/fire/flamingtower.base.x14.png	32x64	flaming_tower,flaming_tower_2	existing	models.txt: building
 flint_and_steel.111	light/flint_and_steel.base.111.png	32x32	flint_and_steel	existing	models.txt: model
 flowers.111	spell/Cone/flowers.base.111.png	32x32	flowers,flowers_permanent	flat	type SPELL_EFFECT: on the ground or an effect
 fly_ant.131	monster/insect/ant/fly_ant.base.131.png	32x32	fly_ant	rigged	alive: a creature
@@ -3436,7 +3436,7 @@ lava_sea.111	planes/fire/lava/lava_sea.base.111.png	32x32	lava_sea,lava_sea1	fla
 lava_sea.112	planes/fire/lava/lava_sea.base.112.png	32x32	lava_sea,lava_sea1	flat	is_floor
 lava_sea.113	planes/fire/lava/lava_sea.base.113.png	32x32	lava_sea,lava_sea1	flat	is_floor
 lava_sea.114	planes/fire/lava/lava_sea.base.114.png	32x32	lava_sea,lava_sea1	flat	is_floor
-lava_well.111	planes/fire/lava_well.base.111.png	32x32	lava_well	scratch	type EXIT: boxy, drawn from an angle, or furniture
+lava_well.111	planes/fire/lava_well.base.111.png	32x32	lava_well	existing	models.txt: building
 lbull_wall.101	wall/lbulletwall/lbull_wall.base.101.png	32x32	lbulletwall	flat	type FIREWALL: on the ground or an effect
 lbull_wall.111	wall/lbulletwall/lbull_wall.base.111.png	32x32	lbulletwall,lbulletwall_1	flat	type FIREWALL: on the ground or an effect
 lbull_wall.121	wall/lbulletwall/lbull_wall.base.121.png	32x32	lbulletwall,lbulletwall_2	flat	type FIREWALL: on the ground or an effect
@@ -4874,7 +4874,7 @@ roof_2red.111	construct/roof/roof_2red.base.111.png	32x32	roof_2red	scratch	fold
 root.111	food/produce/root.base.111.png	32x32	mandrake_root	existing	models.txt: model
 rope_down.111	exit/Rope/rope_down.base.111.png	32x32	rope_down	existing	models.txt: flat
 rope_hole_down.111	exit/Rope/rope_hole_down.base.111.png	32x32	rope_hole_down	existing	models.txt: flat
-rope_up.111	exit/Rope/rope_up.base.111.png	32x32	rope_up	scratch	type EXIT: boxy, drawn from an angle, or furniture
+rope_up.111	exit/Rope/rope_up.base.111.png	32x32	rope_up	existing	models.txt: building
 rose_black.111	food/produce/rose_black.base.111.png	32x32	rose_black	existing	models.txt: model
 rose_pink.111	food/produce/rose_pink.base.111.png	32x32	rose_pink	existing	models.txt: model
 rose_red.111	food/produce/rose_red.base.111.png	32x32	rose_red	existing	models.txt: model
@@ -6325,7 +6325,7 @@ violin.11C	misc/music/violin.base.11C.png	32x32	violin	existing	models.txt: mode
 violin.11D	misc/music/violin.base.11D.png	32x32	violin	existing	models.txt: model
 violin.x11	misc/music/violin.base.x11.png	32x32		existing	models.txt: model
 vlongsword.111	weapon/sword/vlongsword.base.111.png	32x32	vlongsword	existing	models.txt: model
-volcano_hi.x11	exit/volcano_hi.base.x11.png	64x64	volcano_high,volcano_high_2,volcano_high_3	scratch	type EXIT: boxy, drawn from an angle, or furniture
+volcano_hi.x11	exit/volcano_hi.base.x11.png	64x64	volcano_high,volcano_high_2,volcano_high_3	existing	models.txt: building
 volcano_lo.x11	exit/volcano_lo.base.x11.png	64x32	active_volcano,active_volcano_2,volcano_low	flat	type FIREWALL: on the ground or an effect
 w_glass.111	food/w_glass.base.111.png	32x32	w_glass,w_glass_poison	existing	models.txt: model
 w_glass_empty.111	food/w_glass_empty.base.111.png	32x32	w_glass_empty	existing	models.txt: model
@@ -6797,4 +6797,4 @@ zombie.113	monster/undead/zombie.base.113.png	32x32	zombie	rigged	alive: a creat
 zombie_corpse.111	flesh/misc/zombie_corpse.base.111.png	32x32		existing	models.txt: model
 zombie_gen.111	monster/undead/zombie_gen.base.111.png	32x32	generate_zombie	existing	models.txt: building
 zombie_gen.112	monster/undead/zombie_gen.base.112.png	32x32	generate_zombie	existing	models.txt: building
-zoo.x11	construct/town/zoo.base.x11.png	64x64	zoo_1,zoo_2,zoo_3	scratch	type EXIT: boxy, drawn from an angle, or furniture
+zoo.x11	construct/town/zoo.base.x11.png	64x64	zoo_1,zoo_2,zoo_3	existing	models.txt: building

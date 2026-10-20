@@ -17,6 +17,14 @@ pub enum Shape {
     Cylinder { radius: f32, height: f32 },
     /// An upright cone, point up, centred on `pos`.
     Cone { radius: f32, height: f32 },
+    /// An upright cone with its top cut off flat at 0.4 of its `radius`, centred on `pos`.
+    Frustum { radius: f32, height: f32 },
+    /// A ball, centred on `pos`.
+    Ball(f32),
+    /// A glowing cone, a tongue of fire, centred on `pos` (no light of its own).
+    Fire { radius: f32, height: f32 },
+    /// A glowing box of this size, centred on `pos` (no light of its own).
+    Glow([f32; 3]),
     /// A wedge (triangle running north-south) this wide, tall and long, its base on `pos`.
     Wedge([f32; 3]),
     /// The building's sign text, fitted inside this width and height, its bottom middle on `pos`.
@@ -63,14 +71,14 @@ const GABLE_Y: f32 = 0.75;
 /// square in front of it, where they step out to.
 const DOORSTEP: f32 = 0.5;
 
-pub const RECIPES: [&str; 59] = [
+pub const RECIPES: [&str; 62] = [
     "cottage", "house", "tavern", "barn", "temple", "tower", "castle", "shop", "well", "fountain", "signpost", "crossroads",
     "noticeboard", "lamppost", "clock", "lever", "lever_pulled", "ladder_down", "altar", "altar_green", "altar_black",
     "altar_red", "altar_white", "altar_blue", "brazier", "brazier_unlit", "lantern", "lantern_off",
     "torch", "torch_cyan", "torch_indigo", "torch_vermilion", "tikitorch", "mountain1", "mountain2", "mountain3",
     "mountain4", "mountain5", "grave", "coffin", "lair", "nest", "portal",
     "campfire", "campfire_out", "teleporter", "magic_portal", "pier",
-    "rowboat", "longship", "fishboat", "galleon", "big_galleon", "big_galleon_west", "wagon", "hidden", "pedestal", "alchemy_bath", "trapdoor",
+    "rowboat", "longship", "fishboat", "galleon", "big_galleon", "big_galleon_west", "wagon", "hidden", "pedestal", "alchemy_bath", "trapdoor", "lava_well", "rope_up", "volcano",
 ];
 pub const WALL_STYLES: [&str; 7] = ["stone", "brick", "plaster", "wood", "hedge", "rock", "gate"];
 
@@ -139,6 +147,18 @@ fn style(recipe: &str) -> Option<Style> {
 
 /// The parts of a recipe over a `w` by `h` footprint. Unknown recipe: None (keep the card).
 pub fn parts(recipe: &str, w: u32, h: u32) -> Option<Vec<Part>> {
+    // `burning/house`: the house with flames on its roof.
+    if let Some(rest) = recipe.strip_prefix("burning/") {
+        let mut out = parts(rest, w, h)?;
+        if rest == "castle" {
+            // Inside the walls, from low down, sticking up over them.
+            out.extend(flames(w.max(2) - 1, h.max(2) - 1, 0.2, 0.6));
+        } else {
+            let top = out.iter().map(|p| p.pos[1]).fold(0.0, f32::max) + 0.3;
+            out.extend(flames(w, h, top, 0.0));
+        }
+        return Some(out);
+    }
     // Long tables and benches join like walls: `longtable_5` joins north and south.
     if let Some((kind, mask)) = recipe.split_once('_')
         && let Ok(mask) = u8::from_str_radix(mask, 16)
@@ -172,6 +192,14 @@ pub fn parts(recipe: &str, w: u32, h: u32) -> Option<Vec<Part>> {
         // Something there that the player must not see, like a hidden trap.
         "hidden" => Some(Vec::new()),
         "alchemy_bath" => Some(alchemy_bath()),
+        "lava_well" => {
+            let mut out = well();
+            out[1] = part(Shape::RoundLamp { radius: 0.27, height: 0.52 }, [0.0, 0.26, 0.0], 0.0, [1.0; 3], Some([1.0, 0.35, 0.05]));
+            Some(out)
+        }
+        // A rope hanging down from above, with a knot at the bottom.
+        "rope_up" => Some(rope_up()),
+        "volcano" => Some(volcano(w, h)),
         "trapdoor" => Some(trapdoor()),
         "pedestal" => Some(vec![
             cube([0.4, 0.08, 0.4], [0.0, 0.04, 0.0], STONE),
@@ -882,6 +910,25 @@ fn converter(color: [f32; 3]) -> Vec<Part> {
     out
 }
 
+/// Tongues of fire (`taller` than usual) over a `w` by `h` area at height `y`, and a
+/// glow that lights round them.
+fn flames(w: u32, h: u32, y: f32, taller: f32) -> Vec<Part> {
+    let mut out = vec![part(Shape::Lamp([w as f32 * 0.6, 0.1, h as f32 * 0.6]), [0.0, y - 0.1, 0.0], 0.0, [1.0; 3], Some(FLAME))];
+    for j in 0..h {
+        for i in 0..w {
+            let (x, z) = (i as f32 + 0.5 - w as f32 / 2.0, j as f32 + 0.5 - h as f32 / 2.0);
+            let tongues = [(-0.25, -0.1, 1.0), (0.2, 0.2, 0.7), (0.1, -0.25, 1.3), (-0.15, 0.25, 0.6), (0.0, 0.0, 1.6), (0.3, -0.05, 0.5)];
+            for (k, (dx, dz, high)) in tongues.into_iter().enumerate() {
+                let (radius, color) = if k % 2 == 0 { (0.22, [1.0, 0.35, 0.05]) } else { (0.15, [1.0, 0.75, 0.15]) };
+                let high = high + taller;
+                let pos = [x + dx, y + high / 2.0 - 0.15, z + dz];
+                out.push(part(Shape::Fire { radius, height: high }, pos, 0.0, [1.0; 3], Some(color)));
+            }
+        }
+    }
+    out
+}
+
 /// The converter table with an iron tray of glowing lava on it.
 fn alchemy_bath() -> Vec<Part> {
     let mut out = converter(IRON);
@@ -1001,6 +1048,88 @@ fn portal() -> Vec<Part> {
 }
 
 const FLAME: [f32; 3] = [1.0, 0.6, 0.2];
+
+/// A rope hanging down from above, with a knot at the bottom and three dark lines winding
+/// round it, so it looks twisted from three strands.
+fn rope_up() -> Vec<Part> {
+    const R: f32 = 0.023;
+    const PITCH: f32 = 0.25;
+    const STEPS: usize = 8;
+    let (bottom, top) = (0.2, 2.4);
+    let mut out = vec![cylinder(0.025, top - bottom, [0.0, (top + bottom) / 2.0, 0.0], BOARD), cylinder(0.05, 0.08, [0.0, 0.22, 0.0], BOARD)];
+    let around = std::f32::consts::TAU * R / STEPS as f32;
+    let rise = PITCH / STEPS as f32;
+    let (len, slant) = (around.hypot(rise), rise.atan2(around).to_degrees());
+    for strand in [0.0, 120.0, 240.0] {
+        for i in 0..((top - bottom - 0.1) / rise) as usize {
+            let a = strand + i as f32 * 360.0 / STEPS as f32;
+            let (sin, cos) = a.to_radians().sin_cos();
+            let line = cube([len, 0.006, 0.006], [R * cos, bottom + 0.1 + i as f32 * rise, R * sin], [0.08, 0.06, 0.05]);
+            out.push(Part { yaw_deg: a + 90.0, tilt_deg: -slant, ..line });
+        }
+    }
+    out
+}
+
+const LAVA: [f32; 3] = [1.0, 0.42, 0.08];
+
+/// A volcano filling the footprint: a brown cone, cut flat at the top, on a round of
+/// grass, with ridges of rock down its sides. Glowing lava fills its crater, spurts up,
+/// runs down between the ridges on the south side into a pool, and drips down the other
+/// sides; a cloud of smoke hangs over it.
+fn volcano(w: u32, h: u32) -> Vec<Part> {
+    let r = w.min(h) as f32 / 2.0;
+    let (bottom, top) = (0.85 * r, 0.34 * r);
+    let lean = ((bottom - top) / r).atan().to_degrees();
+    // A box `len` long lying on the slope, `a` degrees round, its middle at height `y`,
+    // `out` from the surface.
+    let on_slope = |shape: fn([f32; 3]) -> Shape, a: f32, y: f32, size: [f32; 3], out: f32, color| {
+        let d = bottom - (bottom - top) * y / r + out;
+        let (sin, cos) = a.to_radians().sin_cos();
+        Part { yaw_deg: a, tilt_deg: -lean, ..part(shape(size), [d * cos, y, d * sin], 0.0, [1.0; 3], Some(color)) }
+    };
+    let mut out = vec![
+        cylinder(r, 0.06, [0.0, 0.03, 0.0], [0.45, 0.6, 0.25]),
+        part(Shape::Frustum { radius: bottom, height: r }, [0.0, r / 2.0, 0.0], 0.0, [1.0; 3], Some([0.45, 0.27, 0.15])),
+        cylinder(top * 1.05, 0.08 * r, [0.0, r, 0.0], [0.4, 0.22, 0.12]),
+        part(Shape::RoundLamp { radius: top * 0.85, height: 0.04 }, [0.0, r + 0.04 * r, 0.0], 0.0, [1.0; 3], Some([1.0, 0.65, 0.15])),
+        part(Shape::Fire { radius: 0.1 * r, height: 0.4 * r }, [0.0, 1.2 * r, 0.0], 0.0, [1.0; 3], Some([1.0, 0.6, 0.1])),
+    ];
+    // Ridges of rock, every 36 degrees, of different lengths, from the foot upward.
+    for k in 0..10 {
+        let len = r * [0.95, 0.7, 0.85, 0.6, 0.9, 0.75, 0.65, 0.95, 0.8, 0.7][k];
+        let color = if k % 2 == 0 { [0.5, 0.31, 0.18] } else { [0.4, 0.24, 0.13] };
+        let y = len / 2.0 * (lean.to_radians().cos());
+        out.push(on_slope(Shape::Box, k as f32 * 36.0, y, [0.08 * r, len, 0.16 * r], 0.0, color));
+    }
+    // The stream: short pieces winding down between the ridges at 72 and 108 degrees,
+    // wider as it goes down, then a pool on the grass.
+    const PIECES: usize = 14;
+    let piece = r / PIECES as f32 / lean.to_radians().cos() * 1.25;
+    for i in 0..PIECES {
+        let y = r * (1.0 - (i as f32 + 0.5) / PIECES as f32);
+        let a = 90.0 + 6.0 * (i as f32 * 0.7).sin();
+        out.push(on_slope(Shape::Glow, a, y, [0.03, piece, (0.1 + 0.007 * i as f32) * r], 0.015, LAVA));
+    }
+    out.push(part(Shape::RoundLamp { radius: 0.2 * r, height: 0.03 }, [0.0, 0.075, bottom + 0.1 * r], 0.0, [1.0; 3], Some(LAVA)));
+    // Drips over the rim between the ridges, each ending in a blob.
+    for (a, len) in [(18.0, 0.3), (162.0, 0.4), (198.0, 0.25), (234.0, 0.35), (306.0, 0.3), (342.0, 0.2)] {
+        let len = len * r;
+        let y = r - len / 2.0 * lean.to_radians().cos();
+        out.push(on_slope(Shape::Glow, a, y, [0.03, len, 0.07 * r], 0.015, LAVA));
+        let end = r - len * lean.to_radians().cos();
+        let d = bottom - (bottom - top) * end / r + 0.02;
+        let (sin, cos) = (a as f32).to_radians().sin_cos();
+        out.push(part(Shape::Ball(0.05 * r), [d * cos, end, d * sin], 0.0, [1.0; 3], Some(LAVA)));
+    }
+    for (x, z, tilt) in [(-0.3, 0.1, 30.0), (0.32, -0.05, -30.0), (0.05, 0.3, 0.0)] {
+        out.push(Part { tilt_deg: tilt, ..part(Shape::Fire { radius: 0.04 * r, height: 0.14 * r }, [x * r, 1.3 * r, z * r], 0.0, [1.0; 3], Some(LAVA)) });
+    }
+    for (x, y, z, size) in [(0.0, 1.73, 0.0, 0.3), (-0.22, 1.63, 0.1, 0.22), (0.24, 1.68, -0.05, 0.24), (0.05, 1.98, 0.0, 0.25), (-0.15, 1.93, -0.1, 0.2)] {
+        out.push(part(Shape::Ball(size * r), [x * r, y * r, z * r], 0.0, [1.0; 3], Some([0.85, 0.8, 0.72])));
+    }
+    out
+}
 
 /// The KayKit torch (`scale` of it; it stands 0.4 below its middle) with a flame in its
 /// cup that lights round it.
@@ -1227,6 +1356,14 @@ mod tests {
         let p = parts("cloak:0.5,0.25,1", 1, 1).unwrap();
         assert_eq!(p[0].color, Some([0.5, 0.25, 1.0]));
         assert!(parts("armour:red", 1, 1).is_none());
+    }
+
+    #[test]
+    fn burning_building_is_the_building_with_flames_over_it() {
+        let house = parts("house", 2, 2).unwrap();
+        let burning = parts("burning/house", 2, 2).unwrap();
+        assert!(burning.len() > house.len() && burning.starts_with(&house));
+        assert!(parts("burning/nothing", 1, 1).is_none());
     }
 
     #[test]
