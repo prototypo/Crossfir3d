@@ -93,6 +93,9 @@ PICK = [
         "Bat", "Chicken", "Cyclops", "Ghost", "Skull", "Tree", "Mushroom", "YellowDragon", "Cthulhu", "Panda", "Demon",
         "Crab", "GreenDemon",
     ]]),
+    # Converted from the packs' FBX with Blender (scripts/fbx2gltf.py).
+    ("beasts/dinosaurs", "dinosaurs/License.txt", [f"dinosaurs/glTF/{n}.gltf" for n in ["Trex", "Velociraptor"]]),
+    ("beasts/farm", "farm-animals/License.txt", [f"farm-animals/glTF/{n}.gltf" for n in ["Sheep"]]),
     ("beasts/flying", "ultimate-monsters/License.txt", [f"ultimate-monsters/Flying/glTF/{n}.gltf" for n in [
         "Dragon", "Dragon_Evolved", "Ghost", "Glub", "Hywirl", "Pigeon", "Ghost_Skull", "Armabee", "Squidle",
         "Goleling_Evolved",
