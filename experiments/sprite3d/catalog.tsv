@@ -1,14 +1,14 @@
 picture	file	size	objects	group	reason
-Bk.x11	monster/giant/DreadKnight/Bk.base.x11.png	64x96	DK,DK2,DK3	rigged	alive: a creature
-Bk.x12	monster/giant/DreadKnight/Bk.base.x12.png	64x96	DK,DK2,DK3	rigged	alive: a creature
-Bk.x13	monster/giant/DreadKnight/Bk.base.x13.png	64x96	DK,DK2,DK3	rigged	alive: a creature
-Bk.x14	monster/giant/DreadKnight/Bk.base.x14.png	64x96	DK,DK2,DK3	rigged	alive: a creature
-Bk.x15	monster/giant/DreadKnight/Bk.base.x15.png	64x96	EDK,EDK2,EDK3	rigged	alive: a creature
-Bk.x71	monster/giant/DreadKnight/Bk.base.x71.png	64x96	DK,DK2,DK3	rigged	alive: a creature
-Bk.x72	monster/giant/DreadKnight/Bk.base.x72.png	64x96	DK,DK2,DK3	rigged	alive: a creature
-Bk.x73	monster/giant/DreadKnight/Bk.base.x73.png	64x96	DK,DK2,DK3	rigged	alive: a creature
-Bk.x74	monster/giant/DreadKnight/Bk.base.x74.png	64x96	DK,DK2,DK3	rigged	alive: a creature
-Bk.x75	monster/giant/DreadKnight/Bk.base.x75.png	64x96	EDK,EDK2,EDK3	rigged	alive: a creature
+Bk.x11	monster/giant/DreadKnight/Bk.base.x11.png	64x96	DK,DK2,DK3	existing	models.txt: person
+Bk.x12	monster/giant/DreadKnight/Bk.base.x12.png	64x96	DK,DK2,DK3	existing	models.txt: person
+Bk.x13	monster/giant/DreadKnight/Bk.base.x13.png	64x96	DK,DK2,DK3	existing	models.txt: person
+Bk.x14	monster/giant/DreadKnight/Bk.base.x14.png	64x96	DK,DK2,DK3	existing	models.txt: person
+Bk.x15	monster/giant/DreadKnight/Bk.base.x15.png	64x96	EDK,EDK2,EDK3	existing	models.txt: person
+Bk.x71	monster/giant/DreadKnight/Bk.base.x71.png	64x96	DK,DK2,DK3	existing	models.txt: person
+Bk.x72	monster/giant/DreadKnight/Bk.base.x72.png	64x96	DK,DK2,DK3	existing	models.txt: person
+Bk.x73	monster/giant/DreadKnight/Bk.base.x73.png	64x96	DK,DK2,DK3	existing	models.txt: person
+Bk.x74	monster/giant/DreadKnight/Bk.base.x74.png	64x96	DK,DK2,DK3	existing	models.txt: person
+Bk.x75	monster/giant/DreadKnight/Bk.base.x75.png	64x96	EDK,EDK2,EDK3	existing	models.txt: person
 CSword.111	weapon/artifact/ChaosSword/CSword.base.111.png	32x32	CSword	existing	models.txt: model
 CSword.112	weapon/artifact/ChaosSword/CSword.base.112.png	32x32	CSword	existing	models.txt: model
 CSword.113	weapon/artifact/ChaosSword/CSword.base.113.png	32x32	CSword	existing	models.txt: model
@@ -156,30 +156,30 @@ amulet_sustenance.111	talisman/amulet_sustenance.base.111.png	32x32		existing	mo
 amulet_unholiness.111	talisman/amulet_unholiness.base.111.png	32x32		existing	models.txt: model
 amulet_white.111	talisman/amulet_white.base.111.png	32x32	amulet_white	existing	models.txt: model
 anchor.111	misc/anchor.base.111.png	64x32	anchor_1,anchor_2	existing	models.txt: building
-angel.111	monster/angel/angel.base.111.png	32x32	angel	rigged	alive: a creature
-angel.112	monster/angel/angel.base.112.png	32x32	angel	rigged	alive: a creature
-angel.131	monster/angel/angel.base.131.png	32x32	angel	rigged	alive: a creature
-angel.132	monster/angel/angel.base.132.png	32x32	angel	rigged	alive: a creature
-angel.151	monster/angel/angel.base.151.png	32x32	angel	rigged	alive: a creature
-angel.152	monster/angel/angel.base.152.png	32x32	angel	rigged	alive: a creature
-angel.171	monster/angel/angel.base.171.png	32x32	angel	rigged	alive: a creature
-angel.172	monster/angel/angel.base.172.png	32x32	angel	rigged	alive: a creature
-angel_sword.111	monster/angel/angel_sword.base.111.png	32x32		rigged	folder monster/ (no object uses it)
-angel_sword.112	monster/angel/angel_sword.base.112.png	32x32		rigged	folder monster/ (no object uses it)
-angel_sword.131	monster/angel/angel_sword.base.131.png	32x32		rigged	folder monster/ (no object uses it)
-angel_sword.132	monster/angel/angel_sword.base.132.png	32x32		rigged	folder monster/ (no object uses it)
-angel_sword.151	monster/angel/angel_sword.base.151.png	32x32		rigged	folder monster/ (no object uses it)
-angel_sword.152	monster/angel/angel_sword.base.152.png	32x32		rigged	folder monster/ (no object uses it)
-angel_sword.171	monster/angel/angel_sword.base.171.png	32x32		rigged	folder monster/ (no object uses it)
-angel_sword.172	monster/angel/angel_sword.base.172.png	32x32		rigged	folder monster/ (no object uses it)
-angelknight.x11	monster/angel/angelknight.base.x11.png	32x64	angel_knight,angel_knight_2	rigged	alive: a creature
+angel.111	monster/angel/angel.base.111.png	32x32	angel	existing	models.txt: person
+angel.112	monster/angel/angel.base.112.png	32x32	angel	existing	models.txt: person
+angel.131	monster/angel/angel.base.131.png	32x32	angel	existing	models.txt: person
+angel.132	monster/angel/angel.base.132.png	32x32	angel	existing	models.txt: person
+angel.151	monster/angel/angel.base.151.png	32x32	angel	existing	models.txt: person
+angel.152	monster/angel/angel.base.152.png	32x32	angel	existing	models.txt: person
+angel.171	monster/angel/angel.base.171.png	32x32	angel	existing	models.txt: person
+angel.172	monster/angel/angel.base.172.png	32x32	angel	existing	models.txt: person
+angel_sword.111	monster/angel/angel_sword.base.111.png	32x32		existing	models.txt: person
+angel_sword.112	monster/angel/angel_sword.base.112.png	32x32		existing	models.txt: person
+angel_sword.131	monster/angel/angel_sword.base.131.png	32x32		existing	models.txt: person
+angel_sword.132	monster/angel/angel_sword.base.132.png	32x32		existing	models.txt: person
+angel_sword.151	monster/angel/angel_sword.base.151.png	32x32		existing	models.txt: person
+angel_sword.152	monster/angel/angel_sword.base.152.png	32x32		existing	models.txt: person
+angel_sword.171	monster/angel/angel_sword.base.171.png	32x32		existing	models.txt: person
+angel_sword.172	monster/angel/angel_sword.base.172.png	32x32		existing	models.txt: person
+angelknight.x11	monster/angel/angelknight.base.x11.png	32x64	angel_knight,angel_knight_2	existing	models.txt: person
 angry_floor.111	system/mood_floors/angry_floor.base.111.png	32x32	angry_floor	flat	type MOOD_FLOOR: on the ground or an effect
-ant.111	monster/insect/ant/ant.base.111.png	32x32	ant,insect_plague	rigged	alive: a creature
-ant.112	monster/insect/ant/ant.base.112.png	32x32	ant,insect_plague	rigged	alive: a creature
-ant_egg.111	monster/insect/ant/ant_egg.base.111.png	32x32	ant_egg,chicken_egg	rigged	alive: a creature
+ant.111	monster/insect/ant/ant.base.111.png	32x32	ant,insect_plague	existing	models.txt: building
+ant.112	monster/insect/ant/ant.base.112.png	32x32	ant,insect_plague	existing	models.txt: building
+ant_egg.111	monster/insect/ant/ant_egg.base.111.png	32x32	ant_egg,chicken_egg	existing	models.txt: building
 ant_gen.111	monster/insect/ant/ant_gen.base.111.png	32x32	generate_ant	existing	models.txt: building
-ant_larvae.111	monster/insect/ant/ant_larvae.base.111.png	32x32	ant_larvae	rigged	alive: a creature
-ant_larvae.112	monster/insect/ant/ant_larvae.base.112.png	32x32	ant_larvae	rigged	alive: a creature
+ant_larvae.111	monster/insect/ant/ant_larvae.base.111.png	32x32	ant_larvae	existing	models.txt: building
+ant_larvae.112	monster/insect/ant/ant_larvae.base.112.png	32x32	ant_larvae	existing	models.txt: building
 ape.131	monster/animal/ape.base.131.png	32x32	ape	existing	models.txt: beast
 ape.132	monster/animal/ape.base.132.png	32x32	ape	existing	models.txt: beast
 ape.171	monster/animal/ape.base.171.png	32x32	ape	existing	models.txt: beast
@@ -189,19 +189,19 @@ apple_eighth.111	food/produce/apple_eighth.base.111.png	32x32	apple_eighth	exist
 apple_fourth.111	food/produce/apple_fourth.base.111.png	32x32	apple_fourth	existing	models.txt: model
 apple_half.111	food/produce/apple_half.base.111.png	32x32	apple_half	existing	models.txt: model
 aquamarine.111	jewel/gems/aquamarine.base.111.png	32x32	aquamarine	existing	models.txt: model
-archangel.x11	monster/angel/archangel.base.x11.png	64x96	ArchAngel,ArchAngel_2,ArchAngel_3	rigged	alive: a creature
-archangel.x12	monster/angel/archangel.base.x12.png	64x96	ArchAngel,ArchAngel_2,ArchAngel_3	rigged	alive: a creature
-archangel.x13	monster/angel/archangel.base.x13.png	64x96	ArchAngel,ArchAngel_2,ArchAngel_3	rigged	alive: a creature
+archangel.x11	monster/angel/archangel.base.x11.png	64x96	ArchAngel,ArchAngel_2,ArchAngel_3	existing	models.txt: person
+archangel.x12	monster/angel/archangel.base.x12.png	64x96	ArchAngel,ArchAngel_2,ArchAngel_3	existing	models.txt: person
+archangel.x13	monster/angel/archangel.base.x13.png	64x96	ArchAngel,ArchAngel_2,ArchAngel_3	existing	models.txt: person
 archblack.111	exit/archblack.base.111.png	32x32	archway_black	existing	models.txt: model
 archblack.112	exit/archblack.base.112.png	32x32	archway_black	existing	models.txt: model
 archblack.113	exit/archblack.base.113.png	32x32	archway_black	existing	models.txt: model
 archblack.114	exit/archblack.base.114.png	32x32	archway_black	existing	models.txt: model
 archgold.111	exit/archgold.base.111.png	32x32	archway_gold	existing	models.txt: model
 archgreen.111	exit/archgreen.base.111.png	32x32	archway_green	existing	models.txt: model
-archon.111	monster/chaos/archon.base.111.png	32x32	archon	rigged	alive: a creature
-archon.222	monster/chaos/archon.base.222.png	32x32	archon	rigged	alive: a creature
-archon.333	monster/chaos/archon.base.333.png	32x32	archon	rigged	alive: a creature
-archon.444	monster/chaos/archon.base.444.png	32x32	archon	rigged	alive: a creature
+archon.111	monster/chaos/archon.base.111.png	32x32	archon	existing	models.txt: beast
+archon.222	monster/chaos/archon.base.222.png	32x32	archon	existing	models.txt: beast
+archon.333	monster/chaos/archon.base.333.png	32x32	archon	existing	models.txt: beast
+archon.444	monster/chaos/archon.base.444.png	32x32	archon	existing	models.txt: beast
 archtree.111	exit/archtree.base.111.png	32x32	archway_tree	existing	models.txt: model
 archwood.111	exit/archwood.base.111.png	32x32	archway	existing	models.txt: model
 arm.111	flesh/human/arm.base.111.png	32x32	arm	existing	models.txt: model
@@ -305,10 +305,10 @@ asteroid.161	spell/Bullet/asteroid.base.161.png	32x32	asteroid	flat	type SPELL_E
 asteroid.171	spell/Bullet/asteroid.base.171.png	32x32	asteroid	flat	type SPELL_EFFECT: on the ground or an effect
 asteroid.181	spell/Bullet/asteroid.base.181.png	32x32	asteroid	flat	type SPELL_EFFECT: on the ground or an effect
 attache.111	misc/Container/attache.base.111.png	32x32	attache	existing	models.txt: model
-avatar.131	spell/Golem/avatar.base.131.png	32x32	avatar	rigged	alive: a creature
-avatar.132	spell/Golem/avatar.base.132.png	32x32	avatar	rigged	alive: a creature
-avatar.171	spell/Golem/avatar.base.171.png	32x32	avatar	rigged	alive: a creature
-avatar.172	spell/Golem/avatar.base.172.png	32x32	avatar	rigged	alive: a creature
+avatar.131	spell/Golem/avatar.base.131.png	32x32	avatar	existing	models.txt: person
+avatar.132	spell/Golem/avatar.base.132.png	32x32	avatar	existing	models.txt: person
+avatar.171	spell/Golem/avatar.base.171.png	32x32	avatar	existing	models.txt: person
+avatar.172	spell/Golem/avatar.base.172.png	32x32	avatar	existing	models.txt: person
 awall_0.111	wall/awall/awall_0.base.111.png	32x32	awall_0	existing	models.txt: wall
 awall_1.111	wall/awall/awall_1.base.111.png	32x32	awall_1_2	existing	models.txt: wall
 awall_1_short.111	wall/awall/awall_1_short.base.111.png	32x32		existing	models.txt: wall
@@ -437,10 +437,10 @@ barrack_s.111	construct/barrack/barrack_s.base.111.png	32x32	barrack_small	exist
 barrack_u.x11	construct/barrack/barrack_u.base.x11.png	32x64	barrack_up,barrack_up_2	existing	models.txt: building
 barrack_u.x12	construct/barrack/barrack_u.base.x12.png	32x64	barrack_up,barrack_up_2	existing	models.txt: building
 barrel.111	indoor/barrel.base.111.png	32x32	barrel	existing	models.txt: model
-baslic.x31	monster/misc/Baslic/baslic.base.x31.png	96x64	baslic,baslic_2,baslic_3	rigged	alive: a creature
-baslic.x32	monster/misc/Baslic/baslic.base.x32.png	96x64	baslic,baslic_2,baslic_3	rigged	alive: a creature
-baslic.x71	monster/misc/Baslic/baslic.base.x71.png	96x64	baslic,baslic_2,baslic_3	rigged	alive: a creature
-baslic.x72	monster/misc/Baslic/baslic.base.x72.png	96x64	baslic,baslic_2,baslic_3	rigged	alive: a creature
+baslic.x31	monster/misc/Baslic/baslic.base.x31.png	96x64	baslic,baslic_2,baslic_3	existing	models.txt: beast
+baslic.x32	monster/misc/Baslic/baslic.base.x32.png	96x64	baslic,baslic_2,baslic_3	existing	models.txt: beast
+baslic.x71	monster/misc/Baslic/baslic.base.x71.png	96x64	baslic,baslic_2,baslic_3	existing	models.txt: beast
+baslic.x72	monster/misc/Baslic/baslic.base.x72.png	96x64	baslic,baslic_2,baslic_3	existing	models.txt: beast
 bat.111	monster/animal/bat.base.111.png	32x32	bat	existing	models.txt: beast
 bat.112	monster/animal/bat.base.112.png	32x32	bat	existing	models.txt: beast
 bat.113	monster/animal/bat.base.113.png	32x32	bat	existing	models.txt: beast
@@ -496,8 +496,8 @@ beige-white-c-marble.112	floor/inlayed/beige-white-c-marble.base.112.png	32x32	b
 beige-white-c-marble.113	floor/inlayed/beige-white-c-marble.base.113.png	32x32	beige-white-c-marble_113	flat	folder floor/: floor
 beige-white-c-marble.114	floor/inlayed/beige-white-c-marble.base.114.png	32x32	beige-white-c-marble_114	flat	folder floor/: floor
 beigemarble.111	floor/beigemarble.base.111.png	32x32	beigemarble	flat	folder floor/: floor
-belzebub.x11	monster/giant/Belzebub/belzebub.base.x11.png	64x96	belzebub,belzebub_2,belzebub_3	rigged	alive: a creature
-belzebub.x12	monster/giant/Belzebub/belzebub.base.x12.png	64x96	belzebub,belzebub_2,belzebub_3	rigged	alive: a creature
+belzebub.x11	monster/giant/Belzebub/belzebub.base.x11.png	64x96	belzebub,belzebub_2,belzebub_3	existing	models.txt: beast
+belzebub.x12	monster/giant/Belzebub/belzebub.base.x12.png	64x96	belzebub,belzebub_2,belzebub_3	existing	models.txt: beast
 bench_0.111	wall/bench/bench_0.base.111.png	32x32	bench_0,counter_0	existing	models.txt: building
 bench_1.111	wall/bench/bench_1.base.111.png	32x32	bench_1_2,counter_1_2	existing	models.txt: building
 bench_2.111	wall/bench/bench_2.base.111.png	32x32	bench_1_4,counter_1_4	existing	models.txt: building
@@ -522,16 +522,16 @@ big_dragon_dragon_wing.111	flesh/dragon/big_dragon_dragon_wing.base.111.png	32x3
 big_elec_dragon_wing.111	flesh/dragon/big_elec_dragon_wing.base.111.png	32x32		existing	models.txt: model
 big_eye.111	flesh/generic/big_eye.base.111.png	32x32	big_eye	existing	models.txt: model
 big_slave.111	monster/humanoid/Arabic/big_slave.base.111.png	32x32	big_slave	existing	models.txt: person
-big_wiz.x11	monster/giant/Big_Wiz/big_wiz.base.x11.png	96x96	big_wiz,big_wiz2,big_wiz3	rigged	alive: a creature
-big_wiz.x12	monster/giant/Big_Wiz/big_wiz.base.x12.png	96x96	big_wiz,big_wiz2,big_wiz3	rigged	alive: a creature
-big_wiz.x13	monster/giant/Big_Wiz/big_wiz.base.x13.png	96x96	big_wiz,big_wiz2,big_wiz3	rigged	alive: a creature
-big_wiz.x14	monster/giant/Big_Wiz/big_wiz.base.x14.png	96x96	big_wiz,big_wiz2,big_wiz3	rigged	alive: a creature
-big_wiz.x15	monster/giant/Big_Wiz/big_wiz.base.x15.png	96x96	big_wiz,big_wiz2,big_wiz3	rigged	alive: a creature
-bigblue_wiz.x11	monster/giant/Big_Wiz/bigblue_wiz.base.x11.png	96x96	bigblue_wiz,bigblue_wiz2,bigblue_wiz3	rigged	alive: a creature
-bigblue_wiz.x12	monster/giant/Big_Wiz/bigblue_wiz.base.x12.png	96x96	bigblue_wiz,bigblue_wiz2,bigblue_wiz3	rigged	alive: a creature
-bigblue_wiz.x13	monster/giant/Big_Wiz/bigblue_wiz.base.x13.png	96x96	bigblue_wiz,bigblue_wiz2,bigblue_wiz3	rigged	alive: a creature
-bigblue_wiz.x14	monster/giant/Big_Wiz/bigblue_wiz.base.x14.png	96x96	bigblue_wiz,bigblue_wiz2,bigblue_wiz3	rigged	alive: a creature
-bigblue_wiz.x15	monster/giant/Big_Wiz/bigblue_wiz.base.x15.png	96x96	bigblue_wiz,bigblue_wiz2,bigblue_wiz3	rigged	alive: a creature
+big_wiz.x11	monster/giant/Big_Wiz/big_wiz.base.x11.png	96x96	big_wiz,big_wiz2,big_wiz3	existing	models.txt: person
+big_wiz.x12	monster/giant/Big_Wiz/big_wiz.base.x12.png	96x96	big_wiz,big_wiz2,big_wiz3	existing	models.txt: person
+big_wiz.x13	monster/giant/Big_Wiz/big_wiz.base.x13.png	96x96	big_wiz,big_wiz2,big_wiz3	existing	models.txt: person
+big_wiz.x14	monster/giant/Big_Wiz/big_wiz.base.x14.png	96x96	big_wiz,big_wiz2,big_wiz3	existing	models.txt: person
+big_wiz.x15	monster/giant/Big_Wiz/big_wiz.base.x15.png	96x96	big_wiz,big_wiz2,big_wiz3	existing	models.txt: person
+bigblue_wiz.x11	monster/giant/Big_Wiz/bigblue_wiz.base.x11.png	96x96	bigblue_wiz,bigblue_wiz2,bigblue_wiz3	existing	models.txt: person
+bigblue_wiz.x12	monster/giant/Big_Wiz/bigblue_wiz.base.x12.png	96x96	bigblue_wiz,bigblue_wiz2,bigblue_wiz3	existing	models.txt: person
+bigblue_wiz.x13	monster/giant/Big_Wiz/bigblue_wiz.base.x13.png	96x96	bigblue_wiz,bigblue_wiz2,bigblue_wiz3	existing	models.txt: person
+bigblue_wiz.x14	monster/giant/Big_Wiz/bigblue_wiz.base.x14.png	96x96	bigblue_wiz,bigblue_wiz2,bigblue_wiz3	existing	models.txt: person
+bigblue_wiz.x15	monster/giant/Big_Wiz/bigblue_wiz.base.x15.png	96x96	bigblue_wiz,bigblue_wiz2,bigblue_wiz3	existing	models.txt: person
 biggalleon.x11	transport/biggalleon.base.x11.png	64x64	big_galleon,big_galleon_2,big_galleon_3	existing	models.txt: building
 biggalleon.x71	transport/biggalleon.base.x71.png	64x64	sailing_big_galleon,sailing_big_galleon_2,sailing_big_galleon_3	existing	models.txt: building
 bighorn_he.111	armour/helmet/bighorn_he.base.111.png	32x32	bighorned_helmet,helmet_gnarg	existing	models.txt: model
@@ -544,10 +544,10 @@ bird.152	monster/animal/bird.base.152.png	32x32	bird	existing	models.txt: beast
 bird.171	monster/animal/bird.base.171.png	32x32	bird	existing	models.txt: beast
 bird.172	monster/animal/bird.base.172.png	32x32	bird	existing	models.txt: beast
 bird_gen.111	monster/animal/bird_gen.base.111.png	32x32	generate_bird	existing	models.txt: model
-black_dragon2.151	monster/humanoid/Dragon/black_dragon2.base.151.png	32x32	black_dragon2	rigged	alive: a creature
-black_dragon2.152	monster/humanoid/Dragon/black_dragon2.base.152.png	32x32	black_dragon2	rigged	alive: a creature
-black_dragon2.171	monster/humanoid/Dragon/black_dragon2.base.171.png	32x32	black_dragon2	rigged	alive: a creature
-black_dragon2.172	monster/humanoid/Dragon/black_dragon2.base.172.png	32x32	black_dragon2	rigged	alive: a creature
+black_dragon2.151	monster/humanoid/Dragon/black_dragon2.base.151.png	32x32	black_dragon2	existing	models.txt: beast
+black_dragon2.152	monster/humanoid/Dragon/black_dragon2.base.152.png	32x32	black_dragon2	existing	models.txt: beast
+black_dragon2.171	monster/humanoid/Dragon/black_dragon2.base.171.png	32x32	black_dragon2	existing	models.txt: beast
+black_dragon2.172	monster/humanoid/Dragon/black_dragon2.base.172.png	32x32	black_dragon2	existing	models.txt: beast
 blackdragonmail.111	armour/mail/blackdragonmail.base.111.png	32x32	black_dragon_mail	existing	models.txt: building
 blackfirebullet.111	misc/blackfirebullet.base.111.png	32x32		skip	unused: no object or map shows it
 blackfirebullet.121	misc/blackfirebullet.base.121.png	32x32		skip	unused: no object or map shows it
@@ -630,9 +630,9 @@ bless_effect.113	spell/BlessCurse/bless_effect.base.113.png	32x32	bless_effect	f
 bless_effect.114	spell/BlessCurse/bless_effect.base.114.png	32x32	bless_effect	flat	folder spell/
 bless_effect.115	spell/BlessCurse/bless_effect.base.115.png	32x32	bless_effect	flat	folder spell/
 bless_effect.116	spell/BlessCurse/bless_effect.base.116.png	32x32	bless_effect	flat	folder spell/
-blob.111	monster/misc/blob.base.111.png	32x32	blob	rigged	alive: a creature
-blob.112	monster/misc/blob.base.112.png	32x32	blob	rigged	alive: a creature
-blob.113	monster/misc/blob.base.113.png	32x32	blob	rigged	alive: a creature
+blob.111	monster/misc/blob.base.111.png	32x32	blob	existing	models.txt: beast
+blob.112	monster/misc/blob.base.112.png	32x32	blob	existing	models.txt: beast
+blob.113	monster/misc/blob.base.113.png	32x32	blob	existing	models.txt: beast
 blocked.111	system/blocked.base.111.png	32x32	blocked,darkness	flat	folder spell/
 blocked_blue.111	system/blocked_blue.base.111.png	32x32		skip	folder system/ (no object uses it)
 blocked_cyan.111	system/blocked_cyan.base.111.png	32x32	sea_route	skip	invisible
@@ -662,17 +662,17 @@ bloodreaver.111	weapon/artifact/bloodreaver.base.111.png	32x32	bloodreaver	exist
 bloodstone.111	jewel/gems/bloodstone.base.111.png	32x32	bloodstone	existing	models.txt: model
 bloodwell.111	exit/bloodwell.base.111.png	32x32	bloodwell	existing	models.txt: building
 blue_crystal.111	jewel/gems/blue_crystal.base.111.png	32x32		existing	models.txt: model
-blue_dragon2.151	monster/humanoid/Dragon/blue_dragon2.base.151.png	32x32	blue_dragon2	rigged	alive: a creature
-blue_dragon2.152	monster/humanoid/Dragon/blue_dragon2.base.152.png	32x32	blue_dragon2	rigged	alive: a creature
-blue_dragon2.171	monster/humanoid/Dragon/blue_dragon2.base.171.png	32x32	blue_dragon2	rigged	alive: a creature
-blue_dragon2.172	monster/humanoid/Dragon/blue_dragon2.base.172.png	32x32	blue_dragon2	rigged	alive: a creature
+blue_dragon2.151	monster/humanoid/Dragon/blue_dragon2.base.151.png	32x32	blue_dragon2	existing	models.txt: beast
+blue_dragon2.152	monster/humanoid/Dragon/blue_dragon2.base.152.png	32x32	blue_dragon2	existing	models.txt: beast
+blue_dragon2.171	monster/humanoid/Dragon/blue_dragon2.base.171.png	32x32	blue_dragon2	existing	models.txt: beast
+blue_dragon2.172	monster/humanoid/Dragon/blue_dragon2.base.172.png	32x32	blue_dragon2	existing	models.txt: beast
 bluedragonmail.111	armour/mail/bluedragonmail.base.111.png	32x32	blue_dragon_mail	existing	models.txt: building
 bluemarble.111	floor/bluemarble.base.111.png	32x32	bluemarble	flat	folder floor/: floor
 bluemarblemedium.111	floor/bluemarblemedium.base.111.png	32x32	bluemarblemedium	flat	folder floor/: floor
-bluesphere.111	monster/acid/bluesphere.base.111.png	32x32		rigged	folder monster/ (no object uses it)
-bluesphere.112	monster/acid/bluesphere.base.112.png	32x32		rigged	folder monster/ (no object uses it)
-bluesphere.113	monster/acid/bluesphere.base.113.png	32x32		rigged	folder monster/ (no object uses it)
-bluesphere.114	monster/acid/bluesphere.base.114.png	32x32		rigged	folder monster/ (no object uses it)
+bluesphere.111	monster/acid/bluesphere.base.111.png	32x32		existing	models.txt: beast
+bluesphere.112	monster/acid/bluesphere.base.112.png	32x32		existing	models.txt: beast
+bluesphere.113	monster/acid/bluesphere.base.113.png	32x32		existing	models.txt: beast
+bluesphere.114	monster/acid/bluesphere.base.114.png	32x32		existing	models.txt: beast
 bolt.101	weapon/bow/bolt.base.101.png	32x32	bolt	existing	models.txt: model
 bolt.111	weapon/bow/bolt.base.111.png	32x32	bolt	existing	models.txt: model
 bolt.121	weapon/bow/bolt.base.121.png	32x32	bolt	existing	models.txt: model
@@ -752,8 +752,8 @@ bomb.113	spell/Bomb/bomb.base.113.png	32x32	bomb	flat	type SPELL_EFFECT: on the 
 bomb.114	spell/Bomb/bomb.base.114.png	32x32	bomb	flat	type SPELL_EFFECT: on the ground or an effect
 bomb_shell.111	spell/Bomb/bomb_shell.base.111.png	32x32	bomb_shell	flat	folder spell/
 bomb_unlit.111	spell/Bomb/bomb_unlit.base.111.png	32x32	bomb_unlit	existing	models.txt: building
-bone_drake.x11	monster/dragon/bone_drake/bone_drake.base.x11.png	64x64	bone_drake,bone_drake_2,bone_drake_3	rigged	alive: a creature
-bone_drake.x12	monster/dragon/bone_drake/bone_drake.base.x12.png	64x64	bone_drake,bone_drake_2,bone_drake_3	rigged	alive: a creature
+bone_drake.x11	monster/dragon/bone_drake/bone_drake.base.x11.png	64x64	bone_drake,bone_drake_2,bone_drake_3	existing	models.txt: beast
+bone_drake.x12	monster/dragon/bone_drake/bone_drake.base.x12.png	64x64	bone_drake,bone_drake_2,bone_drake_3	existing	models.txt: beast
 bone_head.111	monster/demon/bone_head.base.111.png	32x32	bone_head,immunity,symptom	existing	models.txt: beast
 bone_head.112	monster/demon/bone_head.base.112.png	32x32	bone_head	existing	models.txt: beast
 bone_head.113	monster/demon/bone_head.base.113.png	32x32	bone_head	existing	models.txt: beast
@@ -824,32 +824,32 @@ brdaxe_1.111	weapon/axe/brdaxe_1.base.111.png	32x32	brdaxe1	existing	models.txt:
 brdaxe_1.112	weapon/axe/brdaxe_1.base.112.png	32x32	brdaxe1	existing	models.txt: model
 brdaxe_1.113	weapon/axe/brdaxe_1.base.113.png	32x32	brdaxe1	existing	models.txt: model
 brdaxe_1.114	weapon/axe/brdaxe_1.base.114.png	32x32	brdaxe1	existing	models.txt: model
-breeder_ant.x11	monster/insect/ant/breeder_ant.base.x11.png	64x32	breeder_ant,breeder_ant_2	rigged	alive: a creature
-breeder_ant.x12	monster/insect/ant/breeder_ant.base.x12.png	64x32	breeder_ant,breeder_ant_2	rigged	alive: a creature
+breeder_ant.x11	monster/insect/ant/breeder_ant.base.x11.png	64x32	breeder_ant,breeder_ant_2	existing	models.txt: building
+breeder_ant.x12	monster/insect/ant/breeder_ant.base.x12.png	64x32	breeder_ant,breeder_ant_2	existing	models.txt: building
 brefjell.111	ground/brefjell.base.111.png	32x32	brefjell	flat	folder ground/: ground and its smoothing edges
 bridge_15.111	river/bridge_15.base.111.png	32x32	river_bridge_ns	flat	folder river/: river
 bridge_37.111	river/bridge_37.base.111.png	32x32	river_bridge_we	flat	folder river/: river
 bridge_m0.111	road/bridgemoat/bridge_m0.base.111.png	32x32	bridge_2	flat	folder road/: road
 bridge_m1.111	road/bridgemoat/bridge_m1.base.111.png	32x32	bridge_1	flat	folder road/: road
-broken_bee_gen.111	monster/insect/bee/broken_bee_gen.base.111.png	32x32	broken_generate_bee	rigged	folder monster/
-broken_behold_gen.111	monster/beholder/broken_behold_gen.base.111.png	32x32	broken_generate_beholder	rigged	folder monster/
-broken_bird_gen.111	monster/animal/broken_bird_gen.base.111.png	32x32	broken_generate_bird	rigged	folder monster/
-broken_devil_gen.111	monster/demon/broken_devil_gen.base.111.png	32x32	broken_generate_devil	rigged	folder monster/
-broken_dragoncave.111	monster/dragon/broken_dragoncave.base.111.png	32x32	broken_generate_dragon	rigged	folder monster/
-broken_dragoncave_blue.111	monster/dragon/broken_dragoncave_blue.base.111.png	32x32	broken_generate_electric_dragon	rigged	folder monster/
-broken_dragoncave_green.111	monster/dragon/broken_dragoncave_green.base.111.png	32x32	broken_generate_cold_dragon	rigged	folder monster/
-broken_generate_ghost.111	monster/undead/broken_generate_ghost.base.111.png	32x32	broken_generate_ghost	rigged	folder monster/
-broken_giant_gen.111	monster/giant/broken_giant_gen.base.111.png	32x32	broken_generate_giant	rigged	folder monster/
-broken_gnoll_gen.111	monster/goblin/broken_gnoll_gen.base.111.png	32x32	broken_generate_gnoll	rigged	folder monster/
+broken_bee_gen.111	monster/insect/bee/broken_bee_gen.base.111.png	32x32	broken_generate_bee	existing	models.txt: model
+broken_behold_gen.111	monster/beholder/broken_behold_gen.base.111.png	32x32	broken_generate_beholder	existing	models.txt: model
+broken_bird_gen.111	monster/animal/broken_bird_gen.base.111.png	32x32	broken_generate_bird	existing	models.txt: model
+broken_devil_gen.111	monster/demon/broken_devil_gen.base.111.png	32x32	broken_generate_devil	existing	models.txt: model
+broken_dragoncave.111	monster/dragon/broken_dragoncave.base.111.png	32x32	broken_generate_dragon	existing	models.txt: model
+broken_dragoncave_blue.111	monster/dragon/broken_dragoncave_blue.base.111.png	32x32	broken_generate_electric_dragon	existing	models.txt: model
+broken_dragoncave_green.111	monster/dragon/broken_dragoncave_green.base.111.png	32x32	broken_generate_cold_dragon	existing	models.txt: model
+broken_generate_ghost.111	monster/undead/broken_generate_ghost.base.111.png	32x32	broken_generate_ghost	existing	models.txt: model
+broken_giant_gen.111	monster/giant/broken_giant_gen.base.111.png	32x32	broken_generate_giant	existing	models.txt: model
+broken_gnoll_gen.111	monster/goblin/broken_gnoll_gen.base.111.png	32x32	broken_generate_gnoll	existing	models.txt: model
 broken_gravestone.111	misc/broken_gravestone.base.111.png	32x32	broken_gravestone	existing	models.txt: building
-broken_pixie_gen.111	monster/misc/broken_pixie_gen.base.111.png	32x32	broken_generate_pixie	rigged	folder monster/
-broken_sarcophagus.111	monster/undead/broken_sarcophagus.base.111.png	32x32	broken_sarcophagus	rigged	folder monster/
-broken_scorpi_gen.111	monster/animal/broken_scorpi_gen.base.111.png	32x32	broken_generate_scorpion	rigged	folder monster/
-broken_skull.111	monster/undead/broken_skull.base.111.png	32x32	broken_skull	rigged	folder monster/
+broken_pixie_gen.111	monster/misc/broken_pixie_gen.base.111.png	32x32	broken_generate_pixie	existing	models.txt: model
+broken_sarcophagus.111	monster/undead/broken_sarcophagus.base.111.png	32x32	broken_sarcophagus	existing	models.txt: model
+broken_scorpi_gen.111	monster/animal/broken_scorpi_gen.base.111.png	32x32	broken_generate_scorpion	existing	models.txt: model
+broken_skull.111	monster/undead/broken_skull.base.111.png	32x32	broken_skull	existing	models.txt: model
 bronzebar.111	jewel/bars/bronzebar.base.111.png	32x32	bronzebar	existing	models.txt: model
-broo.111	monster/misc/broo.base.111.png	32x32	broo,hulking_beast	rigged	alive: a creature
-broo.112	monster/misc/broo.base.112.png	32x32	broo,hulking_beast	rigged	alive: a creature
-broo.113	monster/misc/broo.base.113.png	32x32	broo,hulking_beast	rigged	alive: a creature
+broo.111	monster/misc/broo.base.111.png	32x32	broo,hulking_beast	existing	models.txt: beast
+broo.112	monster/misc/broo.base.112.png	32x32	broo,hulking_beast	existing	models.txt: beast
+broo.113	monster/misc/broo.base.113.png	32x32	broo,hulking_beast	existing	models.txt: beast
 brush.111	ground/Wood/brush.base.111.png	32x32	brush	existing	models.txt: model
 bsword_1.111	weapon/sword/bsword_1.base.111.png	32x32	broadsword	existing	models.txt: model
 bsword_2.111	weapon/sword/bsword_2.base.111.png	32x32	broadsword_2	existing	models.txt: model
@@ -1012,14 +1012,14 @@ bwall_w_1.114	wall/bwall/bwall_w_1.base.114.png	32x32	weak_wall_6	existing	model
 bwall_w_1.115	wall/bwall/bwall_w_1.base.115.png	32x32	weak_wall_6	existing	models.txt: wall
 bwall_w_1.116	wall/bwall/bwall_w_1.base.116.png	32x32	weak_wall_6	existing	models.txt: wall
 bwall_w_1.117	wall/bwall/bwall_w_1.base.117.png	32x32	weak_wall_6	existing	models.txt: wall
-byakie.x11	monster/giant/byakie/byakie.base.x11.png	64x64	byakie,byakie_2,byakie_3	rigged	alive: a creature
-byakie.x12	monster/giant/byakie/byakie.base.x12.png	64x64	byakie,byakie_2,byakie_3	rigged	alive: a creature
-c_knight.111	monster/misc/c_knight.base.111.png	32x32	c_knight,high_chaos_knight	rigged	alive: a creature
-c_knight.112	monster/misc/c_knight.base.112.png	32x32	c_knight,high_chaos_knight	rigged	alive: a creature
-c_priest.131	monster/misc/c_priest.base.131.png	32x32	c_minor_priest,c_priest,master_chaos_priest	rigged	alive: a creature
-c_priest.132	monster/misc/c_priest.base.132.png	32x32	c_minor_priest,c_priest,master_chaos_priest	rigged	alive: a creature
-c_priest.171	monster/misc/c_priest.base.171.png	32x32	c_minor_priest,c_priest,master_chaos_priest	rigged	alive: a creature
-c_priest.172	monster/misc/c_priest.base.172.png	32x32	c_minor_priest,c_priest,master_chaos_priest	rigged	alive: a creature
+byakie.x11	monster/giant/byakie/byakie.base.x11.png	64x64	byakie,byakie_2,byakie_3	existing	models.txt: beast
+byakie.x12	monster/giant/byakie/byakie.base.x12.png	64x64	byakie,byakie_2,byakie_3	existing	models.txt: beast
+c_knight.111	monster/misc/c_knight.base.111.png	32x32	c_knight,high_chaos_knight	existing	models.txt: person
+c_knight.112	monster/misc/c_knight.base.112.png	32x32	c_knight,high_chaos_knight	existing	models.txt: person
+c_priest.131	monster/misc/c_priest.base.131.png	32x32	c_minor_priest,c_priest,master_chaos_priest	existing	models.txt: person
+c_priest.132	monster/misc/c_priest.base.132.png	32x32	c_minor_priest,c_priest,master_chaos_priest	existing	models.txt: person
+c_priest.171	monster/misc/c_priest.base.171.png	32x32	c_minor_priest,c_priest,master_chaos_priest	existing	models.txt: person
+c_priest.172	monster/misc/c_priest.base.172.png	32x32	c_minor_priest,c_priest,master_chaos_priest	existing	models.txt: person
 cabbage.111	food/produce/cabbage.base.111.png	32x32	cabbage	existing	models.txt: model
 cake.111	food/cake.base.111.png	32x32	cake	existing	models.txt: model
 calm_floor.111	system/mood_floors/calm_floor.base.111.png	32x32	calm_floor	flat	type MOOD_FLOOR: on the ground or an effect
@@ -1119,60 +1119,60 @@ cave_7.111	wall/cave/cave_7.base.111.png	32x32	cave_7	existing	models.txt: wall
 cave_8.111	wall/cave/cave_8.base.111.png	32x32	cave_8	existing	models.txt: wall
 cave_9.111	wall/cave/cave_9.base.111.png	32x32	cave_9	existing	models.txt: wall
 cave_stair_up_2.111	exit/Up_down/cave_stair_up_2.base.111.png	32x32	cave_stair_up_2	existing	models.txt: model
-centipede.111	monster/insect/centipede/centipede.base.111.png	32x32	centipede	rigged	alive: a creature
-centipede.112	monster/insect/centipede/centipede.base.112.png	32x32	centipede	rigged	alive: a creature
-centipede.113	monster/insect/centipede/centipede.base.113.png	32x32	centipede	rigged	alive: a creature
-centipede.114	monster/insect/centipede/centipede.base.114.png	32x32	centipede	rigged	alive: a creature
-centipede.121	monster/insect/centipede/centipede.base.121.png	32x32	centipede	rigged	alive: a creature
-centipede.122	monster/insect/centipede/centipede.base.122.png	32x32	centipede	rigged	alive: a creature
-centipede.123	monster/insect/centipede/centipede.base.123.png	32x32	centipede	rigged	alive: a creature
-centipede.124	monster/insect/centipede/centipede.base.124.png	32x32	centipede	rigged	alive: a creature
-centipede.131	monster/insect/centipede/centipede.base.131.png	32x32	centipede	rigged	alive: a creature
-centipede.132	monster/insect/centipede/centipede.base.132.png	32x32	centipede	rigged	alive: a creature
-centipede.133	monster/insect/centipede/centipede.base.133.png	32x32	centipede	rigged	alive: a creature
-centipede.134	monster/insect/centipede/centipede.base.134.png	32x32	centipede	rigged	alive: a creature
-centipede.141	monster/insect/centipede/centipede.base.141.png	32x32	centipede	rigged	alive: a creature
-centipede.142	monster/insect/centipede/centipede.base.142.png	32x32	centipede	rigged	alive: a creature
-centipede.143	monster/insect/centipede/centipede.base.143.png	32x32	centipede	rigged	alive: a creature
-centipede.144	monster/insect/centipede/centipede.base.144.png	32x32	centipede	rigged	alive: a creature
-centipede.151	monster/insect/centipede/centipede.base.151.png	32x32	centipede	rigged	alive: a creature
-centipede.152	monster/insect/centipede/centipede.base.152.png	32x32	centipede	rigged	alive: a creature
-centipede.153	monster/insect/centipede/centipede.base.153.png	32x32	centipede	rigged	alive: a creature
-centipede.154	monster/insect/centipede/centipede.base.154.png	32x32	centipede	rigged	alive: a creature
-centipede.161	monster/insect/centipede/centipede.base.161.png	32x32	centipede	rigged	alive: a creature
-centipede.162	monster/insect/centipede/centipede.base.162.png	32x32	centipede	rigged	alive: a creature
-centipede.163	monster/insect/centipede/centipede.base.163.png	32x32	centipede	rigged	alive: a creature
-centipede.164	monster/insect/centipede/centipede.base.164.png	32x32	centipede	rigged	alive: a creature
-centipede.171	monster/insect/centipede/centipede.base.171.png	32x32	centipede	rigged	alive: a creature
-centipede.172	monster/insect/centipede/centipede.base.172.png	32x32	centipede	rigged	alive: a creature
-centipede.173	monster/insect/centipede/centipede.base.173.png	32x32	centipede	rigged	alive: a creature
-centipede.174	monster/insect/centipede/centipede.base.174.png	32x32	centipede	rigged	alive: a creature
-centipede.181	monster/insect/centipede/centipede.base.181.png	32x32	centipede	rigged	alive: a creature
-centipede.182	monster/insect/centipede/centipede.base.182.png	32x32	centipede	rigged	alive: a creature
-centipede.183	monster/insect/centipede/centipede.base.183.png	32x32	centipede	rigged	alive: a creature
-centipede.184	monster/insect/centipede/centipede.base.184.png	32x32	centipede	rigged	alive: a creature
-centipede_r.111	monster/insect/centipede/centipede_r.base.111.png	32x32	centipede_r	rigged	alive: a creature
-centipede_r.112	monster/insect/centipede/centipede_r.base.112.png	32x32	centipede_r	rigged	alive: a creature
-centipede_r.113	monster/insect/centipede/centipede_r.base.113.png	32x32	centipede_r	rigged	alive: a creature
+centipede.111	monster/insect/centipede/centipede.base.111.png	32x32	centipede	existing	models.txt: building
+centipede.112	monster/insect/centipede/centipede.base.112.png	32x32	centipede	existing	models.txt: building
+centipede.113	monster/insect/centipede/centipede.base.113.png	32x32	centipede	existing	models.txt: building
+centipede.114	monster/insect/centipede/centipede.base.114.png	32x32	centipede	existing	models.txt: building
+centipede.121	monster/insect/centipede/centipede.base.121.png	32x32	centipede	existing	models.txt: building
+centipede.122	monster/insect/centipede/centipede.base.122.png	32x32	centipede	existing	models.txt: building
+centipede.123	monster/insect/centipede/centipede.base.123.png	32x32	centipede	existing	models.txt: building
+centipede.124	monster/insect/centipede/centipede.base.124.png	32x32	centipede	existing	models.txt: building
+centipede.131	monster/insect/centipede/centipede.base.131.png	32x32	centipede	existing	models.txt: building
+centipede.132	monster/insect/centipede/centipede.base.132.png	32x32	centipede	existing	models.txt: building
+centipede.133	monster/insect/centipede/centipede.base.133.png	32x32	centipede	existing	models.txt: building
+centipede.134	monster/insect/centipede/centipede.base.134.png	32x32	centipede	existing	models.txt: building
+centipede.141	monster/insect/centipede/centipede.base.141.png	32x32	centipede	existing	models.txt: building
+centipede.142	monster/insect/centipede/centipede.base.142.png	32x32	centipede	existing	models.txt: building
+centipede.143	monster/insect/centipede/centipede.base.143.png	32x32	centipede	existing	models.txt: building
+centipede.144	monster/insect/centipede/centipede.base.144.png	32x32	centipede	existing	models.txt: building
+centipede.151	monster/insect/centipede/centipede.base.151.png	32x32	centipede	existing	models.txt: building
+centipede.152	monster/insect/centipede/centipede.base.152.png	32x32	centipede	existing	models.txt: building
+centipede.153	monster/insect/centipede/centipede.base.153.png	32x32	centipede	existing	models.txt: building
+centipede.154	monster/insect/centipede/centipede.base.154.png	32x32	centipede	existing	models.txt: building
+centipede.161	monster/insect/centipede/centipede.base.161.png	32x32	centipede	existing	models.txt: building
+centipede.162	monster/insect/centipede/centipede.base.162.png	32x32	centipede	existing	models.txt: building
+centipede.163	monster/insect/centipede/centipede.base.163.png	32x32	centipede	existing	models.txt: building
+centipede.164	monster/insect/centipede/centipede.base.164.png	32x32	centipede	existing	models.txt: building
+centipede.171	monster/insect/centipede/centipede.base.171.png	32x32	centipede	existing	models.txt: building
+centipede.172	monster/insect/centipede/centipede.base.172.png	32x32	centipede	existing	models.txt: building
+centipede.173	monster/insect/centipede/centipede.base.173.png	32x32	centipede	existing	models.txt: building
+centipede.174	monster/insect/centipede/centipede.base.174.png	32x32	centipede	existing	models.txt: building
+centipede.181	monster/insect/centipede/centipede.base.181.png	32x32	centipede	existing	models.txt: building
+centipede.182	monster/insect/centipede/centipede.base.182.png	32x32	centipede	existing	models.txt: building
+centipede.183	monster/insect/centipede/centipede.base.183.png	32x32	centipede	existing	models.txt: building
+centipede.184	monster/insect/centipede/centipede.base.184.png	32x32	centipede	existing	models.txt: building
+centipede_r.111	monster/insect/centipede/centipede_r.base.111.png	32x32	centipede_r	existing	models.txt: building
+centipede_r.112	monster/insect/centipede/centipede_r.base.112.png	32x32	centipede_r	existing	models.txt: building
+centipede_r.113	monster/insect/centipede/centipede_r.base.113.png	32x32	centipede_r	existing	models.txt: building
 cforest1.111	ground/Winter/cforest1.base.111.png	32x32	cforest1	flat	folder ground/: ground and its smoothing edges
 cforest2.111	ground/Winter/cforest2.base.111.png	32x32	cforest2	flat	folder ground/: ground and its smoothing edges
 cforest3.111	ground/Winter/cforest3.base.111.png	32x32	cforest3	flat	folder ground/: ground and its smoothing edges
 cforest4.111	ground/Winter/cforest4.base.111.png	32x32	cforest4	flat	folder ground/: ground and its smoothing edges
 cforest5.111	ground/Winter/cforest5.base.111.png	32x32	cforest5	flat	folder ground/: ground and its smoothing edges
 cforest6.111	ground/Winter/cforest6.base.111.png	32x32	cforest6	flat	folder ground/: ground and its smoothing edges
-ch_bish.111	monster/misc/Chess/ch_bish.base.111.png	32x32	chess_bishop	rigged	alive: a creature
-ch_bish_w.111	monster/misc/Chess/ch_bish_w.base.111.png	32x32		rigged	folder monster/ (no object uses it)
+ch_bish.111	monster/misc/Chess/ch_bish.base.111.png	32x32	chess_bishop	existing	models.txt: building
+ch_bish_w.111	monster/misc/Chess/ch_bish_w.base.111.png	32x32		existing	models.txt: building
 ch_burger.111	food/ch_burger.base.111.png	32x32	cheeseburger	existing	models.txt: model
-ch_king.111	monster/misc/Chess/ch_king.base.111.png	32x32	chess_king	rigged	alive: a creature
-ch_king_w.111	monster/misc/Chess/ch_king_w.base.111.png	32x32		rigged	folder monster/ (no object uses it)
-ch_knight.111	monster/misc/Chess/ch_knight.base.111.png	32x32	chess_knight	rigged	alive: a creature
-ch_knight_w.111	monster/misc/Chess/ch_knight_w.base.111.png	32x32		rigged	folder monster/ (no object uses it)
-ch_pawn.111	monster/misc/Chess/ch_pawn.base.111.png	32x32	chess_pawn	rigged	alive: a creature
-ch_pawn_w.111	monster/misc/Chess/ch_pawn_w.base.111.png	32x32	chess_figure	rigged	folder monster/
-ch_queen.111	monster/misc/Chess/ch_queen.base.111.png	32x32	chess_queen	rigged	alive: a creature
-ch_queen_w.111	monster/misc/Chess/ch_queen_w.base.111.png	32x32		rigged	folder monster/ (no object uses it)
-ch_rook.111	monster/misc/Chess/ch_rook.base.111.png	32x32	chess_rook	rigged	alive: a creature
-ch_rook_w.111	monster/misc/Chess/ch_rook_w.base.111.png	32x32		rigged	folder monster/ (no object uses it)
+ch_king.111	monster/misc/Chess/ch_king.base.111.png	32x32	chess_king	existing	models.txt: building
+ch_king_w.111	monster/misc/Chess/ch_king_w.base.111.png	32x32		existing	models.txt: building
+ch_knight.111	monster/misc/Chess/ch_knight.base.111.png	32x32	chess_knight	existing	models.txt: building
+ch_knight_w.111	monster/misc/Chess/ch_knight_w.base.111.png	32x32		existing	models.txt: building
+ch_pawn.111	monster/misc/Chess/ch_pawn.base.111.png	32x32	chess_pawn	existing	models.txt: building
+ch_pawn_w.111	monster/misc/Chess/ch_pawn_w.base.111.png	32x32	chess_figure	existing	models.txt: building
+ch_queen.111	monster/misc/Chess/ch_queen.base.111.png	32x32	chess_queen	existing	models.txt: building
+ch_queen_w.111	monster/misc/Chess/ch_queen_w.base.111.png	32x32		existing	models.txt: building
+ch_rook.111	monster/misc/Chess/ch_rook.base.111.png	32x32	chess_rook	existing	models.txt: building
+ch_rook_w.111	monster/misc/Chess/ch_rook_w.base.111.png	32x32		existing	models.txt: building
 chainmail.111	armour/mail/chainmail.base.111.png	32x32	chain_mail	existing	models.txt: building
 chair.111	indoor/chair.base.111.png	32x32	chair	existing	models.txt: model
 chair_1.101	indoor/chair_1.base.101.png	32x32	chair_1.1	existing	models.txt: model
@@ -1261,7 +1261,7 @@ checkbook.111	misc/Container/checkbook.base.111.png	32x32	checkbook	existing	mod
 checkered-black_gray.111	floor/checkered-black_gray.base.111.png	32x32	checkered-black_gray	flat	folder floor/: floor
 chemney_1.111	construct/roof/chemney_1.base.111.png	32x64	chemney_1	existing	models.txt: building
 chemney_2.111	construct/roof/chemney_2.base.111.png	32x64	chemney_2	existing	models.txt: building
-cherub.111	monster/angel/cherub.base.111.png	32x32	cherub	rigged	alive: a creature
+cherub.111	monster/angel/cherub.base.111.png	32x32	cherub	existing	models.txt: person
 chess_club.111	construct/house/chess_club.base.111.png	32x32	chess_club	existing	models.txt: building
 chest_1.111	misc/Container/chest_1.base.111.png	32x32	chest,chest_2,mimic	existing	models.txt: model
 chest_1_mimic.111	monster/mimic/chest_1_mimic.base.111.png	32x32		existing	models.txt: model
@@ -1380,9 +1380,9 @@ cmarsh.111	ground/cmarsh.base.111.png	32x32	cmarsh	flat	folder ground/: ground a
 cobblesto1.111	floor/cobblesto1.base.111.png	32x32	cobblestones2	flat	folder floor/: floor
 cobblesto2.111	floor/cobblesto2.base.111.png	32x32	cobblestones	flat	folder floor/: floor
 cobblesto3.111	floor/cobblesto3.base.111.png	32x32		flat	folder floor/: floor
-cobra.x11	monster/animal/cobra.base.x11.png	32x64	cobra,cobra_2	rigged	alive: a creature
-cobra.x12	monster/animal/cobra.base.x12.png	32x64	cobra,cobra_2	rigged	alive: a creature
-cobra.x13	monster/animal/cobra.base.x13.png	32x64	cobra,cobra_2	rigged	alive: a creature
+cobra.x11	monster/animal/cobra.base.x11.png	32x64	cobra,cobra_2	existing	models.txt: building
+cobra.x12	monster/animal/cobra.base.x12.png	32x64	cobra,cobra_2	existing	models.txt: building
+cobra.x13	monster/animal/cobra.base.x13.png	32x64	cobra,cobra_2	existing	models.txt: building
 coffee.111	food/coffee.base.111.png	32x32	coffee	existing	models.txt: model
 coffee_empty.111	food/coffee_empty.base.111.png	32x32	coffee_empty	existing	models.txt: model
 coffin.111	misc/coffin.base.111.png	32x32	coffin	existing	models.txt: model
@@ -1556,9 +1556,9 @@ dagger_r.111	weapon/sword/dagger_r.base.111.png	32x32		existing	models.txt: mode
 dancing_girl.111	monster/humanoid/Arabic/dancing_girl.base.111.png	32x32	dancing_girl	existing	models.txt: person
 dancing_girl.112	monster/humanoid/Arabic/dancing_girl.base.112.png	32x32	dancing_girl	existing	models.txt: person
 dancing_girl.113	monster/humanoid/Arabic/dancing_girl.base.113.png	32x32	dancing_girl	existing	models.txt: person
-dancingsword.111	monster/misc/dancingsword.base.111.png	32x32	dancingsword	rigged	alive: a creature
-dancingsword.112	monster/misc/dancingsword.base.112.png	32x32	dancingsword	rigged	alive: a creature
-dancingsword.113	monster/misc/dancingsword.base.113.png	32x32	dancingsword	rigged	alive: a creature
+dancingsword.111	monster/misc/dancingsword.base.111.png	32x32	dancingsword	existing	models.txt: model
+dancingsword.112	monster/misc/dancingsword.base.112.png	32x32	dancingsword	existing	models.txt: model
+dancingsword.113	monster/misc/dancingsword.base.113.png	32x32	dancingsword	existing	models.txt: model
 dark1.111	system/dark1.base.111.png	32x32		skip	folder system/ (no object uses it)
 dark2.111	system/dark2.base.111.png	32x32		skip	folder system/ (no object uses it)
 dark3.111	system/dark3.base.111.png	32x32		skip	folder system/ (no object uses it)
@@ -1636,12 +1636,12 @@ darkforest.111	ground/Wood/darkforest.base.111.png	32x32	darkforest,dforest_exit
 darkforest_S.111	ground/smooth/darkforest_S.base.111.png	512x64		flat	folder ground/: ground and its smoothing edges
 darkhold.x11	construct/hold/darkhold.base.x11.png	96x160	darkhold,darkhold_10,darkhold_11	existing	models.txt: building
 darkhold_s.111	construct/hold/darkhold_s.base.111.png	32x32	darkhold_sym	existing	models.txt: building
-dave.111	monster/undead/dave.base.111.png	32x32	dave	rigged	alive: a creature
-dave.112	monster/undead/dave.base.112.png	32x32	dave	rigged	alive: a creature
-dave.113	monster/undead/dave.base.113.png	32x32	dave	rigged	alive: a creature
-dave.151	monster/undead/dave.base.151.png	32x32	dave	rigged	alive: a creature
-dave.152	monster/undead/dave.base.152.png	32x32	dave	rigged	alive: a creature
-dave.153	monster/undead/dave.base.153.png	32x32	dave	rigged	alive: a creature
+dave.111	monster/undead/dave.base.111.png	32x32	dave	existing	models.txt: beast
+dave.112	monster/undead/dave.base.112.png	32x32	dave	existing	models.txt: beast
+dave.113	monster/undead/dave.base.113.png	32x32	dave	existing	models.txt: beast
+dave.151	monster/undead/dave.base.151.png	32x32	dave	existing	models.txt: beast
+dave.152	monster/undead/dave.base.152.png	32x32	dave	existing	models.txt: beast
+dave.153	monster/undead/dave.base.153.png	32x32	dave	existing	models.txt: beast
 dbridge1.111	road/drawbridge/dbridge1.base.111.png	32x32	drawbridge_1	flat	folder road/: road
 dbridge2.111	road/drawbridge/dbridge2.base.111.png	32x32	drawbridge_2	flat	folder road/: road
 dcross-red.111	floor/dcross-red.base.111.png	32x32	dcross-red	flat	folder floor/: floor
@@ -1677,9 +1677,9 @@ default_smoothed.101	ground/smooth/default_smoothed.base.101.png	32x32		flat	fol
 default_smoothed.110	ground/smooth/default_smoothed.base.110.png	32x32		flat	folder ground/: ground and its smoothing edges
 default_smoothed.111	ground/smooth/default_smoothed.base.111.png	32x32		flat	folder ground/: ground and its smoothing edges
 defender.111	weapon/artifact/defender.base.111.png	32x32	defender	existing	models.txt: model
-demilich.111	monster/undead/demilich.base.111.png	32x32	demilich	rigged	alive: a creature
-demilich.112	monster/undead/demilich.base.112.png	32x32	demilich	rigged	alive: a creature
-demilich.113	monster/undead/demilich.base.113.png	32x32	demilich	rigged	alive: a creature
+demilich.111	monster/undead/demilich.base.111.png	32x32	demilich	existing	models.txt: beast
+demilich.112	monster/undead/demilich.base.112.png	32x32	demilich	existing	models.txt: beast
+demilich.113	monster/undead/demilich.base.113.png	32x32	demilich	existing	models.txt: beast
 demon_head.111	flesh/demon/demon_head.base.111.png	32x32	demon_head	existing	models.txt: model
 demon_lord.x11	monster/demon/Demon_Lord/demon_lord.base.x11.png	128x256	demon_lord,demon_lord_1,demon_lord_10	existing	models.txt: monster
 demon_lord.x12	monster/demon/Demon_Lord/demon_lord.base.x12.png	128x256	demon_lord,demon_lord_1,demon_lord_10	existing	models.txt: monster
@@ -1807,18 +1807,18 @@ dirtroad_C.111	road/dirtroad/dirtroad_C.base.111.png	32x32	dirtroad_2_2_3	flat	f
 dirtroad_D.111	road/dirtroad/dirtroad_D.base.111.png	32x32	dirtroad_3_4	flat	folder road/: road
 dirtroad_E.111	road/dirtroad/dirtroad_E.base.111.png	32x32	dirtroad_3_3	flat	folder road/: road
 dirtroad_F.111	road/dirtroad/dirtroad_F.base.111.png	32x32	dirtroad_4	flat	folder road/: road
-djinn.x31	monster/giant/djinn/djinn.base.x31.png	32x64	djinn,djinn_2,minor_djinn	rigged	alive: a creature
-djinn.x32	monster/giant/djinn/djinn.base.x32.png	32x64	djinn,djinn_2,minor_djinn	rigged	alive: a creature
-djinn.x71	monster/giant/djinn/djinn.base.x71.png	32x64	djinn,djinn_2,minor_djinn	rigged	alive: a creature
-djinn.x72	monster/giant/djinn/djinn.base.x72.png	32x64	djinn,djinn_2,minor_djinn	rigged	alive: a creature
-djinn_magenta.x11	monster/giant/djinn/djinn_magenta.base.x11.png	32x64	djinn_magenta,djinn_magenta_2	rigged	alive: a creature
-djinn_magenta.x12	monster/giant/djinn/djinn_magenta.base.x12.png	32x64	djinn_magenta,djinn_magenta_2	rigged	alive: a creature
-djinn_magenta.x21	monster/giant/djinn/djinn_magenta.base.x21.png	32x64	djinn_magenta,djinn_magenta_2	rigged	alive: a creature
-djinn_magenta.x22	monster/giant/djinn/djinn_magenta.base.x22.png	32x64	djinn_magenta,djinn_magenta_2	rigged	alive: a creature
-djinn_magenta_big.x11	monster/giant/djinn/djinn_magenta_big.base.x11.png	96x192	djinn_magenta_big,djinn_magenta_big_10,djinn_magenta_big_12	rigged	alive: a creature
-djinn_magenta_big.x12	monster/giant/djinn/djinn_magenta_big.base.x12.png	96x192	djinn_magenta_big,djinn_magenta_big_10,djinn_magenta_big_12	rigged	alive: a creature
-djinn_magenta_big.x21	monster/giant/djinn/djinn_magenta_big.base.x21.png	96x192	djinn_magenta_big,djinn_magenta_big_10,djinn_magenta_big_12	rigged	alive: a creature
-djinn_magenta_big.x22	monster/giant/djinn/djinn_magenta_big.base.x22.png	96x192	djinn_magenta_big,djinn_magenta_big_10,djinn_magenta_big_12	rigged	alive: a creature
+djinn.x31	monster/giant/djinn/djinn.base.x31.png	32x64	djinn,djinn_2,minor_djinn	existing	models.txt: person
+djinn.x32	monster/giant/djinn/djinn.base.x32.png	32x64	djinn,djinn_2,minor_djinn	existing	models.txt: person
+djinn.x71	monster/giant/djinn/djinn.base.x71.png	32x64	djinn,djinn_2,minor_djinn	existing	models.txt: person
+djinn.x72	monster/giant/djinn/djinn.base.x72.png	32x64	djinn,djinn_2,minor_djinn	existing	models.txt: person
+djinn_magenta.x11	monster/giant/djinn/djinn_magenta.base.x11.png	32x64	djinn_magenta,djinn_magenta_2	existing	models.txt: person
+djinn_magenta.x12	monster/giant/djinn/djinn_magenta.base.x12.png	32x64	djinn_magenta,djinn_magenta_2	existing	models.txt: person
+djinn_magenta.x21	monster/giant/djinn/djinn_magenta.base.x21.png	32x64	djinn_magenta,djinn_magenta_2	existing	models.txt: person
+djinn_magenta.x22	monster/giant/djinn/djinn_magenta.base.x22.png	32x64	djinn_magenta,djinn_magenta_2	existing	models.txt: person
+djinn_magenta_big.x11	monster/giant/djinn/djinn_magenta_big.base.x11.png	96x192	djinn_magenta_big,djinn_magenta_big_10,djinn_magenta_big_12	existing	models.txt: person
+djinn_magenta_big.x12	monster/giant/djinn/djinn_magenta_big.base.x12.png	96x192	djinn_magenta_big,djinn_magenta_big_10,djinn_magenta_big_12	existing	models.txt: person
+djinn_magenta_big.x21	monster/giant/djinn/djinn_magenta_big.base.x21.png	96x192	djinn_magenta_big,djinn_magenta_big_10,djinn_magenta_big_12	existing	models.txt: person
+djinn_magenta_big.x22	monster/giant/djinn/djinn_magenta_big.base.x22.png	96x192	djinn_magenta_big,djinn_magenta_big_10,djinn_magenta_big_12	existing	models.txt: person
 dlevel_0.111	wall/slevel/dlevel_0.base.111.png	32x32	dlevel_0	existing	models.txt: wall
 dlevel_1.111	wall/slevel/dlevel_1.base.111.png	32x32	dlevel_1_2	existing	models.txt: wall
 dlevel_2.111	wall/slevel/dlevel_2.base.111.png	32x32	dlevel_1_4	existing	models.txt: wall
@@ -1853,22 +1853,22 @@ dog.171	monster/animal/Dog/dog.base.171.png	32x32	dog	existing	models.txt: beast
 dog.172	monster/animal/Dog/dog.base.172.png	32x32	dog	existing	models.txt: beast
 dog.173	monster/animal/Dog/dog.base.173.png	32x32	dog	existing	models.txt: beast
 doll.111	misc/doll.base.111.png	32x32		existing	models.txt: building
-door_0.111	door/Door/door_0.base.111.png	32x32	door_0	rigged	alive: a creature
-door_1.111	door/Door/door_1.base.111.png	32x32	door_1_1	rigged	alive: a creature
-door_2.111	door/Door/door_2.base.111.png	32x32	door_1_3	rigged	alive: a creature
-door_3.111	door/Door/door_3.base.111.png	32x32	door_2_2_1	rigged	alive: a creature
-door_4.111	door/Door/door_4.base.111.png	32x32	door_1_2	rigged	alive: a creature
-door_5.111	door/Door/door_5.base.111.png	32x32	door_2_1_1	rigged	alive: a creature
-door_6.111	door/Door/door_6.base.111.png	32x32	door_2_2_2	rigged	alive: a creature
-door_7.111	door/Door/door_7.base.111.png	32x32	door_3_2	rigged	alive: a creature
-door_8.111	door/Door/door_8.base.111.png	32x32	door_1_4	rigged	alive: a creature
-door_9.111	door/Door/door_9.base.111.png	32x32	door_2_2_4	rigged	alive: a creature
-door_A.111	door/Door/door_A.base.111.png	32x32	door_2_1_2	rigged	alive: a creature
-door_B.111	door/Door/door_B.base.111.png	32x32	door_3_1	rigged	alive: a creature
-door_C.111	door/Door/door_C.base.111.png	32x32	door_2_2_3	rigged	alive: a creature
-door_D.111	door/Door/door_D.base.111.png	32x32	door_3_4	rigged	alive: a creature
-door_E.111	door/Door/door_E.base.111.png	32x32	door_3_3	rigged	alive: a creature
-door_F.111	door/Door/door_F.base.111.png	32x32	door_4	rigged	alive: a creature
+door_0.111	door/Door/door_0.base.111.png	32x32	door_0	existing	models.txt: model
+door_1.111	door/Door/door_1.base.111.png	32x32	door_1_1	existing	models.txt: model
+door_2.111	door/Door/door_2.base.111.png	32x32	door_1_3	existing	models.txt: model
+door_3.111	door/Door/door_3.base.111.png	32x32	door_2_2_1	existing	models.txt: model
+door_4.111	door/Door/door_4.base.111.png	32x32	door_1_2	existing	models.txt: model
+door_5.111	door/Door/door_5.base.111.png	32x32	door_2_1_1	existing	models.txt: model
+door_6.111	door/Door/door_6.base.111.png	32x32	door_2_2_2	existing	models.txt: model
+door_7.111	door/Door/door_7.base.111.png	32x32	door_3_2	existing	models.txt: model
+door_8.111	door/Door/door_8.base.111.png	32x32	door_1_4	existing	models.txt: model
+door_9.111	door/Door/door_9.base.111.png	32x32	door_2_2_4	existing	models.txt: model
+door_A.111	door/Door/door_A.base.111.png	32x32	door_2_1_2	existing	models.txt: model
+door_B.111	door/Door/door_B.base.111.png	32x32	door_3_1	existing	models.txt: model
+door_C.111	door/Door/door_C.base.111.png	32x32	door_2_2_3	existing	models.txt: model
+door_D.111	door/Door/door_D.base.111.png	32x32	door_3_4	existing	models.txt: model
+door_E.111	door/Door/door_E.base.111.png	32x32	door_3_3	existing	models.txt: model
+door_F.111	door/Door/door_F.base.111.png	32x32	door_4	existing	models.txt: model
 drag_steak.111	food/drag_steak.base.111.png	32x32	dragon_steak	existing	models.txt: model
 drag_steak_cooked.111	food/drag_steak_cooked.base.111.png	32x32	dragon_steak_cooked	existing	models.txt: model
 dragon.x31	monster/dragon/Dragon/dragon.base.x31.png	96x64	big_dragon,big_dragon_2,big_dragon_3	existing	models.txt: beast
@@ -1919,21 +1919,21 @@ dragoncave_green.113	monster/dragon/dragoncave_green.base.113.png	32x32	generate
 dragoncave_green.114	monster/dragon/dragoncave_green.base.114.png	32x32	generate_cold_dragon	existing	models.txt: building
 dragonclaw_dagger.111	weapon/sword/dragonclaw_dagger.base.111.png	32x32	dragonclaw_dagger	existing	models.txt: model
 dragonmail.111	armour/mail/dragonmail.base.111.png	32x32	dragon_mail	existing	models.txt: building
-dragonman.x31	monster/dragon/Dragonman/dragonman.base.x31.png	32x64	dragonman,dragonman_2	rigged	alive: a creature
-dragonman.x32	monster/dragon/Dragonman/dragonman.base.x32.png	32x64	dragonman,dragonman_2	rigged	alive: a creature
-dragonman.x33	monster/dragon/Dragonman/dragonman.base.x33.png	32x64	dragonman,dragonman_2	rigged	alive: a creature
-dragonman.x71	monster/dragon/Dragonman/dragonman.base.x71.png	32x64	dragonman,dragonman_2	rigged	alive: a creature
-dragonman.x72	monster/dragon/Dragonman/dragonman.base.x72.png	32x64	dragonman,dragonman_2	rigged	alive: a creature
-dragonman.x73	monster/dragon/Dragonman/dragonman.base.x73.png	32x64	dragonman,dragonman_2	rigged	alive: a creature
+dragonman.x31	monster/dragon/Dragonman/dragonman.base.x31.png	32x64	dragonman,dragonman_2	existing	models.txt: person
+dragonman.x32	monster/dragon/Dragonman/dragonman.base.x32.png	32x64	dragonman,dragonman_2	existing	models.txt: person
+dragonman.x33	monster/dragon/Dragonman/dragonman.base.x33.png	32x64	dragonman,dragonman_2	existing	models.txt: person
+dragonman.x71	monster/dragon/Dragonman/dragonman.base.x71.png	32x64	dragonman,dragonman_2	existing	models.txt: person
+dragonman.x72	monster/dragon/Dragonman/dragonman.base.x72.png	32x64	dragonman,dragonman_2	existing	models.txt: person
+dragonman.x73	monster/dragon/Dragonman/dragonman.base.x73.png	32x64	dragonman,dragonman_2	existing	models.txt: person
 dragonskin_boots.111	armour/boots/dragonskin_boots.base.111.png	32x32	dragonskin_boots	existing	models.txt: model
 dragonslay.111	weapon/artifact/dragonslay.base.111.png	32x32	dragonslayer	existing	models.txt: model
 drain_magic.111	spell/Rune/drain_magic.base.111.png	32x32	rune_drain_magic	flat	type RUNE: on the ground or an effect
-drake.111	monster/dragon/drake/drake.base.111.png	32x32	drake	rigged	alive: a creature
-drake.112	monster/dragon/drake/drake.base.112.png	32x32	drake	rigged	alive: a creature
-drake.113	monster/dragon/drake/drake.base.113.png	32x32	drake	rigged	alive: a creature
-drake.211	monster/dragon/drake/drake.base.211.png	32x32	drake	rigged	alive: a creature
-drake.212	monster/dragon/drake/drake.base.212.png	32x32	drake	rigged	alive: a creature
-drake.213	monster/dragon/drake/drake.base.213.png	32x32	drake	rigged	alive: a creature
+drake.111	monster/dragon/drake/drake.base.111.png	32x32	drake	existing	models.txt: beast
+drake.112	monster/dragon/drake/drake.base.112.png	32x32	drake	existing	models.txt: beast
+drake.113	monster/dragon/drake/drake.base.113.png	32x32	drake	existing	models.txt: beast
+drake.211	monster/dragon/drake/drake.base.211.png	32x32	drake	existing	models.txt: beast
+drake.212	monster/dragon/drake/drake.base.212.png	32x32	drake	existing	models.txt: beast
+drake.213	monster/dragon/drake/drake.base.213.png	32x32	drake	existing	models.txt: beast
 draughts_house.x11	construct/house/draughts_house.base.x11.png	64x64	draughts_house,draughts_house_2,draughts_house_3	existing	models.txt: building
 dread.x11	monster/beholder/dread.base.x11.png	64x64	dread,dread_2,dread_3	existing	models.txt: beast
 dread.x12	monster/beholder/dread.base.x12.png	64x64	dread,dread_2,dread_3	existing	models.txt: beast
@@ -2091,16 +2091,16 @@ elec_drag.171	monster/dragon/Hatchlings/elec_drag.base.171.png	32x32	elec_dragon
 elec_drag.172	monster/dragon/Hatchlings/elec_drag.base.172.png	32x32	elec_dragon	existing	models.txt: beast
 elem_air.111	monster/elemental/elem_air.base.111.png	32x32	air_elemental,whirlwind_exit	existing	models.txt: beast
 elem_air.112	monster/elemental/elem_air.base.112.png	32x32	air_elemental,whirlwind_exit	existing	models.txt: beast
-elem_dust.111	monster/elemental/elem_dust.base.111.png	32x32	elem_dust	rigged	alive: a creature
-elem_dust.112	monster/elemental/elem_dust.base.112.png	32x32	elem_dust	rigged	alive: a creature
-elem_earth.111	monster/elemental/elem_earth.base.111.png	32x32	earth_elemental,greater_earth_elemental	rigged	alive: a creature
-elem_earth.112	monster/elemental/elem_earth.base.112.png	32x32	earth_elemental,greater_earth_elemental	rigged	alive: a creature
-elem_fire.111	monster/elemental/elem_fire.base.111.png	32x32	Ruggilli,fire_elemental,ruggilli_avatar	rigged	alive: a creature
-elem_fire.112	monster/elemental/elem_fire.base.112.png	32x32	Ruggilli,fire_elemental,ruggilli_avatar	rigged	alive: a creature
-elem_fire_black.111	monster/elemental/elem_fire_black.base.111.png	32x32	elem_fire_black	rigged	alive: a creature
-elem_fire_black.112	monster/elemental/elem_fire_black.base.112.png	32x32	elem_fire_black	rigged	alive: a creature
-elem_water.111	monster/elemental/elem_water.base.111.png	32x32	ixalovh_avatar,tsunami,water_elemental	rigged	alive: a creature
-elem_water.112	monster/elemental/elem_water.base.112.png	32x32	ixalovh_avatar,tsunami,water_elemental	rigged	alive: a creature
+elem_dust.111	monster/elemental/elem_dust.base.111.png	32x32	elem_dust	existing	models.txt: beast
+elem_dust.112	monster/elemental/elem_dust.base.112.png	32x32	elem_dust	existing	models.txt: beast
+elem_earth.111	monster/elemental/elem_earth.base.111.png	32x32	earth_elemental,greater_earth_elemental	existing	models.txt: beast
+elem_earth.112	monster/elemental/elem_earth.base.112.png	32x32	earth_elemental,greater_earth_elemental	existing	models.txt: beast
+elem_fire.111	monster/elemental/elem_fire.base.111.png	32x32	Ruggilli,fire_elemental,ruggilli_avatar	existing	models.txt: beast
+elem_fire.112	monster/elemental/elem_fire.base.112.png	32x32	Ruggilli,fire_elemental,ruggilli_avatar	existing	models.txt: beast
+elem_fire_black.111	monster/elemental/elem_fire_black.base.111.png	32x32	elem_fire_black	existing	models.txt: beast
+elem_fire_black.112	monster/elemental/elem_fire_black.base.112.png	32x32	elem_fire_black	existing	models.txt: beast
+elem_water.111	monster/elemental/elem_water.base.111.png	32x32	ixalovh_avatar,tsunami,water_elemental	existing	models.txt: beast
+elem_water.112	monster/elemental/elem_water.base.112.png	32x32	ixalovh_avatar,tsunami,water_elemental	existing	models.txt: beast
 elf.111	player/race/elf.base.111.png	32x32	elf,elf_player	existing	player character (3D bodies)
 elf.112	player/race/elf.base.112.png	32x32	elf_player	existing	player character (3D bodies)
 elf.131	player/race/elf.base.131.png	32x32	elf,elf_player	existing	player character (3D bodies)
@@ -2430,7 +2430,7 @@ firebullet.151	spell/Bullet/Fire/firebullet.base.151.png	32x32	firebullet	flat	t
 firebullet.161	spell/Bullet/Fire/firebullet.base.161.png	32x32	firebullet	flat	type SPELL_EFFECT: on the ground or an effect
 firebullet.171	spell/Bullet/Fire/firebullet.base.171.png	32x32	firebullet	flat	type SPELL_EFFECT: on the ground or an effect
 firebullet.181	spell/Bullet/Fire/firebullet.base.181.png	32x32	firebullet	flat	type SPELL_EFFECT: on the ground or an effect
-firechest.111	monster/misc/firechest.base.111.png	32x32	firechest	rigged	alive: a creature
+firechest.111	monster/misc/firechest.base.111.png	32x32	firechest	existing	models.txt: model
 fireholes.111	floor/fireholes.base.111.png	32x32	fireholes_moving	flat	folder floor/: floor
 fireplace.111	misc/fireplace.base.111.png	32x32	fireplace	existing	models.txt: building
 fireplace.112	misc/fireplace.base.112.png	32x32	fireplace	existing	models.txt: building
@@ -2488,10 +2488,10 @@ flamingtower.x13	planes/fire/flamingtower.base.x13.png	32x64	flaming_tower,flami
 flamingtower.x14	planes/fire/flamingtower.base.x14.png	32x64	flaming_tower,flaming_tower_2	existing	models.txt: building
 flint_and_steel.111	light/flint_and_steel.base.111.png	32x32	flint_and_steel	existing	models.txt: model
 flowers.111	spell/Cone/flowers.base.111.png	32x32	flowers,flowers_permanent	flat	type SPELL_EFFECT: on the ground or an effect
-fly_ant.131	monster/insect/ant/fly_ant.base.131.png	32x32	fly_ant	rigged	alive: a creature
-fly_ant.132	monster/insect/ant/fly_ant.base.132.png	32x32	fly_ant	rigged	alive: a creature
-fly_ant.171	monster/insect/ant/fly_ant.base.171.png	32x32	fly_ant	rigged	alive: a creature
-fly_ant.172	monster/insect/ant/fly_ant.base.172.png	32x32	fly_ant	rigged	alive: a creature
+fly_ant.131	monster/insect/ant/fly_ant.base.131.png	32x32	fly_ant	existing	models.txt: beast
+fly_ant.132	monster/insect/ant/fly_ant.base.132.png	32x32	fly_ant	existing	models.txt: beast
+fly_ant.171	monster/insect/ant/fly_ant.base.171.png	32x32	fly_ant	existing	models.txt: beast
+fly_ant.172	monster/insect/ant/fly_ant.base.172.png	32x32	fly_ant	existing	models.txt: beast
 fog.111	ground/fog.base.111.png	32x32	cloudfloor,fog,fog_wall	existing	models.txt: building
 fog.112	ground/fog.base.112.png	32x32	cloudwall,fog,fog_wall	existing	models.txt: building
 fog_2.111	ground/fog_2.base.111.png	32x32	thickcloudfloor	existing	models.txt: building
@@ -2571,10 +2571,10 @@ futon.111	indoor/futon.base.111.png	32x32	futon.2	existing	models.txt: building
 futon.121	indoor/futon.base.121.png	32x32	futon.3	existing	models.txt: building
 futon.131	indoor/futon.base.131.png	32x32	futon.4	existing	models.txt: building
 futon_save.101	indoor/futon_save.base.101.png	32x32	futon_save	existing	models.txt: building
-g_worm.x31	monster/animal/giant_worm/g_worm.base.x31.png	64x64	g_worm,g_worm_2,g_worm_3	rigged	alive: a creature
-g_worm.x32	monster/animal/giant_worm/g_worm.base.x32.png	64x64	g_worm,g_worm_2,g_worm_3	rigged	alive: a creature
-g_worm.x71	monster/animal/giant_worm/g_worm.base.x71.png	64x64	g_worm,g_worm_2,g_worm_3	rigged	alive: a creature
-g_worm.x72	monster/animal/giant_worm/g_worm.base.x72.png	64x64	g_worm,g_worm_2,g_worm_3	rigged	alive: a creature
+g_worm.x31	monster/animal/giant_worm/g_worm.base.x31.png	64x64	g_worm,g_worm_2,g_worm_3	existing	models.txt: building
+g_worm.x32	monster/animal/giant_worm/g_worm.base.x32.png	64x64	g_worm,g_worm_2,g_worm_3	existing	models.txt: building
+g_worm.x71	monster/animal/giant_worm/g_worm.base.x71.png	64x64	g_worm,g_worm_2,g_worm_3	existing	models.txt: building
+g_worm.x72	monster/animal/giant_worm/g_worm.base.x72.png	64x64	g_worm,g_worm_2,g_worm_3	existing	models.txt: building
 gaea_cathedral.x11	construct/temple/gaea_cathedral.base.x11.png	96x128	gaea_cathedral,gaea_cathedral_10,gaea_cathedral_11	existing	models.txt: building
 gaea_church.x11	construct/temple/gaea_church.base.x11.png	64x64	gaea_church,gaea_church_2,gaea_church_3	existing	models.txt: building
 gaea_temple.111	construct/temple/gaea_temple.base.111.png	32x32	gaea_temple	existing	models.txt: building
@@ -2593,8 +2593,8 @@ gard_gate.113	connect/Garden_gate/gard_gate.base.113.png	32x32	ggate_breakable,g
 gard_gate.114	connect/Garden_gate/gard_gate.base.114.png	32x32	ggate_breakable,ggate_closed,ggate_open	existing	models.txt: model
 gardengnome.111	monster/humanoid/Gnome/gardengnome.base.111.png	32x32	gardengnome	existing	models.txt: person
 gardengnome.112	monster/humanoid/Gnome/gardengnome.base.112.png	32x32	gardengnome	existing	models.txt: person
-gargoyle.111	monster/misc/gargoyle.base.111.png	32x32	gargoyle,large_gargoyle	rigged	alive: a creature
-gargoyle.112	monster/misc/gargoyle.base.112.png	32x32	gargoyle,large_gargoyle	rigged	alive: a creature
+gargoyle.111	monster/misc/gargoyle.base.111.png	32x32	gargoyle,large_gargoyle	existing	models.txt: monster
+gargoyle.112	monster/misc/gargoyle.base.112.png	32x32	gargoyle,large_gargoyle	existing	models.txt: monster
 garnet.111	jewel/gems/garnet.base.111.png	32x32	garnet	existing	models.txt: model
 gate_1.111	connect/Gates/gate_1.base.111.png	32x32	gateTrg1,gate_closed_1,gate_open_1	existing	models.txt: model
 gate_1.112	connect/Gates/gate_1.base.112.png	32x32	gateTrg1,gate_closed_1,gate_open_1	existing	models.txt: model
@@ -2611,9 +2611,9 @@ gate_2.115	connect/Gates/gate_2.base.115.png	32x32	gateTrg2,gate_closed_2,gate_o
 gauntlet_s.111	armour/gauntlets/gauntlet_s.base.111.png	32x32	gauntlets,gauntlets_dex,gauntlets_str	existing	models.txt: model
 gen_mushroom.111	food/produce/gen_mushroom.base.111.png	32x32	gen_mushroom	existing	models.txt: beast
 generic_rune.111	spell/Rune/generic_rune.base.111.png	32x32	generic_rune	flat	type RUNE: on the ground or an effect
-ghast.111	monster/undead/ghast.base.111.png	32x32	ghast	rigged	alive: a creature
-ghast.112	monster/undead/ghast.base.112.png	32x32	ghast	rigged	alive: a creature
-ghast.113	monster/undead/ghast.base.113.png	32x32	ghast	rigged	alive: a creature
+ghast.111	monster/undead/ghast.base.111.png	32x32	ghast	existing	models.txt: person
+ghast.112	monster/undead/ghast.base.112.png	32x32	ghast	existing	models.txt: person
+ghast.113	monster/undead/ghast.base.113.png	32x32	ghast	existing	models.txt: person
 ghost.111	monster/undead/ghost.base.111.png	32x32	ghost	existing	models.txt: beast
 ghost.112	monster/undead/ghost.base.112.png	32x32	ghost	existing	models.txt: beast
 ghost.131	monster/undead/ghost.base.131.png	32x32	ghost	existing	models.txt: beast
@@ -2624,22 +2624,22 @@ ghost.171	monster/undead/ghost.base.171.png	32x32	ghost	existing	models.txt: bea
 ghost.172	monster/undead/ghost.base.172.png	32x32	ghost	existing	models.txt: beast
 ghost_gen.111	monster/undead/ghost_gen.base.111.png	32x32	generate_ghost	existing	models.txt: building
 ghost_gen.112	monster/undead/ghost_gen.base.112.png	32x32	generate_ghost	existing	models.txt: building
-giant.x11	monster/giant/giant.base.x11.png	32x64	giant,giant_2	rigged	alive: a creature
-giant.x12	monster/giant/giant.base.x12.png	32x64	giant,giant_2	rigged	alive: a creature
+giant.x11	monster/giant/giant.base.x11.png	32x64	giant,giant_2	existing	models.txt: person
+giant.x12	monster/giant/giant.base.x12.png	32x64	giant,giant_2	existing	models.txt: person
 giant_bat.111	monster/animal/giant_bat.base.111.png	32x32	giant_bat	existing	models.txt: beast
 giant_bat.112	monster/animal/giant_bat.base.112.png	32x32	giant_bat	existing	models.txt: beast
 giant_bat.113	monster/animal/giant_bat.base.113.png	32x32	giant_bat	existing	models.txt: beast
-giant_chief.x11	monster/giant/giant_chief.base.x11.png	32x64	giant_chief,giant_chief_2	rigged	alive: a creature
-giant_chief.x12	monster/giant/giant_chief.base.x12.png	32x64	giant_chief,giant_chief_2	rigged	alive: a creature
+giant_chief.x11	monster/giant/giant_chief.base.x11.png	32x64	giant_chief,giant_chief_2	existing	models.txt: person
+giant_chief.x12	monster/giant/giant_chief.base.x12.png	32x64	giant_chief,giant_chief_2	existing	models.txt: person
 giant_gen.111	monster/giant/giant_gen.base.111.png	32x32	generate_giant	existing	models.txt: building
-giant_leader.x11	monster/giant/giant_leader.base.x11.png	32x64	giant_leader,giant_leader_2	rigged	alive: a creature
-giant_leader.x12	monster/giant/giant_leader.base.x12.png	32x64	giant_leader,giant_leader_2	rigged	alive: a creature
-giantrat.x31	monster/animal/Giant_rat/giantrat.base.x31.png	64x64	awful_rat,awful_rat_2,awful_rat_3	rigged	alive: a creature
-giantrat.x32	monster/animal/Giant_rat/giantrat.base.x32.png	64x64	awful_rat,awful_rat_2,awful_rat_3	rigged	alive: a creature
-giantrat.x33	monster/animal/Giant_rat/giantrat.base.x33.png	64x64	awful_rat,awful_rat_2,awful_rat_3	rigged	alive: a creature
-giantrat.x71	monster/animal/Giant_rat/giantrat.base.x71.png	64x64	awful_rat,awful_rat_2,awful_rat_3	rigged	alive: a creature
-giantrat.x72	monster/animal/Giant_rat/giantrat.base.x72.png	64x64	awful_rat,awful_rat_2,awful_rat_3	rigged	alive: a creature
-giantrat.x73	monster/animal/Giant_rat/giantrat.base.x73.png	64x64	awful_rat,awful_rat_2,awful_rat_3	rigged	alive: a creature
+giant_leader.x11	monster/giant/giant_leader.base.x11.png	32x64	giant_leader,giant_leader_2	existing	models.txt: person
+giant_leader.x12	monster/giant/giant_leader.base.x12.png	32x64	giant_leader,giant_leader_2	existing	models.txt: person
+giantrat.x31	monster/animal/Giant_rat/giantrat.base.x31.png	64x64	awful_rat,awful_rat_2,awful_rat_3	existing	models.txt: beast
+giantrat.x32	monster/animal/Giant_rat/giantrat.base.x32.png	64x64	awful_rat,awful_rat_2,awful_rat_3	existing	models.txt: beast
+giantrat.x33	monster/animal/Giant_rat/giantrat.base.x33.png	64x64	awful_rat,awful_rat_2,awful_rat_3	existing	models.txt: beast
+giantrat.x71	monster/animal/Giant_rat/giantrat.base.x71.png	64x64	awful_rat,awful_rat_2,awful_rat_3	existing	models.txt: beast
+giantrat.x72	monster/animal/Giant_rat/giantrat.base.x72.png	64x64	awful_rat,awful_rat_2,awful_rat_3	existing	models.txt: beast
+giantrat.x73	monster/animal/Giant_rat/giantrat.base.x73.png	64x64	awful_rat,awful_rat_2,awful_rat_3	existing	models.txt: beast
 giants_knife.111	weapon/sword/giants_knife.base.111.png	32x32	giants_knife	existing	models.txt: model
 gir_strcon.111	armour/girdle/gir_strcon.base.111.png	32x32	girdle_strcon	existing	models.txt: model
 gir_strcon.112	armour/girdle/gir_strcon.base.112.png	32x32	girdle_strcon	existing	models.txt: model
@@ -2713,8 +2713,8 @@ god_power.111	spell/Smite/god_power.base.111.png	32x32	god_power	flat	type SPELL
 god_power.112	spell/Smite/god_power.base.112.png	32x32	god_power	flat	type SPELL_EFFECT: on the ground or an effect
 god_power.113	spell/Smite/god_power.base.113.png	32x32	god_power	flat	type SPELL_EFFECT: on the ground or an effect
 god_power.114	spell/Smite/god_power.base.114.png	32x32	god_power	flat	type SPELL_EFFECT: on the ground or an effect
-gol.x11	monster/misc/Ngolem/gol.base.x11.png	64x96	golem_necro,golem_necro_2,golem_necro_3	rigged	alive: a creature
-gol.x12	monster/misc/Ngolem/gol.base.x12.png	64x96	golem_necro,golem_necro_2,golem_necro_3	rigged	alive: a creature
+gol.x11	monster/misc/Ngolem/gol.base.x11.png	64x96	golem_necro,golem_necro_2,golem_necro_3	existing	models.txt: monster
+gol.x12	monster/misc/Ngolem/gol.base.x12.png	64x96	golem_necro,golem_necro_2,golem_necro_3	existing	models.txt: monster
 gold_converter.111	shop/gold_converter.base.111.png	32x32	gold_converter	existing	models.txt: building
 gold_converter2.111	shop/gold_converter2.base.111.png	32x32	gold_converter2	existing	models.txt: building
 goldbar.111	jewel/bars/goldbar.base.111.png	32x32	goldbar	existing	models.txt: model
@@ -2725,10 +2725,10 @@ goldfloor.111	floor/goldfloor.base.111.png	32x32	goldfloor	flat	folder floor/: f
 goldfloor2.111	floor/goldfloor2.base.111.png	32x32	goldfloor2	flat	folder floor/: floor
 goldgrass.111	ground/goldgrass.base.111.png	32x32	goldgrass	flat	folder ground/: ground and its smoothing edges
 goldround.111	jewel/goldround.base.111.png	32x32	goldround	existing	models.txt: model
-golem.111	spell/Golem/golem.base.111.png	32x32	golem,holy_servant	rigged	alive: a creature
-golem.112	spell/Golem/golem.base.112.png	32x32	golem,holy_servant	rigged	alive: a creature
-golem_red.111	spell/Golem/golem_red.base.111.png	32x32	golem_red	rigged	alive: a creature
-golem_red.112	spell/Golem/golem_red.base.112.png	32x32	golem_red	rigged	alive: a creature
+golem.111	spell/Golem/golem.base.111.png	32x32	golem,holy_servant	existing	models.txt: monster
+golem.112	spell/Golem/golem.base.112.png	32x32	golem,holy_servant	existing	models.txt: monster
+golem_red.111	spell/Golem/golem_red.base.111.png	32x32	golem_red	existing	models.txt: monster
+golem_red.112	spell/Golem/golem_red.base.112.png	32x32	golem_red	existing	models.txt: monster
 golem_shoes.111	armour/boots/golem_shoes.base.111.png	32x32	golem_shoes	existing	models.txt: model
 goose.131	monster/animal/farmyard/goose.base.131.png	32x32	goose	existing	models.txt: beast
 goose.132	monster/animal/farmyard/goose.base.132.png	32x32	goose	existing	models.txt: beast
@@ -2794,14 +2794,14 @@ green-white-c-marble.113	floor/inlayed/green-white-c-marble.base.113.png	32x32	g
 green-white-c-marble.114	floor/inlayed/green-white-c-marble.base.114.png	32x32	green-white-c-marble_114	flat	folder floor/: floor
 green-white-h-marble.111	floor/inlayed/green-white-h-marble.base.111.png	32x32	green-white-h-marble_111	flat	folder floor/: floor
 green-white-h-marble.112	floor/inlayed/green-white-h-marble.base.112.png	32x32	green-white-h-marble_112	flat	folder floor/: floor
-green_dragon2.151	monster/humanoid/Dragon/green_dragon2.base.151.png	32x32	green_dragon2	rigged	alive: a creature
-green_dragon2.152	monster/humanoid/Dragon/green_dragon2.base.152.png	32x32	green_dragon2	rigged	alive: a creature
-green_dragon2.171	monster/humanoid/Dragon/green_dragon2.base.171.png	32x32	green_dragon2	rigged	alive: a creature
-green_dragon2.172	monster/humanoid/Dragon/green_dragon2.base.172.png	32x32	green_dragon2	rigged	alive: a creature
-green_dragon3.151	monster/humanoid/Dragon/green_dragon3.base.151.png	32x32		rigged	folder monster/ (no object uses it)
-green_dragon3.152	monster/humanoid/Dragon/green_dragon3.base.152.png	32x32		rigged	folder monster/ (no object uses it)
-green_dragon3.171	monster/humanoid/Dragon/green_dragon3.base.171.png	32x32		rigged	folder monster/ (no object uses it)
-green_dragon3.172	monster/humanoid/Dragon/green_dragon3.base.172.png	32x32		rigged	folder monster/ (no object uses it)
+green_dragon2.151	monster/humanoid/Dragon/green_dragon2.base.151.png	32x32	green_dragon2	existing	models.txt: beast
+green_dragon2.152	monster/humanoid/Dragon/green_dragon2.base.152.png	32x32	green_dragon2	existing	models.txt: beast
+green_dragon2.171	monster/humanoid/Dragon/green_dragon2.base.171.png	32x32	green_dragon2	existing	models.txt: beast
+green_dragon2.172	monster/humanoid/Dragon/green_dragon2.base.172.png	32x32	green_dragon2	existing	models.txt: beast
+green_dragon3.151	monster/humanoid/Dragon/green_dragon3.base.151.png	32x32		existing	models.txt: beast
+green_dragon3.152	monster/humanoid/Dragon/green_dragon3.base.152.png	32x32		existing	models.txt: beast
+green_dragon3.171	monster/humanoid/Dragon/green_dragon3.base.171.png	32x32		existing	models.txt: beast
+green_dragon3.172	monster/humanoid/Dragon/green_dragon3.base.172.png	32x32		existing	models.txt: beast
 greendragonmail.111	armour/mail/greendragonmail.base.111.png	32x32	green_dragon_mail	existing	models.txt: building
 greenmarble.111	floor/greenmarble.base.111.png	32x32	greenmarble	flat	folder floor/: floor
 greenmarblelight.111	floor/greenmarblelight.base.111.png	32x32	greenmarblelight	flat	folder floor/: floor
@@ -2812,18 +2812,18 @@ grey_drag.131	monster/dragon/Hatchlings/grey_drag.base.131.png	32x32		existing	m
 grey_drag.132	monster/dragon/Hatchlings/grey_drag.base.132.png	32x32		existing	models.txt: beast
 grey_drag.171	monster/dragon/Hatchlings/grey_drag.base.171.png	32x32		existing	models.txt: beast
 grey_drag.172	monster/dragon/Hatchlings/grey_drag.base.172.png	32x32		existing	models.txt: beast
-grimreaper.111	monster/undead/grimreaper.base.111.png	32x32	Devourers,devourers_avatar,grimreaper	rigged	alive: a creature
-grimreaper.112	monster/undead/grimreaper.base.112.png	32x32	Devourers,devourers_avatar,grimreaper	rigged	alive: a creature
-grimreaper.113	monster/undead/grimreaper.base.113.png	32x32	Devourers,devourers_avatar,grimreaper	rigged	alive: a creature
-grimreaper.114	monster/undead/grimreaper.base.114.png	32x32	Devourers,devourers_avatar,grimreaper	rigged	alive: a creature
-gryphon.x31	monster/animal/gryphon/gryphon.base.x31.png	96x96	gryphon,gryphon2,gryphon3	rigged	alive: a creature
-gryphon.x32	monster/animal/gryphon/gryphon.base.x32.png	96x96	gryphon,gryphon2,gryphon3	rigged	alive: a creature
-gryphon.x33	monster/animal/gryphon/gryphon.base.x33.png	96x96	gryphon,gryphon2,gryphon3	rigged	alive: a creature
-gryphon.x34	monster/animal/gryphon/gryphon.base.x34.png	96x96	gryphon,gryphon2,gryphon3	rigged	alive: a creature
-gryphon.x71	monster/animal/gryphon/gryphon.base.x71.png	96x96	gryphon,gryphon2,gryphon3	rigged	alive: a creature
-gryphon.x72	monster/animal/gryphon/gryphon.base.x72.png	96x96	gryphon,gryphon2,gryphon3	rigged	alive: a creature
-gryphon.x73	monster/animal/gryphon/gryphon.base.x73.png	96x96	gryphon,gryphon2,gryphon3	rigged	alive: a creature
-gryphon.x74	monster/animal/gryphon/gryphon.base.x74.png	96x96	gryphon,gryphon2,gryphon3	rigged	alive: a creature
+grimreaper.111	monster/undead/grimreaper.base.111.png	32x32	Devourers,devourers_avatar,grimreaper	existing	models.txt: beast
+grimreaper.112	monster/undead/grimreaper.base.112.png	32x32	Devourers,devourers_avatar,grimreaper	existing	models.txt: beast
+grimreaper.113	monster/undead/grimreaper.base.113.png	32x32	Devourers,devourers_avatar,grimreaper	existing	models.txt: beast
+grimreaper.114	monster/undead/grimreaper.base.114.png	32x32	Devourers,devourers_avatar,grimreaper	existing	models.txt: beast
+gryphon.x31	monster/animal/gryphon/gryphon.base.x31.png	96x96	gryphon,gryphon2,gryphon3	existing	models.txt: beast
+gryphon.x32	monster/animal/gryphon/gryphon.base.x32.png	96x96	gryphon,gryphon2,gryphon3	existing	models.txt: beast
+gryphon.x33	monster/animal/gryphon/gryphon.base.x33.png	96x96	gryphon,gryphon2,gryphon3	existing	models.txt: beast
+gryphon.x34	monster/animal/gryphon/gryphon.base.x34.png	96x96	gryphon,gryphon2,gryphon3	existing	models.txt: beast
+gryphon.x71	monster/animal/gryphon/gryphon.base.x71.png	96x96	gryphon,gryphon2,gryphon3	existing	models.txt: beast
+gryphon.x72	monster/animal/gryphon/gryphon.base.x72.png	96x96	gryphon,gryphon2,gryphon3	existing	models.txt: beast
+gryphon.x73	monster/animal/gryphon/gryphon.base.x73.png	96x96	gryphon,gryphon2,gryphon3	existing	models.txt: beast
+gryphon.x74	monster/animal/gryphon/gryphon.base.x74.png	96x96	gryphon,gryphon2,gryphon3	existing	models.txt: beast
 gstone_4.111	ground/Pstone/gstone_4.base.111.png	32x32	gstone_4	flat	folder ground/: ground and its smoothing edges
 gu_horn.111	spell/Wand/gu_horn.base.111.png	32x32	gu_horn	existing	models.txt: model
 gu_horn.112	spell/Wand/gu_horn.base.112.png	32x32	gu_horn	existing	models.txt: model
@@ -2964,14 +2964,14 @@ hide_white.111	flesh/generic/hide_white.base.111.png	32x32	hide_white	existing	m
 high_boots.111	armour/boots/high_boots.base.111.png	32x32	high_boots	existing	models.txt: model
 high_boots_b.111	armour/boots/high_boots_b.base.111.png	32x32	high_boots_b,high_boots_b_d	existing	models.txt: model
 high_boots_w.111	armour/boots/high_boots_w.base.111.png	32x32	high_boots_w,high_boots_w_l	existing	models.txt: model
-highangel.111	monster/angel/highangel.base.111.png	32x32	HighAngel,Valriel,valriel_avatar	rigged	alive: a creature
-highangel.112	monster/angel/highangel.base.112.png	32x32	HighAngel,Valriel,valriel_avatar	rigged	alive: a creature
-highangel.113	monster/angel/highangel.base.113.png	32x32	HighAngel,Valriel,valriel_avatar	rigged	alive: a creature
-highangel.114	monster/angel/highangel.base.114.png	32x32	HighAngel,Valriel,valriel_avatar	rigged	alive: a creature
-highangel.115	monster/angel/highangel.base.115.png	32x32	HighAngel,Valriel,valriel_avatar	rigged	alive: a creature
-highangel.116	monster/angel/highangel.base.116.png	32x32	HighAngel,Valriel,valriel_avatar	rigged	alive: a creature
-highangel.117	monster/angel/highangel.base.117.png	32x32	HighAngel,Valriel,valriel_avatar	rigged	alive: a creature
-highangel.118	monster/angel/highangel.base.118.png	32x32	HighAngel,Valriel,peace	rigged	alive: a creature
+highangel.111	monster/angel/highangel.base.111.png	32x32	HighAngel,Valriel,valriel_avatar	existing	models.txt: person
+highangel.112	monster/angel/highangel.base.112.png	32x32	HighAngel,Valriel,valriel_avatar	existing	models.txt: person
+highangel.113	monster/angel/highangel.base.113.png	32x32	HighAngel,Valriel,valriel_avatar	existing	models.txt: person
+highangel.114	monster/angel/highangel.base.114.png	32x32	HighAngel,Valriel,valriel_avatar	existing	models.txt: person
+highangel.115	monster/angel/highangel.base.115.png	32x32	HighAngel,Valriel,valriel_avatar	existing	models.txt: person
+highangel.116	monster/angel/highangel.base.116.png	32x32	HighAngel,Valriel,valriel_avatar	existing	models.txt: person
+highangel.117	monster/angel/highangel.base.117.png	32x32	HighAngel,Valriel,valriel_avatar	existing	models.txt: person
+highangel.118	monster/angel/highangel.base.118.png	32x32	HighAngel,Valriel,peace	existing	models.txt: person
 highshield.111	armour/shield/highshield.base.111.png	32x32	high_shield	existing	models.txt: model
 hills.111	ground/hills.base.111.png	32x32	hills	existing	models.txt: model
 hills_S.111	ground/smooth/hills_S.base.111.png	512x64		flat	folder ground/: ground and its smoothing edges
@@ -3196,7 +3196,7 @@ hut_hori.x11	construct/house/hut_hori.base.x11.png	64x32	hut_hori,hut_hori_2	exi
 hut_vert.x11	construct/house/hut_vert.base.x11.png	32x64	hut_vert,hut_vert_2	existing	models.txt: building
 ice.111	ground/Winter/ice.base.111.png	32x32	ice	flat	folder ground/: ground and its smoothing edges
 ice2.111	ground/Winter/ice2.base.111.png	32x32	ice2	flat	folder ground/: ground and its smoothing edges
-ice_warrior.x11	monster/elemental/ice_warrior.base.x11.png	64x128	ice_warrior,ice_warrior_2,ice_warrior_3	rigged	alive: a creature
+ice_warrior.x11	monster/elemental/ice_warrior.base.x11.png	64x128	ice_warrior,ice_warrior_2,ice_warrior_3	existing	models.txt: person
 icecube.111	misc/icecube.base.111.png	32x32	icecube	existing	models.txt: building
 icestorm.111	spell/Cone/icestorm.base.111.png	32x32	chaos,chaos_ball,color_spray	flat	is_floor
 icestorm.112	spell/Cone/icestorm.base.112.png	32x32	icestorm,snowstorm	flat	type SPELL_EFFECT: on the ground or an effect
@@ -3285,9 +3285,9 @@ jcity_C.111	wall/jcity/jcity_C.base.111.png	32x32	jcity_2_2_3,town_4.2,town_5.3	
 jcity_D.111	wall/jcity/jcity_D.base.111.png	32x32	jcity_3_4,town_6.4,town_7.6	existing	models.txt: wall
 jcity_E.111	wall/jcity/jcity_E.base.111.png	32x32	jcity_3_3,town_5.2,town_7.2	existing	models.txt: wall
 jcity_F.111	wall/jcity/jcity_F.base.111.png	32x32	jcity_4,town_7.5	existing	models.txt: wall
-jessyb.x11	monster/giant/JessyB/jessyb.base.x11.png	128x128	Balrog,Balrog_10,Balrog_11	rigged	alive: a creature
-jessyb.x12	monster/giant/JessyB/jessyb.base.x12.png	128x128	Balrog,Balrog_10,Balrog_11	rigged	alive: a creature
-jessyb.x13	monster/giant/JessyB/jessyb.base.x13.png	128x128	Balrog,Balrog_10,Balrog_11	rigged	alive: a creature
+jessyb.x11	monster/giant/JessyB/jessyb.base.x11.png	128x128	Balrog,Balrog_10,Balrog_11	existing	models.txt: beast
+jessyb.x12	monster/giant/JessyB/jessyb.base.x12.png	128x128	Balrog,Balrog_10,Balrog_11	existing	models.txt: beast
+jessyb.x13	monster/giant/JessyB/jessyb.base.x13.png	128x128	Balrog,Balrog_10,Balrog_11	existing	models.txt: beast
 jetstone.111	jewel/gems/jetstone.base.111.png	32x32	jetstone	existing	models.txt: model
 jeweler_bench.111	crafting/Container/jeweler_bench.base.111.png	32x32	jeweler_bench	existing	models.txt: model
 jungle_1.111	ground/Wood/jungle_1.base.111.png	32x32	jungle_1	existing	models.txt: model
@@ -3349,10 +3349,10 @@ ladder2_do.111	exit/Ladder/ladder2_do.base.111.png	32x32	ladder_bi_down	existing
 ladder2_up.111	exit/Ladder/ladder2_up.base.111.png	32x32	ladder_bi_up	existing	models.txt: model
 ladder_down.111	exit/Ladder/ladder_down.base.111.png	32x32	ladder_down	existing	models.txt: building
 ladder_up.111	exit/Ladder/ladder_up.base.111.png	32x32	ladder_up	existing	models.txt: model
-lamia.x31	monster/misc/lamia/lamia.base.x31.png	64x32	lamia,lamia_2	rigged	alive: a creature
-lamia.x32	monster/misc/lamia/lamia.base.x32.png	64x32	lamia,lamia_2	rigged	alive: a creature
-lamia.x71	monster/misc/lamia/lamia.base.x71.png	64x32	lamia,lamia_2	rigged	alive: a creature
-lamia.x72	monster/misc/lamia/lamia.base.x72.png	64x32	lamia,lamia_2	rigged	alive: a creature
+lamia.x31	monster/misc/lamia/lamia.base.x31.png	64x32	lamia,lamia_2	existing	models.txt: building
+lamia.x32	monster/misc/lamia/lamia.base.x32.png	64x32	lamia,lamia_2	existing	models.txt: building
+lamia.x71	monster/misc/lamia/lamia.base.x71.png	64x32	lamia,lamia_2	existing	models.txt: building
+lamia.x72	monster/misc/lamia/lamia.base.x72.png	64x32	lamia,lamia_2	existing	models.txt: building
 lampost.111	light/lampost.base.111.png	32x32	lamppost	existing	models.txt: building
 lampost.112	light/lampost.base.112.png	32x32	lamppost	existing	models.txt: building
 lantern.111	light/lantern.base.111.png	32x32	lantern_1	existing	models.txt: building
@@ -3482,12 +3482,12 @@ leather_ar.111	armour/mail/leather_ar.base.111.png	32x32	leather_armour	existing
 leather_black.111	crafting/Materials/leather_black.base.111.png	32x32	leather_black	existing	models.txt: model
 leather_strips.111	crafting/Materials/leather_strips.base.111.png	32x32	leather_strips	existing	models.txt: model
 leather_white.111	crafting/Materials/leather_white.base.111.png	32x32	leather_white	existing	models.txt: model
-leech.131	monster/animal/leech/leech.base.131.png	32x32	leech	rigged	alive: a creature
-leech.132	monster/animal/leech/leech.base.132.png	32x32	leech	rigged	alive: a creature
-leech.133	monster/animal/leech/leech.base.133.png	32x32	leech	rigged	alive: a creature
-leech.171	monster/animal/leech/leech.base.171.png	32x32	leech	rigged	alive: a creature
-leech.172	monster/animal/leech/leech.base.172.png	32x32	leech	rigged	alive: a creature
-leech.173	monster/animal/leech/leech.base.173.png	32x32	leech	rigged	alive: a creature
+leech.131	monster/animal/leech/leech.base.131.png	32x32	leech	existing	models.txt: beast
+leech.132	monster/animal/leech/leech.base.132.png	32x32	leech	existing	models.txt: beast
+leech.133	monster/animal/leech/leech.base.133.png	32x32	leech	existing	models.txt: beast
+leech.171	monster/animal/leech/leech.base.171.png	32x32	leech	existing	models.txt: beast
+leech.172	monster/animal/leech/leech.base.172.png	32x32	leech	existing	models.txt: beast
+leech.173	monster/animal/leech/leech.base.173.png	32x32	leech	existing	models.txt: beast
 leg.111	flesh/human/leg.base.111.png	32x32	leg	existing	models.txt: model
 leg_mutton.111	food/leg_mutton.base.111.png	32x32	leg_mutton	existing	models.txt: model
 lesser_dwarven_guard.111	monster/humanoid/Dwarf/lesser_dwarven_guard.base.111.png	32x32	lesser_dwarven_guard	existing	models.txt: person
@@ -3499,30 +3499,30 @@ lever.112	connect/lever.base.112.png	32x32	button_lever	existing	models.txt: bui
 levitate_effect.111	spell/Change_Ability/levitate_effect.base.111.png	32x32	levitate_effect	flat	folder spell/
 levitate_effect.112	spell/Change_Ability/levitate_effect.base.112.png	32x32	levitate_effect	flat	folder spell/
 levitate_effect.113	spell/Change_Ability/levitate_effect.base.113.png	32x32	levitate_effect	flat	folder spell/
-lich.111	monster/undead/lich.base.111.png	32x32	lich	rigged	alive: a creature
-lich.112	monster/undead/lich.base.112.png	32x32	lich	rigged	alive: a creature
-lich.113	monster/undead/lich.base.113.png	32x32	lich	rigged	alive: a creature
-lich.121	monster/undead/lich.base.121.png	32x32	lich	rigged	alive: a creature
-lich.122	monster/undead/lich.base.122.png	32x32	lich	rigged	alive: a creature
-lich.123	monster/undead/lich.base.123.png	32x32	lich	rigged	alive: a creature
-lich.131	monster/undead/lich.base.131.png	32x32	lich	rigged	alive: a creature
-lich.132	monster/undead/lich.base.132.png	32x32	lich	rigged	alive: a creature
-lich.133	monster/undead/lich.base.133.png	32x32	lich	rigged	alive: a creature
-lich.141	monster/undead/lich.base.141.png	32x32	lich	rigged	alive: a creature
-lich.142	monster/undead/lich.base.142.png	32x32	lich	rigged	alive: a creature
-lich.143	monster/undead/lich.base.143.png	32x32	lich	rigged	alive: a creature
-lich.151	monster/undead/lich.base.151.png	32x32	lich	rigged	alive: a creature
-lich.152	monster/undead/lich.base.152.png	32x32	lich	rigged	alive: a creature
-lich.153	monster/undead/lich.base.153.png	32x32	lich	rigged	alive: a creature
-lich.161	monster/undead/lich.base.161.png	32x32	lich	rigged	alive: a creature
-lich.162	monster/undead/lich.base.162.png	32x32	lich	rigged	alive: a creature
-lich.163	monster/undead/lich.base.163.png	32x32	lich	rigged	alive: a creature
-lich.171	monster/undead/lich.base.171.png	32x32	lich	rigged	alive: a creature
-lich.172	monster/undead/lich.base.172.png	32x32	lich	rigged	alive: a creature
-lich.173	monster/undead/lich.base.173.png	32x32	lich	rigged	alive: a creature
-lich.181	monster/undead/lich.base.181.png	32x32	lich	rigged	alive: a creature
-lich.182	monster/undead/lich.base.182.png	32x32	lich	rigged	alive: a creature
-lich.183	monster/undead/lich.base.183.png	32x32	lich	rigged	alive: a creature
+lich.111	monster/undead/lich.base.111.png	32x32	lich	existing	models.txt: monster
+lich.112	monster/undead/lich.base.112.png	32x32	lich	existing	models.txt: monster
+lich.113	monster/undead/lich.base.113.png	32x32	lich	existing	models.txt: monster
+lich.121	monster/undead/lich.base.121.png	32x32	lich	existing	models.txt: monster
+lich.122	monster/undead/lich.base.122.png	32x32	lich	existing	models.txt: monster
+lich.123	monster/undead/lich.base.123.png	32x32	lich	existing	models.txt: monster
+lich.131	monster/undead/lich.base.131.png	32x32	lich	existing	models.txt: monster
+lich.132	monster/undead/lich.base.132.png	32x32	lich	existing	models.txt: monster
+lich.133	monster/undead/lich.base.133.png	32x32	lich	existing	models.txt: monster
+lich.141	monster/undead/lich.base.141.png	32x32	lich	existing	models.txt: monster
+lich.142	monster/undead/lich.base.142.png	32x32	lich	existing	models.txt: monster
+lich.143	monster/undead/lich.base.143.png	32x32	lich	existing	models.txt: monster
+lich.151	monster/undead/lich.base.151.png	32x32	lich	existing	models.txt: monster
+lich.152	monster/undead/lich.base.152.png	32x32	lich	existing	models.txt: monster
+lich.153	monster/undead/lich.base.153.png	32x32	lich	existing	models.txt: monster
+lich.161	monster/undead/lich.base.161.png	32x32	lich	existing	models.txt: monster
+lich.162	monster/undead/lich.base.162.png	32x32	lich	existing	models.txt: monster
+lich.163	monster/undead/lich.base.163.png	32x32	lich	existing	models.txt: monster
+lich.171	monster/undead/lich.base.171.png	32x32	lich	existing	models.txt: monster
+lich.172	monster/undead/lich.base.172.png	32x32	lich	existing	models.txt: monster
+lich.173	monster/undead/lich.base.173.png	32x32	lich	existing	models.txt: monster
+lich.181	monster/undead/lich.base.181.png	32x32	lich	existing	models.txt: monster
+lich.182	monster/undead/lich.base.182.png	32x32	lich	existing	models.txt: monster
+lich.183	monster/undead/lich.base.183.png	32x32	lich	existing	models.txt: monster
 lich_dust.111	flesh/misc/lich_dust.base.111.png	32x32	lich_dust	existing	models.txt: model
 light_blue_cave_0.111	wall/light_blue_cave/light_blue_cave_0.base.111.png	32x32	light_blue_cave_0	existing	models.txt: wall
 light_blue_cave_0.112	wall/light_blue_cave/light_blue_cave_0.base.112.png	32x32	light_blue_cave_0	existing	models.txt: wall
@@ -3611,24 +3611,24 @@ lightning.161	spell/Bolt/lightning.base.161.png	32x32	forked_lightning,lightning
 lightning.171	spell/Bolt/lightning.base.171.png	32x32	forked_lightning,lightning	flat	type SPELL_EFFECT: on the ground or an effect
 lightning.181	spell/Bolt/lightning.base.181.png	32x32	forked_lightning,lightning	flat	type SPELL_EFFECT: on the ground or an effect
 lightning_bow.111	weapon/bow/lightning_bow.base.111.png	32x32	lightning_bow	existing	models.txt: model
-liteangel.111	monster/angel/liteangel.base.111.png	32x32	liteangel	rigged	alive: a creature
-liteangel.112	monster/angel/liteangel.base.112.png	32x32	liteangel	rigged	alive: a creature
-liteangel.113	monster/angel/liteangel.base.113.png	32x32	liteangel	rigged	alive: a creature
-liteangel.114	monster/angel/liteangel.base.114.png	32x32	liteangel	rigged	alive: a creature
-liv_chaos.111	monster/chaos/liv_chaos.base.111.png	32x32	living_chaos	rigged	alive: a creature
-liv_chaos.222	monster/chaos/liv_chaos.base.222.png	32x32	living_chaos	rigged	alive: a creature
-liv_chaos.333	monster/chaos/liv_chaos.base.333.png	32x32	living_chaos	rigged	alive: a creature
-liv_chaos.444	monster/chaos/liv_chaos.base.444.png	32x32	living_chaos	rigged	alive: a creature
+liteangel.111	monster/angel/liteangel.base.111.png	32x32	liteangel	existing	models.txt: person
+liteangel.112	monster/angel/liteangel.base.112.png	32x32	liteangel	existing	models.txt: person
+liteangel.113	monster/angel/liteangel.base.113.png	32x32	liteangel	existing	models.txt: person
+liteangel.114	monster/angel/liteangel.base.114.png	32x32	liteangel	existing	models.txt: person
+liv_chaos.111	monster/chaos/liv_chaos.base.111.png	32x32	living_chaos	existing	models.txt: beast
+liv_chaos.222	monster/chaos/liv_chaos.base.222.png	32x32	living_chaos	existing	models.txt: beast
+liv_chaos.333	monster/chaos/liv_chaos.base.333.png	32x32	living_chaos	existing	models.txt: beast
+liv_chaos.444	monster/chaos/liv_chaos.base.444.png	32x32	living_chaos	existing	models.txt: beast
 liver.111	flesh/generic/liver.base.111.png	32x32	liver	existing	models.txt: model
 lmornstar.111	weapon/chained/lmornstar.base.111.png	32x32	large_morningstar	existing	models.txt: model
 loaf.111	food/loaf.base.111.png	32x32	loaf	existing	models.txt: model
 locked_hwooddoor.111	door/locked_hwooddoor.base.111.png	32x32	lockable_hdoor_locked	existing	models.txt: model
 locked_vwooddoor.111	door/locked_vwooddoor.base.111.png	32x32	lockable_vdoor_locked	existing	models.txt: model
 lockpicks.111	skills/Skill_Tools/lockpicks.base.111.png	32x32	lockpicks	existing	models.txt: model
-lokanth.131	monster/misc/lokanth/lokanth.base.131.png	32x32	likanth,lokanth	rigged	alive: a creature
-lokanth.132	monster/misc/lokanth/lokanth.base.132.png	32x32	likanth,lokanth	rigged	alive: a creature
-lokanth.171	monster/misc/lokanth/lokanth.base.171.png	32x32	likanth,lokanth	rigged	alive: a creature
-lokanth.172	monster/misc/lokanth/lokanth.base.172.png	32x32	likanth,lokanth	rigged	alive: a creature
+lokanth.131	monster/misc/lokanth/lokanth.base.131.png	32x32	likanth,lokanth	existing	models.txt: monster
+lokanth.132	monster/misc/lokanth/lokanth.base.132.png	32x32	likanth,lokanth	existing	models.txt: monster
+lokanth.171	monster/misc/lokanth/lokanth.base.171.png	32x32	likanth,lokanth	existing	models.txt: monster
+lokanth.172	monster/misc/lokanth/lokanth.base.172.png	32x32	likanth,lokanth	existing	models.txt: monster
 longbow.111	weapon/bow/longbow.base.111.png	32x32	longbow	existing	models.txt: model
 longship.x11	transport/longship.base.x11.png	64x32	longship,longship_2	existing	models.txt: building
 longtable_0.111	wall/longtable/longtable_0.base.111.png	32x32	longtable_0	existing	models.txt: building
@@ -3651,8 +3651,8 @@ loose_magic.111	spell/Bullet/loose_magic.base.111.png	32x32	loose_magic	flat	typ
 loose_magic.112	spell/Bullet/loose_magic.base.112.png	32x32	loose_magic	flat	type SPELL_EFFECT: on the ground or an effect
 loose_magic.113	spell/Bullet/loose_magic.base.113.png	32x32	loose_magic	flat	type SPELL_EFFECT: on the ground or an effect
 loose_magic.114	spell/Bullet/loose_magic.base.114.png	32x32	loose_magic	flat	type SPELL_EFFECT: on the ground or an effect
-lord_e.111	monster/humanoid/lord_e.base.111.png	32x32	lord_e	rigged	alive: a creature
-lord_e.112	monster/humanoid/lord_e.base.112.png	32x32	lord_e	rigged	alive: a creature
+lord_e.111	monster/humanoid/lord_e.base.111.png	32x32	lord_e	existing	models.txt: person
+lord_e.112	monster/humanoid/lord_e.base.112.png	32x32	lord_e	existing	models.txt: person
 low_boots.111	armour/boots/low_boots.base.111.png	32x32	low_boots	existing	models.txt: model
 lspear.111	weapon/misc/lspear.base.111.png	32x32	lspear	existing	models.txt: model
 lstone.111	inorganic/lstone.base.111.png	32x32	field_stone,mountain_stone,river_stone	existing	models.txt: model
@@ -3669,14 +3669,14 @@ lunar_shield.111	armour/shield/lunar_shield.base.111.png	32x32	lunar_shield	exis
 lyth_temple.111	construct/temple/lyth_temple.base.111.png	32x32	lyth_temple	existing	models.txt: building
 lythander_cathedral.x11	construct/temple/lythander_cathedral.base.x11.png	96x128	lythander_cathedral,lythander_cathedral_10,lythander_cathedral_11	existing	models.txt: building
 lythander_church.x11	construct/temple/lythander_church.base.x11.png	64x64	lythander_church,lythander_church_2,lythander_church_3	existing	models.txt: building
-mabu.x11	monster/giant/mabu.base.x11.png	32x64	mabu,mabu_2	rigged	alive: a creature
-mabu.x12	monster/giant/mabu.base.x12.png	32x64	mabu,mabu_2	rigged	alive: a creature
-mabu.x13	monster/giant/mabu.base.x13.png	32x64	mabu,mabu_2	rigged	alive: a creature
+mabu.x11	monster/giant/mabu.base.x11.png	32x64	mabu,mabu_2	existing	models.txt: person
+mabu.x12	monster/giant/mabu.base.x12.png	32x64	mabu,mabu_2	existing	models.txt: person
+mabu.x13	monster/giant/mabu.base.x13.png	32x64	mabu,mabu_2	existing	models.txt: person
 mace_1.111	weapon/mace/mace_1.base.111.png	32x32	mace	existing	models.txt: model
 mace_2.111	weapon/mace/mace_2.base.111.png	32x32	mace_2	existing	models.txt: model
 machine.x11	misc/machine.base.x11.png	96x128	Machine.1,Machine.2,Machine.3	existing	models.txt: building
-madman.111	monster/humanoid/madman.base.111.png	32x32	madman	rigged	alive: a creature
-madman.112	monster/humanoid/madman.base.112.png	32x32	madman	rigged	alive: a creature
+madman.111	monster/humanoid/madman.base.111.png	32x32	madman	existing	models.txt: person
+madman.112	monster/humanoid/madman.base.112.png	32x32	madman	existing	models.txt: person
 madman_gen.111	monster/humanoid/madman_gen.base.111.png	32x32	generate_madman	existing	models.txt: building
 mage.111	player/class/Warrior/mage.base.111.png	32x32	mage,warlock_class	existing	player character (3D bodies)
 mage.112	player/class/Warrior/mage.base.112.png	32x32	warlock_class	existing	player character (3D bodies)
@@ -3847,10 +3847,10 @@ merchant.111	monster/humanoid/Arabic/merchant.base.111.png	32x32	merchant	existi
 merchant.131	monster/humanoid/Arabic/merchant.base.131.png	32x32	merchant	existing	models.txt: person
 merchant.171	monster/humanoid/Arabic/merchant.base.171.png	32x32	merchant	existing	models.txt: person
 mercury.111	inorganic/mercury.base.111.png	32x32	mercury	existing	models.txt: model
-mesangel.111	monster/angel/mesangel.base.111.png	32x32	mesangel	rigged	alive: a creature
-mesangel.112	monster/angel/mesangel.base.112.png	32x32	mesangel	rigged	alive: a creature
-mesangel.113	monster/angel/mesangel.base.113.png	32x32	mesangel	rigged	alive: a creature
-mesangel.114	monster/angel/mesangel.base.114.png	32x32	mesangel	rigged	alive: a creature
+mesangel.111	monster/angel/mesangel.base.111.png	32x32	mesangel	existing	models.txt: person
+mesangel.112	monster/angel/mesangel.base.112.png	32x32	mesangel	existing	models.txt: person
+mesangel.113	monster/angel/mesangel.base.113.png	32x32	mesangel	existing	models.txt: person
+mesangel.114	monster/angel/mesangel.base.114.png	32x32	mesangel	existing	models.txt: person
 messageboard.111	readable/messageboard.base.111.png	32x32	messageboard	existing	models.txt: building
 messageboard_red.111	readable/messageboard_red.base.111.png	32x32	messageboard_red	existing	models.txt: building
 metalrobe.111	armour/mail/metalrobe.base.111.png	32x32		existing	models.txt: building
@@ -3960,11 +3960,11 @@ mountain_dwarf.171	player/class/Warrior/Dwarf/mountain_dwarf.base.171.png	32x32	
 mountain_dwarf.172	player/class/Warrior/Dwarf/mountain_dwarf.base.172.png	32x32		existing	folder player/ (no object uses it)
 mountain_foilage.111	ground/Weather/mountain_foilage.base.111.png	32x32	mountain_foilage	existing	models.txt: building
 mournblade.111	weapon/artifact/mournblade.base.111.png	32x32	mournblade	existing	models.txt: model
-mouse.111	monster/animal/mouse.base.111.png	32x32	mouse	rigged	alive: a creature
-mouse.112	monster/animal/mouse.base.112.png	32x32	mouse	rigged	alive: a creature
+mouse.111	monster/animal/mouse.base.111.png	32x32	mouse	existing	models.txt: beast
+mouse.112	monster/animal/mouse.base.112.png	32x32	mouse	existing	models.txt: beast
 mouse_gen.111	monster/animal/mouse_gen.base.111.png	32x32	generate_mouse	existing	models.txt: building
-mudman.111	monster/misc/mudman.base.111.png	32x32	mudman	rigged	alive: a creature
-mudman.112	monster/misc/mudman.base.112.png	32x32	mudman	rigged	alive: a creature
+mudman.111	monster/misc/mudman.base.111.png	32x32	mudman	existing	models.txt: monster
+mudman.112	monster/misc/mudman.base.112.png	32x32	mudman	existing	models.txt: monster
 mushman1.111	monster/animal/mushman1.base.111.png	32x32	mushman1	existing	models.txt: beast
 mushman1.112	monster/animal/mushman1.base.112.png	32x32	mushman1	existing	models.txt: beast
 mushman1.131	monster/animal/mushman1.base.131.png	32x32	mushman1	existing	models.txt: beast
@@ -3984,14 +3984,14 @@ mvwdoor.111	connect/Doors/mvwdoor.base.111.png	32x32	mvwdoor_closed_1,mvwdoor_op
 mvwdoor.112	connect/Doors/mvwdoor.base.112.png	32x32	mvwdoor_closed_1,mvwdoor_open_1	existing	models.txt: model
 mvwdoor.113	connect/Doors/mvwdoor.base.113.png	32x32	mvwdoor_closed_1,mvwdoor_open_1	existing	models.txt: model
 mvwdoor.114	connect/Doors/mvwdoor.base.114.png	32x32	mvwdoor_closed_1,mvwdoor_open_1	existing	models.txt: model
-mystic_fist.111	spell/Golem/mystic_fist.base.111.png	32x32	mystic_fist	rigged	alive: a creature
-mystic_fist.112	spell/Golem/mystic_fist.base.112.png	32x32	mystic_fist	rigged	alive: a creature
-mystic_fist.113	spell/Golem/mystic_fist.base.113.png	32x32	mystic_fist	rigged	alive: a creature
+mystic_fist.111	spell/Golem/mystic_fist.base.111.png	32x32	mystic_fist	existing	models.txt: flat
+mystic_fist.112	spell/Golem/mystic_fist.base.112.png	32x32	mystic_fist	existing	models.txt: flat
+mystic_fist.113	spell/Golem/mystic_fist.base.113.png	32x32	mystic_fist	existing	models.txt: flat
 naz_report.111	misc/naz_report.base.111.png	32x32	naz_report	existing	models.txt: model
-nazgul.111	monster/undead/nazgul.base.111.png	32x32	nazgul	rigged	alive: a creature
-nazgul.112	monster/undead/nazgul.base.112.png	32x32	nazgul	rigged	alive: a creature
-necro.111	monster/humanoid/necro.base.111.png	32x32	necromancer	rigged	alive: a creature
-necro.112	monster/humanoid/necro.base.112.png	32x32	necromancer	rigged	alive: a creature
+nazgul.111	monster/undead/nazgul.base.111.png	32x32	nazgul	existing	models.txt: beast
+nazgul.112	monster/undead/nazgul.base.112.png	32x32	nazgul	existing	models.txt: beast
+necro.111	monster/humanoid/necro.base.111.png	32x32	necromancer	existing	models.txt: person
+necro.112	monster/humanoid/necro.base.112.png	32x32	necromancer	existing	models.txt: person
 necromancer_book.111	spell/SpellBook/necromancer_book.base.111.png	32x32		flat	folder spell/ (no object uses it)
 needle.111	traps/needle.base.111.png	32x32	trap_needle	existing	models.txt: model
 negaball.111	spell/MovingBall/negaball.base.111.png	32x32	negaball	flat	type SPELL_EFFECT: on the ground or an effect
@@ -4078,8 +4078,8 @@ ogre.112	monster/goblin/ogre.base.112.png	32x32	ogre	existing	models.txt: monste
 ogre_chief.111	monster/goblin/ogre_chief.base.111.png	32x32	ogre_chief_arc	existing	models.txt: monster
 ogre_gen.111	monster/goblin/ogre_gen.base.111.png	32x32	generate_ogre	existing	models.txt: building
 ogre_leader.111	monster/goblin/ogre_leader.base.111.png	32x32	ogre_leader_arc	existing	models.txt: monster
-ogre_r.111	monster/goblin/ogre_r.base.111.png	32x32		rigged	folder monster/ (no object uses it)
-ogre_r.112	monster/goblin/ogre_r.base.112.png	32x32		rigged	folder monster/ (no object uses it)
+ogre_r.111	monster/goblin/ogre_r.base.111.png	32x32		existing	models.txt: monster
+ogre_r.112	monster/goblin/ogre_r.base.112.png	32x32		existing	models.txt: monster
 oil_sea.111	ground/oil_sea.base.111.png	32x32	oil_sea,oil_sea_ultra_viscous	flat	folder ground/: ground and its smoothing edges
 oil_sea.112	ground/oil_sea.base.112.png	32x32	oil_sea,oil_sea_ultra_viscous	flat	folder ground/: ground and its smoothing edges
 oil_sea.113	ground/oil_sea.base.113.png	32x32	oil_sea,oil_sea_ultra_viscous	flat	folder ground/: ground and its smoothing edges
@@ -4122,107 +4122,107 @@ paladin.171	player/class/Religious/paladin.base.171.png	32x32	paladin_class	exis
 paladin.172	player/class/Religious/paladin.base.172.png	32x32	paladin_class	existing	player character (3D bodies)
 palm.111	ground/new/palm.base.111.png	32x32	palm	flat	folder ground/: ground and its smoothing edges
 palms.111	ground/new/palms.base.111.png	32x32	palms	flat	folder ground/: ground and its smoothing edges
-panther.131	monster/animal/panther.base.131.png	32x32	Gaea,gaea_avatar,panther	rigged	alive: a creature
-panther.132	monster/animal/panther.base.132.png	32x32	Gaea,gaea_avatar,panther	rigged	alive: a creature
-panther.133	monster/animal/panther.base.133.png	32x32	Gaea,gaea_avatar,panther	rigged	alive: a creature
-panther.171	monster/animal/panther.base.171.png	32x32	Gaea,gaea_avatar,panther	rigged	alive: a creature
-panther.172	monster/animal/panther.base.172.png	32x32	Gaea,gaea_avatar,panther	rigged	alive: a creature
-panther.173	monster/animal/panther.base.173.png	32x32	Gaea,gaea_avatar,panther	rigged	alive: a creature
+panther.131	monster/animal/panther.base.131.png	32x32	Gaea,gaea_avatar,panther	existing	models.txt: beast
+panther.132	monster/animal/panther.base.132.png	32x32	Gaea,gaea_avatar,panther	existing	models.txt: beast
+panther.133	monster/animal/panther.base.133.png	32x32	Gaea,gaea_avatar,panther	existing	models.txt: beast
+panther.171	monster/animal/panther.base.171.png	32x32	Gaea,gaea_avatar,panther	existing	models.txt: beast
+panther.172	monster/animal/panther.base.172.png	32x32	Gaea,gaea_avatar,panther	existing	models.txt: beast
+panther.173	monster/animal/panther.base.173.png	32x32	Gaea,gaea_avatar,panther	existing	models.txt: beast
 panthergen.111	monster/animal/panthergen.base.111.png	32x32	generate_panther	existing	models.txt: building
-para_air.111	monster/elemental/Para/para_air.base.111.png	32x32	para_air	rigged	alive: a creature
-para_air.112	monster/elemental/Para/para_air.base.112.png	32x32	para_air	rigged	alive: a creature
-para_air.113	monster/elemental/Para/para_air.base.113.png	32x32	para_air	rigged	alive: a creature
-para_air.114	monster/elemental/Para/para_air.base.114.png	32x32	para_air	rigged	alive: a creature
-para_air_residue.111	monster/elemental/Para/para_air_residue.base.111.png	32x32		rigged	folder monster/ (no object uses it)
-para_earth.111	monster/elemental/Para/para_earth.base.111.png	32x32	para_earth	rigged	alive: a creature
-para_earth.112	monster/elemental/Para/para_earth.base.112.png	32x32	para_earth	rigged	alive: a creature
-para_earth.113	monster/elemental/Para/para_earth.base.113.png	32x32	para_earth	rigged	alive: a creature
-para_earth_residue.111	monster/elemental/Para/para_earth_residue.base.111.png	32x32		rigged	folder monster/ (no object uses it)
-para_fire.111	monster/elemental/Para/para_fire.base.111.png	32x32	para_fire	rigged	alive: a creature
-para_fire.112	monster/elemental/Para/para_fire.base.112.png	32x32	para_fire	rigged	alive: a creature
-para_fire_residue.111	monster/elemental/Para/para_fire_residue.base.111.png	32x32		rigged	folder monster/ (no object uses it)
-para_ice.111	monster/elemental/Para/para_ice.base.111.png	32x32	para_ice	rigged	alive: a creature
-para_ice.112	monster/elemental/Para/para_ice.base.112.png	32x32	para_ice	rigged	alive: a creature
-para_ice.113	monster/elemental/Para/para_ice.base.113.png	32x32	para_ice	rigged	alive: a creature
-para_ice.114	monster/elemental/Para/para_ice.base.114.png	32x32	para_ice	rigged	alive: a creature
-para_ice.115	monster/elemental/Para/para_ice.base.115.png	32x32	para_ice	rigged	alive: a creature
-para_ice.116	monster/elemental/Para/para_ice.base.116.png	32x32	para_ice	rigged	alive: a creature
-para_ice.117	monster/elemental/Para/para_ice.base.117.png	32x32	para_ice	rigged	alive: a creature
-para_ice.118	monster/elemental/Para/para_ice.base.118.png	32x32	para_ice	rigged	alive: a creature
-para_ice.121	monster/elemental/Para/para_ice.base.121.png	32x32	para_ice	rigged	alive: a creature
-para_ice.122	monster/elemental/Para/para_ice.base.122.png	32x32	para_ice	rigged	alive: a creature
-para_ice.123	monster/elemental/Para/para_ice.base.123.png	32x32	para_ice	rigged	alive: a creature
-para_ice.124	monster/elemental/Para/para_ice.base.124.png	32x32	para_ice	rigged	alive: a creature
-para_ice.125	monster/elemental/Para/para_ice.base.125.png	32x32	para_ice	rigged	alive: a creature
-para_ice.126	monster/elemental/Para/para_ice.base.126.png	32x32	para_ice	rigged	alive: a creature
-para_ice.127	monster/elemental/Para/para_ice.base.127.png	32x32	para_ice	rigged	alive: a creature
-para_ice.128	monster/elemental/Para/para_ice.base.128.png	32x32	para_ice	rigged	alive: a creature
-para_ice.131	monster/elemental/Para/para_ice.base.131.png	32x32	para_ice	rigged	alive: a creature
-para_ice.132	monster/elemental/Para/para_ice.base.132.png	32x32	para_ice	rigged	alive: a creature
-para_ice.133	monster/elemental/Para/para_ice.base.133.png	32x32	para_ice	rigged	alive: a creature
-para_ice.134	monster/elemental/Para/para_ice.base.134.png	32x32	para_ice	rigged	alive: a creature
-para_ice.135	monster/elemental/Para/para_ice.base.135.png	32x32	para_ice	rigged	alive: a creature
-para_ice.136	monster/elemental/Para/para_ice.base.136.png	32x32	para_ice	rigged	alive: a creature
-para_ice.137	monster/elemental/Para/para_ice.base.137.png	32x32	para_ice	rigged	alive: a creature
-para_ice.138	monster/elemental/Para/para_ice.base.138.png	32x32	para_ice	rigged	alive: a creature
-para_ice.141	monster/elemental/Para/para_ice.base.141.png	32x32	para_ice	rigged	alive: a creature
-para_ice.142	monster/elemental/Para/para_ice.base.142.png	32x32	para_ice	rigged	alive: a creature
-para_ice.143	monster/elemental/Para/para_ice.base.143.png	32x32	para_ice	rigged	alive: a creature
-para_ice.144	monster/elemental/Para/para_ice.base.144.png	32x32	para_ice	rigged	alive: a creature
-para_ice.145	monster/elemental/Para/para_ice.base.145.png	32x32	para_ice	rigged	alive: a creature
-para_ice.146	monster/elemental/Para/para_ice.base.146.png	32x32	para_ice	rigged	alive: a creature
-para_ice.147	monster/elemental/Para/para_ice.base.147.png	32x32	para_ice	rigged	alive: a creature
-para_ice.148	monster/elemental/Para/para_ice.base.148.png	32x32	para_ice	rigged	alive: a creature
-para_ice.151	monster/elemental/Para/para_ice.base.151.png	32x32	para_ice	rigged	alive: a creature
-para_ice.152	monster/elemental/Para/para_ice.base.152.png	32x32	para_ice	rigged	alive: a creature
-para_ice.153	monster/elemental/Para/para_ice.base.153.png	32x32	para_ice	rigged	alive: a creature
-para_ice.154	monster/elemental/Para/para_ice.base.154.png	32x32	para_ice	rigged	alive: a creature
-para_ice.155	monster/elemental/Para/para_ice.base.155.png	32x32	para_ice	rigged	alive: a creature
-para_ice.156	monster/elemental/Para/para_ice.base.156.png	32x32	para_ice	rigged	alive: a creature
-para_ice.157	monster/elemental/Para/para_ice.base.157.png	32x32	para_ice	rigged	alive: a creature
-para_ice.158	monster/elemental/Para/para_ice.base.158.png	32x32	para_ice	rigged	alive: a creature
-para_ice.161	monster/elemental/Para/para_ice.base.161.png	32x32	para_ice	rigged	alive: a creature
-para_ice.162	monster/elemental/Para/para_ice.base.162.png	32x32	para_ice	rigged	alive: a creature
-para_ice.163	monster/elemental/Para/para_ice.base.163.png	32x32	para_ice	rigged	alive: a creature
-para_ice.164	monster/elemental/Para/para_ice.base.164.png	32x32	para_ice	rigged	alive: a creature
-para_ice.165	monster/elemental/Para/para_ice.base.165.png	32x32	para_ice	rigged	alive: a creature
-para_ice.166	monster/elemental/Para/para_ice.base.166.png	32x32	para_ice	rigged	alive: a creature
-para_ice.167	monster/elemental/Para/para_ice.base.167.png	32x32	para_ice	rigged	alive: a creature
-para_ice.168	monster/elemental/Para/para_ice.base.168.png	32x32	para_ice	rigged	alive: a creature
-para_ice.171	monster/elemental/Para/para_ice.base.171.png	32x32	para_ice	rigged	alive: a creature
-para_ice.172	monster/elemental/Para/para_ice.base.172.png	32x32	para_ice	rigged	alive: a creature
-para_ice.173	monster/elemental/Para/para_ice.base.173.png	32x32	para_ice	rigged	alive: a creature
-para_ice.174	monster/elemental/Para/para_ice.base.174.png	32x32	para_ice	rigged	alive: a creature
-para_ice.175	monster/elemental/Para/para_ice.base.175.png	32x32	para_ice	rigged	alive: a creature
-para_ice.176	monster/elemental/Para/para_ice.base.176.png	32x32	para_ice	rigged	alive: a creature
-para_ice.177	monster/elemental/Para/para_ice.base.177.png	32x32	para_ice	rigged	alive: a creature
-para_ice.178	monster/elemental/Para/para_ice.base.178.png	32x32	para_ice	rigged	alive: a creature
-para_ice.181	monster/elemental/Para/para_ice.base.181.png	32x32	para_ice	rigged	alive: a creature
-para_ice.182	monster/elemental/Para/para_ice.base.182.png	32x32	para_ice	rigged	alive: a creature
-para_ice.183	monster/elemental/Para/para_ice.base.183.png	32x32	para_ice	rigged	alive: a creature
-para_ice.184	monster/elemental/Para/para_ice.base.184.png	32x32	para_ice	rigged	alive: a creature
-para_ice.185	monster/elemental/Para/para_ice.base.185.png	32x32	para_ice	rigged	alive: a creature
-para_ice.186	monster/elemental/Para/para_ice.base.186.png	32x32	para_ice	rigged	alive: a creature
-para_ice.187	monster/elemental/Para/para_ice.base.187.png	32x32	para_ice	rigged	alive: a creature
-para_ice.188	monster/elemental/Para/para_ice.base.188.png	32x32	para_ice	rigged	alive: a creature
-para_ice_residue.111	monster/elemental/Para/para_ice_residue.base.111.png	32x32		rigged	folder monster/ (no object uses it)
-para_lava.111	monster/elemental/Para/para_lava.base.111.png	32x32	para_lava	rigged	alive: a creature
-para_lava.112	monster/elemental/Para/para_lava.base.112.png	32x32	para_lava	rigged	alive: a creature
-para_lava.113	monster/elemental/Para/para_lava.base.113.png	32x32	para_lava	rigged	alive: a creature
-para_light.111	monster/elemental/Para/para_light.base.111.png	32x32	Sorig,para_lightning,sorig_avatar	rigged	alive: a creature
-para_light.112	monster/elemental/Para/para_light.base.112.png	32x32	Sorig,para_lightning,sorig_avatar	rigged	alive: a creature
-para_light.113	monster/elemental/Para/para_light.base.113.png	32x32	Sorig,para_lightning,sorig_avatar	rigged	alive: a creature
-para_lightning_residue.111	monster/elemental/Para/para_lightning_residue.base.111.png	32x32		rigged	folder monster/ (no object uses it)
-para_mud.111	monster/elemental/Para/para_mud.base.111.png	32x32	para_mud	rigged	alive: a creature
-para_mud.112	monster/elemental/Para/para_mud.base.112.png	32x32	para_mud	rigged	alive: a creature
-para_mud.113	monster/elemental/Para/para_mud.base.113.png	32x32	para_mud	rigged	alive: a creature
-para_mud.114	monster/elemental/Para/para_mud.base.114.png	32x32	para_mud	rigged	alive: a creature
-para_mud.115	monster/elemental/Para/para_mud.base.115.png	32x32	para_mud	rigged	alive: a creature
-para_mud_residue.111	monster/elemental/Para/para_mud_residue.base.111.png	32x32		rigged	folder monster/ (no object uses it)
-para_water.111	monster/elemental/Para/para_water.base.111.png	32x32	para_water	rigged	alive: a creature
-para_water.112	monster/elemental/Para/para_water.base.112.png	32x32	para_water	rigged	alive: a creature
-para_water.113	monster/elemental/Para/para_water.base.113.png	32x32	para_water	rigged	alive: a creature
-para_water_residue.111	monster/elemental/Para/para_water_residue.base.111.png	32x32		rigged	folder monster/ (no object uses it)
+para_air.111	monster/elemental/Para/para_air.base.111.png	32x32	para_air	existing	models.txt: beast
+para_air.112	monster/elemental/Para/para_air.base.112.png	32x32	para_air	existing	models.txt: beast
+para_air.113	monster/elemental/Para/para_air.base.113.png	32x32	para_air	existing	models.txt: beast
+para_air.114	monster/elemental/Para/para_air.base.114.png	32x32	para_air	existing	models.txt: beast
+para_air_residue.111	monster/elemental/Para/para_air_residue.base.111.png	32x32		existing	models.txt: flat
+para_earth.111	monster/elemental/Para/para_earth.base.111.png	32x32	para_earth	existing	models.txt: beast
+para_earth.112	monster/elemental/Para/para_earth.base.112.png	32x32	para_earth	existing	models.txt: beast
+para_earth.113	monster/elemental/Para/para_earth.base.113.png	32x32	para_earth	existing	models.txt: beast
+para_earth_residue.111	monster/elemental/Para/para_earth_residue.base.111.png	32x32		existing	models.txt: flat
+para_fire.111	monster/elemental/Para/para_fire.base.111.png	32x32	para_fire	existing	models.txt: beast
+para_fire.112	monster/elemental/Para/para_fire.base.112.png	32x32	para_fire	existing	models.txt: beast
+para_fire_residue.111	monster/elemental/Para/para_fire_residue.base.111.png	32x32		existing	models.txt: flat
+para_ice.111	monster/elemental/Para/para_ice.base.111.png	32x32	para_ice	existing	models.txt: beast
+para_ice.112	monster/elemental/Para/para_ice.base.112.png	32x32	para_ice	existing	models.txt: beast
+para_ice.113	monster/elemental/Para/para_ice.base.113.png	32x32	para_ice	existing	models.txt: beast
+para_ice.114	monster/elemental/Para/para_ice.base.114.png	32x32	para_ice	existing	models.txt: beast
+para_ice.115	monster/elemental/Para/para_ice.base.115.png	32x32	para_ice	existing	models.txt: beast
+para_ice.116	monster/elemental/Para/para_ice.base.116.png	32x32	para_ice	existing	models.txt: beast
+para_ice.117	monster/elemental/Para/para_ice.base.117.png	32x32	para_ice	existing	models.txt: beast
+para_ice.118	monster/elemental/Para/para_ice.base.118.png	32x32	para_ice	existing	models.txt: beast
+para_ice.121	monster/elemental/Para/para_ice.base.121.png	32x32	para_ice	existing	models.txt: beast
+para_ice.122	monster/elemental/Para/para_ice.base.122.png	32x32	para_ice	existing	models.txt: beast
+para_ice.123	monster/elemental/Para/para_ice.base.123.png	32x32	para_ice	existing	models.txt: beast
+para_ice.124	monster/elemental/Para/para_ice.base.124.png	32x32	para_ice	existing	models.txt: beast
+para_ice.125	monster/elemental/Para/para_ice.base.125.png	32x32	para_ice	existing	models.txt: beast
+para_ice.126	monster/elemental/Para/para_ice.base.126.png	32x32	para_ice	existing	models.txt: beast
+para_ice.127	monster/elemental/Para/para_ice.base.127.png	32x32	para_ice	existing	models.txt: beast
+para_ice.128	monster/elemental/Para/para_ice.base.128.png	32x32	para_ice	existing	models.txt: beast
+para_ice.131	monster/elemental/Para/para_ice.base.131.png	32x32	para_ice	existing	models.txt: beast
+para_ice.132	monster/elemental/Para/para_ice.base.132.png	32x32	para_ice	existing	models.txt: beast
+para_ice.133	monster/elemental/Para/para_ice.base.133.png	32x32	para_ice	existing	models.txt: beast
+para_ice.134	monster/elemental/Para/para_ice.base.134.png	32x32	para_ice	existing	models.txt: beast
+para_ice.135	monster/elemental/Para/para_ice.base.135.png	32x32	para_ice	existing	models.txt: beast
+para_ice.136	monster/elemental/Para/para_ice.base.136.png	32x32	para_ice	existing	models.txt: beast
+para_ice.137	monster/elemental/Para/para_ice.base.137.png	32x32	para_ice	existing	models.txt: beast
+para_ice.138	monster/elemental/Para/para_ice.base.138.png	32x32	para_ice	existing	models.txt: beast
+para_ice.141	monster/elemental/Para/para_ice.base.141.png	32x32	para_ice	existing	models.txt: beast
+para_ice.142	monster/elemental/Para/para_ice.base.142.png	32x32	para_ice	existing	models.txt: beast
+para_ice.143	monster/elemental/Para/para_ice.base.143.png	32x32	para_ice	existing	models.txt: beast
+para_ice.144	monster/elemental/Para/para_ice.base.144.png	32x32	para_ice	existing	models.txt: beast
+para_ice.145	monster/elemental/Para/para_ice.base.145.png	32x32	para_ice	existing	models.txt: beast
+para_ice.146	monster/elemental/Para/para_ice.base.146.png	32x32	para_ice	existing	models.txt: beast
+para_ice.147	monster/elemental/Para/para_ice.base.147.png	32x32	para_ice	existing	models.txt: beast
+para_ice.148	monster/elemental/Para/para_ice.base.148.png	32x32	para_ice	existing	models.txt: beast
+para_ice.151	monster/elemental/Para/para_ice.base.151.png	32x32	para_ice	existing	models.txt: beast
+para_ice.152	monster/elemental/Para/para_ice.base.152.png	32x32	para_ice	existing	models.txt: beast
+para_ice.153	monster/elemental/Para/para_ice.base.153.png	32x32	para_ice	existing	models.txt: beast
+para_ice.154	monster/elemental/Para/para_ice.base.154.png	32x32	para_ice	existing	models.txt: beast
+para_ice.155	monster/elemental/Para/para_ice.base.155.png	32x32	para_ice	existing	models.txt: beast
+para_ice.156	monster/elemental/Para/para_ice.base.156.png	32x32	para_ice	existing	models.txt: beast
+para_ice.157	monster/elemental/Para/para_ice.base.157.png	32x32	para_ice	existing	models.txt: beast
+para_ice.158	monster/elemental/Para/para_ice.base.158.png	32x32	para_ice	existing	models.txt: beast
+para_ice.161	monster/elemental/Para/para_ice.base.161.png	32x32	para_ice	existing	models.txt: beast
+para_ice.162	monster/elemental/Para/para_ice.base.162.png	32x32	para_ice	existing	models.txt: beast
+para_ice.163	monster/elemental/Para/para_ice.base.163.png	32x32	para_ice	existing	models.txt: beast
+para_ice.164	monster/elemental/Para/para_ice.base.164.png	32x32	para_ice	existing	models.txt: beast
+para_ice.165	monster/elemental/Para/para_ice.base.165.png	32x32	para_ice	existing	models.txt: beast
+para_ice.166	monster/elemental/Para/para_ice.base.166.png	32x32	para_ice	existing	models.txt: beast
+para_ice.167	monster/elemental/Para/para_ice.base.167.png	32x32	para_ice	existing	models.txt: beast
+para_ice.168	monster/elemental/Para/para_ice.base.168.png	32x32	para_ice	existing	models.txt: beast
+para_ice.171	monster/elemental/Para/para_ice.base.171.png	32x32	para_ice	existing	models.txt: beast
+para_ice.172	monster/elemental/Para/para_ice.base.172.png	32x32	para_ice	existing	models.txt: beast
+para_ice.173	monster/elemental/Para/para_ice.base.173.png	32x32	para_ice	existing	models.txt: beast
+para_ice.174	monster/elemental/Para/para_ice.base.174.png	32x32	para_ice	existing	models.txt: beast
+para_ice.175	monster/elemental/Para/para_ice.base.175.png	32x32	para_ice	existing	models.txt: beast
+para_ice.176	monster/elemental/Para/para_ice.base.176.png	32x32	para_ice	existing	models.txt: beast
+para_ice.177	monster/elemental/Para/para_ice.base.177.png	32x32	para_ice	existing	models.txt: beast
+para_ice.178	monster/elemental/Para/para_ice.base.178.png	32x32	para_ice	existing	models.txt: beast
+para_ice.181	monster/elemental/Para/para_ice.base.181.png	32x32	para_ice	existing	models.txt: beast
+para_ice.182	monster/elemental/Para/para_ice.base.182.png	32x32	para_ice	existing	models.txt: beast
+para_ice.183	monster/elemental/Para/para_ice.base.183.png	32x32	para_ice	existing	models.txt: beast
+para_ice.184	monster/elemental/Para/para_ice.base.184.png	32x32	para_ice	existing	models.txt: beast
+para_ice.185	monster/elemental/Para/para_ice.base.185.png	32x32	para_ice	existing	models.txt: beast
+para_ice.186	monster/elemental/Para/para_ice.base.186.png	32x32	para_ice	existing	models.txt: beast
+para_ice.187	monster/elemental/Para/para_ice.base.187.png	32x32	para_ice	existing	models.txt: beast
+para_ice.188	monster/elemental/Para/para_ice.base.188.png	32x32	para_ice	existing	models.txt: beast
+para_ice_residue.111	monster/elemental/Para/para_ice_residue.base.111.png	32x32		existing	models.txt: flat
+para_lava.111	monster/elemental/Para/para_lava.base.111.png	32x32	para_lava	existing	models.txt: beast
+para_lava.112	monster/elemental/Para/para_lava.base.112.png	32x32	para_lava	existing	models.txt: beast
+para_lava.113	monster/elemental/Para/para_lava.base.113.png	32x32	para_lava	existing	models.txt: beast
+para_light.111	monster/elemental/Para/para_light.base.111.png	32x32	Sorig,para_lightning,sorig_avatar	existing	models.txt: beast
+para_light.112	monster/elemental/Para/para_light.base.112.png	32x32	Sorig,para_lightning,sorig_avatar	existing	models.txt: beast
+para_light.113	monster/elemental/Para/para_light.base.113.png	32x32	Sorig,para_lightning,sorig_avatar	existing	models.txt: beast
+para_lightning_residue.111	monster/elemental/Para/para_lightning_residue.base.111.png	32x32		existing	models.txt: flat
+para_mud.111	monster/elemental/Para/para_mud.base.111.png	32x32	para_mud	existing	models.txt: beast
+para_mud.112	monster/elemental/Para/para_mud.base.112.png	32x32	para_mud	existing	models.txt: beast
+para_mud.113	monster/elemental/Para/para_mud.base.113.png	32x32	para_mud	existing	models.txt: beast
+para_mud.114	monster/elemental/Para/para_mud.base.114.png	32x32	para_mud	existing	models.txt: beast
+para_mud.115	monster/elemental/Para/para_mud.base.115.png	32x32	para_mud	existing	models.txt: beast
+para_mud_residue.111	monster/elemental/Para/para_mud_residue.base.111.png	32x32		existing	models.txt: flat
+para_water.111	monster/elemental/Para/para_water.base.111.png	32x32	para_water	existing	models.txt: beast
+para_water.112	monster/elemental/Para/para_water.base.112.png	32x32	para_water	existing	models.txt: beast
+para_water.113	monster/elemental/Para/para_water.base.113.png	32x32	para_water	existing	models.txt: beast
+para_water_residue.111	monster/elemental/Para/para_water_residue.base.111.png	32x32		existing	models.txt: flat
 paralyse.111	spell/Cone/paralyse.base.111.png	32x32	chaos,chaos_ball,color_spray	flat	is_floor
 paralyse.112	spell/Cone/paralyse.base.112.png	32x32	paralyze	flat	type SPELL_EFFECT: on the ground or an effect
 paralyse.113	spell/Cone/paralyse.base.113.png	32x32	paralyze	flat	type SPELL_EFFECT: on the ground or an effect
@@ -4250,8 +4250,8 @@ pedestal.111	connect/pedestal.base.111.png	32x32	detector,pedestal,pedestal_trig
 pedestal.112	connect/pedestal.base.112.png	32x32	detector,pedestal,pedestal_trigger	existing	models.txt: building
 penta.111	misc/penta.base.111.png	32x32	pentagram	existing	models.txt: flat
 pentagram.x11	exit/Pentagram/pentagram.base.x11.png	96x96	pentagram_111,pentagram_112,pentagram_113	existing	models.txt: flat
-pet_necro.111	monster/acid/pet_necro.base.111.png	32x32	pet_necro,undead_pet_necro	rigged	alive: a creature
-pet_necro.112	monster/acid/pet_necro.base.112.png	32x32	pet_necro,undead_pet_necro	rigged	alive: a creature
+pet_necro.111	monster/acid/pet_necro.base.111.png	32x32	pet_necro,undead_pet_necro	existing	models.txt: beast
+pet_necro.112	monster/acid/pet_necro.base.112.png	32x32	pet_necro,undead_pet_necro	existing	models.txt: beast
 phil_phos.111	inorganic/phil_phos.base.111.png	32x32	phil_phosphorus	existing	models.txt: model
 phil_phos.112	inorganic/phil_phos.base.112.png	32x32	phil_phosphorus	existing	models.txt: model
 phil_phos.113	inorganic/phil_phos.base.113.png	32x32	phil_phosphorus	existing	models.txt: model
@@ -4297,8 +4297,8 @@ pirate.112	monster/humanoid/Class/pirate.base.112.png	32x32	pirate	existing	mode
 pirate_hat.111	misc/social/pirate_hat.base.111.png	32x32	pirate_hat	existing	models.txt: model
 pix_dust.111	flesh/misc/pix_dust.base.111.png	32x32	pix_dust	existing	models.txt: model
 pix_wing.111	flesh/misc/pix_wing.base.111.png	32x32	pix_wing	existing	models.txt: model
-pixie.111	monster/misc/pixie.base.111.png	32x32	pixie,twisted_sprite	rigged	alive: a creature
-pixie.112	monster/misc/pixie.base.112.png	32x32	pixie,twisted_sprite	rigged	alive: a creature
+pixie.111	monster/misc/pixie.base.111.png	32x32	pixie,twisted_sprite	existing	models.txt: person
+pixie.112	monster/misc/pixie.base.112.png	32x32	pixie,twisted_sprite	existing	models.txt: person
 pixie_gen.111	monster/misc/pixie_gen.base.111.png	32x32	generate_pixie	existing	models.txt: model
 pl_dragon_bl.111	player/race/pl_dragon_bl.base.111.png	32x32	dragon_ability_force_cold,ice_clawing	existing	player character (3D bodies)
 pl_dragon_bl.112	player/race/pl_dragon_bl.base.112.png	32x32	dragon_ability_force_cold,ice_clawing	existing	player character (3D bodies)
@@ -4591,15 +4591,15 @@ pup.133	monster/animal/Dog/pup.base.133.png	32x32	pup	existing	models.txt: beast
 pup.171	monster/animal/Dog/pup.base.171.png	32x32	pup	existing	models.txt: beast
 pup.172	monster/animal/Dog/pup.base.172.png	32x32	pup	existing	models.txt: beast
 pup.173	monster/animal/Dog/pup.base.173.png	32x32	pup	existing	models.txt: beast
-purple_worm.x31	monster/animal/giant_worm/purple_worm.base.x31.png	64x64	purple_worm,purple_worm_2,purple_worm_3	rigged	alive: a creature
-purple_worm.x71	monster/animal/giant_worm/purple_worm.base.x71.png	64x64	purple_worm,purple_worm_2,purple_worm_3	rigged	alive: a creature
+purple_worm.x31	monster/animal/giant_worm/purple_worm.base.x31.png	64x64	purple_worm,purple_worm_2,purple_worm_3	existing	models.txt: building
+purple_worm.x71	monster/animal/giant_worm/purple_worm.base.x71.png	64x64	purple_worm,purple_worm_2,purple_worm_3	existing	models.txt: building
 pyrite.111	inorganic/pyrite.base.111.png	32x32	pyrite	existing	models.txt: model
 pyro_book.111	spell/SpellBook/pyro_book.base.111.png	32x32	pyro_book,pyro_book_l1	existing	models.txt: model
 pyro_gen.111	monster/humanoid/pyro_gen.base.111.png	32x32	pyro_gen	existing	models.txt: building
-pyromaniac.111	monster/humanoid/pyromaniac.base.111.png	32x32	pyromaniac	rigged	alive: a creature
-pyromaniac.112	monster/humanoid/pyromaniac.base.112.png	32x32	pyromaniac	rigged	alive: a creature
-pyromaniac.113	monster/humanoid/pyromaniac.base.113.png	32x32	pyromaniac	rigged	alive: a creature
-pyromaniac.114	monster/humanoid/pyromaniac.base.114.png	32x32	pyromaniac	rigged	alive: a creature
+pyromaniac.111	monster/humanoid/pyromaniac.base.111.png	32x32	pyromaniac	existing	models.txt: person
+pyromaniac.112	monster/humanoid/pyromaniac.base.112.png	32x32	pyromaniac	existing	models.txt: person
+pyromaniac.113	monster/humanoid/pyromaniac.base.113.png	32x32	pyromaniac	existing	models.txt: person
+pyromaniac.114	monster/humanoid/pyromaniac.base.114.png	32x32	pyromaniac	existing	models.txt: person
 quaathu.x11	monster/misc/quaathu/quaathu.base.x11.png	224x192	quaathu,quaathu_1,quaathu_10	existing	models.txt: beast
 quaathu.x12	monster/misc/quaathu/quaathu.base.x12.png	224x192	quaathu,quaathu_1,quaathu_10	existing	models.txt: beast
 quarters.111	weapon/club/quarters.base.111.png	32x32	quarterstaff	existing	models.txt: model
@@ -4634,8 +4634,8 @@ r_foot.111	misc/r_foot.base.111.png	32x32		existing	models.txt: building
 r_house1.111	construct/town/r_house1.base.111.png	32x32	r_house1	existing	models.txt: building
 r_house2.111	construct/town/r_house2.base.111.png	32x32	r_house2	existing	models.txt: building
 r_sack.111	misc/Container/r_sack.base.111.png	32x32	r_sack,scrollcase	existing	models.txt: model
-raas.131	monster/demon/raas.base.131.png	32x32	raas	rigged	alive: a creature
-raas.171	monster/demon/raas.base.171.png	32x32	raas	rigged	alive: a creature
+raas.131	monster/demon/raas.base.131.png	32x32	raas	existing	models.txt: beast
+raas.171	monster/demon/raas.base.171.png	32x32	raas	existing	models.txt: beast
 rage_effect.111	spell/Change_Ability/rage_effect.base.111.png	32x32	rage_effect	flat	folder spell/
 rage_effect.112	spell/Change_Ability/rage_effect.base.112.png	32x32	rage_effect	flat	folder spell/
 rage_effect.113	spell/Change_Ability/rage_effect.base.113.png	32x32	rage_effect	flat	folder spell/
@@ -4730,10 +4730,10 @@ red_cave_8.111	wall/red_cave/red_cave_8.base.111.png	32x32	red_cave_8	existing	m
 red_cave_8.112	wall/red_cave/red_cave_8.base.112.png	32x32	red_cave_8	existing	models.txt: wall
 red_cave_9.111	wall/red_cave/red_cave_9.base.111.png	32x32	red_cave_9	existing	models.txt: wall
 red_cave_9.112	wall/red_cave/red_cave_9.base.112.png	32x32	red_cave_9	existing	models.txt: wall
-red_dragon2.151	monster/humanoid/Dragon/red_dragon2.base.151.png	32x32	red_dragon2	rigged	alive: a creature
-red_dragon2.152	monster/humanoid/Dragon/red_dragon2.base.152.png	32x32	red_dragon2	rigged	alive: a creature
-red_dragon2.171	monster/humanoid/Dragon/red_dragon2.base.171.png	32x32	red_dragon2	rigged	alive: a creature
-red_dragon2.172	monster/humanoid/Dragon/red_dragon2.base.172.png	32x32	red_dragon2	rigged	alive: a creature
+red_dragon2.151	monster/humanoid/Dragon/red_dragon2.base.151.png	32x32	red_dragon2	existing	models.txt: beast
+red_dragon2.152	monster/humanoid/Dragon/red_dragon2.base.152.png	32x32	red_dragon2	existing	models.txt: beast
+red_dragon2.171	monster/humanoid/Dragon/red_dragon2.base.171.png	32x32	red_dragon2	existing	models.txt: beast
+red_dragon2.172	monster/humanoid/Dragon/red_dragon2.base.172.png	32x32	red_dragon2	existing	models.txt: beast
 redcityport_0.111	wall/cwall-red/redcityport_0.base.111.png	32x32	redcityport_b	existing	models.txt: wall
 redcityport_1.111	wall/cwall-red/redcityport_1.base.111.png	32x32	redcityport_a	existing	models.txt: wall
 redcwall_0.111	wall/cwall-red/redcwall_0.base.111.png	32x32	redcwall_0	existing	models.txt: wall
@@ -4784,7 +4784,7 @@ reflector.113	armour/shield/reflector.base.113.png	32x32	reflector	existing	mode
 reflexbow.111	weapon/bow/reflexbow.base.111.png	32x32	reflexbow	existing	models.txt: model
 reflexbow_bone.111	weapon/bow/reflexbow_bone.base.111.png	32x32	reflexbow_bone,reflexbow_ivory	existing	models.txt: model
 residue.111	flesh/misc/residue.base.111.png	32x32	puddle_of_saliva,reeking_urine,residue	existing	models.txt: model
-retributioner.x11	monster/angel/retributioner.base.x11.png	64x96	destroying_angel,destroying_angel_2,destroying_angel_3	rigged	alive: a creature
+retributioner.x11	monster/angel/retributioner.base.x11.png	64x96	destroying_angel,destroying_angel_2,destroying_angel_3	existing	models.txt: person
 ring.110	talisman/ring.base.110.png	32x32	ring,ring_spell	existing	models.txt: model
 ring.111	talisman/ring.base.111.png	32x32	ring	existing	models.txt: model
 ring.112	talisman/ring.base.112.png	32x32	ring	existing	models.txt: model
@@ -4939,10 +4939,10 @@ rune_sum_water.111	spell/Rune/rune_sum_water.base.111.png	32x32	rune_summon_wate
 rune_summon.111	spell/Rune/rune_summon.base.111.png	32x32	rune_summon_devil	flat	type RUNE: on the ground or an effect
 rune_summon_air.111	spell/Rune/rune_summon_air.base.111.png	32x32	rune_summon_air_elemental	flat	type RUNE: on the ground or an effect
 rune_transfer.111	spell/Rune/rune_transfer.base.111.png	32x32	rune_transferrence	flat	type RUNE: on the ground or an effect
-rustmonste.131	monster/acid/rustmonste.base.131.png	32x32	rustmonster	rigged	alive: a creature
-rustmonste.132	monster/acid/rustmonste.base.132.png	32x32	rustmonster	rigged	alive: a creature
-rustmonste.171	monster/acid/rustmonste.base.171.png	32x32	rustmonster	rigged	alive: a creature
-rustmonste.172	monster/acid/rustmonste.base.172.png	32x32	rustmonster	rigged	alive: a creature
+rustmonste.131	monster/acid/rustmonste.base.131.png	32x32	rustmonster	existing	models.txt: beast
+rustmonste.132	monster/acid/rustmonste.base.132.png	32x32	rustmonster	existing	models.txt: beast
+rustmonste.171	monster/acid/rustmonste.base.171.png	32x32	rustmonster	existing	models.txt: beast
+rustmonste.172	monster/acid/rustmonste.base.172.png	32x32	rustmonster	existing	models.txt: beast
 s_barn.x11	construct/Snow/s_barn.base.x11.png	64x64	s_barn,s_barn_2,s_barn_3	existing	models.txt: building
 s_barrack_u.x11	construct/Snow/s_barrack_u.base.x11.png	32x64	s_barrack_up,s_barrack_up_2	existing	models.txt: building
 s_barrack_u.x12	construct/Snow/s_barrack_u.base.x12.png	32x64	s_barrack_up,s_barrack_up_2	existing	models.txt: building
@@ -5019,11 +5019,11 @@ sanctuary_mark.220	spell/Aura/sanctuary_mark.base.220.png	32x32		flat	folder spe
 sanctuary_mark.221	spell/Aura/sanctuary_mark.base.221.png	32x32		flat	folder spell/ (no object uses it)
 sanctuary_mark.222	spell/Aura/sanctuary_mark.base.222.png	32x32		flat	folder spell/ (no object uses it)
 sandals.111	armour/boots/sandals.base.111.png	32x32	sandals	existing	models.txt: model
-sandy.111	monster/misc/sandy.base.111.png	32x32	sandy	rigged	alive: a creature
-sandy.112	monster/misc/sandy.base.112.png	32x32	sandy	rigged	alive: a creature
-sandy.113	monster/misc/sandy.base.113.png	32x32	sandy	rigged	alive: a creature
-sandy.114	monster/misc/sandy.base.114.png	32x32	sandy	rigged	alive: a creature
-sandy.115	monster/misc/sandy.base.115.png	32x32	sandy	rigged	alive: a creature
+sandy.111	monster/misc/sandy.base.111.png	32x32	sandy	existing	models.txt: flat
+sandy.112	monster/misc/sandy.base.112.png	32x32	sandy	existing	models.txt: flat
+sandy.113	monster/misc/sandy.base.113.png	32x32	sandy	existing	models.txt: flat
+sandy.114	monster/misc/sandy.base.114.png	32x32	sandy	existing	models.txt: flat
+sandy.115	monster/misc/sandy.base.115.png	32x32	sandy	existing	models.txt: flat
 sapphire.111	jewel/gems/sapphire.base.111.png	32x32	sapphire	existing	models.txt: model
 sapphire.112	jewel/gems/sapphire.base.112.png	32x32	sapphire	existing	models.txt: model
 sapphire_exceptional.111	jewel/gems/sapphire_exceptional.base.111.png	32x32	raw_sapphire_exceptional_beauty	existing	models.txt: model
@@ -5034,8 +5034,8 @@ scale_mail.111	armour/mail/scale_mail.base.111.png	32x32	scale_mail	existing	mod
 schest.111	misc/Container/schest.base.111.png	32x32	schest_2	existing	models.txt: model
 scimitar.111	weapon/sword/scimitar.base.111.png	32x32	scimitar	existing	models.txt: model
 scorpi_gen.111	monster/animal/scorpi_gen.base.111.png	32x32	generate_scorpion	existing	models.txt: building
-scorpion.111	monster/animal/scorpion.base.111.png	32x32	scorpion	rigged	alive: a creature
-scorpion.112	monster/animal/scorpion.base.112.png	32x32	scorpion	rigged	alive: a creature
+scorpion.111	monster/animal/scorpion.base.111.png	32x32	scorpion	existing	models.txt: beast
+scorpion.112	monster/animal/scorpion.base.112.png	32x32	scorpion	existing	models.txt: beast
 scroll.111	spell/Scroll/scroll.base.111.png	32x32	ench_armour,improve_cha,improve_con	existing	models.txt: model
 scroll_2.111	readable/scroll_2.base.111.png	32x32	scroll_2	existing	models.txt: model
 scroll_alchemy.111	skills/Skill_Scrolls/scroll_alchemy.base.111.png	32x32		skip	folder skills/ (no object uses it)
@@ -5093,17 +5093,17 @@ sea_nw.111	ground/sea_nw.base.111.png	32x32	sea_nw	flat	folder ground/: ground a
 sea_se.111	ground/sea_se.base.111.png	32x32	sea_se	flat	folder ground/: ground and its smoothing edges
 sea_sw.111	ground/sea_sw.base.111.png	32x32	sea_sw	flat	folder ground/: ground and its smoothing edges
 serp_cloak.111	armour/cloak/serp_cloak.base.111.png	32x32	serp_cloak	existing	models.txt: building
-serp_man.131	monster/misc/serpmen/serp_man.base.131.png	32x32	serp_man	rigged	alive: a creature
-serp_man.132	monster/misc/serpmen/serp_man.base.132.png	32x32	serp_man	rigged	alive: a creature
-serp_man.171	monster/misc/serpmen/serp_man.base.171.png	32x32	serp_man	rigged	alive: a creature
-serp_man.172	monster/misc/serpmen/serp_man.base.172.png	32x32	serp_man	rigged	alive: a creature
-serp_priest.131	monster/misc/serpmen/serp_priest.base.131.png	32x32	serp_priest	rigged	alive: a creature
-serp_priest.171	monster/misc/serpmen/serp_priest.base.171.png	32x32	serp_priest	rigged	alive: a creature
+serp_man.131	monster/misc/serpmen/serp_man.base.131.png	32x32	serp_man	existing	models.txt: person
+serp_man.132	monster/misc/serpmen/serp_man.base.132.png	32x32	serp_man	existing	models.txt: person
+serp_man.171	monster/misc/serpmen/serp_man.base.171.png	32x32	serp_man	existing	models.txt: person
+serp_man.172	monster/misc/serpmen/serp_man.base.172.png	32x32	serp_man	existing	models.txt: person
+serp_priest.131	monster/misc/serpmen/serp_priest.base.131.png	32x32	serp_priest	existing	models.txt: person
+serp_priest.171	monster/misc/serpmen/serp_priest.base.171.png	32x32	serp_priest	existing	models.txt: person
 serp_sword.111	weapon/sword/serp_sword.base.111.png	32x32	serp_sword	existing	models.txt: model
-serpent.x31	monster/giant/serpent/serpent.base.x31.png	64x32	fire_serpent,fire_serpent_2,serpent	rigged	alive: a creature
-serpent.x32	monster/giant/serpent/serpent.base.x32.png	64x32	fire_serpent,fire_serpent_2,serpent	rigged	alive: a creature
-serpent.x71	monster/giant/serpent/serpent.base.x71.png	64x32	fire_serpent,fire_serpent_2,serpent	rigged	alive: a creature
-serpent.x72	monster/giant/serpent/serpent.base.x72.png	64x32	fire_serpent,fire_serpent_2,serpent	rigged	alive: a creature
+serpent.x31	monster/giant/serpent/serpent.base.x31.png	64x32	fire_serpent,fire_serpent_2,serpent	existing	models.txt: building
+serpent.x32	monster/giant/serpent/serpent.base.x32.png	64x32	fire_serpent,fire_serpent_2,serpent	existing	models.txt: building
+serpent.x71	monster/giant/serpent/serpent.base.x71.png	64x32	fire_serpent,fire_serpent_2,serpent	existing	models.txt: building
+serpent.x72	monster/giant/serpent/serpent.base.x72.png	64x32	fire_serpent,fire_serpent_2,serpent	existing	models.txt: building
 serpent_skin.111	flesh/misc/serpent_skin.base.111.png	32x32	serp_skin	existing	models.txt: model
 serpentman.111	player/race/serpentman.base.111.png	32x32	serpentman_player	existing	player character (3D bodies)
 serpentman.112	player/race/serpentman.base.112.png	32x32	serpentman_player	existing	player character (3D bodies)
@@ -5120,18 +5120,18 @@ sewerfloor.111	floor/sewerfloor.base.111.png	32x32	sewerfloor	flat	folder floor/
 sflail_1.111	weapon/chained/sflail_1.base.111.png	32x32	sflail1	existing	models.txt: model
 sgrass.111	ground/smooth/sgrass.base.111.png	512x64		flat	folder ground/: ground and its smoothing edges
 sgrass_S.111	ground/smooth/sgrass_S.base.111.png	512x64		flat	folder ground/: ground and its smoothing edges
-shadow.111	monster/elemental/Shadow/shadow.base.111.png	32x32	shadow	rigged	alive: a creature
-shadow.112	monster/elemental/Shadow/shadow.base.112.png	32x32	shadow	rigged	alive: a creature
+shadow.111	monster/elemental/Shadow/shadow.base.111.png	32x32	shadow	existing	models.txt: beast
+shadow.112	monster/elemental/Shadow/shadow.base.112.png	32x32	shadow	existing	models.txt: beast
 shadow_dragon.x31	monster/dragon/Shadow_Dra/shadow_dragon.base.x31.png	96x64	shadow_dragon,shadow_dragon_2,shadow_dragon_3	existing	models.txt: beast
 shadow_dragon.x61	monster/dragon/Shadow_Dra/shadow_dragon.base.x61.png	96x64	shadow_dragon,shadow_dragon_2,shadow_dragon_3	existing	models.txt: beast
-shadowtiger.x31	monster/animal/shadowtiger/shadowtiger.base.x31.png	64x64	shadowtiger,shadowtiger_2,shadowtiger_3	rigged	alive: a creature
-shadowtiger.x32	monster/animal/shadowtiger/shadowtiger.base.x32.png	64x64	shadowtiger,shadowtiger_2,shadowtiger_3	rigged	alive: a creature
-shadowtiger.x33	monster/animal/shadowtiger/shadowtiger.base.x33.png	64x64	shadowtiger,shadowtiger_2,shadowtiger_3	rigged	alive: a creature
-shadowtiger.x34	monster/animal/shadowtiger/shadowtiger.base.x34.png	64x64	shadowtiger,shadowtiger_2,shadowtiger_3	rigged	alive: a creature
-shadowtiger.x71	monster/animal/shadowtiger/shadowtiger.base.x71.png	64x64	shadowtiger,shadowtiger_2,shadowtiger_3	rigged	alive: a creature
-shadowtiger.x72	monster/animal/shadowtiger/shadowtiger.base.x72.png	64x64	shadowtiger,shadowtiger_2,shadowtiger_3	rigged	alive: a creature
-shadowtiger.x73	monster/animal/shadowtiger/shadowtiger.base.x73.png	64x64	shadowtiger,shadowtiger_2,shadowtiger_3	rigged	alive: a creature
-shadowtiger.x74	monster/animal/shadowtiger/shadowtiger.base.x74.png	64x64	shadowtiger,shadowtiger_2,shadowtiger_3	rigged	alive: a creature
+shadowtiger.x31	monster/animal/shadowtiger/shadowtiger.base.x31.png	64x64	shadowtiger,shadowtiger_2,shadowtiger_3	existing	models.txt: beast
+shadowtiger.x32	monster/animal/shadowtiger/shadowtiger.base.x32.png	64x64	shadowtiger,shadowtiger_2,shadowtiger_3	existing	models.txt: beast
+shadowtiger.x33	monster/animal/shadowtiger/shadowtiger.base.x33.png	64x64	shadowtiger,shadowtiger_2,shadowtiger_3	existing	models.txt: beast
+shadowtiger.x34	monster/animal/shadowtiger/shadowtiger.base.x34.png	64x64	shadowtiger,shadowtiger_2,shadowtiger_3	existing	models.txt: beast
+shadowtiger.x71	monster/animal/shadowtiger/shadowtiger.base.x71.png	64x64	shadowtiger,shadowtiger_2,shadowtiger_3	existing	models.txt: beast
+shadowtiger.x72	monster/animal/shadowtiger/shadowtiger.base.x72.png	64x64	shadowtiger,shadowtiger_2,shadowtiger_3	existing	models.txt: beast
+shadowtiger.x73	monster/animal/shadowtiger/shadowtiger.base.x73.png	64x64	shadowtiger,shadowtiger_2,shadowtiger_3	existing	models.txt: beast
+shadowtiger.x74	monster/animal/shadowtiger/shadowtiger.base.x74.png	64x64	shadowtiger,shadowtiger_2,shadowtiger_3	existing	models.txt: beast
 shallow_sea.111	ground/shallow_sea.base.111.png	32x32	shallow_sea	flat	folder ground/: ground and its smoothing edges
 shallow_sea.112	ground/shallow_sea.base.112.png	32x32	shallow_sea	flat	folder ground/: ground and its smoothing edges
 shallow_sea.113	ground/shallow_sea.base.113.png	32x32	shallow_sea	flat	folder ground/: ground and its smoothing edges
@@ -5141,8 +5141,8 @@ shallow_sea_S.112	ground/smooth/shallow_sea_S.base.112.png	512x64		flat	folder g
 shallow_sea_S.113	ground/smooth/shallow_sea_S.base.113.png	512x64		flat	folder ground/: ground and its smoothing edges
 shallow_sea_S.114	ground/smooth/shallow_sea_S.base.114.png	512x64		flat	folder ground/: ground and its smoothing edges
 shaxe_1.111	weapon/axe/shaxe_1.base.111.png	32x32	shaxe1	existing	models.txt: model
-sheep.131	monster/animal/farmyard/sheep.base.131.png	32x32	sheep	rigged	alive: a creature
-sheep.171	monster/animal/farmyard/sheep.base.171.png	32x32	sheep	rigged	alive: a creature
+sheep.131	monster/animal/farmyard/sheep.base.131.png	32x32	sheep	existing	models.txt: beast
+sheep.171	monster/animal/farmyard/sheep.base.171.png	32x32	sheep	existing	models.txt: beast
 sheepskin.111	flesh/misc/sheepskin.base.111.png	32x32	sheepskin	existing	models.txt: model
 shell.111	spell/Bullet/Shell/shell.base.111.png	32x32	shell	flat	type SPELL_EFFECT: on the ground or an effect
 shell.112	spell/Bullet/Shell/shell.base.112.png	32x32	shell	flat	type SPELL_EFFECT: on the ground or an effect
@@ -5191,8 +5191,8 @@ shrine_east.x11	construct/temple/shrine_east.base.x11.png	32x64	shrine_east,shri
 shrine_east_r.x11	construct/temple/shrine_east_r.base.x11.png	32x64	shrine_east_r,shrine_east_r_2	existing	models.txt: building
 sickle_1.111	weapon/misc/sickle_1.base.111.png	32x32	sickle1	existing	models.txt: model
 sicklesword.111	weapon/sword/sicklesword.base.111.png	32x32	sicklesword	existing	models.txt: model
-siegfried.111	monster/humanoid/siegfried.base.111.png	32x32	siegfried	rigged	alive: a creature
-siegfried.112	monster/humanoid/siegfried.base.112.png	32x32	siegfried	rigged	alive: a creature
+siegfried.111	monster/humanoid/siegfried.base.111.png	32x32	siegfried	existing	models.txt: person
+siegfried.112	monster/humanoid/siegfried.base.112.png	32x32	siegfried	existing	models.txt: person
 sign.111	readable/sign.base.111.png	32x32	menu,sign	existing	models.txt: building
 sign_distance.111	readable/sign_distance.base.111.png	32x32	sign_distrance	existing	models.txt: building
 sign_e.111	readable/sign_e.base.111.png	32x32	sign_e	existing	models.txt: building
@@ -5246,13 +5246,13 @@ skill_use_magic_item.111	skills/skill_use_magic_item.base.111.png	32x32	skill_us
 skill_woodsman.111	skills/skill_woodsman.base.111.png	32x32	skill_woodsman	skip	a spell or skill icon
 skill_wraith_feed.111	skills/skill_wraith_feed.base.111.png	32x32	skill_wraith_feed	skip	a spell or skill icon
 skin.111	flesh/human/skin.base.111.png	32x32	leprous_skin,skin	existing	models.txt: model
-skree.x31	monster/undead/skree/skree.base.x31.png	64x64	skree,skree_2,skree_3	rigged	alive: a creature
-skree.x32	monster/undead/skree/skree.base.x32.png	64x64	skree,skree_2,skree_3	rigged	alive: a creature
-skree.x33	monster/undead/skree/skree.base.x33.png	64x64	skree,skree_2,skree_3	rigged	alive: a creature
-skree.x71	monster/undead/skree/skree.base.x71.png	64x64	skree,skree_2,skree_3	rigged	alive: a creature
-skree.x72	monster/undead/skree/skree.base.x72.png	64x64	skree,skree_2,skree_3	rigged	alive: a creature
-skree.x73	monster/undead/skree/skree.base.x73.png	64x64	skree,skree_2,skree_3	rigged	alive: a creature
-skree_claw.111	monster/undead/skree/skree_claw.base.111.png	32x32	skreeclaw	rigged	folder monster/
+skree.x31	monster/undead/skree/skree.base.x31.png	64x64	skree,skree_2,skree_3	existing	models.txt: beast
+skree.x32	monster/undead/skree/skree.base.x32.png	64x64	skree,skree_2,skree_3	existing	models.txt: beast
+skree.x33	monster/undead/skree/skree.base.x33.png	64x64	skree,skree_2,skree_3	existing	models.txt: beast
+skree.x71	monster/undead/skree/skree.base.x71.png	64x64	skree,skree_2,skree_3	existing	models.txt: beast
+skree.x72	monster/undead/skree/skree.base.x72.png	64x64	skree,skree_2,skree_3	existing	models.txt: beast
+skree.x73	monster/undead/skree/skree.base.x73.png	64x64	skree,skree_2,skree_3	existing	models.txt: beast
+skree_claw.111	monster/undead/skree/skree_claw.base.111.png	32x32	skreeclaw	existing	models.txt: beast
 skull.111	monster/undead/skull.base.111.png	32x32	skull	existing	models.txt: beast
 skull.112	monster/undead/skull.base.112.png	32x32	skull	existing	models.txt: beast
 skull_gen.111	monster/undead/skull_gen.base.111.png	32x32	generate_skull	existing	models.txt: building
@@ -5300,11 +5300,11 @@ slotmachine3.112	connect/Casino/slotmachine3.base.112.png	32x32	slotmachine3	exi
 slow.111	spell/Cone/slow.base.111.png	32x32	chaos,chaos_ball,color_spray	flat	is_floor
 slow.112	spell/Cone/slow.base.112.png	32x32	slow	flat	type SPELL_EFFECT: on the ground or an effect
 slow.113	spell/Cone/slow.base.113.png	32x32	slow	flat	type SPELL_EFFECT: on the ground or an effect
-slug.x31	monster/giant/slug/slug.base.x31.png	64x32	slug,slug_2	rigged	alive: a creature
-slug.x32	monster/giant/slug/slug.base.x32.png	64x32	slug,slug_2	rigged	alive: a creature
-slug.x71	monster/giant/slug/slug.base.x71.png	64x32	slug,slug_2	rigged	alive: a creature
-slug.x72	monster/giant/slug/slug.base.x72.png	64x32	slug,slug_2	rigged	alive: a creature
-slug_slime.111	monster/giant/slug/slug_slime.base.111.png	32x32	slug_slime	rigged	folder monster/
+slug.x31	monster/giant/slug/slug.base.x31.png	64x32	slug,slug_2	existing	models.txt: beast
+slug.x32	monster/giant/slug/slug.base.x32.png	64x32	slug,slug_2	existing	models.txt: beast
+slug.x71	monster/giant/slug/slug.base.x71.png	64x32	slug,slug_2	existing	models.txt: beast
+slug.x72	monster/giant/slug/slug.base.x72.png	64x32	slug,slug_2	existing	models.txt: beast
+slug_slime.111	monster/giant/slug/slug_slime.base.111.png	32x32	slug_slime	existing	models.txt: beast
 slum1.x11	construct/town/slum1.base.x11.png	32x64	slum1,slum1_2	existing	models.txt: building
 slum2.x11	construct/town/slum2.base.x11.png	32x64	slum2,slum2_2	existing	models.txt: building
 slum3.x11	construct/town/slum3.base.x11.png	32x64	slum3,slum3_2	existing	models.txt: building
@@ -5312,16 +5312,16 @@ small_shie.111	armour/shield/small_shie.base.111.png	32x32	small_shield	existing
 smallicecube.111	misc/smallicecube.base.111.png	32x32	smallicecube	existing	models.txt: building
 smallpark.111	exit/smallpark.base.111.png	32x32	smallpark	existing	models.txt: flat
 smallstone.111	ground/Stone/smallstone.base.111.png	32x32	small_stones	flat	folder ground/: ground and its smoothing edges
-smallt_green.111	monster/troll/smallt_green.base.111.png	32x32		rigged	folder monster/ (no object uses it)
-smallt_green.112	monster/troll/smallt_green.base.112.png	32x32		rigged	folder monster/ (no object uses it)
+smallt_green.111	monster/troll/smallt_green.base.111.png	32x32		existing	models.txt: monster
+smallt_green.112	monster/troll/smallt_green.base.112.png	32x32		existing	models.txt: monster
 smalltemple.111	construct/house/smalltemple.base.111.png	32x32	small_temple	existing	models.txt: building
 smalltemple2.111	construct/house/smalltemple2.base.111.png	32x32	small_temple2	existing	models.txt: building
 smalltroll.111	monster/troll/smalltroll.base.111.png	32x32	Gnarg,gnarg_avatar,small_troll	existing	models.txt: monster
 smalltroll.112	monster/troll/smalltroll.base.112.png	32x32	Gnarg,gnarg_avatar,small_troll	existing	models.txt: monster
 smith.111	shop/smith.base.111.png	32x32	smith	existing	models.txt: building
-snake.111	monster/animal/snake.base.111.png	32x32	snake,snake_golem	rigged	alive: a creature
-snake.112	monster/animal/snake.base.112.png	32x32	snake,snake_golem	rigged	alive: a creature
-snake.113	monster/animal/snake.base.113.png	32x32	snake	rigged	alive: a creature
+snake.111	monster/animal/snake.base.111.png	32x32	snake,snake_golem	existing	models.txt: building
+snake.112	monster/animal/snake.base.112.png	32x32	snake,snake_golem	existing	models.txt: building
+snake.113	monster/animal/snake.base.113.png	32x32	snake	existing	models.txt: building
 snow.111	ground/Winter/snow.base.111.png	32x32	snow	flat	folder ground/: ground and its smoothing edges
 snow2.111	ground/Winter/snow2.base.111.png	32x32	snow2	flat	folder ground/: ground and its smoothing edges
 snow3.111	ground/Winter/snow3.base.111.png	32x32	snow3	flat	folder ground/: ground and its smoothing edges
@@ -5392,8 +5392,8 @@ spectre.172	monster/undead/spectre.base.172.png	32x32	spectre	existing	models.tx
 spectre.181	monster/undead/spectre.base.181.png	32x32	spectre	existing	models.txt: beast
 spectre.182	monster/undead/spectre.base.182.png	32x32	spectre	existing	models.txt: beast
 speech.111	system/speech.base.111.png	32x32	speechbubble	skip	folder system/
-speedball.111	spell/SummonMonster/speedball.base.111.png	32x32	lg_speedball,speedball	rigged	alive: a creature
-speedball.112	spell/SummonMonster/speedball.base.112.png	32x32	lg_speedball,speedball	rigged	alive: a creature
+speedball.111	spell/SummonMonster/speedball.base.111.png	32x32	lg_speedball,speedball	existing	models.txt: building
+speedball.112	spell/SummonMonster/speedball.base.112.png	32x32	lg_speedball,speedball	existing	models.txt: building
 speedboots.111	armour/boots/speedboots.base.111.png	32x32	speedboots	existing	models.txt: model
 speedboots.112	armour/boots/speedboots.base.112.png	32x32	speedboots	existing	models.txt: model
 speedboots.113	armour/boots/speedboots.base.113.png	32x32	speedboots	existing	models.txt: model
@@ -5618,40 +5618,40 @@ spell_word_of_recall.111	spell/Misc/spell_word_of_recall.base.111.png	32x32	spel
 spell_wrathful_eye.111	spell/Cone/spell_wrathful_eye.base.111.png	32x32	spell_wrathful_eye	skip	a spell or skill icon
 spell_xray.111	spell/Change_Ability/spell_xray.base.111.png	32x32	spell_xray	skip	a spell or skill icon
 spell_zone_of_healing.111	spell/Aura/spell_zone_of_healing.base.111.png	32x32	spell_zone_of_healing	skip	a spell or skill icon
-sphinx.x31	monster/misc/sphinx.base.x31.png	64x32	sphinx,sphinx_2	rigged	alive: a creature
-sphinx.x71	monster/misc/sphinx.base.x71.png	64x32	sphinx,sphinx_2	rigged	alive: a creature
-spider.111	monster/insect/spider/spider.base.111.png	32x32	spider	rigged	alive: a creature
-spider.112	monster/insect/spider/spider.base.112.png	32x32	spider	rigged	alive: a creature
-spider.113	monster/insect/spider/spider.base.113.png	32x32	spider	rigged	alive: a creature
-spider.114	monster/insect/spider/spider.base.114.png	32x32	spider	rigged	alive: a creature
-spider.121	monster/insect/spider/spider.base.121.png	32x32	spider	rigged	alive: a creature
-spider.122	monster/insect/spider/spider.base.122.png	32x32	spider	rigged	alive: a creature
-spider.123	monster/insect/spider/spider.base.123.png	32x32	spider	rigged	alive: a creature
-spider.124	monster/insect/spider/spider.base.124.png	32x32	spider	rigged	alive: a creature
-spider.131	monster/insect/spider/spider.base.131.png	32x32	spider	rigged	alive: a creature
-spider.132	monster/insect/spider/spider.base.132.png	32x32	spider	rigged	alive: a creature
-spider.133	monster/insect/spider/spider.base.133.png	32x32	spider	rigged	alive: a creature
-spider.134	monster/insect/spider/spider.base.134.png	32x32	spider	rigged	alive: a creature
-spider.141	monster/insect/spider/spider.base.141.png	32x32	spider	rigged	alive: a creature
-spider.142	monster/insect/spider/spider.base.142.png	32x32	spider	rigged	alive: a creature
-spider.143	monster/insect/spider/spider.base.143.png	32x32	spider	rigged	alive: a creature
-spider.144	monster/insect/spider/spider.base.144.png	32x32	spider	rigged	alive: a creature
-spider.151	monster/insect/spider/spider.base.151.png	32x32	spider	rigged	alive: a creature
-spider.152	monster/insect/spider/spider.base.152.png	32x32	spider	rigged	alive: a creature
-spider.153	monster/insect/spider/spider.base.153.png	32x32	spider	rigged	alive: a creature
-spider.154	monster/insect/spider/spider.base.154.png	32x32	spider	rigged	alive: a creature
-spider.161	monster/insect/spider/spider.base.161.png	32x32	spider	rigged	alive: a creature
-spider.162	monster/insect/spider/spider.base.162.png	32x32	spider	rigged	alive: a creature
-spider.163	monster/insect/spider/spider.base.163.png	32x32	spider	rigged	alive: a creature
-spider.164	monster/insect/spider/spider.base.164.png	32x32	spider	rigged	alive: a creature
-spider.171	monster/insect/spider/spider.base.171.png	32x32	spider	rigged	alive: a creature
-spider.172	monster/insect/spider/spider.base.172.png	32x32	spider	rigged	alive: a creature
-spider.173	monster/insect/spider/spider.base.173.png	32x32	spider	rigged	alive: a creature
-spider.174	monster/insect/spider/spider.base.174.png	32x32	spider	rigged	alive: a creature
-spider.181	monster/insect/spider/spider.base.181.png	32x32	spider	rigged	alive: a creature
-spider.182	monster/insect/spider/spider.base.182.png	32x32	spider	rigged	alive: a creature
-spider.183	monster/insect/spider/spider.base.183.png	32x32	spider	rigged	alive: a creature
-spider.184	monster/insect/spider/spider.base.184.png	32x32	spider	rigged	alive: a creature
+sphinx.x31	monster/misc/sphinx.base.x31.png	64x32	sphinx,sphinx_2	existing	models.txt: beast
+sphinx.x71	monster/misc/sphinx.base.x71.png	64x32	sphinx,sphinx_2	existing	models.txt: beast
+spider.111	monster/insect/spider/spider.base.111.png	32x32	spider	existing	models.txt: building
+spider.112	monster/insect/spider/spider.base.112.png	32x32	spider	existing	models.txt: building
+spider.113	monster/insect/spider/spider.base.113.png	32x32	spider	existing	models.txt: building
+spider.114	monster/insect/spider/spider.base.114.png	32x32	spider	existing	models.txt: building
+spider.121	monster/insect/spider/spider.base.121.png	32x32	spider	existing	models.txt: building
+spider.122	monster/insect/spider/spider.base.122.png	32x32	spider	existing	models.txt: building
+spider.123	monster/insect/spider/spider.base.123.png	32x32	spider	existing	models.txt: building
+spider.124	monster/insect/spider/spider.base.124.png	32x32	spider	existing	models.txt: building
+spider.131	monster/insect/spider/spider.base.131.png	32x32	spider	existing	models.txt: building
+spider.132	monster/insect/spider/spider.base.132.png	32x32	spider	existing	models.txt: building
+spider.133	monster/insect/spider/spider.base.133.png	32x32	spider	existing	models.txt: building
+spider.134	monster/insect/spider/spider.base.134.png	32x32	spider	existing	models.txt: building
+spider.141	monster/insect/spider/spider.base.141.png	32x32	spider	existing	models.txt: building
+spider.142	monster/insect/spider/spider.base.142.png	32x32	spider	existing	models.txt: building
+spider.143	monster/insect/spider/spider.base.143.png	32x32	spider	existing	models.txt: building
+spider.144	monster/insect/spider/spider.base.144.png	32x32	spider	existing	models.txt: building
+spider.151	monster/insect/spider/spider.base.151.png	32x32	spider	existing	models.txt: building
+spider.152	monster/insect/spider/spider.base.152.png	32x32	spider	existing	models.txt: building
+spider.153	monster/insect/spider/spider.base.153.png	32x32	spider	existing	models.txt: building
+spider.154	monster/insect/spider/spider.base.154.png	32x32	spider	existing	models.txt: building
+spider.161	monster/insect/spider/spider.base.161.png	32x32	spider	existing	models.txt: building
+spider.162	monster/insect/spider/spider.base.162.png	32x32	spider	existing	models.txt: building
+spider.163	monster/insect/spider/spider.base.163.png	32x32	spider	existing	models.txt: building
+spider.164	monster/insect/spider/spider.base.164.png	32x32	spider	existing	models.txt: building
+spider.171	monster/insect/spider/spider.base.171.png	32x32	spider	existing	models.txt: building
+spider.172	monster/insect/spider/spider.base.172.png	32x32	spider	existing	models.txt: building
+spider.173	monster/insect/spider/spider.base.173.png	32x32	spider	existing	models.txt: building
+spider.174	monster/insect/spider/spider.base.174.png	32x32	spider	existing	models.txt: building
+spider.181	monster/insect/spider/spider.base.181.png	32x32	spider	existing	models.txt: building
+spider.182	monster/insect/spider/spider.base.182.png	32x32	spider	existing	models.txt: building
+spider.183	monster/insect/spider/spider.base.183.png	32x32	spider	existing	models.txt: building
+spider.184	monster/insect/spider/spider.base.184.png	32x32	spider	existing	models.txt: building
 spider_web.111	monster/insect/spider/spider_web.base.111.png	32x32	spider_gen,spider_web,spider_web2	existing	models.txt: building
 spider_web.112	monster/insect/spider/spider_web.base.112.png	32x32	spider_gen,spider_web,spider_web2	existing	models.txt: building
 spike.110	connect/Gates/spike.base.110.png	32x32	spike_hidden	existing	models.txt: building
@@ -5693,12 +5693,12 @@ spinner.11B	connect/Spinner/spinner.base.11B.png	32x32	spinner_-135,spinner_-45,
 spinner.11C	connect/Spinner/spinner.base.11C.png	32x32	spinner_-45,spinner_-90,spinner_45	flat	type SPINNER: on the ground or an effect
 spinner.11D	connect/Spinner/spinner.base.11D.png	32x32	spinner_-135,spinner_-45,spinner_-90	flat	type SPINNER: on the ground or an effect
 spinningwheel.111	misc/spinningwheel.base.111.png	32x32		existing	models.txt: building
-spit_ant.131	monster/insect/ant/spit_ant.base.131.png	32x32	spit_ant	rigged	alive: a creature
-spit_ant.132	monster/insect/ant/spit_ant.base.132.png	32x32	spit_ant	rigged	alive: a creature
-spit_ant.133	monster/insect/ant/spit_ant.base.133.png	32x32	spit_ant	rigged	alive: a creature
-spit_ant.171	monster/insect/ant/spit_ant.base.171.png	32x32	spit_ant	rigged	alive: a creature
-spit_ant.172	monster/insect/ant/spit_ant.base.172.png	32x32	spit_ant	rigged	alive: a creature
-spit_ant.173	monster/insect/ant/spit_ant.base.173.png	32x32	spit_ant	rigged	alive: a creature
+spit_ant.131	monster/insect/ant/spit_ant.base.131.png	32x32	spit_ant	existing	models.txt: building
+spit_ant.132	monster/insect/ant/spit_ant.base.132.png	32x32	spit_ant	existing	models.txt: building
+spit_ant.133	monster/insect/ant/spit_ant.base.133.png	32x32	spit_ant	existing	models.txt: building
+spit_ant.171	monster/insect/ant/spit_ant.base.171.png	32x32	spit_ant	existing	models.txt: building
+spit_ant.172	monster/insect/ant/spit_ant.base.172.png	32x32	spit_ant	existing	models.txt: building
+spit_ant.173	monster/insect/ant/spit_ant.base.173.png	32x32	spit_ant	existing	models.txt: building
 splint.111	spell/Bomb/splint.base.111.png	32x32	splint	flat	type SPELL_EFFECT: on the ground or an effect
 spock.111	monster/humanoid/Elf/spock.base.111.png	32x32		existing	models.txt: person
 spock.112	monster/humanoid/Elf/spock.base.112.png	32x32		existing	models.txt: person
@@ -5729,8 +5729,8 @@ stair_up_2.111	exit/Up_down/stair_up_2.base.111.png	32x32	stair_up_2	existing	mo
 stair_up_3.111	exit/Up_down/stair_up_3.base.111.png	32x32	stair_up_3	existing	models.txt: model
 stair_up_4.111	exit/Up_down/stair_up_4.base.111.png	32x32	stair_up_4	existing	models.txt: model
 stake.111	weapon/misc/stake.base.111.png	32x32	stake	existing	models.txt: model
-stalker.111	monster/misc/stalker.base.111.png	32x32	stalker	rigged	alive: a creature
-stalker.112	monster/misc/stalker.base.112.png	32x32	stalker	rigged	alive: a creature
+stalker.111	monster/misc/stalker.base.111.png	32x32	stalker	existing	models.txt: beast
+stalker.112	monster/misc/stalker.base.112.png	32x32	stalker	existing	models.txt: beast
 stalkergen.111	monster/misc/stalkergen.base.111.png	32x32	generate_stalker	existing	models.txt: building
 statue.111	misc/statue.base.111.png	32x32	statue	existing	models.txt: statue
 statue2.111	misc/statue2.base.111.png	32x32	statue2	existing	models.txt: statue
@@ -6013,13 +6013,13 @@ temple1.x11	construct/temple/temple1.base.x11.png	64x64	temple1,temple1_2,temple
 temple2.x11	construct/temple/temple2.base.x11.png	64x64		existing	models.txt: building
 temple_ruin.x11	construct/temple/temple_ruin.base.x11.png	64x64	temple_ruin,temple_ruin2,temple_ruin3	existing	models.txt: building
 ten_kilo.111	misc/ten_kilo.base.111.png	32x32	ten_kilo	existing	models.txt: building
-tentacle.111	monster/misc/tentacle/tentacle.base.111.png	32x32	tentacle	rigged	alive: a creature
-tentacle.112	monster/misc/tentacle/tentacle.base.112.png	32x32	tentacle	rigged	alive: a creature
-tentacle.113	monster/misc/tentacle/tentacle.base.113.png	32x32	tentacle	rigged	alive: a creature
-tentacle2.111	monster/misc/tentacle/tentacle2.base.111.png	32x32	tentacle2	rigged	alive: a creature
-tentacle2.112	monster/misc/tentacle/tentacle2.base.112.png	32x32	tentacle2	rigged	alive: a creature
-tentacle2.113	monster/misc/tentacle/tentacle2.base.113.png	32x32	tentacle2	rigged	alive: a creature
-tentaclehook.111	monster/misc/tentacle/tentaclehook.base.111.png	32x32	tentacle_hook	rigged	folder monster/
+tentacle.111	monster/misc/tentacle/tentacle.base.111.png	32x32	tentacle	existing	models.txt: building
+tentacle.112	monster/misc/tentacle/tentacle.base.112.png	32x32	tentacle	existing	models.txt: building
+tentacle.113	monster/misc/tentacle/tentacle.base.113.png	32x32	tentacle	existing	models.txt: building
+tentacle2.111	monster/misc/tentacle/tentacle2.base.111.png	32x32	tentacle2	existing	models.txt: building
+tentacle2.112	monster/misc/tentacle/tentacle2.base.112.png	32x32	tentacle2	existing	models.txt: building
+tentacle2.113	monster/misc/tentacle/tentacle2.base.113.png	32x32	tentacle2	existing	models.txt: building
+tentaclehook.111	monster/misc/tentacle/tentaclehook.base.111.png	32x32	tentacle_hook	existing	models.txt: building
 thaumaturg_desk.111	crafting/Container/thaumaturg_desk.base.111.png	32x32	thaumaturg_desk	existing	models.txt: model
 thewheel_short.111	misc/thewheel/thewheel_short.base.111.png	32x32	thewheel_short_ccwise-back,thewheel_short_static	existing	models.txt: building
 thewheel_short.112	misc/thewheel/thewheel_short.base.112.png	32x32	thewheel_short_ccwise-back	existing	models.txt: building
@@ -6075,12 +6075,12 @@ timberwall_E.111	wall/timberwall/timberwall_E.base.111.png	32x32	timberwall_3_3	
 timberwall_F.111	wall/timberwall/timberwall_F.base.111.png	32x32	timberwall_4	existing	models.txt: wall
 tinbar.111	jewel/bars/tinbar.base.111.png	32x32	tinbar	existing	models.txt: model
 tissu.111	misc/item/tissu.base.111.png	32x32	tissue_paper	existing	models.txt: building
-titan.x31	monster/giant/Titan/titan.base.x31.png	96x96	titan,titan_2,titan_3	rigged	alive: a creature
-titan.x32	monster/giant/Titan/titan.base.x32.png	96x96	titan,titan_2,titan_3	rigged	alive: a creature
-titan.x33	monster/giant/Titan/titan.base.x33.png	96x96	titan,titan_2,titan_3	rigged	alive: a creature
-titan.x71	monster/giant/Titan/titan.base.x71.png	96x96	titan,titan_2,titan_3	rigged	alive: a creature
-titan.x72	monster/giant/Titan/titan.base.x72.png	96x96	titan,titan_2,titan_3	rigged	alive: a creature
-titan.x73	monster/giant/Titan/titan.base.x73.png	96x96	titan,titan_2,titan_3	rigged	alive: a creature
+titan.x31	monster/giant/Titan/titan.base.x31.png	96x96	titan,titan_2,titan_3	existing	models.txt: person
+titan.x32	monster/giant/Titan/titan.base.x32.png	96x96	titan,titan_2,titan_3	existing	models.txt: person
+titan.x33	monster/giant/Titan/titan.base.x33.png	96x96	titan,titan_2,titan_3	existing	models.txt: person
+titan.x71	monster/giant/Titan/titan.base.x71.png	96x96	titan,titan_2,titan_3	existing	models.txt: person
+titan.x72	monster/giant/Titan/titan.base.x72.png	96x96	titan,titan_2,titan_3	existing	models.txt: person
+titan.x73	monster/giant/Titan/titan.base.x73.png	96x96	titan,titan_2,titan_3	existing	models.txt: person
 tomato.111	food/produce/tomato.base.111.png	32x32	tomato	existing	models.txt: model
 tomato_big.111	food/produce/tomato_big.base.111.png	32x32	tomato_big	existing	models.txt: model
 tome.111	readable/tome.base.111.png	32x32	tome	existing	models.txt: model
@@ -6241,8 +6241,8 @@ valkyrie_temple.111	construct/temple/valkyrie_temple.base.111.png	32x32	valkyrie
 valriel_cathedral.x11	construct/temple/valriel_cathedral.base.x11.png	96x128	valriel_cathedral,valriel_cathedral_10,valriel_cathedral_11	existing	models.txt: building
 valriel_church.x11	construct/temple/valriel_church.base.x11.png	64x64	valriel_church,valriel_church_2,valriel_church_3	existing	models.txt: building
 valriel_temple.111	construct/temple/valriel_temple.base.111.png	32x32	valriel_temple	existing	models.txt: building
-vampire.111	monster/undead/vampire.base.111.png	32x32	vampire	rigged	alive: a creature
-vampire.112	monster/undead/vampire.base.112.png	32x32	vampire	rigged	alive: a creature
+vampire.111	monster/undead/vampire.base.111.png	32x32	vampire	existing	models.txt: person
+vampire.112	monster/undead/vampire.base.112.png	32x32	vampire	existing	models.txt: person
 vampiregen.111	monster/undead/vampiregen.base.111.png	32x32	generate_vampire	existing	models.txt: building
 vampiregen.112	monster/undead/vampiregen.base.112.png	32x32	generate_vampire	existing	models.txt: building
 veiled_woman.111	monster/humanoid/Arabic/veiled_woman.base.111.png	32x32	veiled_woman	existing	models.txt: person
@@ -6370,10 +6370,10 @@ wallclock.111	indoor/wall/wallclock.base.111.png	32x32	wallclock	existing	drawn 
 wand.111	spell/Wand/wand.base.111.png	32x32	wand	existing	models.txt: model
 wand.112	spell/Wand/wand.base.112.png	32x32	wand	existing	models.txt: model
 wand.113	spell/Wand/wand.base.113.png	32x32	wand	existing	models.txt: model
-war_ant.131	monster/insect/ant/war_ant.base.131.png	32x32	guard_ant,war_ant	rigged	alive: a creature
-war_ant.132	monster/insect/ant/war_ant.base.132.png	32x32	guard_ant,war_ant	rigged	alive: a creature
-war_ant.171	monster/insect/ant/war_ant.base.171.png	32x32	guard_ant,war_ant	rigged	alive: a creature
-war_ant.172	monster/insect/ant/war_ant.base.172.png	32x32	guard_ant,war_ant	rigged	alive: a creature
+war_ant.131	monster/insect/ant/war_ant.base.131.png	32x32	guard_ant,war_ant	existing	models.txt: building
+war_ant.132	monster/insect/ant/war_ant.base.132.png	32x32	guard_ant,war_ant	existing	models.txt: building
+war_ant.171	monster/insect/ant/war_ant.base.171.png	32x32	guard_ant,war_ant	existing	models.txt: building
+war_ant.172	monster/insect/ant/war_ant.base.172.png	32x32	guard_ant,war_ant	existing	models.txt: building
 warrior.111	player/class/Warrior/warrior.base.111.png	32x32	warrior,warrior_1,warrior_class	existing	player character (3D bodies)
 warrior.112	player/class/Warrior/warrior.base.112.png	32x32	warrior_class	existing	player character (3D bodies)
 warrior.131	player/class/Warrior/warrior.base.131.png	32x32	warrior,warrior_1,warrior_class	existing	player character (3D bodies)
@@ -6497,22 +6497,22 @@ westguard_ho_2.111	wall/cwall-west/westguard_ho_2.base.111.png	32x32	westguard_h
 westguard_ho_4.111	wall/cwall-west/westguard_ho_4.base.111.png	32x32	westguard_house_3	existing	models.txt: wall
 westguard_ho_8.111	wall/cwall-west/westguard_ho_8.base.111.png	32x32	westguard_house_1	existing	models.txt: wall
 wheelbarrow.111	misc/wheelbarrow.base.111.png	32x32	wheelbarrow	existing	models.txt: model
-whim.111	monster/angel/whim.base.111.png	32x32	whim	rigged	alive: a creature
-whim.112	monster/angel/whim.base.112.png	32x32	whim	rigged	alive: a creature
-whim.121	monster/angel/whim.base.121.png	32x32	whim	rigged	alive: a creature
-whim.122	monster/angel/whim.base.122.png	32x32	whim	rigged	alive: a creature
-whim.131	monster/angel/whim.base.131.png	32x32	whim	rigged	alive: a creature
-whim.132	monster/angel/whim.base.132.png	32x32	whim	rigged	alive: a creature
-whim.141	monster/angel/whim.base.141.png	32x32	whim	rigged	alive: a creature
-whim.142	monster/angel/whim.base.142.png	32x32	whim	rigged	alive: a creature
-whim.151	monster/angel/whim.base.151.png	32x32	whim	rigged	alive: a creature
-whim.152	monster/angel/whim.base.152.png	32x32	whim	rigged	alive: a creature
-whim.161	monster/angel/whim.base.161.png	32x32	whim	rigged	alive: a creature
-whim.162	monster/angel/whim.base.162.png	32x32	whim	rigged	alive: a creature
-whim.171	monster/angel/whim.base.171.png	32x32	whim	rigged	alive: a creature
-whim.172	monster/angel/whim.base.172.png	32x32	whim	rigged	alive: a creature
-whim.181	monster/angel/whim.base.181.png	32x32	whim	rigged	alive: a creature
-whim.182	monster/angel/whim.base.182.png	32x32	whim	rigged	alive: a creature
+whim.111	monster/angel/whim.base.111.png	32x32	whim	existing	models.txt: building
+whim.112	monster/angel/whim.base.112.png	32x32	whim	existing	models.txt: building
+whim.121	monster/angel/whim.base.121.png	32x32	whim	existing	models.txt: building
+whim.122	monster/angel/whim.base.122.png	32x32	whim	existing	models.txt: building
+whim.131	monster/angel/whim.base.131.png	32x32	whim	existing	models.txt: building
+whim.132	monster/angel/whim.base.132.png	32x32	whim	existing	models.txt: building
+whim.141	monster/angel/whim.base.141.png	32x32	whim	existing	models.txt: building
+whim.142	monster/angel/whim.base.142.png	32x32	whim	existing	models.txt: building
+whim.151	monster/angel/whim.base.151.png	32x32	whim	existing	models.txt: building
+whim.152	monster/angel/whim.base.152.png	32x32	whim	existing	models.txt: building
+whim.161	monster/angel/whim.base.161.png	32x32	whim	existing	models.txt: building
+whim.162	monster/angel/whim.base.162.png	32x32	whim	existing	models.txt: building
+whim.171	monster/angel/whim.base.171.png	32x32	whim	existing	models.txt: building
+whim.172	monster/angel/whim.base.172.png	32x32	whim	existing	models.txt: building
+whim.181	monster/angel/whim.base.181.png	32x32	whim	existing	models.txt: building
+whim.182	monster/angel/whim.base.182.png	32x32	whim	existing	models.txt: building
 white-beige-c-marble.111	floor/inlayed/white-beige-c-marble.base.111.png	32x32	white-beige-c-marble_111	flat	folder floor/: floor
 white-beige-c-marble.112	floor/inlayed/white-beige-c-marble.base.112.png	32x32	white-beige-c-marble_112	flat	folder floor/: floor
 white-beige-c-marble.113	floor/inlayed/white-beige-c-marble.base.113.png	32x32	white-beige-c-marble_113	flat	folder floor/: floor
@@ -6573,10 +6573,10 @@ white_wall_right.111	wall/white/white_wall_right.base.111.png	32x32	white_wall_r
 white_window_0.111	wall/white/white_window_0.base.111.png	32x32	white_wall_win1	existing	models.txt: wall
 white_window_1.111	wall/white/white_window_1.base.111.png	32x32	white_wall_win2	existing	models.txt: wall
 wig.111	armour/helmet/wig.base.111.png	32x32	wig	existing	models.txt: model
-wight.111	monster/undead/wight.base.111.png	32x32	wight	rigged	alive: a creature
-wight.112	monster/undead/wight.base.112.png	32x32	wight	rigged	alive: a creature
-wight.113	monster/undead/wight.base.113.png	32x32	wight	rigged	alive: a creature
-wight.114	monster/undead/wight.base.114.png	32x32	wight	rigged	alive: a creature
+wight.111	monster/undead/wight.base.111.png	32x32	wight	existing	models.txt: monster
+wight.112	monster/undead/wight.base.112.png	32x32	wight	existing	models.txt: monster
+wight.113	monster/undead/wight.base.113.png	32x32	wight	existing	models.txt: monster
+wight.114	monster/undead/wight.base.114.png	32x32	wight	existing	models.txt: monster
 window_0.111	wall/wall/window_0.base.111.png	32x32	window_win1	existing	models.txt: wall
 window_1.111	wall/wall/window_1.base.111.png	32x32	window_win2	existing	models.txt: wall
 window_2.111	construct/window/window_2.base.111.png	64x96	window_21,window_22,window_23	existing	models.txt: wall
@@ -6588,17 +6588,17 @@ windstorm.112	spell/Cone/windstorm.base.112.png	32x32	windstorm	flat	type SPELL_
 windstorm.113	spell/Cone/windstorm.base.113.png	32x32	windstorm	flat	type SPELL_EFFECT: on the ground or an effect
 wine.111	food/wine.base.111.png	32x32	wine,wine_poison	existing	models.txt: model
 winebottle_empty.111	food/winebottle_empty.base.111.png	32x32	winebottle_empty	existing	models.txt: model
-wingedhalo.111	monster/angel/wingedhalo.base.111.png	32x32		rigged	folder monster/ (no object uses it)
-witch_air.111	monster/elemental/witch_air.base.111.png	32x32	air_witch,chaos_witch	rigged	alive: a creature
-witch_air.112	monster/elemental/witch_air.base.112.png	32x32	air_witch,chaos_witch	rigged	alive: a creature
-witch_chaos.111	monster/chaos/witch_chaos.base.111.png	32x32	chaos_witch	rigged	alive: a creature
-witch_chaos.112	monster/chaos/witch_chaos.base.112.png	32x32	chaos_witch	rigged	alive: a creature
-witch_earth.111	monster/elemental/witch_earth.base.111.png	32x32	chaos_witch,earth_witch	rigged	alive: a creature
-witch_earth.112	monster/elemental/witch_earth.base.112.png	32x32	chaos_witch,earth_witch	rigged	alive: a creature
-witch_fire.111	monster/elemental/witch_fire.base.111.png	32x32	chaos_witch,fire_witch	rigged	alive: a creature
-witch_fire.112	monster/elemental/witch_fire.base.112.png	32x32	chaos_witch,fire_witch	rigged	alive: a creature
-witch_water.111	monster/elemental/witch_water.base.111.png	32x32	Ixalovh,chaos_witch,water_witch	rigged	alive: a creature
-witch_water.112	monster/elemental/witch_water.base.112.png	32x32	Ixalovh,chaos_witch,water_witch	rigged	alive: a creature
+wingedhalo.111	monster/angel/wingedhalo.base.111.png	32x32		existing	models.txt: building
+witch_air.111	monster/elemental/witch_air.base.111.png	32x32	air_witch,chaos_witch	existing	models.txt: person
+witch_air.112	monster/elemental/witch_air.base.112.png	32x32	air_witch,chaos_witch	existing	models.txt: person
+witch_chaos.111	monster/chaos/witch_chaos.base.111.png	32x32	chaos_witch	existing	models.txt: person
+witch_chaos.112	monster/chaos/witch_chaos.base.112.png	32x32	chaos_witch	existing	models.txt: person
+witch_earth.111	monster/elemental/witch_earth.base.111.png	32x32	chaos_witch,earth_witch	existing	models.txt: person
+witch_earth.112	monster/elemental/witch_earth.base.112.png	32x32	chaos_witch,earth_witch	existing	models.txt: person
+witch_fire.111	monster/elemental/witch_fire.base.111.png	32x32	chaos_witch,fire_witch	existing	models.txt: person
+witch_fire.112	monster/elemental/witch_fire.base.112.png	32x32	chaos_witch,fire_witch	existing	models.txt: person
+witch_water.111	monster/elemental/witch_water.base.111.png	32x32	Ixalovh,chaos_witch,water_witch	existing	models.txt: person
+witch_water.112	monster/elemental/witch_water.base.112.png	32x32	Ixalovh,chaos_witch,water_witch	existing	models.txt: person
 wiz_hat.111	armour/helmet/wiz_hat.base.111.png	32x32	wiz_hat	existing	models.txt: model
 wiz_hat.112	armour/helmet/wiz_hat.base.112.png	32x32	wiz_hat	existing	models.txt: model
 wiz_hat.113	armour/helmet/wiz_hat.base.113.png	32x32	wiz_hat	existing	models.txt: model
@@ -6688,10 +6688,10 @@ woodwall_E.111	wall/woodwall/woodwall_E.base.111.png	32x32	woodwall_3_3	existing
 woodwall_F.111	wall/woodwall/woodwall_F.base.111.png	32x32	woodwall_4	existing	models.txt: wall
 woodwindow_0.111	wall/woodwall/woodwindow_0.base.111.png	32x32	woodwall_win1	existing	models.txt: wall
 woodwindow_1.111	wall/woodwall/woodwindow_1.base.111.png	32x32	woodwall_win2	existing	models.txt: wall
-work_ant.131	monster/insect/ant/work_ant.base.131.png	32x32	work_ant	rigged	alive: a creature
-work_ant.132	monster/insect/ant/work_ant.base.132.png	32x32	work_ant	rigged	alive: a creature
-work_ant.171	monster/insect/ant/work_ant.base.171.png	32x32	work_ant	rigged	alive: a creature
-work_ant.172	monster/insect/ant/work_ant.base.172.png	32x32	work_ant	rigged	alive: a creature
+work_ant.131	monster/insect/ant/work_ant.base.131.png	32x32	work_ant	existing	models.txt: building
+work_ant.132	monster/insect/ant/work_ant.base.132.png	32x32	work_ant	existing	models.txt: building
+work_ant.171	monster/insect/ant/work_ant.base.171.png	32x32	work_ant	existing	models.txt: building
+work_ant.172	monster/insect/ant/work_ant.base.172.png	32x32	work_ant	existing	models.txt: building
 workbench.111	crafting/Container/workbench.base.111.png	32x32	workbench	existing	models.txt: model
 worthless_dragon.x31	monster/dragon/WDragon/worthless_dragon.base.x31.png	96x64	big_dragon_worthless,big_worthless_dragon_2,big_worthless_dragon_3	existing	models.txt: beast
 worthless_dragon.x32	monster/dragon/WDragon/worthless_dragon.base.x32.png	96x64	big_dragon_worthless,big_worthless_dragon_2,big_worthless_dragon_3	existing	models.txt: beast
@@ -6764,8 +6764,8 @@ wyvern.x31	monster/dragon/wyvern.base.x31.png	64x32	dragon,dragon_2	existing	mod
 wyvern.x32	monster/dragon/wyvern.base.x32.png	64x32	dragon,dragon_2	existing	models.txt: beast
 wyvern.x71	monster/dragon/wyvern.base.x71.png	64x32	dragon,dragon_2	existing	models.txt: beast
 wyvern.x72	monster/dragon/wyvern.base.x72.png	64x32	dragon,dragon_2	existing	models.txt: beast
-xan.111	monster/insect/xan/xan.base.111.png	32x32	xan	rigged	alive: a creature
-xan.112	monster/insect/xan/xan.base.112.png	32x32	xan	rigged	alive: a creature
+xan.111	monster/insect/xan/xan.base.111.png	32x32	xan	existing	models.txt: beast
+xan.112	monster/insect/xan/xan.base.112.png	32x32	xan	existing	models.txt: beast
 xan_gen.111	monster/insect/xan/xan_gen.base.111.png	32x32	generate_xan	existing	models.txt: building
 yellow_0.111	road/yellow/yellow_0.base.111.png	32x32	yellow_0	flat	folder road/: road
 yellow_1.111	road/yellow/yellow_1.base.111.png	32x32	yellow_1_2	flat	folder road/: road
@@ -6791,9 +6791,9 @@ ytree_1.111	ground/Wood/ytree_1.base.111.png	32x32	ytree	existing	models.txt: mo
 ytree_2.111	ground/Wood/ytree_2.base.111.png	32x32	ytree_2	existing	models.txt: model
 zinc_filings.111	crafting/Materials/zinc_filings.base.111.png	32x32	zinc_filings	existing	models.txt: model
 zincbar.111	jewel/bars/zincbar.base.111.png	32x32	zincbar	existing	models.txt: model
-zombie.111	monster/undead/zombie.base.111.png	32x32	zombie	rigged	alive: a creature
-zombie.112	monster/undead/zombie.base.112.png	32x32	zombie	rigged	alive: a creature
-zombie.113	monster/undead/zombie.base.113.png	32x32	zombie	rigged	alive: a creature
+zombie.111	monster/undead/zombie.base.111.png	32x32	zombie	existing	models.txt: person
+zombie.112	monster/undead/zombie.base.112.png	32x32	zombie	existing	models.txt: person
+zombie.113	monster/undead/zombie.base.113.png	32x32	zombie	existing	models.txt: person
 zombie_corpse.111	flesh/misc/zombie_corpse.base.111.png	32x32		existing	models.txt: model
 zombie_gen.111	monster/undead/zombie_gen.base.111.png	32x32	generate_zombie	existing	models.txt: building
 zombie_gen.112	monster/undead/zombie_gen.base.112.png	32x32	generate_zombie	existing	models.txt: building

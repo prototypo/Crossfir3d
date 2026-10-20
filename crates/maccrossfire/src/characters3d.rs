@@ -227,7 +227,7 @@ type BeastClips = (Handle<AnimationGraph>, AnimationNodeIndex, AnimationNodeInde
 
 /// Plays each beast's idle or walk clip on its own animation player, and turns it to
 /// face the way it moves.
-#[allow(clippy::type_complexity)]
+#[allow(clippy::type_complexity, clippy::too_many_arguments)]
 fn animate_beasts(
     mut commands: Commands,
     server: Res<AssetServer>,
