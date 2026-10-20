@@ -1740,24 +1740,6 @@ fn ant(color: [f32; 3], k: f32) -> Vec<Part> {
     out
 }
 
-/// Two wings on a beast's back, facing +Z like the beast models: for each side a
-/// membrane rising out and up, a bone along its front edge, and a claw at the tip.
-pub fn beast_wings(color: [f32; 3]) -> Vec<Part> {
-    let bone = color.map(|c| c * 0.6);
-    let mut out = Vec::new();
-    for side in [-1.0, 1.0] {
-        let (sin, cos) = 30f32.to_radians().sin_cos();
-        let reach = |r: f32| [side * (0.04 + cos * r), 0.6 + sin * r, 0.0];
-        let mid = reach(0.3);
-        out.push(Part { tilt_deg: -side * 30.0, ..cube([0.6, 0.015, 0.55], [mid[0], mid[1], -0.12], color) });
-        let [x, y, _] = reach(0.31);
-        out.push(Part { tilt_deg: -side * 30.0, ..cube([0.62, 0.035, 0.035], [x, y, 0.12], bone) });
-        out.push(Part { tilt_deg: -side * 30.0, ..cube([0.25, 0.012, 0.25], [reach(0.5)[0], reach(0.5)[1] - 0.03, -0.32], color) });
-        out.push(point(0.02, 0.06, [reach(0.62)[0], reach(0.62)[1], 0.12], bone));
-    }
-    out
-}
-
 /// A giant spider facing east: a fat abdomen, a head with red eyes, and eight legs bent
 /// up at the knee and down to the floor.
 fn spider(color: [f32; 3]) -> Vec<Part> {
