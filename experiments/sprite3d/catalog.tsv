@@ -126,8 +126,8 @@ altarvalr_intervention.113	gods/altars/altarvalr_intervention.base.113.png	32x32
 altarvalr_intervention.114	gods/altars/altarvalr_intervention.base.114.png	32x32		skip	folder gods/ (no object uses it)
 altarvalr_intervention.115	gods/altars/altarvalr_intervention.base.115.png	32x32		skip	folder gods/ (no object uses it)
 amber_coin.111	jewel/amber_coin.base.111.png	32x32	ambercoin	existing	models.txt: model
-amberium_converter.111	shop/amberium_converter.base.111.png	32x32	amberium_converter	scratch	type CONVERTER: boxy, drawn from an angle, or furniture
-ambolt.111	shop/ambolt.base.111.png	32x32	create_Pdragon_mail,create_black_dragon_mail,create_blue_dragon_mail	scratch	type CONVERTER: boxy, drawn from an angle, or furniture
+amberium_converter.111	shop/amberium_converter.base.111.png	32x32	amberium_converter	existing	models.txt: building
+ambolt.111	shop/ambolt.base.111.png	32x32	create_Pdragon_mail,create_black_dragon_mail,create_blue_dragon_mail	existing	models.txt: model
 amethyst.111	jewel/gems/amethyst.base.111.png	32x32	amethyst	existing	models.txt: model
 amethyst.112	jewel/gems/amethyst.base.112.png	32x32	amethyst	existing	models.txt: model
 amethyst_exceptional.111	jewel/gems/amethyst_exceptional.base.111.png	32x32	raw_amethyst_exceptional_beauty	existing	models.txt: model
@@ -453,8 +453,8 @@ bear.x31	monster/animal/Bear/bear.base.x31.png	32x64	bear,bear_2	rigged	alive: a
 bear.x32	monster/animal/Bear/bear.base.x32.png	32x64	bear,bear_2	rigged	alive: a creature
 bear.x71	monster/animal/Bear/bear.base.x71.png	32x64	bear,bear_2	rigged	alive: a creature
 bear.x72	monster/animal/Bear/bear.base.x72.png	32x64	bear,bear_2	rigged	alive: a creature
-bed_1.111	indoor/bed_1.base.111.png	32x32	bed_1	scratch	folder indoor/
-bed_save.111	indoor/bed_save.base.111.png	32x32	bed_save	scratch	type SAVEBED: boxy, drawn from an angle, or furniture
+bed_1.111	indoor/bed_1.base.111.png	32x32	bed_1	existing	models.txt: model
+bed_save.111	indoor/bed_save.base.111.png	32x32	bed_save	existing	models.txt: model
 bee.111	monster/insect/bee/bee.base.111.png	32x32	bee	rigged	alive: a creature
 bee.112	monster/insect/bee/bee.base.112.png	32x32	bee	rigged	alive: a creature
 bee_gen.111	monster/insect/bee/bee_gen.base.111.png	32x32	generate_bee	existing	models.txt: model
@@ -764,9 +764,9 @@ bones2.111	misc/bones2.base.111.png	32x32	bones2	existing	models.txt: model
 bones3.111	misc/bones3.base.111.png	32x32	bones3	existing	models.txt: model
 bones4.111	misc/bones4.base.111.png	32x32	bones4	existing	models.txt: model
 bones5.111	misc/bones5.base.111.png	32x32	bones5	existing	models.txt: model
-book_clasp.111	readable/book_clasp.base.111.png	32x32	book_clasp	scratch	type BOOK: boxy, drawn from an angle, or furniture
-book_read.111	readable/book_read.base.111.png	32x32	book_read,guide_building_basic,guide_building_floor	scratch	type BOOK: boxy, drawn from an angle, or furniture
-book_red.111	readable/guide/book_red.base.111.png	32x32	book_red,guide_alchemy,guide_melee	scratch	type BOOK: boxy, drawn from an angle, or furniture
+book_clasp.111	readable/book_clasp.base.111.png	32x32	book_clasp	existing	models.txt: model
+book_read.111	readable/book_read.base.111.png	32x32	book_read,guide_building_basic,guide_building_floor	existing	models.txt: model
+book_red.111	readable/guide/book_red.base.111.png	32x32	book_red,guide_alchemy,guide_melee	existing	models.txt: model
 bookshelf.111	misc/Container/bookshelf.base.111.png	32x32	bookshelf,close_shelf	existing	models.txt: model
 bookshelf2.111	misc/Container/bookshelf2.base.111.png	32x32	bookshelf2,close_shelf2	existing	models.txt: model
 bookshelf_bottom.111	misc/Container/bookshelf_bottom.base.111.png	32x32	bookshelf_bottom,bookshelf_bottom_close	scratch	type CONTAINER: boxy, drawn from an angle, or furniture
@@ -1043,7 +1043,7 @@ cannon_8.111	misc/cannon_8.base.111.png	32x32	cannon_8	flat	type FIREWALL: on th
 capitalhold_east.x11	construct/keep/capitalhold_east.base.x11.png	96x96	capitalhold_2_east,capitalhold_3_east,capitalhold_4_east	existing	models.txt: building
 capitalhold_west.x11	construct/keep/capitalhold_west.base.x11.png	160x96	capitalhold_10_west,capitalhold_11_west,capitalhold_12_west	existing	models.txt: building
 caramel.111	food/caramel.base.111.png	32x32	caramel	existing	models.txt: model
-card.111	readable/card.base.111.png	32x32	card	scratch	type BOOK: boxy, drawn from an angle, or furniture
+card.111	readable/card.base.111.png	32x32	card	existing	models.txt: flat
 card_crown.111	readable/card_crown.base.111.png	32x32		scratch	folder readable/ (no object uses it)
 card_cup.111	readable/card_cup.base.111.png	32x32		scratch	folder readable/ (no object uses it)
 card_dragon.111	readable/card_dragon.base.111.png	32x32		scratch	folder readable/ (no object uses it)
@@ -1405,7 +1405,7 @@ confusion.114	spell/Cone/confusion.base.114.png	32x32	confusion	flat	type SPELL_
 conjurer.111	monster/humanoid/Class/conjurer.base.111.png	32x32	conjurer,conjurer2	rigged	alive: a creature
 conjurer.112	monster/humanoid/Class/conjurer.base.112.png	32x32	conjurer,conjurer2	rigged	alive: a creature
 conjurer.113	monster/humanoid/Class/conjurer.base.113.png	32x32	conjurer,conjurer2	rigged	alive: a creature
-conv.111	shop/conv.base.111.png	32x32	identify_table	scratch	type IDENTIFY_ALTAR: boxy, drawn from an angle, or furniture
+conv.111	shop/conv.base.111.png	32x32	identify_table	existing	models.txt: building
 cookingpot.111	crafting/Materials/cookingpot.base.111.png	32x32	cookpot	existing	models.txt: model
 copperbar.111	jewel/bars/copperbar.base.111.png	32x32	copperbar	existing	models.txt: model
 corpse.111	flesh/human/corpse.base.111.png	32x32	corpse,fl_corpse	existing	models.txt: model
@@ -1433,7 +1433,7 @@ crater.111	ground/Stone/crater.base.111.png	32x32	crater	flat	folder ground/: gr
 crawling_chaos.111	monster/misc/crawl/crawling_chaos.base.111.png	32x32	crawling_chaos,creeping_chaos	rigged	alive: a creature
 crawling_chaos.112	monster/misc/crawl/crawling_chaos.base.112.png	32x32	crawling_chaos,creeping_chaos	rigged	alive: a creature
 crawling_chaos.113	monster/misc/crawl/crawling_chaos.base.113.png	32x32	crawling_chaos,creeping_chaos	rigged	alive: a creature
-crea_serp_c.111	shop/crea_serp_c.base.111.png	32x32	create_serpent_cloak	scratch	type CONVERTER: boxy, drawn from an angle, or furniture
+crea_serp_c.111	shop/crea_serp_c.base.111.png	32x32	create_serpent_cloak	existing	models.txt: building
 creator.111	system/creator.base.111.png	32x32	creator,marker,trigger_marker	skip	type TRIGGER_MARKER: a UI icon or system object
 crone.111	monster/humanoid/Human/crone.base.111.png	32x32	crone	rigged	alive: a creature
 crone.121	monster/humanoid/Human/crone.base.121.png	32x32	crone	rigged	alive: a creature
@@ -1736,13 +1736,13 @@ dhaxe_1.111	weapon/axe/dhaxe_1.base.111.png	32x32	dhaxe1	existing	models.txt: mo
 dhaxe_2.111	weapon/axe/dhaxe_2.base.111.png	32x32	dhaxe2	existing	models.txt: model
 diamond.111	jewel/gems/diamond.base.111.png	32x32	alchemy_diamond_converter,gem	existing	models.txt: model
 diamond.112	jewel/gems/diamond.base.112.png	32x32	gem	existing	models.txt: model
-diamond_converter.111	shop/diamond_converter.base.111.png	32x32	diamond_converter	scratch	type CONVERTER: boxy, drawn from an angle, or furniture
+diamond_converter.111	shop/diamond_converter.base.111.png	32x32	diamond_converter	existing	models.txt: building
 diamond_exceptional.111	jewel/gems/diamond_exceptional.base.111.png	32x32	raw_diamond_exceptional_beauty	existing	models.txt: model
 diamond_flawless.111	jewel/gems/diamond_flawless.base.111.png	32x32	raw_diamond_flawless_beauty	existing	models.txt: model
 dice.111	misc/dice.base.111.png	32x32	dice	scratch	folder misc/
 dice.112	misc/dice.base.112.png	32x32	dice	scratch	folder misc/
 dice.113	misc/dice.base.113.png	32x32	dice	scratch	folder misc/
-diploma.111	readable/diploma.base.111.png	32x32	diploma	scratch	type BOOK: boxy, drawn from an angle, or furniture
+diploma.111	readable/diploma.base.111.png	32x32	diploma	existing	models.txt: model
 director.111	connect/Director/director.base.111.png	32x32	director_1,director_turn,mover_1	flat	type PLAYERMOVER: on the ground or an effect
 director.112	connect/Director/director.base.112.png	32x32	director_1,director_turn,mover_1	flat	type PLAYERMOVER: on the ground or an effect
 director.113	connect/Director/director.base.113.png	32x32	director_1,director_turn,mover_1	flat	type PLAYERMOVER: on the ground or an effect
@@ -2179,7 +2179,7 @@ evoker.151	player/class/Wizardry/evoker.base.151.png	32x32	evoker_class	existing
 evoker.152	player/class/Wizardry/evoker.base.152.png	32x32	evoker_class	existing	player character (3D bodies)
 evoker.171	player/class/Wizardry/evoker.base.171.png	32x32	evoker_class	existing	player character (3D bodies)
 evoker.172	player/class/Wizardry/evoker.base.172.png	32x32	evoker_class	existing	player character (3D bodies)
-evoker_book.111	spell/SpellBook/evoker_book.base.111.png	32x32	evoker_book,evoker_book_l1	scratch	type SPELLBOOK: boxy, drawn from an angle, or furniture
+evoker_book.111	spell/SpellBook/evoker_book.base.111.png	32x32	evoker_book,evoker_book_l1	existing	models.txt: model
 ewall_0.111	wall/ewall/ewall_0.base.111.png	32x32	ewall_0	existing	models.txt: wall
 ewall_1.111	wall/ewall/ewall_1.base.111.png	32x32	ewall_1_2	existing	models.txt: wall
 ewall_2.111	wall/ewall/ewall_2.base.111.png	32x32	ewall_1_4	existing	models.txt: wall
@@ -2567,10 +2567,10 @@ fungus.113	monster/animal/fungus.base.113.png	32x32	fungus	rigged	alive: a creat
 fungus.114	monster/animal/fungus.base.114.png	32x32	fungus	rigged	alive: a creature
 fungus.115	monster/animal/fungus.base.115.png	32x32	fungus	rigged	alive: a creature
 furious_floor.111	system/mood_floors/furious_floor.base.111.png	32x32	furious_floor	flat	type MOOD_FLOOR: on the ground or an effect
-futon.111	indoor/futon.base.111.png	32x32	futon.2	scratch	folder indoor/
-futon.121	indoor/futon.base.121.png	32x32	futon.3	scratch	folder indoor/
-futon.131	indoor/futon.base.131.png	32x32	futon.4	scratch	folder indoor/
-futon_save.101	indoor/futon_save.base.101.png	32x32	futon_save	scratch	type SAVEBED: boxy, drawn from an angle, or furniture
+futon.111	indoor/futon.base.111.png	32x32	futon.2	existing	models.txt: flat
+futon.121	indoor/futon.base.121.png	32x32	futon.3	existing	models.txt: flat
+futon.131	indoor/futon.base.131.png	32x32	futon.4	existing	models.txt: flat
+futon_save.101	indoor/futon_save.base.101.png	32x32	futon_save	existing	models.txt: flat
 g_worm.x31	monster/animal/giant_worm/g_worm.base.x31.png	64x64	g_worm,g_worm_2,g_worm_3	rigged	alive: a creature
 g_worm.x32	monster/animal/giant_worm/g_worm.base.x32.png	64x64	g_worm,g_worm_2,g_worm_3	rigged	alive: a creature
 g_worm.x71	monster/animal/giant_worm/g_worm.base.x71.png	64x64	g_worm,g_worm_2,g_worm_3	rigged	alive: a creature
@@ -2708,15 +2708,15 @@ goblin_leader.171	monster/goblin/goblin_leader.base.171.png	32x32	goblin_leader_
 goblin_leader.172	monster/goblin/goblin_leader.base.172.png	32x32	goblin_leader_arc	existing	models.txt: monster
 god_finger.111	armour/gauntlets/god_finger.base.111.png	32x32	god_finger	existing	models.txt: model
 god_finger.112	armour/gauntlets/god_finger.base.112.png	32x32	god_finger	existing	models.txt: model
-god_grace_limit.111	gods/randomitems/god_grace_limit.base.111.png	32x32	god_grace_limit_high,god_grace_limit_insane,god_grace_limit_low	scratch	type BOOK: boxy, drawn from an angle, or furniture
+god_grace_limit.111	gods/randomitems/god_grace_limit.base.111.png	32x32	god_grace_limit_high,god_grace_limit_insane,god_grace_limit_low	existing	models.txt: model
 god_power.111	spell/Smite/god_power.base.111.png	32x32	god_power	flat	type SPELL_EFFECT: on the ground or an effect
 god_power.112	spell/Smite/god_power.base.112.png	32x32	god_power	flat	type SPELL_EFFECT: on the ground or an effect
 god_power.113	spell/Smite/god_power.base.113.png	32x32	god_power	flat	type SPELL_EFFECT: on the ground or an effect
 god_power.114	spell/Smite/god_power.base.114.png	32x32	god_power	flat	type SPELL_EFFECT: on the ground or an effect
 gol.x11	monster/misc/Ngolem/gol.base.x11.png	64x96	golem_necro,golem_necro_2,golem_necro_3	rigged	alive: a creature
 gol.x12	monster/misc/Ngolem/gol.base.x12.png	64x96	golem_necro,golem_necro_2,golem_necro_3	rigged	alive: a creature
-gold_converter.111	shop/gold_converter.base.111.png	32x32	gold_converter	scratch	type CONVERTER: boxy, drawn from an angle, or furniture
-gold_converter2.111	shop/gold_converter2.base.111.png	32x32	gold_converter2	scratch	type CONVERTER: boxy, drawn from an angle, or furniture
+gold_converter.111	shop/gold_converter.base.111.png	32x32	gold_converter	existing	models.txt: building
+gold_converter2.111	shop/gold_converter2.base.111.png	32x32	gold_converter2	existing	models.txt: building
 goldbar.111	jewel/bars/goldbar.base.111.png	32x32	goldbar	existing	models.txt: model
 goldblock.111	jewel/goldblock.base.111.png	32x32	goldblock	existing	models.txt: model
 goldcoin.111	jewel/goldcoin.base.111.png	32x32	goldcoin	existing	models.txt: model
@@ -2837,7 +2837,7 @@ guard_ho_4.111	wall/cwall/guard_ho_4.base.111.png	32x32	guard_house_3	existing	m
 guard_ho_8.111	wall/cwall/guard_ho_8.base.111.png	32x32	guard_house_1	existing	models.txt: wall
 guard_ligh.111	monster/humanoid/Guard/guard_ligh.base.111.png	32x32	light_guard	rigged	alive: a creature
 guard_med.111	monster/humanoid/Guard/guard_med.base.111.png	32x32	medium_guard	rigged	alive: a creature
-guide_jeweler.111	readable/guide/guide_jeweler.base.111.png	32x32	guide_jeweler_from_nuggets,guide_jeweler_to_nuggets	scratch	type BOOK: boxy, drawn from an angle, or furniture
+guide_jeweler.111	readable/guide/guide_jeweler.base.111.png	32x32	guide_jeweler_from_nuggets,guide_jeweler_to_nuggets	existing	models.txt: model
 guild.x11	construct/town/guild.base.x11.png	64x64	guild,guild_2,guild_3	existing	models.txt: building
 guild2.x11	construct/town/guild2.base.x11.png	64x64	guild2,guild2_2,guild2_3	existing	models.txt: building
 guild2_fant.x11	construct/town/guild2_fant.base.x11.png	64x64	guild2_2_fant,guild2_3_fant,guild2_4_fant	existing	models.txt: building
@@ -3266,8 +3266,8 @@ ixalovh_cathedral.x11	construct/temple/ixalovh_cathedral.base.x11.png	96x128	ixa
 ixalovh_church.x11	construct/temple/ixalovh_church.base.x11.png	64x64	ixalovh_church,ixalovh_church_2,ixalovh_church_3	existing	models.txt: building
 ixalovh_temple.111	construct/temple/ixalovh_temple.base.111.png	32x32	ixalovh_temple	existing	models.txt: building
 jade_coin.111	jewel/jade_coin.base.111.png	32x32	jadecoin	existing	models.txt: model
-jade_converter.111	shop/jade_converter.base.111.png	32x32	jade_converter	scratch	type CONVERTER: boxy, drawn from an angle, or furniture
-jade_converter2.111	shop/jade_converter2.base.111.png	32x32	jade_converter2	scratch	type CONVERTER: boxy, drawn from an angle, or furniture
+jade_converter.111	shop/jade_converter.base.111.png	32x32	jade_converter	existing	models.txt: building
+jade_converter2.111	shop/jade_converter2.base.111.png	32x32	jade_converter2	existing	models.txt: building
 jadedragon_figurine.111	spell/Wand/jadedragon_figurine.base.111.png	32x32		flat	folder spell/ (no object uses it)
 jcity_0.111	wall/jcity/jcity_0.base.111.png	32x32	jcity_0,town_1	existing	models.txt: wall
 jcity_1.111	wall/jcity/jcity_1.base.111.png	32x32	jcity_1_2,town_3.2	existing	models.txt: wall
@@ -3363,11 +3363,11 @@ lapron.111	armour/mail/lapron.base.111.png	32x32	lapron	existing	models.txt: bui
 large_hdoor.111	door/large_hdoor.base.111.png	96x32	large_hdoor1,large_hdoor2,large_hdoor3	existing	models.txt: model
 large_vdoor.111	door/large_vdoor.base.111.png	32x96	large_vdoor1,large_vdoor2,large_vdoor3	existing	models.txt: model
 largestone.111	ground/Stone/largestone.base.111.png	32x32	large_stones	flat	folder ground/: ground and its smoothing edges
-lava.111	ground/lava.base.111.png	32x32	alchemy_diamond_converter,alchemy_pearl_converter,alchemy_ruby_converter	flat	folder ground/: ground and its smoothing edges
-lava.112	ground/lava.base.112.png	32x32	alchemy_diamond_converter,alchemy_pearl_converter,alchemy_ruby_converter	flat	folder ground/: ground and its smoothing edges
-lava.113	ground/lava.base.113.png	32x32	alchemy_diamond_converter,alchemy_pearl_converter,alchemy_ruby_converter	flat	folder ground/: ground and its smoothing edges
-lava.114	ground/lava.base.114.png	32x32	alchemy_diamond_converter,alchemy_pearl_converter,alchemy_ruby_converter	flat	folder ground/: ground and its smoothing edges
-lava.115	ground/lava.base.115.png	32x32	alchemy_diamond_converter,alchemy_pearl_converter,alchemy_ruby_converter	flat	folder ground/: ground and its smoothing edges
+lava.111	ground/lava.base.111.png	32x32	alchemy_diamond_converter,alchemy_pearl_converter,alchemy_ruby_converter	existing	models.txt: building
+lava.112	ground/lava.base.112.png	32x32	alchemy_diamond_converter,alchemy_pearl_converter,alchemy_ruby_converter	existing	models.txt: building
+lava.113	ground/lava.base.113.png	32x32	alchemy_diamond_converter,alchemy_pearl_converter,alchemy_ruby_converter	existing	models.txt: building
+lava.114	ground/lava.base.114.png	32x32	alchemy_diamond_converter,alchemy_pearl_converter,alchemy_ruby_converter	existing	models.txt: building
+lava.115	ground/lava.base.115.png	32x32	alchemy_diamond_converter,alchemy_pearl_converter,alchemy_ruby_converter	existing	models.txt: building
 lava_S.111	ground/smooth/lava_S.base.111.png	512x64		flat	folder ground/: ground and its smoothing edges
 lava_S.112	ground/smooth/lava_S.base.112.png	512x64		flat	folder ground/: ground and its smoothing edges
 lava_S.113	ground/smooth/lava_S.base.113.png	512x64		flat	folder ground/: ground and its smoothing edges
@@ -3492,7 +3492,7 @@ leg.111	flesh/human/leg.base.111.png	32x32	leg	existing	models.txt: model
 leg_mutton.111	food/leg_mutton.base.111.png	32x32	leg_mutton	existing	models.txt: model
 lesser_dwarven_guard.111	monster/humanoid/Dwarf/lesser_dwarven_guard.base.111.png	32x32	lesser_dwarven_guard	rigged	alive: a creature
 lesser_dwarven_guard.112	monster/humanoid/Dwarf/lesser_dwarven_guard.base.112.png	32x32	lesser_dwarven_guard	rigged	alive: a creature
-letter.111	readable/letter.base.111.png	32x32	letter	scratch	type BOOK: boxy, drawn from an angle, or furniture
+letter.111	readable/letter.base.111.png	32x32	letter	existing	models.txt: flat
 lev_boots.111	armour/boots/lev_boots.base.111.png	32x32	levitationboots	existing	models.txt: model
 lever.111	connect/lever.base.111.png	32x32	button_lever	existing	models.txt: building
 lever.112	connect/lever.base.112.png	32x32	button_lever	existing	models.txt: building
@@ -3800,7 +3800,7 @@ mastif.133	monster/animal/Dog/mastif.base.133.png	32x32	mastif	rigged	alive: a c
 mastif.171	monster/animal/Dog/mastif.base.171.png	32x32	mastif	rigged	alive: a creature
 mastif.172	monster/animal/Dog/mastif.base.172.png	32x32	mastif	rigged	alive: a creature
 mastif.173	monster/animal/Dog/mastif.base.173.png	32x32	mastif	rigged	alive: a creature
-mat.111	indoor/mat.base.111.png	32x32	mat	scratch	folder indoor/
+mat.111	indoor/mat.base.111.png	32x32	mat	existing	models.txt: flat
 mb_burningfountain.111	mapbuilding/mb_burningfountain.base.111.png	32x32	building_burning_fountain	skip	folder mapbuilding/: a building-kit icon (shows what it builds)
 mb_lavawell.111	mapbuilding/mb_lavawell.base.111.png	32x32	building_lava_well	skip	folder mapbuilding/: a building-kit icon (shows what it builds)
 mbaltar_none.111	mapbuilding/mbaltar_none.base.111.png	32x32	building_altar	skip	folder mapbuilding/: a building-kit icon (shows what it builds)
@@ -3987,7 +3987,7 @@ mvwdoor.114	connect/Doors/mvwdoor.base.114.png	32x32	mvwdoor_closed_1,mvwdoor_op
 mystic_fist.111	spell/Golem/mystic_fist.base.111.png	32x32	mystic_fist	rigged	alive: a creature
 mystic_fist.112	spell/Golem/mystic_fist.base.112.png	32x32	mystic_fist	rigged	alive: a creature
 mystic_fist.113	spell/Golem/mystic_fist.base.113.png	32x32	mystic_fist	rigged	alive: a creature
-naz_report.111	misc/naz_report.base.111.png	32x32	naz_report	scratch	type BOOK: boxy, drawn from an angle, or furniture
+naz_report.111	misc/naz_report.base.111.png	32x32	naz_report	existing	models.txt: model
 nazgul.111	monster/undead/nazgul.base.111.png	32x32	nazgul	rigged	alive: a creature
 nazgul.112	monster/undead/nazgul.base.112.png	32x32	nazgul	rigged	alive: a creature
 necro.111	monster/humanoid/necro.base.111.png	32x32	necromancer	rigged	alive: a creature
@@ -4033,7 +4033,7 @@ no_magic.111	floor/no_magic.base.111.png	32x32	magic_banned	flat	folder floor/: 
 no_spells.111	floor/no_spells.base.111.png	32x32	dungeon_magic	flat	folder floor/: floor
 northman.111	monster/humanoid/Class/northman.base.111.png	32x32	northman	rigged	alive: a creature
 northman.112	monster/humanoid/Class/northman.base.112.png	32x32	northman	rigged	alive: a creature
-note.111	readable/note.base.111.png	32x32	note	scratch	type BOOK: boxy, drawn from an angle, or furniture
+note.111	readable/note.base.111.png	32x32	note	existing	models.txt: flat
 nugget_huge.111	jewel/nugget_huge.base.111.png	32x32	hugenugget	existing	models.txt: model
 nugget_lar.111	jewel/nugget_lar.base.111.png	32x32	largenugget	existing	models.txt: model
 nugget_sma.111	jewel/nugget_sma.base.111.png	32x32	smallnugget	existing	models.txt: model
@@ -4245,9 +4245,9 @@ paved_F.111	road/paved/paved_F.base.111.png	32x32	paved_4	flat	folder road/: roa
 pear.111	food/produce/pear.base.111.png	32x32	pear	existing	models.txt: model
 pearl.111	jewel/gems/pearl.base.111.png	32x32	alchemy_pearl_converter,pearl	existing	models.txt: model
 pearl.112	jewel/gems/pearl.base.112.png	32x32	pearl	existing	models.txt: model
-pearl_converter.111	shop/pearl_converter.base.111.png	32x32	pearl_converter	scratch	type CONVERTER: boxy, drawn from an angle, or furniture
-pedestal.111	connect/pedestal.base.111.png	32x32	detector,pedestal,pedestal_trigger	scratch	type PEDESTAL: boxy, drawn from an angle, or furniture
-pedestal.112	connect/pedestal.base.112.png	32x32	detector,pedestal,pedestal_trigger	scratch	type PEDESTAL: boxy, drawn from an angle, or furniture
+pearl_converter.111	shop/pearl_converter.base.111.png	32x32	pearl_converter	existing	models.txt: building
+pedestal.111	connect/pedestal.base.111.png	32x32	detector,pedestal,pedestal_trigger	existing	models.txt: building
+pedestal.112	connect/pedestal.base.112.png	32x32	detector,pedestal,pedestal_trigger	existing	models.txt: building
 penta.111	misc/penta.base.111.png	32x32	pentagram	existing	models.txt: flat
 pentagram.x11	exit/Pentagram/pentagram.base.x11.png	96x96	pentagram_111,pentagram_112,pentagram_113	existing	models.txt: flat
 pet_necro.111	monster/acid/pet_necro.base.111.png	32x32	pet_necro,undead_pet_necro	rigged	alive: a creature
@@ -4392,8 +4392,8 @@ platbar.111	jewel/bars/platbar.base.111.png	32x32	platbar	existing	models.txt: m
 platblock.111	jewel/platblock.base.111.png	32x32	platblock	existing	models.txt: model
 plate.111	misc/plate.base.111.png	32x32	plate	existing	models.txt: model
 plate_mail.111	armour/mail/plate_mail.base.111.png	32x32	mail_mostrai,plate_mail	existing	models.txt: building
-platinum_converter.111	shop/platinum_converter.base.111.png	32x32	platinum_converter	scratch	type CONVERTER: boxy, drawn from an angle, or furniture
-platinum_converter2.111	shop/platinum_converter2.base.111.png	32x32	platinum_converter2	scratch	type CONVERTER: boxy, drawn from an angle, or furniture
+platinum_converter.111	shop/platinum_converter.base.111.png	32x32	platinum_converter	existing	models.txt: building
+platinum_converter2.111	shop/platinum_converter2.base.111.png	32x32	platinum_converter2	existing	models.txt: building
 platround.111	jewel/platround.base.111.png	32x32	platround	existing	models.txt: model
 platter1_bro.111	misc/platter1_bro.base.111.png	32x32	platter1_bro	existing	models.txt: model
 platter1_cop.111	misc/platter1_cop.base.111.png	32x32	platter1_cop	existing	models.txt: model
@@ -4469,10 +4469,10 @@ polarbear.x32	monster/animal/Bear/polarbear.base.x32.png	32x64	polarbear,polarbe
 polarbear.x71	monster/animal/Bear/polarbear.base.x71.png	32x64	polarbear,polarbear_2	rigged	alive: a creature
 polarbear.x72	monster/animal/Bear/polarbear.base.x72.png	32x64	polarbear,polarbear_2	rigged	alive: a creature
 poleaxe.111	weapon/misc/poleaxe.base.111.png	32x32	poleaxe	existing	models.txt: model
-polymorph.111	spell/Misc/polymorph.base.111.png	32x32	alchemy_diamond_converter,alchemy_pearl_converter,alchemy_ruby_converter	scratch	type CONVERTER: boxy, drawn from an angle, or furniture
-polymorph.112	spell/Misc/polymorph.base.112.png	32x32	alchemy_diamond_converter,alchemy_pearl_converter,alchemy_ruby_converter	scratch	type CONVERTER: boxy, drawn from an angle, or furniture
-polymorph.113	spell/Misc/polymorph.base.113.png	32x32	alchemy_diamond_converter,alchemy_pearl_converter,alchemy_ruby_converter	scratch	type CONVERTER: boxy, drawn from an angle, or furniture
-polymorph.114	spell/Misc/polymorph.base.114.png	32x32	alchemy_diamond_converter,alchemy_pearl_converter,alchemy_ruby_converter	scratch	type CONVERTER: boxy, drawn from an angle, or furniture
+polymorph.111	spell/Misc/polymorph.base.111.png	32x32	alchemy_diamond_converter,alchemy_pearl_converter,alchemy_ruby_converter	existing	models.txt: building
+polymorph.112	spell/Misc/polymorph.base.112.png	32x32	alchemy_diamond_converter,alchemy_pearl_converter,alchemy_ruby_converter	existing	models.txt: building
+polymorph.113	spell/Misc/polymorph.base.113.png	32x32	alchemy_diamond_converter,alchemy_pearl_converter,alchemy_ruby_converter	existing	models.txt: building
+polymorph.114	spell/Misc/polymorph.base.114.png	32x32	alchemy_diamond_converter,alchemy_pearl_converter,alchemy_ruby_converter	existing	models.txt: building
 postman.131	monster/humanoid/Human/postman/postman.base.131.png	32x32	postman	rigged	alive: a creature
 postman.132	monster/humanoid/Human/postman/postman.base.132.png	32x32	postman	rigged	alive: a creature
 postman.171	monster/humanoid/Human/postman/postman.base.171.png	32x32	postman	rigged	alive: a creature
@@ -4594,7 +4594,7 @@ pup.173	monster/animal/Dog/pup.base.173.png	32x32	pup	rigged	alive: a creature
 purple_worm.x31	monster/animal/giant_worm/purple_worm.base.x31.png	64x64	purple_worm,purple_worm_2,purple_worm_3	rigged	alive: a creature
 purple_worm.x71	monster/animal/giant_worm/purple_worm.base.x71.png	64x64	purple_worm,purple_worm_2,purple_worm_3	rigged	alive: a creature
 pyrite.111	inorganic/pyrite.base.111.png	32x32	pyrite	existing	models.txt: model
-pyro_book.111	spell/SpellBook/pyro_book.base.111.png	32x32	pyro_book,pyro_book_l1	scratch	type SPELLBOOK: boxy, drawn from an angle, or furniture
+pyro_book.111	spell/SpellBook/pyro_book.base.111.png	32x32	pyro_book,pyro_book_l1	existing	models.txt: model
 pyro_gen.111	monster/humanoid/pyro_gen.base.111.png	32x32	pyro_gen	existing	models.txt: building
 pyromaniac.111	monster/humanoid/pyromaniac.base.111.png	32x32	pyromaniac	rigged	alive: a creature
 pyromaniac.112	monster/humanoid/pyromaniac.base.112.png	32x32	pyromaniac	rigged	alive: a creature
@@ -4603,7 +4603,7 @@ pyromaniac.114	monster/humanoid/pyromaniac.base.114.png	32x32	pyromaniac	rigged	
 quaathu.x11	monster/misc/quaathu/quaathu.base.x11.png	224x192	quaathu,quaathu_1,quaathu_10	rigged	alive: a creature
 quaathu.x12	monster/misc/quaathu/quaathu.base.x12.png	224x192	quaathu,quaathu_1,quaathu_10	rigged	alive: a creature
 quarters.111	weapon/club/quarters.base.111.png	32x32	quarterstaff	existing	models.txt: model
-quarto.111	readable/quarto.base.111.png	32x32	god_spellbook_protection_from_fire,guide_valkyrie,quarto	scratch	type BOOK: boxy, drawn from an angle, or furniture
+quarto.111	readable/quarto.base.111.png	32x32	god_spellbook_protection_from_fire,guide_valkyrie,quarto	existing	models.txt: model
 quest_darcap_elemental.111	system/quests/quest_darcap_elemental.base.111.png	32x32		skip	folder system/ (no object uses it)
 quest_darcap_temple_justice.111	system/quests/quest_darcap_temple_justice.base.111.png	32x32		skip	folder system/ (no object uses it)
 quest_generic.111	system/quests/quest_generic.base.111.png	32x32		skip	folder system/ (no object uses it)
@@ -4903,7 +4903,7 @@ rstone_4.111	ground/Pstone/rstone_4.base.111.png	32x32		flat	folder ground/: gro
 rubble1.111	misc/rubble1.base.111.png	32x32	mountain_rubble,rubble	existing	models.txt: model
 ruby.111	jewel/gems/ruby.base.111.png	32x32	alchemy_ruby_converter,ruby	existing	models.txt: model
 ruby.112	jewel/gems/ruby.base.112.png	32x32	ruby	existing	models.txt: model
-ruby_converter.111	shop/ruby_converter.base.111.png	32x32	ruby_converter	scratch	type CONVERTER: boxy, drawn from an angle, or furniture
+ruby_converter.111	shop/ruby_converter.base.111.png	32x32	ruby_converter	existing	models.txt: building
 ruby_exceptional.111	jewel/gems/ruby_exceptional.base.111.png	32x32	raw_ruby_exceptional_beauty	existing	models.txt: model
 ruby_flawless.111	jewel/gems/ruby_flawless.base.111.png	32x32	raw_ruby_flawless_beauty	existing	models.txt: model
 ruggilli.x11	gods/elemental/ruggilli.base.x11.png	64x64		scratch	big picture (64x64)
@@ -5036,8 +5036,8 @@ scimitar.111	weapon/sword/scimitar.base.111.png	32x32	scimitar	existing	models.t
 scorpi_gen.111	monster/animal/scorpi_gen.base.111.png	32x32	generate_scorpion	existing	models.txt: building
 scorpion.111	monster/animal/scorpion.base.111.png	32x32	scorpion	rigged	alive: a creature
 scorpion.112	monster/animal/scorpion.base.112.png	32x32	scorpion	rigged	alive: a creature
-scroll.111	spell/Scroll/scroll.base.111.png	32x32	ench_armour,improve_cha,improve_con	scratch	type SKILLSCROLL: boxy, drawn from an angle, or furniture
-scroll_2.111	readable/scroll_2.base.111.png	32x32	scroll_2	scratch	type BOOK: boxy, drawn from an angle, or furniture
+scroll.111	spell/Scroll/scroll.base.111.png	32x32	ench_armour,improve_cha,improve_con	existing	models.txt: model
+scroll_2.111	readable/scroll_2.base.111.png	32x32	scroll_2	existing	models.txt: model
 scroll_alchemy.111	skills/Skill_Scrolls/scroll_alchemy.base.111.png	32x32		skip	folder skills/ (no object uses it)
 scroll_bargaining.111	skills/Skill_Scrolls/scroll_bargaining.base.111.png	32x32		skip	folder skills/ (no object uses it)
 scroll_bowyer.111	skills/Skill_Scrolls/scroll_bowyer.base.111.png	32x32		skip	folder skills/ (no object uses it)
@@ -5069,7 +5069,7 @@ scroll_throwing.111	skills/Skill_Scrolls/scroll_throwing.base.111.png	32x32		ski
 scroll_two_handed_weapon.111	skills/Skill_Scrolls/scroll_two_handed_weapon.base.111.png	32x32		skip	folder skills/ (no object uses it)
 scroll_use_magic_item.111	skills/Skill_Scrolls/scroll_use_magic_item.base.111.png	32x32		skip	folder skills/ (no object uses it)
 scroll_woodsman.111	skills/Skill_Scrolls/scroll_woodsman.base.111.png	32x32		skip	folder skills/ (no object uses it)
-scrollr.111	readable/scrollr.base.111.png	32x32	scroll	scratch	type BOOK: boxy, drawn from an angle, or furniture
+scrollr.111	readable/scrollr.base.111.png	32x32	scroll	existing	models.txt: model
 scythe_1.111	weapon/misc/scythe_1.base.111.png	32x32	scythe1	existing	models.txt: model
 sdoor.111	connect/Doors/sdoor.base.111.png	32x32	mdoor_closed_2,mdoor_open_2	existing	models.txt: model
 sdoor.112	connect/Doors/sdoor.base.112.png	32x32	mdoor_closed_2,mdoor_open_2	existing	models.txt: model
@@ -5197,7 +5197,7 @@ sign.111	readable/sign.base.111.png	32x32	menu,sign	existing	models.txt: buildin
 sign_distance.111	readable/sign_distance.base.111.png	32x32	sign_distrance	existing	models.txt: building
 sign_e.111	readable/sign_e.base.111.png	32x32	sign_e	existing	models.txt: building
 sign_w.111	readable/sign_w.base.111.png	32x32	sign_w	existing	models.txt: building
-silver_converter.111	shop/silver_converter.base.111.png	32x32	silver_converter	scratch	type CONVERTER: boxy, drawn from an angle, or furniture
+silver_converter.111	shop/silver_converter.base.111.png	32x32	silver_converter	existing	models.txt: building
 silver_filings.111	crafting/Materials/silver_filings.base.111.png	32x32	silver_filings	existing	models.txt: model
 silver_frost.111	jewel/ores/silver_frost.base.111.png	32x32	silver frost	existing	models.txt: model
 silverbar.111	jewel/bars/silverbar.base.111.png	32x32	silverbar	existing	models.txt: model
@@ -5350,7 +5350,7 @@ sorcerer.151	player/class/Wizardry/sorcerer.base.151.png	32x32	sorcerer_class	ex
 sorcerer.152	player/class/Wizardry/sorcerer.base.152.png	32x32	sorcerer_class	existing	player character (3D bodies)
 sorcerer.171	player/class/Wizardry/sorcerer.base.171.png	32x32	sorcerer_class	existing	player character (3D bodies)
 sorcerer.172	player/class/Wizardry/sorcerer.base.172.png	32x32	sorcerer_class	existing	player character (3D bodies)
-sorcerer_book.111	spell/SpellBook/sorcerer_book.base.111.png	32x32	sorcerer_book,sorcerer_book_l1	scratch	type SPELLBOOK: boxy, drawn from an angle, or furniture
+sorcerer_book.111	spell/SpellBook/sorcerer_book.base.111.png	32x32	sorcerer_book,sorcerer_book_l1	existing	models.txt: model
 sorcerer_hat.111	player/class/Wizardry/sorcerer_hat.base.111.png	32x32	sorcerer_hat	existing	player character (3D bodies)
 sorcerer_hat.112	player/class/Wizardry/sorcerer_hat.base.112.png	32x32	sorcerer_hat	existing	player character (3D bodies)
 sorcerer_hat.113	player/class/Wizardry/sorcerer_hat.base.113.png	32x32	sorcerer_hat	existing	player character (3D bodies)
@@ -5759,8 +5759,8 @@ sting.113	weapon/artifact/Sting/sting.base.113.png	32x32	sting	existing	models.t
 sting.114	weapon/artifact/Sting/sting.base.114.png	32x32	sting	existing	models.txt: model
 stipple.111	system/stipple.base.111.png	32x32		skip	folder system/ (no object uses it)
 stipple.112	system/stipple.base.112.png	24x12		skip	folder system/ (no object uses it)
-stolking_1.111	indoor/stolking_1.base.111.png	32x32	stol_king_1	scratch	folder indoor/
-stolking_2.111	indoor/stolking_2.base.111.png	32x32	stol_king_2	scratch	folder indoor/
+stolking_1.111	indoor/stolking_1.base.111.png	32x32	stol_king_1	existing	models.txt: model
+stolking_2.111	indoor/stolking_2.base.111.png	32x32	stol_king_2	existing	models.txt: model
 stone_black.111	misc/go/stone_black.base.111.png	32x32	stone_black	existing	models.txt: flat
 stone_white.111	misc/go/stone_white.base.111.png	32x32	stone_white	existing	models.txt: flat
 stoneaxe.111	weapon/axe/stoneaxe.base.111.png	32x32	stoneaxe	existing	models.txt: model
@@ -5931,7 +5931,7 @@ stwindowred_0.111	wall/stwallred/stwindowred_0.base.111.png	32x32	stwindowred_wi
 stwindowred_1.111	wall/stwallred/stwindowred_1.base.111.png	32x32	stwindowred_win2	existing	models.txt: wall
 stylus.111	skills/Skill_Tools/stylus.base.111.png	32x32	stylus	existing	models.txt: model
 sulphur.111	inorganic/sulphur.base.111.png	32x32	sulphur,uraniumoxide	existing	models.txt: model
-summoner_book.111	spell/SpellBook/summoner_book.base.111.png	32x32	summoner_book,summoner_book_l1	scratch	type SPELLBOOK: boxy, drawn from an angle, or furniture
+summoner_book.111	spell/SpellBook/summoner_book.base.111.png	32x32	summoner_book,summoner_book_l1	existing	models.txt: model
 sunspear.111	spell/Bolt/sunspear.base.111.png	32x32	light,sunspear,wrathful_eye	flat	type SPELL_EFFECT: on the ground or an effect
 sunspear.112	spell/Bolt/sunspear.base.112.png	32x32	light,sunspear,wrathful_eye	flat	type SPELL_EFFECT: on the ground or an effect
 sunspear.113	spell/Bolt/sunspear.base.113.png	32x32	light,sunspear,wrathful_eye	flat	type SPELL_EFFECT: on the ground or an effect
@@ -6083,7 +6083,7 @@ titan.x72	monster/giant/Titan/titan.base.x72.png	96x96	titan,titan_2,titan_3	rig
 titan.x73	monster/giant/Titan/titan.base.x73.png	96x96	titan,titan_2,titan_3	rigged	alive: a creature
 tomato.111	food/produce/tomato.base.111.png	32x32	tomato	existing	models.txt: model
 tomato_big.111	food/produce/tomato_big.base.111.png	32x32	tomato_big	existing	models.txt: model
-tome.111	readable/tome.base.111.png	32x32	tome	scratch	type BOOK: boxy, drawn from an angle, or furniture
+tome.111	readable/tome.base.111.png	32x32	tome	existing	models.txt: model
 tongue.111	flesh/generic/tongue.base.111.png	32x32	tongue	existing	models.txt: model
 tooth.111	flesh/human/tooth.base.111.png	32x32	skull_tooth,tooth	existing	models.txt: model
 tooth_charm.111	talisman/tooth_charm.base.111.png	32x32	tooth_charm	existing	models.txt: model
@@ -6137,10 +6137,10 @@ town_7.911	exit/Town/town_7.base.911.png	32x32		existing	models.txt: flat
 trading-post.x11	shop/trading-post.base.x11.png	150x64	trading-post,trading-post_10,trading-post_2	existing	models.txt: building
 trap.111	traps/trap.base.111.png	32x32	trap	existing	models.txt: model
 trap_diseased_needle.111	disease/trap_diseased_needle.base.111.png	32x32	trap_diseased_needle	flat	type RUNE: on the ground or an effect
-trapdoor_1.111	connect/Hole/trapdoor_1.base.111.png	32x32	trapdoor_1	scratch	type TRAPDOOR: boxy, drawn from an angle, or furniture
-trapdoor_2.111	connect/Hole/trapdoor_2.base.111.png	32x32	trapdoor_2	scratch	type TRAPDOOR: boxy, drawn from an angle, or furniture
-trapdoor_3.111	connect/Hole/trapdoor_3.base.111.png	32x32	trapdoor_3	scratch	type TRAPDOOR: boxy, drawn from an angle, or furniture
-trapdoor_4.111	connect/Hole/trapdoor_4.base.111.png	32x32	trapdoor_4	scratch	type TRAPDOOR: boxy, drawn from an angle, or furniture
+trapdoor_1.111	connect/Hole/trapdoor_1.base.111.png	32x32	trapdoor_1	existing	models.txt: building
+trapdoor_2.111	connect/Hole/trapdoor_2.base.111.png	32x32	trapdoor_2	existing	models.txt: building
+trapdoor_3.111	connect/Hole/trapdoor_3.base.111.png	32x32	trapdoor_3	existing	models.txt: building
+trapdoor_4.111	connect/Hole/trapdoor_4.base.111.png	32x32	trapdoor_4	existing	models.txt: building
 tree_1.111	ground/Wood/tree_1.base.111.png	32x32	tree	existing	models.txt: model
 tree_2.111	ground/Wood/tree_2.base.111.png	32x32	evergreen	existing	models.txt: model
 tree_3.111	ground/Wood/tree_3.base.111.png	32x32	tree3	existing	models.txt: model
