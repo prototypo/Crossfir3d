@@ -245,10 +245,17 @@ fn animate_beasts(
         if clips.is_none()
             && let Some(g) = gltfs.get(gltf.id())
         {
-            let find = |wanted: &[&str]| {
-                wanted.iter().find_map(|w| g.named_animations.iter().find(|(n, _)| n.rsplit('|').next() == Some(*w)).map(|(_, c)| c.clone()))
+            // "Armature|Walk" and "TRex_Walk" both count as "Walk".
+            let is = |name: &str, w: &str| {
+                let name = name.rsplit('|').next().unwrap_or(name);
+                name == w || name.strip_suffix(w).is_some_and(|rest| rest.ends_with('_'))
             };
-            let (Some(idle), Some(walk)) = (find(&IDLE_CLIPS), find(&WALK_CLIPS)) else { continue };
+            let find = |wanted: &[&str]| {
+                wanted.iter().find_map(|w| g.named_animations.iter().find(|(n, _)| is(n, w)).map(|(_, c)| c.clone()))
+            };
+            // Some animals only stand: they move in their idle clip.
+            let Some(idle) = find(&IDLE_CLIPS) else { continue };
+            let walk = find(&WALK_CLIPS).unwrap_or_else(|| idle.clone());
             let (graph, nodes) = AnimationGraph::from_clips([idle, walk]);
             *clips = Some((graphs.add(graph), nodes[0], nodes[1]));
         }
