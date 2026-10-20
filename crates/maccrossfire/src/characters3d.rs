@@ -21,7 +21,7 @@ use bevy::mesh::skinning::SkinnedMesh;
 use bevy::mesh::{Indices, VertexAttributeValues};
 
 use crate::input::Facing;
-use crate::world::{Glide, ModelTint, SkinTint};
+use crate::world::{Glide, ModelTint, Recolour, SkinTint};
 use crate::{AppState, Inv, Session};
 
 const ANIMS_FILE: &str = "models/animations/UAL1_Standard.glb";
@@ -216,7 +216,10 @@ pub fn spawn_beast(
     let beast = Beast { file: file.to_string(), walking: None };
     let root = commands.spawn((at, Visibility::default(), Character::default(), beast, extra)).id();
     let inner = Transform::from_scale(Vec3::splat(scale));
-    commands.spawn((WorldAssetRoot(scene), inner, Visibility::Hidden, ModelTint(Color::srgb(r, g, b)), ChildOf(root)));
+    let e = commands.spawn((WorldAssetRoot(scene), inner, Visibility::Hidden, ModelTint(Color::srgb(r, g, b)), ChildOf(root))).id();
+    if [r, g, b] != [1.0; 3] {
+        commands.entity(e).insert(Recolour);
+    }
     root
 }
 

@@ -230,6 +230,11 @@ struct StandIn;
 #[derive(Component)]
 pub(crate) struct ModelTint(pub Color);
 
+/// A tinted beast: its picture turns grey first, so the tint gives its true colour
+/// (a plain multiply turned a red dragon olive under a green tint).
+#[derive(Component)]
+pub(crate) struct Recolour;
+
 /// Outfits carry bare skin too (parts named "...MI_Regular_..."); those get this colour.
 #[derive(Component)]
 pub(crate) struct SkinTint(pub Color);
@@ -975,7 +980,9 @@ fn swap_models(
 fn tint_model(
     ready: On<WorldInstanceReady>,
     mut commands: Commands,
-    tints: Query<(&ModelTint, Option<&SkinTint>)>,
+    tints: Query<(&ModelTint, Option<&SkinTint>, Has<Recolour>)>,
+    mut images: ResMut<Assets<Image>>,
+    mut greys: Local<HashMap<AssetId<Image>, Handle<Image>>>,
     part_of: Query<&PartOf>,
     statues: Query<(), With<StatueFigure>>,
     names: Query<&Name>,
@@ -983,7 +990,7 @@ fn tint_model(
     meshes: Query<&MeshMaterial3d<StandardMaterial>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
-    let Ok((ModelTint(tint), skin)) = tints.get(ready.entity) else { return };
+    let Ok((ModelTint(tint), skin, recolour)) = tints.get(ready.entity) else { return };
     if *tint == Color::WHITE && skin.is_none() {
         return;
     }
@@ -999,6 +1006,13 @@ fn tint_model(
         let Some(mut copy) = materials.get(&m.0).cloned() else { continue };
         let c = copy.base_color.to_linear();
         copy.base_color = LinearRgba::new(c.red * tint.red, c.green * tint.green, c.blue * tint.blue, c.alpha).into();
+        if recolour && let Some(tex) = copy.base_color_texture.clone() {
+            let grey = greys.entry(tex.id()).or_insert_with(|| {
+                let grey = images.get(&tex).map(grey_image);
+                grey.map_or(tex.clone(), |g| images.add(g))
+            });
+            copy.base_color_texture = Some(grey.clone());
+        }
         if stone {
             // Darker than the tint: the plinth's own marble colour darkens it too.
             copy.base_color = LinearRgba::new(tint.red * STONE_SHADE, tint.green * STONE_SHADE, tint.blue * STONE_SHADE, 1.0).into();
@@ -1013,6 +1027,21 @@ fn tint_model(
         }
         commands.entity(d).try_insert(MeshMaterial3d(materials.add(copy)));
     }
+}
+
+/// A copy of an sRGB 8-bit picture in grey, brightened so a mid-dark colour comes out
+/// near white (then the tint alone sets the colour).
+fn grey_image(image: &Image) -> Image {
+    let mut grey = image.clone();
+    if let Some(data) = grey.data.as_mut() {
+        for px in data.chunks_exact_mut(4) {
+            let l = (0.3 * px[0] as f32 + 0.59 * px[1] as f32 + 0.11 * px[2] as f32) / 255.0;
+            // ponytail: one fixed lift for every atlas; tune per file if one looks washed out.
+            let v = ((l * 1.6).min(1.0) * 255.0) as u8;
+            px[..3].fill(v);
+        }
+    }
+    grey
 }
 
 /// Big images are sent at their bottom-right tile, so the card's right edge sits on
