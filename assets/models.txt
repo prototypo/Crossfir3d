@@ -278,7 +278,7 @@ bed_save.111 model props/Bed_Twin1.gltf 0.4 0 0
 book_clasp.111 model props/Book_5.gltf 1.5 0 0.045 1.00,0.50,0.11
 book_read.111 model props/Book_5.gltf 1.5 0 0.045 1.00,0.61,0.30
 book_red.111 model props/Book_5.gltf 1.5 0 0.045 1.00,0.21,0.18
-card.111 flat
+card.111 building card
 conv.111 building converter:0.2,0.8,0.85
 crea_serp_c.111 building converter:0.1,0.7,0.2
 diamond_converter.111 building converter:0.75,0.9,1.0
@@ -297,7 +297,7 @@ jade_converter2.111 building converter:0.2,0.75,0.4
 letter.111 building letter
 mat.111 building mat
 naz_report.111 model props/Scroll_1.gltf 2.5 0 0 1.00,0.94,0.50
-note.111 flat
+note.111 building note
 pearl_converter.111 building converter:0.95,0.93,0.88
 pedestal.111 building pedestal
 pedestal.112 building pedestal
@@ -339,11 +339,11 @@ button_big* building button
 button_sma* building button_small
 checkbook model props/Book_7.gltf 1.5 0 0.045 1.0,0.8,0.4
 depositbox model props/Chest_Wood.gltf 0.3 0 0 0.8,0.55,0.35
-earthquake* flat
+earthquake* building crack
 forge* building forge
 frypan_closed building frypan
 frypan_opened building frypan
-gps flat
+gps building map
 grand_piano_black building piano:0.08,0.08,0.09
 grand_piano_white building piano:0.92,0.92,0.9
 harpsichord1 building harpsichord:0.5,0.18,0.12
@@ -353,14 +353,14 @@ harpsichord4 building harpsichord:0.92,0.92,0.9
 icecube building icecube
 smallicecube building smallicecube
 magic_whistle building whistle
-magicmouth flat
+magicmouth building lips
 mailbox building mailbox
 map building map
 messageboard_red building noticeboard
 monument building grave
 quiver building quiver
 close_quiv building quiver
-rune_mark flat
+rune_mark building rune
 slotmachine1* building slotmachine:0.2,0.7,0.25
 slotmachine2* building slotmachine:0.75,0.15,0.15
 slotmachine3* building slotmachine:0.2,0.3,0.8
@@ -368,19 +368,19 @@ statue_ruined model kaykit/rubble_large.gltf 0.12 0 0
 stove* building stove
 
 # Monster generators and odd things (built shapes, buildings.rs, or props models).
-acid_pool* flat
+acid_pool* building acid_pool
 anchor building anchor
 beehive* building beehive
 bee building bee
 killerbee building bee
 bolt_silk building bolt_silk
-bouquet flat
+bouquet building bouquet
 chandelier_1 model props/Chandelier.gltf 0.6 0 2.4
 chemney_* building chimney
 closemail building mailbox
 postman_gen building mailbox
-coldmagma* flat
-magma* flat
+coldmagma* building coldmagma
+magma* building magma
 crystalball building crystalball
 dice* building dice
 fireplace* building fireplace
@@ -407,9 +407,9 @@ thewheel_tall* building wheel_tall
 thewheel_short* building wheel_short
 tissu building tissue
 utensils building utensils
-card_skull flat
+card_skull building card_skull
 r_foot building rabbit_foot
-unluck flat
+unluck building charm
 crown2 model auto/crown.glb 0.5 0 0 1.0,0.45,0.4
 shield2 model auto/shield.glb 0.5 0 0 1.0,0.3,0.3
 doll building doll
@@ -1031,7 +1031,7 @@ para_lightning_residue flat
 para_mud_residue flat
 para_water_residue flat
 sandy flat
-mystic_fist flat
+mystic_fist building fist
 firechest model props/Chest_Wood.gltf 0.45 0 0 1.0,0.45,0.35
 
 lich monster monsters/Skeleton_B.gltf 1.05 0.75,0.6,0.95

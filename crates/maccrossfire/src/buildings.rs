@@ -75,7 +75,7 @@ const GABLE_Y: f32 = 0.75;
 /// square in front of it, where they step out to.
 const DOORSTEP: f32 = 0.5;
 
-pub const RECIPES: [&str; 102] = [
+pub const RECIPES: [&str; 114] = [
     "cottage", "house", "tavern", "barn", "temple", "tower", "castle", "shop", "well", "fountain", "signpost", "crossroads",
     "noticeboard", "lamppost", "clock", "lever", "lever_pulled", "ladder_down", "altar", "altar_green", "altar_black",
     "altar_red", "altar_white", "altar_blue", "brazier", "brazier_unlit", "lantern", "lantern_off",
@@ -84,7 +84,7 @@ pub const RECIPES: [&str; 102] = [
     "campfire", "campfire_out", "teleporter", "magic_portal", "pier",
     "rowboat", "longship", "fishboat", "galleon", "big_galleon", "big_galleon_west", "wagon", "hidden", "pedestal", "alchemy_bath", "trapdoor", "lava_well", "rope_up", "volcano",
     "bomb", "button", "button_small", "forge",
-    "chimney", "anchor", "bee", "ant_egg", "halo", "speedball", "mat", "letter", "map", "whistle", "utensils", "fog", "steam", "spider_web", "rabbit_foot", "doll", "cat_basket", "spinningwheel", "machine", "beehive", "bolt_silk", "crystalball", "dice", "fireplace", "shipswheel", "skull", "ten_kilo", "wheel_tall", "wheel_short", "tissue", "stove", "mailbox", "quiver", "frypan", "icecube", "smallicecube",
+    "chimney", "anchor", "bee", "acid_pool", "card", "card_skull", "magma", "coldmagma", "crack", "lips", "note", "rune", "charm", "bouquet", "fist", "ant_egg", "halo", "speedball", "mat", "letter", "map", "whistle", "utensils", "fog", "steam", "spider_web", "rabbit_foot", "doll", "cat_basket", "spinningwheel", "machine", "beehive", "bolt_silk", "crystalball", "dice", "fireplace", "shipswheel", "skull", "ten_kilo", "wheel_tall", "wheel_short", "tissue", "stove", "mailbox", "quiver", "frypan", "icecube", "smallicecube",
 ];
 pub const WALL_STYLES: [&str; 7] = ["stone", "brick", "plaster", "wood", "hedge", "rock", "gate"];
 
@@ -237,6 +237,45 @@ pub fn parts(recipe: &str, w: u32, h: u32) -> Option<Vec<Part>> {
         ]),
         "anchor" => Some(anchor()),
         "bee" => Some(bee()),
+        // A green puddle of acid with bubbles on it.
+        "acid_pool" => Some(vec![
+            cylinder(0.38, 0.02, [0.0, 0.01, 0.0], [0.25, 0.7, 0.15]),
+            part(Shape::Ball(0.05), [0.1, 0.03, -0.08], 0.0, [1.0, 0.6, 1.0], Some([0.6, 0.95, 0.5])),
+            part(Shape::Ball(0.035), [-0.12, 0.03, 0.1], 0.0, [1.0, 0.6, 1.0], Some([0.6, 0.95, 0.5])),
+            part(Shape::Ball(0.025), [0.0, 0.025, 0.15], 0.0, [1.0, 0.6, 1.0], Some([0.6, 0.95, 0.5])),
+        ]),
+        "card" => Some(card(None)),
+        "card_skull" => Some(card(Some([0.08, 0.08, 0.08]))),
+        "magma" => Some(magma(1.0)),
+        "coldmagma" => Some(magma(0.35)),
+        // Jagged dark gaps across the floor.
+        "crack" => Some(
+            [(-0.3, 0.0, 20.0, 0.3), (-0.05, 0.05, -35.0, 0.3), (0.2, -0.05, 25.0, 0.3), (0.05, 0.2, 70.0, 0.2)]
+                .into_iter()
+                .map(|(x, z, yaw, len)| Part { yaw_deg: yaw, ..cube([len, 0.012, 0.035], [x, 0.006, z], [0.08, 0.07, 0.06]) })
+                .collect(),
+        ),
+        // A magic mouth: red lips floating at head height.
+        "lips" => Some(vec![
+            part(Shape::Ball(0.07), [0.0, 1.03, 0.0], 0.0, [1.6, 0.45, 0.6], Some([0.8, 0.15, 0.2])),
+            part(Shape::Ball(0.065), [0.0, 0.97, 0.0], 0.0, [1.5, 0.5, 0.6], Some([0.75, 0.12, 0.18])),
+            part(Shape::Ball(0.05), [0.0, 1.0, 0.01], 0.0, [1.5, 0.15, 0.5], Some([0.15, 0.03, 0.05])),
+        ]),
+        "note" => Some(note()),
+        // A rune drawn on the floor in faintly glowing red lines.
+        "rune" => Some(
+            [(0.0, 0.0, 0.0, 0.4), (0.0, -0.12, 90.0, 0.25), (0.08, 0.1, 40.0, 0.18), (-0.08, 0.1, -40.0, 0.18)]
+                .into_iter()
+                .map(|(x, z, yaw, len)| Part { yaw_deg: yaw, ..part(Shape::Glow([0.025, 0.006, len]), [x, 0.004, z], 0.0, [1.0; 3], Some([0.7, 0.12, 0.1])) })
+                .collect(),
+        ),
+        // A small silver plaque with a red jewel in it.
+        "charm" => Some(vec![
+            Part { yaw_deg: 25.0, ..cube([0.16, 0.015, 0.12], [0.0, 0.008, 0.0], [0.82, 0.84, 0.88]) },
+            cylinder(0.03, 0.02, [0.0, 0.018, 0.0], [0.85, 0.08, 0.1]),
+        ]),
+        "bouquet" => Some(bouquet()),
+        "fist" => Some(fist()),
         "ant_egg" => Some(vec![part(Shape::Ball(0.1), [0.0, 0.1, 0.0], 0.0, [1.0, 1.4, 1.0], Some([0.95, 0.93, 0.85]))]),
         "halo" => Some(halo()),
         "speedball" => Some(vec![part(Shape::Orb(0.15), [0.0, 0.35, 0.0], 0.0, [1.0; 3], Some([1.0, 0.25, 0.15]))]),
@@ -1584,6 +1623,59 @@ fn trapdoor() -> Vec<Part> {
     out
 }
 
+/// A playing card lying on the floor, with a black skull on it when `skull` is given.
+fn card(skull: Option<[f32; 3]>) -> Vec<Part> {
+    let mut out = vec![Part { yaw_deg: 15.0, ..cube([0.12, 0.006, 0.17], [0.0, 0.003, 0.0], [0.97, 0.96, 0.93]) }];
+    match skull {
+        Some(color) => out.push(part(Shape::Ball(0.03), [0.0, 0.008, 0.0], 0.0, [1.0, 0.2, 1.1], Some(color))),
+        None => out.push(Part { yaw_deg: 60.0, ..cube([0.035, 0.008, 0.035], [0.0, 0.006, 0.0], [0.8, 0.1, 0.1]) }),
+    }
+    out
+}
+
+/// Dark rock filling the floor square, its cracks glowing with lava as bright as `heat`.
+fn magma(heat: f32) -> Vec<Part> {
+    let lava = [1.0 * heat, 0.4 * heat, 0.08 * heat];
+    let mut out = vec![cube([1.0, 0.04, 1.0], [0.0, 0.02, 0.0], [0.12, 0.09, 0.08])];
+    for (x, z, yaw, len) in [(-0.2, -0.2, 30.0, 0.5), (0.2, 0.1, -20.0, 0.6), (0.0, 0.3, 80.0, 0.4), (-0.3, 0.25, -50.0, 0.3)] {
+        out.push(Part { yaw_deg: yaw, ..part(Shape::Glow([len, 0.006, 0.04]), [x, 0.042, z], 0.0, [1.0; 3], Some(lava)) });
+    }
+    out
+}
+
+/// A white note lying on the floor with lines of writing on it.
+fn note() -> Vec<Part> {
+    let mut out = vec![Part { yaw_deg: -10.0, ..cube([0.18, 0.005, 0.24], [0.0, 0.003, 0.0], [0.97, 0.96, 0.92]) }];
+    for i in 0..5 {
+        out.push(Part { yaw_deg: -10.0, ..cube([0.13, 0.006, 0.008], [0.0, 0.004, -0.08 + i as f32 * 0.04], [0.2, 0.2, 0.25]) });
+    }
+    out
+}
+
+/// A bunch of flowers lying on the floor: green stems tied with a ribbon, and red,
+/// yellow and pink flowers.
+fn bouquet() -> Vec<Part> {
+    let mut out = Vec::new();
+    for (i, z) in [-0.04f32, -0.015, 0.01, 0.035].into_iter().enumerate() {
+        out.push(Part { yaw_deg: z * 300.0, ..cube([0.25, 0.012, 0.012], [-0.05, 0.015, z], [0.25, 0.55, 0.2]) });
+        let color = [[0.85, 0.15, 0.15], [1.0, 0.85, 0.2], [1.0, 0.55, 0.75], [0.85, 0.15, 0.15]][i];
+        out.push(part(Shape::Ball(0.035), [0.09, 0.035, z * 2.0], 0.0, [1.0; 3], Some(color)));
+    }
+    out.push(cube([0.03, 0.035, 0.1], [-0.08, 0.02, 0.0], [0.9, 0.2, 0.5]));
+    out
+}
+
+/// A big fist floating at chest height, knuckles to the east.
+fn fist() -> Vec<Part> {
+    let skin = [0.88, 0.7, 0.55];
+    let mut out = vec![part(Shape::Ball(0.11), [0.0, 0.8, 0.0], 0.0, [1.0, 0.9, 1.1], Some(skin))];
+    for z in [-0.06, -0.02, 0.02, 0.06] {
+        out.push(part(Shape::Ball(0.035), [0.09, 0.82, z], 0.0, [1.0; 3], Some(skin)));
+    }
+    out.push(part(Shape::Ball(0.03), [0.05, 0.76, 0.1], 0.0, [1.6, 1.0, 1.0], Some(skin)));
+    out
+}
+
 /// A snake lying in an S on the ground, facing east, `k` times the size of a small one:
 /// a body of balls getting thinner to the tail, a head with eyes and a forked tongue;
 /// a cobra rears up with its hood spread.
@@ -1621,17 +1713,29 @@ fn worm(color: [f32; 3], k: f32) -> Vec<Part> {
     out
 }
 
+/// A box `thick` from point `a` to point `b`, like a leg or a feeler.
+fn limb(a: [f32; 3], b: [f32; 3], thick: f32, color: [f32; 3]) -> Part {
+    let d = [b[0] - a[0], b[1] - a[1], b[2] - a[2]];
+    let flat = d[0].hypot(d[2]);
+    let len = flat.hypot(d[1]);
+    let mid = [(a[0] + b[0]) / 2.0, (a[1] + b[1]) / 2.0, (a[2] + b[2]) / 2.0];
+    Part { yaw_deg: d[2].atan2(d[0]).to_degrees(), tilt_deg: -d[1].atan2(flat).to_degrees(), ..cube([len, thick, thick], mid, color) }
+}
+
 /// A giant ant facing east, `k` times the size of a small one: abdomen, thorax and head,
-/// six legs and two feelers.
+/// six legs bent at the knee down to the floor, and two feelers.
 fn ant(color: [f32; 3], k: f32) -> Vec<Part> {
     let y = 0.08 * k;
+    let at = |p: [f32; 3]| p.map(|c| c * k);
     let ball = |r: f32, x: f32, scale: [f32; 3]| part(Shape::Ball(r * k), [x * k, y, 0.0], 0.0, scale, Some(color));
     let mut out = vec![ball(0.07, -0.12, [1.4, 1.0, 1.0]), ball(0.035, 0.0, [1.4, 1.0, 1.0]), ball(0.045, 0.08, [1.0; 3])];
     for side in [-1.0, 1.0] {
         for x in [-0.03, 0.0, 0.03] {
-            out.push(Part { yaw_deg: side * (90.0 + x * 600.0), tilt_deg: -30.0, ..cube([0.12 * k, 0.012 * k, 0.012 * k], [x * k, y * 0.6, side * 0.05 * k], color) });
+            let (hip, knee, foot) = ([x, 0.08, side * 0.02], [x * 2.5, 0.12, side * 0.09], [x * 4.0, 0.0, side * 0.15]);
+            out.push(limb(at(hip), at(knee), 0.012 * k, color));
+            out.push(limb(at(knee), at(foot), 0.01 * k, color));
         }
-        out.push(Part { yaw_deg: side * -30.0, tilt_deg: 40.0, ..cube([0.08 * k, 0.008 * k, 0.008 * k], [0.13 * k, y + 0.04 * k, side * 0.02 * k], color) });
+        out.push(limb(at([0.11, 0.1, side * 0.015]), at([0.18, 0.16, side * 0.06]), 0.008 * k, color));
     }
     out
 }
@@ -1645,12 +1749,13 @@ fn spider(color: [f32; 3]) -> Vec<Part> {
     ];
     for side in [-1.0, 1.0] {
         out.push(part(Shape::Ball(0.018), [0.14, 0.23, side * 0.03], 0.0, [1.0; 3], Some([0.9, 0.1, 0.1])));
-        for a in [-50.0f32, -20.0, 15.0, 45.0] {
-            let yaw = side * 90.0 + side * -a;
-            let (sin, cos) = (yaw.to_radians().sin(), yaw.to_radians().cos());
-            let knee = [0.04 + cos * 0.18, 0.32, sin * 0.18];
-            out.push(Part { yaw_deg: yaw, tilt_deg: 35.0, ..cube([0.22, 0.02, 0.02], [0.04 + cos * 0.09, 0.26, sin * 0.09], color) });
-            out.push(Part { yaw_deg: yaw, tilt_deg: -60.0, ..cube([0.36, 0.018, 0.018], [knee[0] + cos * 0.09, 0.16, knee[2] + sin * 0.09], color) });
+        // Legs fan out from the head, two forward, two back.
+        for a in [50.0f32, 20.0, -15.0, -45.0] {
+            let (sin, cos) = a.to_radians().sin_cos();
+            // A point `r` out from the head along this leg, at height `y`.
+            let at = |r: f32, y: f32| [0.06 + sin * r, y, side * cos * r];
+            out.push(limb(at(0.06, 0.2), at(0.22, 0.36), 0.022, color));
+            out.push(limb(at(0.22, 0.36), at(0.42, 0.0), 0.018, color));
         }
     }
     out
@@ -1665,11 +1770,11 @@ fn centipede(color: [f32; 3]) -> Vec<Part> {
         let z = 0.05 * (i as f32 * 0.8).sin();
         out.push(part(Shape::Ball(0.055), [x, 0.07, z], 0.0, [1.0, 0.8, 1.0], Some(color)));
         for side in [-1.0, 1.0] {
-            out.push(Part { yaw_deg: side * 90.0, tilt_deg: -35.0, ..cube([0.1, 0.012, 0.012], [x, 0.04, z + side * 0.07], color) });
+            out.push(limb([x, 0.06, z + side * 0.03], [x - 0.02, 0.0, z + side * 0.12], 0.012, color));
         }
     }
     for side in [-1.0, 1.0] {
-        out.push(Part { yaw_deg: side * -25.0, tilt_deg: 30.0, ..cube([0.12, 0.01, 0.01], [0.5, 0.11, side * 0.03], color) });
+        out.push(limb([0.45, 0.09, side * 0.02], [0.58, 0.16, side * 0.07], 0.01, color));
     }
     out
 }
@@ -2165,6 +2270,14 @@ mod tests {
         let p = tilted(vec![cube([0.1; 3], [0.0, 1.0, 0.0], WOOD)], 90.0).remove(0);
         assert!((p.pos[0] - 1.0).abs() < 1e-6 && p.pos[1].abs() < 1e-6, "{:?}", p.pos);
         assert_eq!(p.tilt_deg, 90.0);
+    }
+
+    #[test]
+    fn limb_runs_from_one_point_to_the_other() {
+        let p = limb([0.0, 0.0, 0.0], [0.0, 0.0, 2.0], 0.1, WOOD);
+        assert_eq!((p.pos, p.yaw_deg, p.shape), ([0.0, 0.0, 1.0], 90.0, Shape::Box([2.0, 0.1, 0.1])));
+        let up = limb([0.0, 0.0, 0.0], [1.0, 1.0, 0.0], 0.1, WOOD);
+        assert!((up.tilt_deg + 45.0).abs() < 1e-4, "{}", up.tilt_deg);
     }
 
     #[test]

@@ -57,8 +57,8 @@ acid_S.112	ground/smooth/acid_S.base.112.png	512x64		flat	folder ground/: ground
 acid_S.113	ground/smooth/acid_S.base.113.png	512x64		flat	folder ground/: ground and its smoothing edges
 acid_S.114	ground/smooth/acid_S.base.114.png	512x64		flat	folder ground/: ground and its smoothing edges
 acid_S.115	ground/smooth/acid_S.base.115.png	512x64		flat	folder ground/: ground and its smoothing edges
-acid_pool.111	monster/acid/acid_pool.base.111.png	32x32	acid_pool,chaos,chaos_ball	existing	models.txt: flat
-acid_pool.112	monster/acid/acid_pool.base.112.png	32x32	acid_pool	existing	models.txt: flat
+acid_pool.111	monster/acid/acid_pool.base.111.png	32x32	acid_pool,chaos,chaos_ball	existing	models.txt: building
+acid_pool.112	monster/acid/acid_pool.base.112.png	32x32	acid_pool	existing	models.txt: building
 acidsphere.111	monster/acid/acidsphere.base.111.png	32x32	acid_sphere	existing	models.txt: beast
 acidsphere.112	monster/acid/acidsphere.base.112.png	32x32	acid_sphere	existing	models.txt: beast
 acidsphere.113	monster/acid/acidsphere.base.113.png	32x32	acid_sphere	existing	models.txt: beast
@@ -775,7 +775,7 @@ bookshelf_right.111	misc/Container/bookshelf_right.base.111.png	32x32	bookshelf_
 booze.111	food/booze.base.111.png	32x32	booze,poison	existing	models.txt: model
 boozebottle_empty.111	food/boozebottle_empty.base.111.png	32x32	boozebottle_empty	existing	models.txt: model
 boulder.111	misc/boulder.base.111.png	32x32	boulder,t_boulder,t_lboulder	existing	models.txt: model
-bouquet.111	misc/bouquet.base.111.png	32x32	bouquet	existing	models.txt: flat
+bouquet.111	misc/bouquet.base.111.png	32x32	bouquet	existing	models.txt: building
 bow.111	weapon/bow/bow.base.111.png	32x32	bow	existing	models.txt: model
 bpudding.111	monster/acid/bpudding.base.111.png	32x32	black_pudding	existing	models.txt: beast
 bpudding.112	monster/acid/bpudding.base.112.png	32x32	black_pudding	existing	models.txt: beast
@@ -1043,12 +1043,12 @@ cannon_8.111	misc/cannon_8.base.111.png	32x32	cannon_8	flat	type FIREWALL: on th
 capitalhold_east.x11	construct/keep/capitalhold_east.base.x11.png	96x96	capitalhold_2_east,capitalhold_3_east,capitalhold_4_east	existing	models.txt: building
 capitalhold_west.x11	construct/keep/capitalhold_west.base.x11.png	160x96	capitalhold_10_west,capitalhold_11_west,capitalhold_12_west	existing	models.txt: building
 caramel.111	food/caramel.base.111.png	32x32	caramel	existing	models.txt: model
-card.111	readable/card.base.111.png	32x32	card	existing	models.txt: flat
+card.111	readable/card.base.111.png	32x32	card	existing	models.txt: building
 card_crown.111	readable/card_crown.base.111.png	32x32		skip	unused: no object or map shows it
 card_cup.111	readable/card_cup.base.111.png	32x32		skip	unused: no object or map shows it
 card_dragon.111	readable/card_dragon.base.111.png	32x32		skip	unused: no object or map shows it
 card_ring.111	readable/card_ring.base.111.png	32x32		skip	unused: no object or map shows it
-card_skull.111	readable/card_skull.base.111.png	32x32		existing	models.txt: flat
+card_skull.111	readable/card_skull.base.111.png	32x32		existing	models.txt: building
 card_sword.111	readable/card_sword.base.111.png	32x32		skip	unused: no object or map shows it
 carrot.111	food/produce/carrot.base.111.png	32x32	carrot	existing	models.txt: model
 carton_box_1.111	misc/Container/carton_box_1.base.111.png	32x32	carton_box_1	existing	models.txt: model
@@ -1391,8 +1391,8 @@ cold_drag.131	monster/dragon/Hatchlings/cold_drag.base.131.png	32x32	cold_dragon
 cold_drag.132	monster/dragon/Hatchlings/cold_drag.base.132.png	32x32	cold_dragon	existing	models.txt: beast
 cold_drag.171	monster/dragon/Hatchlings/cold_drag.base.171.png	32x32	cold_dragon	existing	models.txt: beast
 cold_drag.172	monster/dragon/Hatchlings/cold_drag.base.172.png	32x32	cold_dragon	existing	models.txt: beast
-coldmagma.111	planes/fire/coldmagma.base.111.png	32x32	coldmagma	existing	models.txt: flat
-coldmagma.112	planes/fire/coldmagma.base.112.png	32x32	coldmagma	existing	models.txt: flat
+coldmagma.111	planes/fire/coldmagma.base.111.png	32x32	coldmagma	existing	models.txt: building
+coldmagma.112	planes/fire/coldmagma.base.112.png	32x32	coldmagma	existing	models.txt: building
 collar.111	talisman/collar.base.111.png	32x32	collar	existing	models.txt: model
 collar.112	talisman/collar.base.112.png	32x32	collar	existing	models.txt: model
 collar.113	talisman/collar.base.113.png	32x32	collar	existing	models.txt: model
@@ -2073,9 +2073,9 @@ earth_shield.111	gods/items/earth_shield/earth_shield.base.111.png	32x32	shield_
 earth_shield.112	gods/items/earth_shield/earth_shield.base.112.png	32x32	shield_gaea	existing	models.txt: model
 earth_shield.113	gods/items/earth_shield/earth_shield.base.113.png	32x32	shield_gaea	existing	models.txt: model
 earth_shield.114	gods/items/earth_shield/earth_shield.base.114.png	32x32	shield_gaea	existing	models.txt: model
-earthquake.111	spell/Aura/earthquake.base.111.png	32x32	earthquake,earthquake_mark	existing	models.txt: flat
-earthquake.112	spell/Aura/earthquake.base.112.png	32x32	earthquake_mark	existing	models.txt: flat
-earthquake.113	spell/Aura/earthquake.base.113.png	32x32	earthquake_mark	existing	models.txt: flat
+earthquake.111	spell/Aura/earthquake.base.111.png	32x32	earthquake,earthquake_mark	existing	models.txt: building
+earthquake.112	spell/Aura/earthquake.base.112.png	32x32	earthquake_mark	existing	models.txt: building
+earthquake.113	spell/Aura/earthquake.base.113.png	32x32	earthquake_mark	existing	models.txt: building
 earthwall.111	wall/bwall/earthwall.base.111.png	32x32	block_door_closed,block_door_open,earthwall	existing	models.txt: wall
 earthwall.112	wall/bwall/earthwall.base.112.png	32x32	earthwall	existing	models.txt: wall
 earthwall.113	wall/bwall/earthwall.base.113.png	32x32	earthwall	existing	models.txt: wall
@@ -2737,7 +2737,7 @@ goose.172	monster/animal/farmyard/goose.base.172.png	32x32	goose	existing	models
 gorokh_cathedral.x11	construct/temple/gorokh_cathedral.base.x11.png	96x128	gorokh_cathedral,gorokh_cathedral_10,gorokh_cathedral_11	existing	models.txt: building
 gorokh_church.x11	construct/temple/gorokh_church.base.x11.png	64x64	gorokh_church,gorokh_church_2,gorokh_church_3	existing	models.txt: building
 gorokh_temple.111	construct/temple/gorokh_temple.base.111.png	32x32	gorokh_temple	existing	models.txt: building
-gps.111	misc/gps.base.111.png	32x32	gps	existing	models.txt: flat
+gps.111	misc/gps.base.111.png	32x32	gps	existing	models.txt: building
 gram.111	weapon/artifact/Gram/gram.base.111.png	32x32	gram	existing	models.txt: model
 gram.112	weapon/artifact/Gram/gram.base.112.png	32x32	gram	existing	models.txt: model
 gram.113	weapon/artifact/Gram/gram.base.113.png	32x32	gram	existing	models.txt: model
@@ -3736,11 +3736,11 @@ magic_portal_failed.117	exit/magic_portal/magic_portal_failed.base.117.png	32x32
 magic_portal_failed.118	exit/magic_portal/magic_portal_failed.base.118.png	32x32	town_portal_failed	existing	models.txt: building
 magic_resist.111	armour/cloak/magic_resist.base.111.png	32x32	magic_resist	existing	models.txt: building
 magic_whistle.111	misc/magic_whistle.base.111.png	32x32	magic_whistle	existing	models.txt: building
-magicmouth.111	connect/magicmouth.base.111.png	32x32	magic_mouth	existing	models.txt: flat
-magma.111	planes/fire/magma.base.111.png	32x32	magma	existing	models.txt: flat
-magma.112	planes/fire/magma.base.112.png	32x32	magma	existing	models.txt: flat
-magma.113	planes/fire/magma.base.113.png	32x32	magma	existing	models.txt: flat
-magma.114	planes/fire/magma.base.114.png	32x32	magma	existing	models.txt: flat
+magicmouth.111	connect/magicmouth.base.111.png	32x32	magic_mouth	existing	models.txt: building
+magma.111	planes/fire/magma.base.111.png	32x32	magma	existing	models.txt: building
+magma.112	planes/fire/magma.base.112.png	32x32	magma	existing	models.txt: building
+magma.113	planes/fire/magma.base.113.png	32x32	magma	existing	models.txt: building
+magma.114	planes/fire/magma.base.114.png	32x32	magma	existing	models.txt: building
 magnifier.111	misc/magnifier.base.111.png	32x32	magnifier	existing	models.txt: model
 mailbox.111	misc/Container/mailbox.base.111.png	32x32	mailbox	existing	models.txt: building
 man.131	monster/humanoid/Human/man.base.131.png	32x32	c_man,man,shopkeeper	existing	models.txt: person
@@ -3984,9 +3984,9 @@ mvwdoor.111	connect/Doors/mvwdoor.base.111.png	32x32	mvwdoor_closed_1,mvwdoor_op
 mvwdoor.112	connect/Doors/mvwdoor.base.112.png	32x32	mvwdoor_closed_1,mvwdoor_open_1	existing	models.txt: model
 mvwdoor.113	connect/Doors/mvwdoor.base.113.png	32x32	mvwdoor_closed_1,mvwdoor_open_1	existing	models.txt: model
 mvwdoor.114	connect/Doors/mvwdoor.base.114.png	32x32	mvwdoor_closed_1,mvwdoor_open_1	existing	models.txt: model
-mystic_fist.111	spell/Golem/mystic_fist.base.111.png	32x32	mystic_fist	existing	models.txt: flat
-mystic_fist.112	spell/Golem/mystic_fist.base.112.png	32x32	mystic_fist	existing	models.txt: flat
-mystic_fist.113	spell/Golem/mystic_fist.base.113.png	32x32	mystic_fist	existing	models.txt: flat
+mystic_fist.111	spell/Golem/mystic_fist.base.111.png	32x32	mystic_fist	existing	models.txt: building
+mystic_fist.112	spell/Golem/mystic_fist.base.112.png	32x32	mystic_fist	existing	models.txt: building
+mystic_fist.113	spell/Golem/mystic_fist.base.113.png	32x32	mystic_fist	existing	models.txt: building
 naz_report.111	misc/naz_report.base.111.png	32x32	naz_report	existing	models.txt: model
 nazgul.111	monster/undead/nazgul.base.111.png	32x32	nazgul	existing	models.txt: beast
 nazgul.112	monster/undead/nazgul.base.112.png	32x32	nazgul	existing	models.txt: beast
@@ -4033,7 +4033,7 @@ no_magic.111	floor/no_magic.base.111.png	32x32	magic_banned	flat	folder floor/: 
 no_spells.111	floor/no_spells.base.111.png	32x32	dungeon_magic	flat	folder floor/: floor
 northman.111	monster/humanoid/Class/northman.base.111.png	32x32	northman	existing	models.txt: person
 northman.112	monster/humanoid/Class/northman.base.112.png	32x32	northman	existing	models.txt: person
-note.111	readable/note.base.111.png	32x32	note	existing	models.txt: flat
+note.111	readable/note.base.111.png	32x32	note	existing	models.txt: building
 nugget_huge.111	jewel/nugget_huge.base.111.png	32x32	hugenugget	existing	models.txt: model
 nugget_lar.111	jewel/nugget_lar.base.111.png	32x32	largenugget	existing	models.txt: model
 nugget_sma.111	jewel/nugget_sma.base.111.png	32x32	smallnugget	existing	models.txt: model
@@ -4926,7 +4926,7 @@ rune_frost.111	spell/Rune/rune_frost.base.111.png	32x32	rune_frost	flat	type RUN
 rune_heal.111	spell/Rune/rune_heal.base.111.png	32x32	rune_heal,rune_restoration	flat	type RUNE: on the ground or an effect
 rune_icestorm.111	spell/Rune/rune_icestorm.base.111.png	32x32	rune_icestorm,rune_large_icestorm	flat	type RUNE: on the ground or an effect
 rune_lightning.111	spell/Rune/rune_lightning.base.111.png	32x32	rune_small_lightning	flat	type RUNE: on the ground or an effect
-rune_mark.111	spell/Misc/rune_mark.base.111.png	32x32	rune_mark	existing	models.txt: flat
+rune_mark.111	spell/Misc/rune_mark.base.111.png	32x32	rune_mark	existing	models.txt: building
 rune_paralysis.111	spell/Rune/rune_paralysis.base.111.png	32x32	rune_paralysis	flat	type RUNE: on the ground or an effect
 rune_paralysis.112	spell/Rune/rune_paralysis.base.112.png	32x32	rune_paralysis	flat	type RUNE: on the ground or an effect
 rune_pcloud.111	spell/Rune/rune_pcloud.base.111.png	32x32	rune_poison_cloud	flat	type RUNE: on the ground or an effect
@@ -6218,7 +6218,7 @@ unlit_brazier.111	light/unlit_brazier.base.111.png	32x32	unlit brazier	existing	
 unlit_tikitorch.111	light/unlit_tikitorch.base.111.png	32x32	unlit tiki torch	existing	models.txt: model
 unlocked_hwooddoor.111	door/unlocked_hwooddoor.base.111.png	32x32	lockable_hdoor	existing	models.txt: model
 unlocked_vwooddoor.111	door/unlocked_vwooddoor.base.111.png	32x32	lockable_vdoor	existing	models.txt: model
-unluck.111	misc/unluck.base.111.png	32x32		existing	models.txt: flat
+unluck.111	misc/unluck.base.111.png	32x32		existing	models.txt: building
 unusual_kobold.111	monster/goblin/Kobold/unusual_kobold.base.111.png	32x32	pygmy,pygmy_assassin,unusual_kobold	existing	models.txt: monster
 unusual_kobold.112	monster/goblin/Kobold/unusual_kobold.base.112.png	32x32	pygmy,pygmy_assassin,unusual_kobold	existing	models.txt: monster
 uranium.111	inorganic/uranium.base.111.png	32x32	depleteduraniumpile,enricheduraniumpile,uraniumpile	existing	models.txt: model
