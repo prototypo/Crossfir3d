@@ -495,20 +495,25 @@ fn wear_helmet(
 }
 
 /// The look and files of a character in its class's outfit (the hood in place of the
-/// hair, the outfit tinted), or as it was with no class.
-pub fn class_dressed(look: Look, body: Body, class: Option<ClassLook>) -> (Look, [&'static str; 3]) {
+/// hair), or as it was with no class. The outfit takes the class's colour, or keeps the
+/// look's own clothes colour when `own_colour` (creatures coloured from their pictures).
+pub fn class_dressed(look: Look, body: Body, class: Option<ClassLook>, own_colour: bool) -> (Look, [&'static str; 3]) {
     let mut files = character_files(body);
     let Some(class) = class else { return (look, files) };
     files[2] = outfit_file(body, class.garb);
-    // `tints` divides the clothes by a human's, so this gives the class tint.
+    // `tints` divides the clothes by a human's: so a tint t is the clothes t * human.
     let human = look_for_race("human").clothes;
-    let mut look = Look { clothes: [0, 1, 2].map(|i| class.tint[i] * human[i]), ..look };
+    let mut look = look;
+    if !own_colour {
+        look.clothes = [0, 1, 2].map(|i| class.tint[i] * human[i]);
+    }
     if class.head == Some(Headwear::Hood) {
         files[1] = match body {
             Body::Regular => "outfits/Male_Ranger_Head_Hood.gltf",
             Body::Other => "outfits/Female_Ranger_Head_Hood.gltf",
         };
-        look.hair = class.tint;
+        // The hood takes the hair's tint as is: the outfit's tint.
+        look.hair = [0, 1, 2].map(|i| look.clothes[i] / human[i]);
     }
     (look, files)
 }
