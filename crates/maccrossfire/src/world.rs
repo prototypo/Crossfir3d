@@ -835,6 +835,16 @@ fn spawn_part(
             let unscaled = Transform::from_scale(Vec3::ONE / t.scale);
             return commands.spawn((Mesh3d(mesh), MeshMaterial3d(glow), t, Visibility::Hidden, NotShadowCaster)).with_child((light, unscaled)).id();
         }
+        Shape::Mist(radius) => {
+            let mist = materials.add(StandardMaterial {
+                base_color: color.with_alpha(0.45),
+                alpha_mode: AlphaMode::Blend,
+                perceptual_roughness: 1.0,
+                ..default()
+            });
+            let t = Transform { scale: t.scale * radius, ..t };
+            return commands.spawn((Mesh3d(textures.ball.clone()), MeshMaterial3d(mist), t, Visibility::Hidden, NotShadowCaster)).id();
+        }
         Shape::Fire { .. } | Shape::Glow(_) => {
             let glow = materials.add(StandardMaterial {
                 base_color: color,
