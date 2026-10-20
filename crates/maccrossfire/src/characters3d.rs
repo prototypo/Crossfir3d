@@ -13,7 +13,7 @@ use bevy::render::render_resource::TextureFormat;
 use bevy::world_serialization::{WorldAsset, WorldAssetRoot, WorldInstanceReady};
 use maccrossfire::login::LoginState;
 use maccrossfire::anim::{clip_name, looping, Anim, AnimEvent, AnimState};
-use maccrossfire::held::{held, helmet, worn, Garb, Hand};
+use maccrossfire::held::{class_look, held, helmet, worn, Carry, ClassLook, Garb, Hand, Headwear};
 use maccrossfire::races::{default_body_path, head_triangles, load_body, look_for_race, tints, Body, Look};
 use std::collections::HashMap;
 
@@ -45,7 +45,7 @@ impl Plugin for CharactersPlugin {
             .init_resource::<Preview>()
             .add_observer(bind_bones)
             .add_systems(Startup, (load_anims, setup_preview))
-            .add_systems(Update, (build_graph, animate, animate_beasts, hold_items, wear_armour, wear_helmet, dress_people, freeze_statues))
+            .add_systems(Update, (build_graph, animate, animate_beasts, hold_items, wear_armour, wear_helmet, dress_people, gear_up, freeze_statues))
             .add_systems(PostUpdate, hold_head_size.after(bevy::app::AnimationSystems).before(bevy::transform::TransformSystems::Propagate))
             .add_systems(Update, update_preview.run_if(in_state(AppState::Login)))
             .add_systems(OnEnter(AppState::InGame), set_own_look)
@@ -74,11 +74,13 @@ pub struct PlayerAnimEvents(pub Vec<AnimEvent>);
 pub struct OwnLook {
     pub look: Look,
     pub body: Body,
+    /// The look of the own character's class: worn or held items take its place.
+    pub class: Option<ClassLook>,
 }
 
 impl Default for OwnLook {
     fn default() -> Self {
-        OwnLook { look: look_for_race("human"), body: Body::Regular }
+        OwnLook { look: look_for_race("human"), body: Body::Regular, class: None }
     }
 }
 
@@ -370,6 +372,9 @@ fn head_only(mesh: &Mesh, is_head: &[bool]) -> Option<Mesh> {
 fn hold_items(
     mut commands: Commands,
     inv: Res<Inv>,
+    own_look: Res<OwnLook>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
     server: Res<AssetServer>,
     own: Query<(Entity, Option<&Holding>), With<OwnCharacter>>,
     children: Query<&Children>,
@@ -393,11 +398,16 @@ fn hold_items(
     }
     for (file, hand) in &want {
         let hand = if *hand == Hand::Right { right } else { left };
-        let t = Transform::from_scale(Vec3::splat(WEAPON_SCALE / bone_scale(hand, &parents, &parts)));
-        let scene = server.load(GltfAssetLabel::Scene(0).from_asset(format!("models/{file}")));
-        commands.entity(hand).queue_silenced(move |mut e: EntityWorldMut| {
-            e.with_child((WorldAssetRoot(scene), t, HeldModel));
-        });
+        put_in_hand(&mut commands, hand, Carry::Model(file), 1.0 / bone_scale(hand, &parents, &parts), &server, &mut meshes, &mut materials);
+    }
+    // A hand holding nothing holds what the class carries.
+    if let Some(class) = own_look.class {
+        for (carry, side, bone) in [(class.right, Hand::Right, right), (class.left, Hand::Left, left)] {
+            if let Some(carry) = carry.filter(|_| !want.iter().any(|(_, h)| *h == side)) {
+                let k = own_look.look.scale / bone_scale(bone, &parents, &parts);
+                put_in_hand(&mut commands, bone, carry, k, &server, &mut meshes, &mut materials);
+            }
+        }
     }
     commands.entity(root).try_insert(Holding(want));
 }
@@ -422,7 +432,8 @@ fn wear_armour(
         return;
     }
     let Some((old, _, &t, &vis, skin)) = outfits.iter().find(|o| o.1.parent() == root) else { return };
-    let (garb, tint) = want.0.unwrap_or((Garb::Peasant, tints(&own_look.look).clothes));
+    let class = own_look.class.map(|c| (c.garb, c.tint));
+    let (garb, tint) = want.0.or(class).unwrap_or((Garb::Peasant, tints(&own_look.look).clothes));
     let file = outfit_file(own_look.body, garb);
     let scene = server.load(GltfAssetLabel::Scene(0).from_asset(format!("models/{file}")));
     let [r, g, b] = tint;
@@ -435,8 +446,8 @@ fn wear_armour(
 #[derive(Component, PartialEq)]
 struct Helmeted(Option<[f32; 3]>);
 
-/// A helmet shape on the own character.
-#[derive(Component)]
+/// A helmet shape (or class headwear) on the own character.
+#[derive(Component, Clone)]
 struct HelmetShape;
 
 /// Puts the applied helmet on the own character: a metal cap on the head bone, so it
@@ -458,7 +469,8 @@ fn wear_helmet(
 ) {
     let Ok((root, helmeted)) = own.single() else { return };
     let want = Helmeted(helmet(&inv.0.carried()));
-    if helmeted.map_or(want.0.is_none(), |h| *h == want) {
+    // With no helmet the class's headwear shows, so the first look is always made.
+    if helmeted.is_some_and(|h| *h == want) {
         return;
     }
     // The body scenes spawn a little later than the character: try again next frame.
@@ -475,8 +487,145 @@ fn wear_helmet(
         commands.entity(head).queue_silenced(move |mut e: EntityWorldMut| {
             e.with_child(cap);
         });
+    } else if let Some(wear) = own_look.class.and_then(|c| c.head) {
+        let k = own_look.look.scale / bone_scale(head, &parents, &parts);
+        put_on_head(&mut commands, head, wear, k, &mut meshes, &mut materials, HelmetShape);
     }
     commands.entity(root).try_insert(want);
+}
+
+/// The look and files of a character in its class's outfit (the hood in place of the
+/// hair, the outfit tinted), or as it was with no class.
+pub fn class_dressed(look: Look, body: Body, class: Option<ClassLook>) -> (Look, [&'static str; 3]) {
+    let mut files = character_files(body);
+    let Some(class) = class else { return (look, files) };
+    files[2] = outfit_file(body, class.garb);
+    // `tints` divides the clothes by a human's, so this gives the class tint.
+    let human = look_for_race("human").clothes;
+    let mut look = Look { clothes: [0, 1, 2].map(|i| class.tint[i] * human[i]), ..look };
+    if class.head == Some(Headwear::Hood) {
+        files[1] = match body {
+            Body::Regular => "outfits/Male_Ranger_Head_Hood.gltf",
+            Body::Other => "outfits/Female_Ranger_Head_Hood.gltf",
+        };
+        look.hair = class.tint;
+    }
+    (look, files)
+}
+
+/// Another player's class headwear and carried things, put on once their bones exist
+/// (its look's scale too). The outfit and hood are chosen at spawn (`class_dressed`).
+#[derive(Component)]
+pub struct ClassGear(pub ClassLook, pub f32);
+
+#[allow(clippy::too_many_arguments)]
+fn gear_up(
+    mut commands: Commands,
+    server: Res<AssetServer>,
+    geared: Query<(Entity, &ClassGear)>,
+    children: Query<&Children>,
+    names: Query<&Name>,
+    parents: Query<(&ChildOf, &Transform)>,
+    parts: Query<(), With<PartOf>>,
+    mut meshes: ResMut<Assets<Mesh>>,
+    mut materials: ResMut<Assets<StandardMaterial>>,
+) {
+    for (root, ClassGear(class, scale)) in &geared {
+        let bone = |name: &str| children.iter_descendants(root).find(|e| names.get(*e).is_ok_and(|n| n.as_str() == name));
+        // The body scenes spawn a little later than the character: try again next frame.
+        let (Some(head), Some(right), Some(left)) = (bone("Head"), bone("hand_r"), bone("hand_l")) else { continue };
+        if let Some(wear) = class.head {
+            put_on_head(&mut commands, head, wear, scale / bone_scale(head, &parents, &parts), &mut meshes, &mut materials, ());
+        }
+        for (carry, bone) in [(class.right, right), (class.left, left)] {
+            if let Some(carry) = carry {
+                put_in_hand(&mut commands, bone, carry, scale / bone_scale(bone, &parents, &parts), &server, &mut meshes, &mut materials);
+            }
+        }
+        commands.entity(root).remove::<ClassGear>();
+    }
+}
+
+/// A material of plain colour, glowing when `glow`.
+fn plain(materials: &mut Assets<StandardMaterial>, [r, g, b]: [f32; 3], glow: bool) -> Handle<StandardMaterial> {
+    let color = Color::srgb(r, g, b);
+    let emissive = if glow { LinearRgba::from(color) * 4.0 } else { LinearRgba::BLACK };
+    materials.add(StandardMaterial { base_color: color, emissive, perceptual_roughness: 0.8, ..default() })
+}
+
+/// Puts a hat, cap or mask on a head bone, `k` times its size for a human; `marker`
+/// goes on each shape. A hood is an outfit part, not a shape: nothing here.
+fn put_on_head(
+    commands: &mut Commands,
+    head: Entity,
+    wear: Headwear,
+    k: f32,
+    meshes: &mut Assets<Mesh>,
+    materials: &mut Assets<StandardMaterial>,
+    marker: impl Bundle + Clone,
+) {
+    let at = |x: f32, y: f32, z: f32, scale: Vec3| Transform::from_xyz(x * k, y * k, z * k).with_scale(scale * k);
+    let shapes: Vec<(Mesh, Transform, [f32; 3])> = match wear {
+        Headwear::Hood => Vec::new(),
+        Headwear::PointedHat(c) => vec![
+            (Cylinder::new(0.21, 0.02).into(), at(0.0, 0.2, 0.0, Vec3::ONE), c),
+            (Cone::new(0.12, 0.34).into(), at(0.0, 0.37, -0.02, Vec3::ONE), c),
+        ],
+        Headwear::Skullcap(c) => vec![(Sphere::new(0.1).into(), at(0.0, 0.17, -0.01, Vec3::new(1.12, 0.6, 1.2)), c)],
+        Headwear::BrimHat(c) => vec![
+            (Cylinder::new(0.2, 0.02).into(), at(0.0, 0.2, 0.0, Vec3::ONE), c),
+            (Cylinder::new(0.1, 0.12).into(), at(0.0, 0.26, 0.0, Vec3::ONE), c),
+        ],
+        Headwear::Mask => vec![(Cuboid::new(0.2, 0.07, 0.2).into(), at(0.0, 0.05, 0.02, Vec3::ONE), [0.1, 0.1, 0.12])],
+    };
+    for (mesh, t, color) in shapes {
+        let shape = (Mesh3d(meshes.add(mesh)), MeshMaterial3d(plain(materials, color, false)), t, marker.clone());
+        commands.entity(head).queue_silenced(move |mut e: EntityWorldMut| {
+            e.with_child(shape);
+        });
+    }
+}
+
+/// Puts a carried thing in a hand bone: a model file, or a built staff or potion.
+/// `k` is the bone's scale for a human.
+fn put_in_hand(
+    commands: &mut Commands,
+    hand: Entity,
+    carry: Carry,
+    k: f32,
+    server: &AssetServer,
+    meshes: &mut Assets<Mesh>,
+    materials: &mut Assets<StandardMaterial>,
+) {
+    let at = |y: f32| Transform::from_xyz(0.0, y * k, 0.0).with_scale(Vec3::splat(k));
+    let shapes: Vec<(Mesh, Transform, [f32; 3], bool)> = match carry {
+        Carry::Model(file) => {
+            let t = Transform::from_scale(Vec3::splat(WEAPON_SCALE * k));
+            let scene = server.load(GltfAssetLabel::Scene(0).from_asset(format!("models/{file}")));
+            commands.entity(hand).queue_silenced(move |mut e: EntityWorldMut| {
+                e.with_child((WorldAssetRoot(scene), t, HeldModel));
+            });
+            return;
+        }
+        // The hand's +Y runs down a hanging arm, so the staff's top (and orb) is at -Y.
+        Carry::Staff(orb) => {
+            let mut out = vec![(Cylinder::new(0.018, 1.1).into(), at(-0.3), [0.45, 0.3, 0.18], false)];
+            if let Some(color) = orb {
+                out.push((Sphere::new(0.05).into(), at(-0.88), color, true));
+            }
+            out
+        }
+        Carry::Potion => vec![
+            (Sphere::new(0.045).into(), at(0.06), [0.3, 0.75, 0.35], false),
+            (Cylinder::new(0.015, 0.05).into(), at(0.12), [0.85, 0.85, 0.9], false),
+        ],
+    };
+    for (mesh, t, color, glow) in shapes {
+        let shape = (Mesh3d(meshes.add(mesh)), MeshMaterial3d(plain(materials, color, glow)), t, HeldModel);
+        commands.entity(hand).queue_silenced(move |mut e: EntityWorldMut| {
+            e.with_child(shape);
+        });
+    }
 }
 
 /// A bone's own scale inside its body part (the armature may be scaled).
@@ -634,9 +783,10 @@ fn animate(
 fn set_own_look(mut own: ResMut<OwnLook>, session: Option<NonSend<Session>>) {
     let Some(session) = session else { return };
     let name = session.login.character();
-    let listed = session.login.characters().iter().find(|c| c.name == name).map(|c| c.race.clone());
-    let race = listed.or_else(|| session.login.newchar.race.clone()).unwrap_or_default();
-    *own = OwnLook { look: look_for_race(&race), body: load_body(&default_body_path(), name) };
+    let listed = session.login.characters().iter().find(|c| c.name == name);
+    let race = listed.map(|c| c.race.clone()).or_else(|| session.login.newchar.race.clone()).unwrap_or_default();
+    let class = listed.map(|c| c.class.clone()).or_else(|| session.login.newchar.class.clone()).unwrap_or_default();
+    *own = OwnLook { look: look_for_race(&race), body: load_body(&default_body_path(), name), class: class_look(&class) };
 }
 
 fn setup_preview(mut commands: Commands, mut images: ResMut<Assets<Image>>, mut preview: ResMut<Preview>) {
