@@ -4,26 +4,26 @@ Made by `catalog.py` from the `base` picture set (6799 pictures). Every picture 
 
 | Group | Pictures | Things |
 | --- | ---: | ---: |
-| existing | 3561 | 2099 |
-| flat | 1288 | 670 |
+| existing | 3618 | 2146 |
+| flat | 1283 | 669 |
 | rigged | 1176 | 332 |
 | skip | 524 | 396 |
-| scratch | 250 | 184 |
+| scratch | 198 | 138 |
 
 ## Why (top reasons per group)
 
 | Group | Reason | Pictures |
 | --- | --- | ---: |
-| existing | models.txt: model | 1310 |
+| existing | models.txt: model | 1331 |
 | existing | models.txt: wall | 949 |
-| existing | models.txt: building | 581 |
+| existing | models.txt: building | 609 |
 | existing | player character | 259 |
 | existing | folder player/ | 214 |
 | existing | models.txt: monster | 91 |
-| existing | models.txt: flat | 72 |
+| existing | models.txt: flat | 80 |
 | existing | drawn as wall blocks | 67 |
 | existing | models.txt: person | 10 |
-| flat | folder ground/: ground and its smoothing edges | 290 |
+| flat | folder ground/: ground and its smoothing edges | 285 |
 | flat | folder spell/ | 216 |
 | flat | type SPELL_EFFECT: on the ground or an effect | 215 |
 | flat | folder floor/: floor | 144 |
@@ -42,8 +42,6 @@ Made by `catalog.py` from the `base` picture set (6799 pictures). Every picture 
 | scratch | type EXIT: boxy, drawn from an angle, or furniture | 38 |
 | scratch | folder misc/ | 37 |
 | scratch | a monster generator | 19 |
-| scratch | type CONVERTER: boxy, drawn from an angle, or furniture | 17 |
-| scratch | type BOOK: boxy, drawn from an angle, or furniture | 14 |
 | scratch | type CONTAINER: boxy, drawn from an angle, or furniture | 14 |
 | scratch | type TRIGGER_ALTAR: boxy, drawn from an angle, or furniture | 12 |
 | skip | a spell or skill icon | 247 |
