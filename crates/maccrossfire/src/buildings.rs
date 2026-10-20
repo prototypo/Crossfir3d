@@ -63,14 +63,14 @@ const GABLE_Y: f32 = 0.75;
 /// square in front of it, where they step out to.
 const DOORSTEP: f32 = 0.5;
 
-pub const RECIPES: [&str; 56] = [
+pub const RECIPES: [&str; 59] = [
     "cottage", "house", "tavern", "barn", "temple", "tower", "castle", "shop", "well", "fountain", "signpost", "crossroads",
     "noticeboard", "lamppost", "clock", "lever", "lever_pulled", "ladder_down", "altar", "altar_green", "altar_black",
     "altar_red", "altar_white", "altar_blue", "brazier", "brazier_unlit", "lantern", "lantern_off",
     "torch", "torch_cyan", "torch_indigo", "torch_vermilion", "tikitorch", "mountain1", "mountain2", "mountain3",
     "mountain4", "mountain5", "grave", "coffin", "lair", "nest", "portal",
     "campfire", "campfire_out", "teleporter", "magic_portal", "pier",
-    "rowboat", "longship", "fishboat", "galleon", "big_galleon", "big_galleon_west", "wagon", "hidden",
+    "rowboat", "longship", "fishboat", "galleon", "big_galleon", "big_galleon_west", "wagon", "hidden", "pedestal", "alchemy_bath", "trapdoor",
 ];
 pub const WALL_STYLES: [&str; 7] = ["stone", "brick", "plaster", "wood", "hedge", "rock", "gate"];
 
@@ -164,12 +164,20 @@ pub fn parts(recipe: &str, w: u32, h: u32) -> Option<Vec<Part>> {
             "armour" => return Some(armour([r, g, b])),
             "garment" => return Some(garment([r, g, b], false)),
             "cloak" => return Some(garment([r, g, b], true)),
+            "converter" => return Some(converter([r, g, b])),
             _ => {}
         }
     }
     match recipe {
         // Something there that the player must not see, like a hidden trap.
         "hidden" => Some(Vec::new()),
+        "alchemy_bath" => Some(alchemy_bath()),
+        "trapdoor" => Some(trapdoor()),
+        "pedestal" => Some(vec![
+            cube([0.4, 0.08, 0.4], [0.0, 0.04, 0.0], STONE),
+            cube([0.26, 0.5, 0.26], [0.0, 0.33, 0.0], STONE),
+            cube([0.36, 0.06, 0.36], [0.0, 0.61, 0.0], STONE),
+        ]),
         "well" => Some(well()),
         "fountain" => Some(fountain()),
         "signpost" => Some(signpost()),
@@ -858,6 +866,38 @@ fn garment(color: [f32; 3], clasp: bool) -> Vec<Part> {
     } else {
         out.extend([-0.12, 0.12].map(|x| cube([0.07, 0.03, 0.26], [x, 0.085, 0.0], color)));
     }
+    out
+}
+
+/// A small table with a heap of gems in `color` on it.
+fn converter(color: [f32; 3]) -> Vec<Part> {
+    let mut out = vec![cube([0.6, 0.05, 0.4], [0.0, 0.42, 0.0], WOOD)];
+    for (x, z) in [(-0.25, -0.15), (0.25, -0.15), (-0.25, 0.15), (0.25, 0.15)] {
+        out.push(cube([0.05, 0.4, 0.05], [x, 0.2, z], WOOD));
+    }
+    for (i, (x, z)) in [(-0.1, 0.0), (0.05, -0.06), (0.1, 0.07), (-0.02, 0.08), (0.0, 0.0)].into_iter().enumerate() {
+        let y = if i == 4 { 0.52 } else { 0.475 };
+        out.push(Part { yaw_deg: i as f32 * 35.0, ..cube([0.07; 3], [x, y, z], color) });
+    }
+    out
+}
+
+/// The converter table with an iron tray of glowing lava on it.
+fn alchemy_bath() -> Vec<Part> {
+    let mut out = converter(IRON);
+    out.truncate(5);
+    out.push(cube([0.46, 0.05, 0.3], [0.0, 0.47, 0.0], IRON));
+    out.push(part(Shape::Lamp([0.4, 0.02, 0.24]), [0.0, 0.49, 0.0], 0.0, [1.0; 3], Some([1.0, 0.4, 0.08])));
+    out
+}
+
+/// A round wooden hatch in the floor: planks in an iron rim, two hinges on the north
+/// side and a ring to pull on the south side.
+fn trapdoor() -> Vec<Part> {
+    let mut out = vec![cylinder(0.4, 0.02, [0.0, 0.01, 0.0], IRON), cylinder(0.36, 0.03, [0.0, 0.015, 0.0], WOOD)];
+    out.extend([-0.18, 0.0, 0.18].map(|x| cube([0.012, 0.031, 0.68], [x, 0.016, 0.0], DECK)));
+    out.extend([-0.15, 0.15].map(|x| cube([0.08, 0.035, 0.16], [x, 0.018, -0.3], IRON)));
+    out.push(Part { yaw_deg: 90.0, ..disc(0.05, 0.015, [0.0, 0.04, 0.27], IRON) });
     out
 }
 

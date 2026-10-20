@@ -443,11 +443,13 @@ fn sync_visuals(
     let player = view.0.world((view_size.0 / 2) as i8, (view_size.1 / 2) as i8);
     let joins = wall_masks(&walls);
     solid.0 = walls;
-    for ((x, y, _), (face, _, join)) in want.iter_mut() {
+    for ((x, y, layer), (face, _, join)) in want.iter_mut() {
         if let Some(m) = joins.get(&(*x, *y)) {
             *join = *m;
         }
-        if let Visual::Building { .. } = models.map.lookup(name_of(*face)) {
+        if let Visual::Building { recipe, .. } = models.map.lookup(name_of(*face))
+            && !lava_floor(recipe, *layer)
+        {
             let (w, h) = textures.images.get(face).map_or((1, 1), |(_, s, _)| footprint(s.x as u32, s.y as u32));
             let squares: Vec<(i32, i32)> = (0..h as i32).flat_map(|dy| (0..w as i32).map(move |dx| (*x - dx, *y - dy))).collect();
             // The building the player stands in is hidden (`hide_entered`), so it never blocks.
@@ -587,6 +589,7 @@ fn sync_visuals(
         let middle = tile + Vec3::new(1.0 - fw as f32 / 2.0, 0.0, 1.0 - fh as f32 / 2.0);
         let (built, sign) = match models.map.lookup(name) {
             Visual::Wall { style } => (Some(wall_parts(style, join)).filter(|p| !p.is_empty()), None),
+            Visual::Building { recipe, .. } if lava_floor(recipe, layer) => (None, None),
             Visual::Building { recipe, sign, icon } => {
                 let sign = sign.as_deref().map(|t| sign_material(t, icon.as_deref(), shade, &mut images, &mut materials));
                 (parts(recipe, fw, fh), sign)
@@ -752,6 +755,11 @@ fn sign_material(
 
 /// One part of a building or wall, as a child entity.
 #[allow(clippy::too_many_arguments)]
+/// The lava pictures are lava floors on the floor layer, and alchemy baths above it.
+fn lava_floor(recipe: &str, layer: u8) -> bool {
+    layer == 0 && recipe == "alchemy_bath"
+}
+
 fn spawn_part(
     commands: &mut Commands,
     p: &Part,
