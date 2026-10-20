@@ -19,6 +19,10 @@ pub enum Shape {
     Wedge([f32; 3]),
     /// The building's sign text, fitted inside this width and height, its bottom middle on `pos`.
     Sign([f32; 2]),
+    /// A box of this size, centred on `pos`, faced with bricks (`BRICK_TILE` per picture).
+    Bricks([f32; 3]),
+    /// A box of this size, centred on `pos`, its top rippled with waves (`WAVE_TILE` per picture).
+    Water([f32; 3]),
     /// A glowing box (a lamp) of this size, centred on `pos`, that also lights round it.
     Lamp([f32; 3]),
     /// A glowing upright cylinder, centred on `pos`, that also lights round it.
@@ -59,15 +63,15 @@ const GABLE_Y: f32 = 0.75;
 /// square in front of it, where they step out to.
 const DOORSTEP: f32 = 0.5;
 
-pub const RECIPES: [&str; 47] = [
+pub const RECIPES: [&str; 48] = [
     "cottage", "house", "tavern", "barn", "temple", "tower", "castle", "shop", "well", "fountain", "signpost", "crossroads",
     "noticeboard", "lamppost", "clock", "lever", "lever_pulled", "ladder_down", "altar", "altar_green", "altar_black",
     "altar_red", "altar_white", "altar_blue", "brazier", "brazier_unlit", "lantern", "lantern_off",
     "torch", "torch_cyan", "torch_indigo", "torch_vermilion", "tikitorch", "mountain1", "mountain2", "mountain3",
     "mountain4", "mountain5", "grave", "coffin", "lair", "nest", "portal",
-    "campfire", "campfire_out", "teleporter", "magic_portal",
+    "campfire", "campfire_out", "teleporter", "magic_portal", "pier",
 ];
-pub const WALL_STYLES: [&str; 6] = ["stone", "brick", "plaster", "wood", "hedge", "rock"];
+pub const WALL_STYLES: [&str; 7] = ["stone", "brick", "plaster", "wood", "hedge", "rock", "gate"];
 
 /// Squares a picture covers (32 px each), at least 1 by 1.
 pub fn footprint(w_px: u32, h_px: u32) -> (u32, u32) {
@@ -142,6 +146,7 @@ pub fn parts(recipe: &str, w: u32, h: u32) -> Option<Vec<Part>> {
         match kind {
             "longtable" => return Some(run(mask, 0.85, 0.45, BOARD)),
             "bench" => return Some(run(mask, 0.3, 0.25, [0.45, 0.2, 0.12])),
+            "moat" => return Some(moat(mask)),
             _ => {}
         }
     }
@@ -173,6 +178,7 @@ pub fn parts(recipe: &str, w: u32, h: u32) -> Option<Vec<Part>> {
         "tikitorch" => Some(torch(0.9, FLAME)),
         "teleporter" => Some(teleporter()),
         "magic_portal" => Some(magic_portal()),
+        "pier" => Some(pier()),
         "campfire" => Some(campfire(true)),
         "campfire_out" => Some(campfire(false)),
         "grave" => Some(grave()),
@@ -388,6 +394,82 @@ fn run(mask: u8, width: f32, height: f32, color: [f32; 3]) -> Vec<Part> {
     out
 }
 
+/// How much of a face one brick picture covers (width, height): 2 rows, 2 bricks long.
+pub const BRICK_TILE: [f32; 2] = [0.2, 0.1];
+/// How much of the water one wave picture covers.
+pub const WAVE_TILE: f32 = 0.5;
+
+/// The brick picture as RGBA: two rows of bricks, the second set over by half a brick,
+/// with pale mortar between and each brick a slightly different shade. Tiles both ways.
+pub fn brick_pixels() -> (u32, u32, Vec<u8>) {
+    let (w, h) = (32, 16);
+    let mut px = Vec::with_capacity((w * h * 4) as usize);
+    for y in 0..h {
+        let row = y / 8;
+        for x in 0..w {
+            let along = x + row * 8;
+            let mortar = y % 8 == 7 || along % 16 == 15;
+            let shade = ((along / 16 + row * 3) % 4) as u8 * 9;
+            let rgb = if mortar { [185, 178, 165] } else { [128 + shade, 82 + shade / 2, 62] };
+            px.extend(rgb.into_iter().chain([255]));
+        }
+    }
+    (w, h, px)
+}
+
+/// The wave picture as RGBA: faint wavy bands of blue with thin, soft crests.
+/// Every wave fits a whole number of times across, so it tiles both ways.
+pub fn wave_pixels() -> (u32, u32, Vec<u8>) {
+    let n = 64;
+    let tau = std::f32::consts::TAU;
+    let mut px = Vec::with_capacity((n * n * 4) as usize);
+    for y in 0..n {
+        for x in 0..n {
+            let (u, v) = (x as f32 / n as f32, y as f32 / n as f32);
+            let c = 0.5 + 0.5 * (tau * (3.0 * v + 0.12 * (tau * 2.0 * u).sin())).sin();
+            let rgb = if c > 0.985 {
+                [46.0, 86.0, 130.0]
+            } else {
+                [32.0 + 7.0 * c, 68.0 + 10.0 * c, 120.0 + 12.0 * c]
+            };
+            px.extend(rgb.map(|v| v as u8).into_iter().chain([255]));
+        }
+    }
+    (n, n, px)
+}
+
+/// Water filling the square, with a low brick bank on each side that has no moat next
+/// to it, and a brick post on each inside corner so bends close up. No two faces lie
+/// in one place (they would flicker): banks sink a little, reach a hair past the
+/// water's edge, and the east and west ones stop at the north and south ones.
+fn moat(mask: u8) -> Vec<Part> {
+    const THICK: f32 = 0.15;
+    const HIGH: f32 = 0.2;
+    const SINK: f32 = 0.02;
+    const OUT: f32 = 0.005;
+    let open = |side| mask & side != 0;
+    let (edge, y) = (0.5 - THICK / 2.0 + OUT, HIGH / 2.0 - SINK);
+    let mut out = vec![part(Shape::Water([1.0, 0.04, 1.0]), [0.0, 0.02, 0.0], 0.0, [1.0; 3], None)];
+    for (side, dz) in [(N, -1.0), (S, 1.0)] {
+        if !open(side) {
+            out.push(part(Shape::Bricks([1.0, HIGH, THICK]), [0.0, y, dz * edge], 0.0, [1.0; 3], None));
+        }
+    }
+    let [n, s] = [N, S].map(|side| if open(side) { 0.0 } else { THICK - OUT });
+    for (side, dx) in [(E, 1.0), (W, -1.0)] {
+        if !open(side) {
+            out.push(part(Shape::Bricks([THICK, HIGH, 1.0 - n - s]), [dx * edge, y, (n - s) / 2.0], 0.0, [1.0; 3], None));
+        }
+    }
+    let post = 0.5 - THICK / 2.0;
+    for (a, b, x, z) in [(N, E, 1.0, -1.0), (E, S, 1.0, 1.0), (S, W, -1.0, 1.0), (W, N, -1.0, -1.0)] {
+        if open(a) && open(b) {
+            out.push(part(Shape::Bricks([THICK, HIGH, THICK]), [x * post, y, z * post], 0.0, [1.0; 3], None));
+        }
+    }
+    out
+}
+
 /// An iron knob with a handle leaning `tilt_deg` toward the east (west when negative).
 fn lever(tilt_deg: f32) -> Vec<Part> {
     const IRON: [f32; 3] = [0.35, 0.35, 0.38];
@@ -504,6 +586,18 @@ fn magic_portal() -> Vec<Part> {
     out
 }
 
+/// Planks across the square on two beams, on four posts down into the water.
+fn pier() -> Vec<Part> {
+    let mut out: Vec<Part> = (0..6).map(|i| cube([1.0, 0.04, 0.15], [0.0, 0.1, -0.42 + i as f32 * 0.168], WOOD)).collect();
+    for x in [-0.35, 0.35] {
+        out.push(cube([0.08, 0.06, 1.0], [x, 0.05, 0.0], WOOD));
+        for z in [-0.4, 0.4] {
+            out.push(cube([0.1, 0.4, 0.1], [x, -0.1, z], WOOD));
+        }
+    }
+    out
+}
+
 /// A ring of stones round crossed logs; lit, a fire burns on them and lights round it.
 fn campfire(lit: bool) -> Vec<Part> {
     let mut out: Vec<Part> = (0..8)
@@ -614,6 +708,11 @@ fn noticeboard() -> Vec<Part> {
 pub fn wall_parts(style: &str, mask: u8) -> Vec<Part> {
     let (straight, post) = match style {
         "stone" => return vec![stone_wall(mask)],
+        // A way through a stone wall, turned to run along it.
+        "gate" => {
+            let yaw = if mask & (N | S) != 0 && mask & (E | W) == 0 { 90.0 } else { 0.0 };
+            return vec![part(Shape::Model("kaykit/wall_doorway.gltf"), [0.0; 3], yaw, KAYKIT_WALL, None)];
+        }
         "hedge" => return vec![model("nature/Bush_Common.gltf", [0.0; 3], 0.0, 0.55)],
         "rock" => return vec![model("nature/Rock_Medium_1.gltf", [0.0; 3], (mask as f32) * 40.0, 0.35)],
         "brick" => ("buildings/Wall_UnevenBrick_Straight.gltf", "buildings/Corner_Exterior_Brick.gltf"),
@@ -638,18 +737,22 @@ pub fn wall_parts(style: &str, mask: u8) -> Vec<Part> {
     out
 }
 
-/// Kenney castle blocks fill a whole square. Unturned, `wall.glb` runs east-west and
-/// `wall-corner.glb` joins north and east (checked by screenshot).
+/// KayKit stone brick walls, 4 units long and high: scaled to one square, a bit taller.
+/// Unturned, `wall` runs east-west, `wall_corner` joins west and south, and
+/// `wall_Tsplit` joins west, east and south.
+const KAYKIT_WALL: [f32; 3] = [0.25, 0.3, 0.25];
+
 fn stone_wall(mask: u8) -> Part {
     let (piece, yaw) = piece_for(mask);
-    let file = match piece {
-        Piece::Straight | Piece::End => "castle/wall.glb",
-        Piece::Corner => "castle/wall-corner.glb",
-        Piece::Post | Piece::Tee | Piece::Cross => "castle/tower-square.glb",
+    // piece_for's unturned pieces: Straight and End run north-south, Corner joins
+    // north and east, Tee joins north, east and south.
+    let (file, turn) = match piece {
+        Piece::Post | Piece::Straight | Piece::End => ("kaykit/wall.gltf", 90.0),
+        Piece::Corner => ("kaykit/wall_corner.gltf", 180.0),
+        Piece::Tee => ("kaykit/wall_Tsplit.gltf", 270.0),
+        Piece::Cross => ("kaykit/wall_crossing.gltf", 0.0),
     };
-    // piece_for's unturned Straight and End run north-south; wall.glb runs east-west.
-    let yaw = if matches!(piece, Piece::Straight | Piece::End) { yaw + 90.0 } else { yaw };
-    part(Shape::Model(file), [0.0; 3], yaw, [1.0, 1.2, 1.0], Some(STONE_TINT))
+    part(Shape::Model(file), [0.0; 3], yaw + turn, KAYKIT_WALL, None)
 }
 
 #[cfg(test)]
@@ -758,12 +861,31 @@ mod tests {
     }
 
     #[test]
+    fn patterns_fill_their_pictures() {
+        for (w, h, px) in [brick_pixels(), wave_pixels()] {
+            assert_eq!(px.len(), (w * h * 4) as usize);
+        }
+        // The bottom row of each brick row is mortar, so rows stay apart when tiled.
+        let (w, _, px) = brick_pixels();
+        assert!(px[(7 * w * 4) as usize..(8 * w * 4) as usize].chunks(4).all(|c| c[..3] == [185, 178, 165]));
+    }
+
+    #[test]
+    fn moat_banks_on_closed_sides_and_posts_in_open_corners() {
+        // Water, then banks or posts.
+        assert_eq!(moat(0).len(), 1 + 4);
+        assert_eq!(moat(N | E | S | W).len(), 1 + 4);
+        assert_eq!(moat(N | S).len(), 1 + 2);
+        assert_eq!(moat(N | E).len(), 1 + 2 + 1);
+    }
+
+    #[test]
     fn stone_wall_turns_with_its_neighbours() {
         let we = wall_parts("stone", E | W);
         let ns = wall_parts("stone", N | S);
-        assert_eq!(models(&we), ["castle/wall.glb"]);
+        assert_eq!(models(&we), ["kaykit/wall.gltf"]);
         assert_eq!((ns[0].yaw_deg - we[0].yaw_deg).rem_euclid(180.0), 90.0);
-        assert_eq!(models(&wall_parts("stone", N | E)), ["castle/wall-corner.glb"]);
+        assert_eq!(models(&wall_parts("stone", N | E)), ["kaykit/wall_corner.gltf"]);
     }
 
     #[test]
