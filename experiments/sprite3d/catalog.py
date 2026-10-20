@@ -308,11 +308,11 @@ def sheets(rows):
 
 
 def test():
-    """The pilot's verdicts (RESULTS.md) still come out of the rules. The pilot's auto items
-    now have models (auto.py, models.txt), so they count as existing."""
+    """The pilot's verdicts (RESULTS.md) still come out of the rules. The pilot's auto items,
+    scratch items and creatures now have models (models.txt), so they count as existing."""
     want = {"sword_1.111": "existing", "ring.111": "existing", "ruby.111": "existing", "goblin_head.111": "existing",
-            "baby_drag.111": "rigged", "book_clasp.111": "existing", "statue.111": "existing",
-            "grass.111": "flat", "skull_gen.111": "existing", "centipede.111": "rigged", "spell_aggravation.111": "skip",
+            "baby_drag.111": "existing", "book_clasp.111": "existing", "statue.111": "existing",
+            "grass.111": "flat", "skull_gen.111": "existing", "centipede.111": "existing", "spell_aggravation.111": "skip",
             "mb_lavawell.111": "skip", "stwall_0.111": "existing"}
     got = {r[0]: r[4] for r in catalog()}
     bad = {f: (got.get(f), g) for f, g in want.items() if got.get(f) != g}

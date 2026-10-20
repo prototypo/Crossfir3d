@@ -45,7 +45,8 @@ impl Plugin for CharactersPlugin {
             .init_resource::<Preview>()
             .add_observer(bind_bones)
             .add_systems(Startup, (load_anims, setup_preview))
-            .add_systems(Update, (build_graph, animate, hold_items, wear_armour, wear_helmet, dress_people, freeze_statues))
+            .add_systems(Update, (build_graph, animate, animate_beasts, hold_items, wear_armour, wear_helmet, dress_people, freeze_statues))
+            .add_systems(PostUpdate, hold_head_size.after(bevy::app::AnimationSystems).before(bevy::transform::TransformSystems::Propagate))
             .add_systems(Update, update_preview.run_if(in_state(AppState::Login)))
             .add_systems(OnEnter(AppState::InGame), set_own_look)
             .add_systems(OnExit(AppState::Login), clear_preview);
@@ -138,7 +139,7 @@ pub fn character_files(body: Body) -> [&'static str; 3] {
     }
 }
 
-fn outfit_file(body: Body, garb: Garb) -> &'static str {
+pub fn outfit_file(body: Body, garb: Garb) -> &'static str {
     match (body, garb) {
         (Body::Regular, Garb::Peasant) => "outfits/Male_Peasant.gltf",
         (Body::Regular, Garb::Ranger) => "outfits/Male_Ranger.gltf",
@@ -190,6 +191,84 @@ pub fn spawn_monster(
     let [r, g, b] = tint;
     commands.spawn((WorldAssetRoot(scene), inner, parts, ModelTint(Color::srgb(r, g, b)), PartOf(root), ChildOf(root)));
     root
+}
+
+/// An animal or monster with its own skeleton and clips (`beast` in models.txt).
+#[derive(Component)]
+pub struct Beast {
+    file: String,
+    /// Whether the walk clip (true) or the idle clip (false) is playing.
+    walking: Option<bool>,
+}
+
+/// Spawns a beast standing at `at` from its scene: it plays its own idle and walk clips.
+pub fn spawn_beast(
+    commands: &mut Commands,
+    scene: Handle<WorldAsset>,
+    file: &str,
+    scale: f32,
+    [r, g, b]: [f32; 3],
+    at: Transform,
+    extra: impl Bundle,
+) -> Entity {
+    let beast = Beast { file: file.to_string(), walking: None };
+    let root = commands.spawn((at, Visibility::default(), Character::default(), beast, extra)).id();
+    let inner = Transform::from_scale(Vec3::splat(scale));
+    commands.spawn((WorldAssetRoot(scene), inner, Visibility::Hidden, ModelTint(Color::srgb(r, g, b)), ChildOf(root)));
+    root
+}
+
+/// Clip names (after any "Armature|" prefix) to stand and to move with, best first.
+const IDLE_CLIPS: [&str; 4] = ["Idle", "Flying_Idle", "Idle_2", "Flying"];
+const WALK_CLIPS: [&str; 5] = ["Walk", "Fast_Flying", "Flying", "Gallop", "Run"];
+
+/// A beast file's graph of its idle and walk clips, once its glTF has loaded.
+type BeastClips = (Handle<AnimationGraph>, AnimationNodeIndex, AnimationNodeIndex);
+
+/// Plays each beast's idle or walk clip on its own animation player, and turns it to
+/// face the way it moves.
+#[allow(clippy::type_complexity, clippy::too_many_arguments)]
+fn animate_beasts(
+    mut commands: Commands,
+    server: Res<AssetServer>,
+    gltfs: Res<Assets<Gltf>>,
+    mut graphs: ResMut<Assets<AnimationGraph>>,
+    mut files: Local<HashMap<String, (Handle<Gltf>, Option<BeastClips>)>>,
+    mut beasts: Query<(Entity, &mut Beast, &mut Transform, Option<&Glide>)>,
+    children: Query<&Children>,
+    mut players: Query<(Entity, &mut AnimationPlayer, Has<AnimationGraphHandle>)>,
+) {
+    for (root, mut beast, mut t, glide) in &mut beasts {
+        let (gltf, clips) = files
+            .entry(beast.file.clone())
+            .or_insert_with(|| (server.load(format!("models/{}", beast.file)), None));
+        if clips.is_none()
+            && let Some(g) = gltfs.get(gltf.id())
+        {
+            let find = |wanted: &[&str]| {
+                wanted.iter().find_map(|w| g.named_animations.iter().find(|(n, _)| n.rsplit('|').next() == Some(*w)).map(|(_, c)| c.clone()))
+            };
+            let (Some(idle), Some(walk)) = (find(&IDLE_CLIPS), find(&WALK_CLIPS)) else { continue };
+            let (graph, nodes) = AnimationGraph::from_clips([idle, walk]);
+            *clips = Some((graphs.add(graph), nodes[0], nodes[1]));
+        }
+        let Some((graph, idle, walk)) = clips.clone() else { continue };
+        let Some(found) = children.iter_descendants(root).find(|e| players.contains(*e)) else { continue };
+        let Ok((player_e, mut player, has_graph)) = players.get_mut(found) else { continue };
+        if !has_graph {
+            commands.entity(player_e).try_insert(AnimationGraphHandle(graph));
+        }
+        let step = glide.map_or(Vec3::ZERO, |g| g.target - t.translation);
+        let walking = step.length() > 0.02;
+        if walking {
+            t.rotation = Quat::from_rotation_y(step.x.atan2(step.z));
+        }
+        if beast.walking != Some(walking) {
+            beast.walking = Some(walking);
+            player.stop_all();
+            player.play(if walking { walk } else { idle }).repeat();
+        }
+    }
 }
 
 fn load_anims(mut commands: Commands, server: Res<AssetServer>) {
@@ -408,12 +487,17 @@ fn bone_scale(bone: Entity, parents: &Query<(&ChildOf, &Transform)>, parts: &Que
 }
 
 /// What a `person` creature wears or carries beyond the shared body: a long skirt of
-/// this colour (the free outfits have none), a broom in the right hand.
+/// this colour (the free outfits have none), a broom in the right hand, metal armour
+/// (the outfit file, chosen at spawn); and its shape: `wide` times as broad, its head
+/// `head` times as big.
 #[derive(Component, Clone, Copy)]
 pub struct Outfit {
     pub scale: f32,
     pub dress: Option<[f32; 3]>,
     pub broom: bool,
+    pub armour: bool,
+    pub wide: f32,
+    pub head: f32,
 }
 
 /// Adds each Outfit once the body's bones exist. Sizes are for a human (scale 1, about
@@ -437,7 +521,8 @@ fn dress_people(
     let [skirt, stick, straw] = shapes
         .get_or_insert_with(|| {
             [
-                meshes.add(ConicalFrustum { radius_top: 0.11, radius_bottom: 0.24, height: 0.52 }),
+                // Wide at the hem, so the legs stay inside it as they walk.
+                meshes.add(ConicalFrustum { radius_top: 0.12, radius_bottom: 0.34, height: 0.52 }),
                 meshes.add(Cylinder::new(0.015, HANDLE_LEN)),
                 meshes.add(ConicalFrustum { radius_top: 0.08, radius_bottom: 0.025, height: 0.2 }),
             ]
@@ -449,8 +534,21 @@ fn dress_people(
         let Some(hand) = children.iter_descendants(root).find(|e| names.get(*e).is_ok_and(|n| n.as_str() == "hand_r")) else { continue };
         let k = outfit.scale;
         if let Some(colour) = outfit.dress {
-            let t = Transform::from_xyz(0.0, 0.31 * k, 0.0).with_scale(Vec3::splat(k));
+            let t = Transform::from_xyz(0.0, 0.31 * k, 0.0).with_scale(Vec3::new(k * outfit.wide, k, k * outfit.wide));
             commands.entity(root).with_child((Mesh3d(skirt.clone()), MeshMaterial3d(paint(colour)), t));
+        }
+        let (wide, head) = (outfit.wide, outfit.head);
+        for e in children.iter_descendants(root) {
+            let is_head = names.get(e).is_ok_and(|n| n.as_str() == "Head");
+            if parts.contains(e) && wide != 1.0 {
+                commands.entity(e).queue_silenced(move |mut e: EntityWorldMut| {
+                    if let Some(mut t) = e.get_mut::<Transform>() {
+                        t.scale *= Vec3::new(wide, 1.0, wide);
+                    }
+                });
+            } else if is_head && head != 1.0 {
+                commands.entity(e).try_insert(BigHead(head));
+            }
         }
         if outfit.broom {
             let k = k / bone_scale(hand, &parents, &parts);
@@ -462,6 +560,17 @@ fn dress_people(
             });
         }
         commands.entity(root).remove::<Outfit>();
+    }
+}
+
+/// A head bone drawn this many times as big (a child's head is big for its body).
+#[derive(Component)]
+struct BigHead(f32);
+
+/// The animations set every bone's scale each frame: set the big heads' again after them.
+fn hold_head_size(mut heads: Query<(&mut Transform, &BigHead)>) {
+    for (mut t, BigHead(k)) in &mut heads {
+        t.scale = Vec3::splat(*k);
     }
 }
 

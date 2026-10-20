@@ -712,12 +712,341 @@ bench_E building bench_E
 bench_F building bench_F
 
 # --- Creatures drawn as 3D people (no monster models yet) ---
-#   person <regular|other> <scale> <skin r,g,b> <hair r,g,b> <clothes r,g,b> [dress r,g,b] [broom]
+# person <regular|other> <scale> <skin r,g,b> <hair r,g,b> <clothes r,g,b> [dress r,g,b] [broom]
 # Clothes 0.45,0.4,0.3 (a human's) keep the outfit's own colours: the female peasant.
 charwoman person other 0.95 0.9,0.72,0.6 0.6,0.2,0.1 0.45,0.4,0.3 broom
 orc person regular 1.0 0.65,0.45,0.3 0.15,0.1,0.08 0.4,0.32,0.25
 orc_chief person regular 1.1 0.65,0.45,0.3 0.15,0.1,0.08 0.5,0.5,0.5
 orc_leader person regular 1.1 0.6,0.42,0.28 0.15,0.1,0.08 0.45,0.3,0.25
+# Knights, angels, giants, djinn, undead and others drawn as people.
+c_knight person regular 1.0 0.94,0.65,0.35 0.28,0.23,0.17 0.23,0.27,0.17 armour
+c_priest person regular 1.0 0.85,0.68,0.55 0.58,0.38,0.14 0.62,0.56,0.53
+lord_e person regular 1.0 0.94,0.65,0.35 0.71,0.54,0.05 0.32,0.17,0.31 armour
+madman person regular 1.0 0.94,0.65,0.37 0.62,0.49,0.43 0.51,0.27,0.15
+siegfried person regular 1.0 0.72,0.48,0.37 0.22,0.37,0.37 0.23,0.44,0.37 armour
+avatar person regular 1.3 0.85,0.68,0.55 0.76,0.16,0.06 0.9,0.75,0.3 armour
+ice_warrior person regular 1.2 0.7,0.8,0.95 0.47,0.58,0.63 0.8,0.9,1 armour
+Bk person regular 1.3 0.85,0.68,0.55 0.86,0.61,0.12 0.2,0.25,0.2 armour
+retributioner person regular 1.2 0.59,0.43,0.32 0.48,0.48,0.36 0.41,0.39,0.35 armour
+mabu person other 1.0 0.99,0.73,0.36 0.70,0.34,0.22 0.97,0.68,0.33 dress 0.97,0.68,0.33
+witch_chaos person other 1.0 0.85,0.68,0.55 0.74,0.57,0.37 0.91,0.42,0.39 dress 0.91,0.42,0.39
+necro person regular 1.0 0.85,0.68,0.55 0.34,0.20,0.24 0.15,0.12,0.18
+pyromaniac person regular 1.0 0.93,0.65,0.38 0.80,0.36,0.22 0.55,0.23,0.12
+dragonman person regular 0.95 0.35,0.6,0.3 0.22,0.42,0.14 0.32,0.24,0.38
+serp_man person regular 1.0 0.4,0.6,0.35 0.08,0.53,0.02 0.29,0.49,0.35
+serp_priest person regular 1.0 0.4,0.6,0.35 0.10,0.49,0.02 0.70,0.74,0.69
+angel person regular 1.0 0.85,0.68,0.55 0.09,0.08,0.08 0.95,0.95,0.9
+angel_sword person regular 1.0 0.85,0.68,0.55 0.34,0.33,0.32 0.95,0.9,0.7 armour
+angelknight person regular 1.1 0.85,0.68,0.55 0.76,0.75,0.70 0.95,0.85,0.5 armour
+archangel person regular 1.2 0.68,0.51,0.40 0.99,0.99,0.90 1,0.85,0.4 armour
+highangel person regular 1.1 0.85,0.68,0.55 0.61,0.57,0.56 1,0.95,0.8
+liteangel person other 1.0 0.85,0.68,0.55 0.55,0.52,0.52 1,1,0.95 dress 1,1,0.95
+mesangel person regular 1.0 0.85,0.68,0.55 0.55,0.52,0.53 0.9,0.9,1
+cherub person regular 0.5 0.75,0.58,0.50 0.84,0.80,0.60 0.80,0.77,0.63 head 1.35
+giant person regular 2.0 0.60,0.41,0.36 0.27,0.14,0.09 0.37,0.20,0.12 wide 1.2
+giant_chief person regular 2.2 0.59,0.41,0.36 0.28,0.11,0.08 0.52,0.10,0.05 wide 1.2
+giant_leader person regular 2.2 0.59,0.41,0.36 0.24,0.13,0.10 0.27,0.21,0.16 wide 1.2
+titan person regular 2.6 0.85,0.68,0.55 0.44,0.40,0.40 0.48,0.38,0.36 wide 1.15
+djinn person regular 1.4 0.45,0.55,0.9 0.71,0.80,0.34 0.62,0.66,0.75
+djinn_magenta person regular 1.4 0.85,0.4,0.75 0.74,0.59,0.70 0.77,0.55,0.66
+djinn_magenta_big person regular 1.8 0.85,0.4,0.75 0.52,0.43,0.47 0.59,0.41,0.51
+big_wiz person regular 1.6 0.85,0.68,0.55 0.36,0.05,0.64 0.32,0.05,0.58
+bigblue_wiz person regular 1.6 0.85,0.68,0.55 0.05,0.33,0.64 0.25,0.35,0.85
+zombie person regular 1.0 0.55,0.65,0.5 0.53,0.41,0.37 0.59,0.41,0.27
+ghast person regular 1.0 0.6,0.65,0.6 0.76,0.69,0.67 0.59,0.34,0.20
+vampire person regular 1.0 0.9,0.88,0.85 0.69,0.63,0.63 0.1,0.08,0.1
+pixie person other 0.35 0.94,0.65,0.37 0.88,0.76,0.44 0.55,0.53,0.22 dress 0.55,0.53,0.22
+# Townsfolk, guards, elves, dwarves, gnomes and halflings: colours from their pictures.
+a_guard_h person regular 1.0 0.94,0.65,0.35 0.22,0.43,0.40 0.55,0.56,0.34
+a_guard_l person regular 1.0 0.94,0.65,0.35 0.20,0.35,0.13 0.57,0.57,0.51
+a_guard_m person regular 1.0 0.94,0.65,0.35 0.43,0.19,0.17 0.60,0.52,0.49
+a_priest person regular 1.0 0.85,0.68,0.55 0.30,0.20,0.10 0.96,0.96,0.92
+a_townsman person regular 1.0 0.94,0.65,0.35 0.62,0.11,0.08 0.64,0.50,0.01
+a_townsman2 person regular 1.0 0.85,0.56,0.34 0.13,0.36,0.06 0.49,0.31,0.10
+a_townsman3 person regular 1.0 0.94,0.65,0.35 0.22,0.21,0.59 0.21,0.40,0.27
+armless_cook person regular 1.0 0.94,0.65,0.35 0.82,0.82,0.82 0.73,0.71,0.71
+beggar person regular 1.0 0.85,0.68,0.55 0.35,0.34,0.29 0.72,0.40,0.32
+big_slave person regular 1.2 0.85,0.68,0.55 0.99,0.98,0.91 0.93,0.77,0.43
+child person regular 0.65 0.94,0.65,0.37 0.68,0.44,0.33 0.72,0.61,0.57 head 1.35
+child2 person regular 0.65 0.63,0.44,0.25 0.39,0.25,0.12 0.67,0.62,0.60 head 1.35
+cleric person regular 1.0 0.94,0.65,0.37 0.88,0.73,0.41 0.20,0.47,0.21
+clown person regular 1.0 0.85,0.68,0.55 0.63,0.29,0.58 0.62,0.13,0.59
+conjurer person regular 1.0 0.85,0.68,0.55 0.85,0.73,0.63 0.94,0.90,0.79
+courier person regular 1.0 0.94,0.65,0.35 0.44,0.23,0.11 0.69,0.16,0.05
+courierblue person regular 1.0 1.00,0.60,0.40 0.48,0.24,0.04 0.24,0.10,0.54
+couriergreen person regular 1.0 0.94,0.65,0.35 0.44,0.23,0.11 0.19,0.61,0.10
+couriermagenta person regular 1.0 0.94,0.65,0.35 0.44,0.23,0.11 0.69,0.11,0.42
+courierorange person regular 1.0 0.94,0.65,0.35 0.44,0.23,0.11 0.69,0.41,0.05
+courierpurple person regular 1.0 0.94,0.65,0.35 0.44,0.23,0.11 0.49,0.11,0.55
+courierturquoise person regular 1.0 0.94,0.65,0.35 0.44,0.23,0.11 0.19,0.57,0.55
+courieryellow person regular 1.0 0.94,0.65,0.35 0.44,0.23,0.11 0.65,0.61,0.05
+crone person other 0.9 0.85,0.68,0.55 0.44,0.38,0.37 0.64,0.64,0.64 dress 0.49,0.49,0.49
+dancing_girl person other 1.0 0.88,0.59,0.36 0.40,0.24,0.13 0.80,0.48,0.27 dress 0.81,0.48,0.27
+dark_elf person regular 0.95 0.35,0.30,0.40 0.41,0.26,0.00 0.25,0.03,0.00
+dark_elf2 person regular 0.95 0.35,0.30,0.40 0.66,0.58,0.58 0.60,0.43,0.33
+dwarf person regular 0.72 0.94,0.65,0.37 0.56,0.53,0.51 0.56,0.49,0.45 wide 1.4 head 1.1
+dwarf_pr person regular 0.72 0.94,0.65,0.37 0.54,0.26,0.66 0.62,0.34,0.54 wide 1.4 head 1.1
+dwarf_wiz person regular 0.72 0.94,0.65,0.37 0.68,0.40,0.25 0.72,0.17,0.08 wide 1.4 head 1.1
+elf_1 person regular 0.95 0.79,0.55,0.31 0.45,0.47,0.15 0.28,0.46,0.19
+elf_guard person regular 0.95 0.83,0.57,0.32 0.61,0.38,0.33 0.53,0.37,0.27
+elf_lad person regular 0.95 0.70,0.51,0.36 0.59,0.47,0.20 0.31,0.37,0.14
+elf_lass person other 0.9 0.93,0.71,0.64 0.91,0.80,0.42 0.07,0.70,0.04 dress 0.07,0.78,0.07
+evilclown person regular 1.0 0.85,0.68,0.55 0.50,0.16,0.44 0.42,0.35,0.40
+farmer person regular 1.0 0.94,0.65,0.37 0.24,0.24,0.29 0.53,0.34,0.23
+fatman person regular 1.05 0.94,0.65,0.35 0.62,0.46,0.32 0.43,0.50,0.42
+fatwoman person other 1.0 0.94,0.65,0.35 0.61,0.17,0.16 0.11,0.71,0.09 dress 0.08,0.57,0.04
+fighter person regular 1.0 0.94,0.65,0.35 0.47,0.21,0.08 0.56,0.52,0.23
+gardengnome person regular 0.5 0.94,0.65,0.35 0.71,0.20,0.18 0.29,0.47,0.58
+gnome person regular 0.55 0.92,0.64,0.34 0.48,0.56,0.30 0.38,0.57,0.11
+gnome2 person regular 0.55 0.92,0.64,0.34 0.48,0.63,0.14 0.62,0.21,0.07
+greater_dwarven_guard person regular 0.72 0.94,0.65,0.37 0.63,0.61,0.59 0.61,0.38,0.29 armour wide 1.4 head 1.1
+guard_hard person regular 1.0 0.94,0.65,0.37 0.53,0.51,0.51 0.51,0.45,0.42 armour
+guard_ligh person regular 1.0 0.83,0.57,0.32 0.50,0.35,0.28 0.63,0.54,0.42
+guard_med person regular 1.0 0.94,0.65,0.37 0.47,0.44,0.45 0.62,0.55,0.50 armour
+guildmaste person regular 1.0 0.94,0.65,0.37 0.75,0.71,0.73 0.50,0.27,0.21
+halfling2 person regular 0.65 0.93,0.64,0.35 0.29,0.18,0.18 0.13,0.67,0.55
+halfling3 person regular 0.65 0.92,0.63,0.34 0.31,0.18,0.13 0.61,0.58,0.13
+holy_priest person regular 1.0 0.85,0.68,0.55 0.99,0.85,0.09 0.92,0.99,0.87
+knight person regular 1.0 0.94,0.65,0.35 0.42,0.42,0.50 0.75,0.75,0.8 armour
+lesser_dwarven_guard person regular 0.72 0.94,0.65,0.37 0.47,0.45,0.43 0.42,0.36,0.46 armour wide 1.4 head 1.1
+man person regular 1.0 0.94,0.65,0.37 0.41,0.21,0.12 0.60,0.46,0.39
+man2 person regular 1.0 0.63,0.44,0.25 0.40,0.23,0.12 0.28,0.23,0.19
+merchant person regular 1.0 0.94,0.65,0.35 0.43,0.27,0.25 0.52,0.42,0.39
+ninja_2 person regular 1.0 0.85,0.68,0.55 0.28,0.25,0.22 0.31,0.28,0.27
+northman person regular 1.0 0.75,0.52,0.31 0.41,0.31,0.30 0.48,0.25,0.29
+nun person other 1.0 0.94,0.65,0.37 0.06,0.06,0.07 0.08,0.08,0.1 dress 0.08,0.08,0.1
+pir_lass person other 1.0 0.92,0.63,0.37 0.72,0.23,0.13 0.82,0.53,0.51
+pirate person regular 1.0 0.80,0.54,0.38 0.57,0.17,0.21 0.11,0.42,0.12
+postman person regular 1.0 0.85,0.68,0.55 0.55,0.42,0.17 0.47,0.42,0.43
+princess person other 0.95 0.94,0.80,0.66 0.91,0.72,0.12 0.70,0.86,0.94 dress 0.73,0.90,0.95
+prisoner person regular 1.0 0.94,0.65,0.37 0.58,0.49,0.45 0.53,0.34,0.25
+sage person regular 1.0 0.94,0.65,0.37 0.82,0.74,0.69 0.55,0.49,0.45
+sailor person regular 1.0 0.94,0.65,0.37 0.16,0.09,0.53 0.65,0.35,0.19
+slave person regular 1.0 0.85,0.68,0.55 0.99,0.98,0.89 0.94,0.89,0.56
+spock person regular 1.0 0.70,0.51,0.36 0.58,0.47,0.31 0.30,0.41,0.34
+veiled_woman person other 1.0 0.85,0.68,0.55 0.10,0.57,0.26 0.13,0.37,0.16 dress 0.10,0.33,0.14
+veiled_woman2 person other 1.0 0.85,0.68,0.55 0.44,0.43,0.55 0.47,0.46,0.43 dress 0.53,0.52,0.52
+veiled_woman3 person other 1.0 0.85,0.68,0.55 0.57,0.20,0.09 0.48,0.08,0.18 dress 0.57,0.09,0.17
+warrior_blue person regular 1.0 0.94,0.65,0.37 0.15,0.15,0.86 0.01,0.00,0.81
+warrior_green person regular 1.0 0.93,0.65,0.38 0.23,0.71,0.15 0.09,0.63,0.00
+warrior_grey person regular 1.0 0.93,0.65,0.38 0.51,0.51,0.51 0.41,0.41,0.40
+warrior_lblue person regular 1.0 0.93,0.65,0.38 0.40,0.40,0.90 0.24,0.24,0.99
+warrior_red person regular 1.0 0.93,0.65,0.38 0.86,0.16,0.19 0.81,0.00,0.04
+wizard person regular 1.0 0.85,0.68,0.55 0.85,0.06,0.06 0.76,0.15,0.09
+woman person other 1.0 0.94,0.65,0.37 0.91,0.50,0.05 0.14,0.19,0.72 dress 0.21,0.13,0.67
+woman2 person other 1.0 0.92,0.63,0.37 0.34,0.11,0.15 0.21,0.04,0.68 dress 0.31,0.01,0.69
+woman3 person other 1.0 0.65,0.45,0.26 0.40,0.19,0.05 0.87,0.90,0.33 dress 0.90,0.97,0.35
+womangreenpink person other 1.0 0.94,0.65,0.37 0.91,0.52,0.05 0.59,0.29,0.55 dress 0.82,0.13,0.67
+
+# --- Beasts: Quaternius' animated packs (beasts/, CC0), each with its own clips ---
+#   beast <file> <scale> [r,g,b]   (scale = height in the world (a person: 1.08) / the model's own height)
+wolf beast beasts/animals/Wolf.gltf 0.243
+dwolf beast beasts/animals/Wolf.gltf 0.261 0.45,0.45,0.5
+s_mastif beast beasts/animals/Wolf.gltf 0.261 0.3,0.3,0.35
+hellhound beast beasts/animals/Wolf.gltf 0.261 1,0.45,0.3
+greater_hellhound beast beasts/animals/Wolf.gltf 0.336 1,0.35,0.2
+dog beast beasts/animals/Husky.gltf 0.172
+mastif beast beasts/animals/Husky.gltf 0.204 0.85,0.65,0.45
+pup beast beasts/animals/ShibaInu.gltf 0.113
+horse beast beasts/animals/Horse.gltf 0.290
+unicorn beast beasts/animals/Horse_White.gltf 0.290
+nightmare beast beasts/animals/Horse.gltf 0.290 0.25,0.2,0.25
+behemoth beast beasts/animals/Bull.gltf 0.392 0.5,0.4,0.35
+bat beast beasts/cute/Bat.gltf 0.229
+giant_bat beast beasts/cute/Bat.gltf 0.400
+chicken beast beasts/cute/Chicken.gltf 0.217
+goose beast beasts/cute/Chicken.gltf 0.280
+cyclops beast beasts/cute/Cyclops.gltf 1.078
+ghost beast beasts/flying/Ghost.gltf 0.355
+spectre beast beasts/flying/Ghost.gltf 0.355 0.7,0.8,1
+wraith beast beasts/flying/Ghost.gltf 0.355 0.4,0.4,0.5
+holyghost beast beasts/flying/Ghost.gltf 0.355 1,1,0.85
+banshee beast beasts/cute/Ghost.gltf 0.643 1,0.9,0.95
+skull beast beasts/cute/Skull.gltf 0.226
+deathshead beast beasts/cute/Skull.gltf 0.258 0.9,0.85,0.8
+bone_head beast beasts/cute/Skull.gltf 0.258
+ent beast beasts/cute/Tree.gltf 0.702
+deathtree beast beasts/cute/Tree.gltf 0.632 0.5,0.4,0.4
+fungus beast beasts/cute/Mushroom.gltf 0.242
+gen_mushroom beast beasts/cute/Mushroom.gltf 0.242
+mushman1 beast beasts/cute/Mushroom.gltf 0.435
+baby_drag beast beasts/cute/YellowDragon.gltf 0.364
+fire_drag beast beasts/cute/YellowDragon.gltf 0.364 1,0.5,0.4
+cold_drag beast beasts/cute/YellowDragon.gltf 0.364 0.6,0.8,1
+elec_drag beast beasts/cute/YellowDragon.gltf 0.364 1,1,0.5
+grey_drag beast beasts/cute/YellowDragon.gltf 0.364 0.7,0.7,0.7
+fae_drag beast beasts/cute/YellowDragon.gltf 0.273 0.9,0.7,1
+quaathu beast beasts/cute/Cthulhu.gltf 0.577
+crawling_chaos beast beasts/cute/Cthulhu.gltf 0.769 0.6,0.4,0.7
+bear beast beasts/cute/Panda.gltf 0.671 0.55,0.38,0.25
+polarbear beast beasts/cute/Panda.gltf 0.732
+fiend beast beasts/cute/Demon.gltf 0.494
+dragon beast beasts/flying/Dragon.gltf 0.637
+dragon_ac beast beasts/flying/Dragon.gltf 0.637
+wyvern beast beasts/flying/Dragon.gltf 0.510 0.6,0.8,0.5
+Cwyvern beast beasts/flying/Dragon.gltf 0.510 0.8,0.6,0.9
+s_wyvern beast beasts/flying/Dragon.gltf 0.510 0.3,0.3,0.4
+chaos_dragon beast beasts/flying/Dragon_Evolved.gltf 0.823 0.8,0.5,0.9
+shadow_dragon beast beasts/flying/Dragon_Evolved.gltf 0.823 0.3,0.3,0.35
+elec_dr beast beasts/flying/Dragon_Evolved.gltf 0.759 1,1,0.6
+worthless_dragon beast beasts/flying/Dragon.gltf 0.446 0.7,0.7,0.6
+chinese_dr beast beasts/flying/Dragon_Evolved.gltf 0.759 1,0.5,0.4
+beholder beast beasts/flying/Glub.gltf 0.349
+beholder_leader beast beasts/flying/Glub.gltf 0.402 1,0.8,0.8
+dread beast beasts/flying/Glub.gltf 0.402 0.5,0.4,0.5
+elem_air beast beasts/flying/Hywirl.gltf 0.433
+bird beast beasts/flying/Pigeon.gltf 0.204
+slime beast beasts/blob/GreenBlob.gltf 0.270
+greenslime beast beasts/blob/GreenBlob.gltf 0.270
+acidsphere beast beasts/blob/GreenBlob.gltf 0.216 0.7,1,0.5
+bpudding beast beasts/blob/PinkBlob.gltf 0.249 0.3,0.3,0.35
+bpudding_g beast beasts/blob/PinkBlob.gltf 0.249 0.5,0.8,0.4
+bpudding_s beast beasts/blob/PinkBlob.gltf 0.249 0.8,0.8,0.85
+slimecrawler beast beasts/blob/GreenSpikyBlob.gltf 0.145
+neko beast beasts/blob/Cat.gltf 0.232
+GreatDemon beast beasts/big/Demon.gltf 0.609
+evil_master beast beasts/big/Demon.gltf 0.449 0.7,0.5,0.9
+evil_master2 beast beasts/big/Demon.gltf 0.449 0.5,0.7,0.9
+evil_master3 beast beasts/big/Demon.gltf 0.449 0.9,0.7,0.5
+evil_master4 beast beasts/big/Demon.gltf 0.449 0.6,0.9,0.6
+ape beast beasts/big/Monkroose.gltf 0.401
+ologhi beast beasts/big/Orc_Skull.gltf 0.428
+
+# More beasts and kit monsters, tinted.
+black_dragon2 beast beasts/flying/Dragon.gltf 0.637 0.3,0.3,0.32
+blue_dragon2 beast beasts/flying/Dragon.gltf 0.637 0.5,0.65,1
+green_dragon2 beast beasts/flying/Dragon.gltf 0.637 0.5,0.9,0.5
+green_dragon3 beast beasts/flying/Dragon.gltf 0.701 0.45,0.85,0.45
+red_dragon2 beast beasts/flying/Dragon.gltf 0.637 1,0.5,0.45
+drake beast beasts/flying/Dragon.gltf 0.382 0.5,0.6,1
+bone_drake beast beasts/flying/Dragon.gltf 0.446 0.95,0.92,0.85
+gargoyle monster monsters/Tidebreaker.gltf 0.8 0.75,0.75,0.78
+belzebub beast beasts/big/Demon.gltf 0.769 1,0.5,0.45
+jessyb beast beasts/big/Demon.gltf 0.705 1,0.4,0.35
+raas beast beasts/cute/GreenDemon.gltf 0.494
+broo beast beasts/cute/GreenDemon.gltf 0.432 0.4,0.35,0.35
+fly_ant beast beasts/flying/Armabee.gltf 0.195 0.6,0.4,0.3
+xan beast beasts/flying/Armabee.gltf 0.130 0.5,0.5,0.4
+skree beast beasts/flying/Armabee.gltf 0.260 0.25,0.25,0.3
+skree_claw beast beasts/flying/Armabee.gltf 0.292 0.25,0.25,0.3
+byakie beast beasts/cute/Bat.gltf 0.286 0.3,0.3,0.32
+grimreaper beast beasts/flying/Ghost_Skull.gltf 0.444 0.3,0.3,0.32
+nazgul beast beasts/flying/Ghost_Skull.gltf 0.414 0.2,0.2,0.22
+dave beast beasts/flying/Ghost.gltf 0.355 0.2,0.2,0.22
+demilich beast beasts/cute/Skull.gltf 0.290 1,0.85,0.5
+liv_chaos beast beasts/flying/Squidle.gltf 0.336 0.5,0.5,1
+archon beast beasts/flying/Hywirl.gltf 0.433 0.75,0.7,0.35
+scorpion beast beasts/cute/Crab.gltf 0.318 0.45,0.3,0.25
+sheep beast beasts/animals/Alpaca.gltf 0.167 1,1,1
+giantrat beast beasts/animals/Fox.gltf 0.168 0.55,0.5,0.45
+mouse beast beasts/animals/Fox.gltf 0.075 0.6,0.6,0.6
+pet_necro beast beasts/animals/Fox.gltf 0.149 0.75,0.75,0.72
+rustmonste beast beasts/animals/Fox.gltf 0.224 0.75,0.45,0.25
+panther beast beasts/animals/Wolf.gltf 0.261 0.2,0.2,0.22
+shadowtiger beast beasts/animals/Wolf.gltf 0.299 0.35,0.3,0.4
+gryphon beast beasts/flying/Pigeon.gltf 0.476 0.9,0.75,0.4
+baslic beast beasts/big/Dino.gltf 0.310 0.3,0.35,0.3
+elem_earth beast beasts/flying/Goleling_Evolved.gltf 0.367 0.8,0.6,0.4
+elem_dust beast beasts/flying/Hywirl.gltf 0.433 0.85,0.75,0.55
+elem_fire beast beasts/flying/Hywirl.gltf 0.433 1,0.5,0.3
+elem_fire_black beast beasts/flying/Hywirl.gltf 0.433 0.3,0.25,0.25
+elem_water beast beasts/flying/Hywirl.gltf 0.433 0.4,0.6,1
+para_air beast beasts/blob/GreenBlob.gltf 0.324 1,1,1
+para_earth beast beasts/blob/PinkBlob.gltf 0.299 0.6,0.45,0.3
+para_fire beast beasts/blob/PinkBlob.gltf 0.299 1,0.35,0.25
+para_ice beast beasts/blob/GreenBlob.gltf 0.324 0.85,0.95,1
+para_lava beast beasts/blob/PinkBlob.gltf 0.299 1,0.5,0.15
+para_light beast beasts/blob/PinkBlob.gltf 0.299 1,1,0.6
+para_mud beast beasts/blob/PinkBlob.gltf 0.299 0.5,0.4,0.25
+para_water beast beasts/blob/GreenBlob.gltf 0.324 0.5,0.75,1
+bluesphere beast beasts/blob/GreenBlob.gltf 0.216 0.4,0.6,1
+blob beast beasts/blob/GreenBlob.gltf 0.270 0.2,0.2,0.22
+leech beast beasts/blob/GreenBlob.gltf 0.162 0.4,0.3,0.25
+slug beast beasts/blob/GreenBlob.gltf 0.324 0.6,0.5,0.35
+slug_slime beast beasts/blob/GreenBlob.gltf 0.324 0.6,0.75,0.4
+golem monster monsters/Tidebreaker.gltf 1.0 0.6,0.6,0.62
+golem_red monster monsters/Tidebreaker.gltf 1.0 1,0.5,0.45
+gol monster monsters/Tidebreaker.gltf 1.0 0.3,0.3,0.32
+lokanth monster monsters/Tidebreaker.gltf 1.0 0.5,0.8,0.45
+mudman monster monsters/Tidebreaker.gltf 0.8 0.6,0.45,0.3
+ogre_r monster monsters/Tidebreaker.gltf 1.0 1,0.6,0.55
+smallt_green monster monsters/Tidebreaker.gltf 0.6 0.6,0.9,0.6
+
+# Built creatures (buildings.rs): they glide from square to square like the bees.
+snake building snake:0.35,0.55,0.25
+cobra building cobra:0.55,0.45,0.25
+lamia building snake:0.3,0.7,0.35
+serpent building serpent:0.2,0.4,0.25
+g_worm building worm:0.7,0.55,0.45
+purple_worm building big_worm:0.55,0.3,0.6
+ant_larvae building worm:0.95,0.93,0.85
+ant_egg building ant_egg
+ant building ant:0.45,0.2,0.12
+work_ant building ant:0.15,0.12,0.1
+war_ant building ant:0.6,0.15,0.1
+spit_ant building ant:0.35,0.45,0.2
+breeder_ant building big_ant:0.4,0.22,0.15
+spider building spider:0.15,0.13,0.12
+centipede building centipede:0.55,0.3,0.15
+centipede_r building centipede:0.7,0.2,0.12
+ch_pawn building chess_pawn:0.12,0.12,0.13
+ch_rook building chess_rook:0.12,0.12,0.13
+ch_knight building chess_knight:0.12,0.12,0.13
+ch_bish building chess_bishop:0.12,0.12,0.13
+ch_queen building chess_queen:0.12,0.12,0.13
+ch_king building chess_king:0.12,0.12,0.13
+ch_pawn_w building chess_pawn:0.93,0.92,0.88
+ch_rook_w building chess_rook:0.93,0.92,0.88
+ch_knight_w building chess_knight:0.93,0.92,0.88
+ch_bish_w building chess_bishop:0.93,0.92,0.88
+ch_queen_w building chess_queen:0.93,0.92,0.88
+ch_king_w building chess_king:0.93,0.92,0.88
+wingedhalo building halo
+whim building halo
+speedball building speedball
+# Breakable doors (door/Door): the digit is the sides they join, like walls.
+door_0 model castle/door.glb 2.2 90 0
+door_1 model castle/door.glb 2.2 0 0
+door_4 model castle/door.glb 2.2 0 0
+door_5 model castle/door.glb 2.2 0 0
+door_2 model castle/door.glb 2.2 90 0
+door_8 model castle/door.glb 2.2 90 0
+door_A model castle/door.glb 2.2 90 0
+door_3 model castle/door.glb 2.2 90 0
+door_6 model castle/door.glb 2.2 90 0
+door_7 model castle/door.glb 2.2 0 0
+door_9 model castle/door.glb 2.2 90 0
+door_B model castle/door.glb 2.2 90 0
+door_C model castle/door.glb 2.2 90 0
+door_D model castle/door.glb 2.2 0 0
+door_E model castle/door.glb 2.2 90 0
+door_F model castle/door.glb 2.2 90 0
+# Broken generators lie as rubble; residues and charms stay flat.
+broken_* model kaykit/rubble_large.gltf 0.1 0 0
+para_air_residue flat
+para_earth_residue flat
+para_fire_residue flat
+para_ice_residue flat
+para_lightning_residue flat
+para_mud_residue flat
+para_water_residue flat
+sandy flat
+mystic_fist flat
+firechest model props/Chest_Wood.gltf 0.45 0 0 1.0,0.45,0.35
+
+lich monster monsters/Skeleton_B.gltf 1.05 0.75,0.6,0.95
+wight monster monsters/Skeleton_A.gltf 1.0 0.85,0.9,0.95
+shadow beast beasts/flying/Ghost.gltf 0.355 0.15,0.15,0.18
+stalker beast beasts/flying/Ghost.gltf 0.355 0.85,0.85,0.9
+sphinx beast beasts/animals/Wolf.gltf 0.45 0.95,0.78,0.45
+dancingsword model auto/sword_1.glb 0.7 0 0.6
+tentacle building tentacle:0.55,0.4,0.6
+tentacle2 building tentacle:0.45,0.55,0.4
+tentaclehook building tentacle:0.6,0.35,0.35
+witch_air person other 1.0 0.85,0.68,0.55 0.85,0.85,0.9 0.9,0.92,0.98 dress 0.9,0.92,0.98
+witch_earth person other 1.0 0.85,0.68,0.55 0.3,0.2,0.1 0.5,0.38,0.22 dress 0.5,0.38,0.22
+witch_fire person other 1.0 0.85,0.68,0.55 0.8,0.2,0.1 0.85,0.25,0.12 dress 0.85,0.25,0.12
+witch_water person other 1.0 0.85,0.68,0.55 0.2,0.3,0.6 0.25,0.45,0.85 dress 0.25,0.45,0.85
 
 # --- Monsters (monsters/: Quaternius' Bestiary - Dungeon Monsters Kit, Source tier) ---
 #   monster <file> <scale> [r,g,b]   (scale 1 = a person's body scale; heights at scale 1:
