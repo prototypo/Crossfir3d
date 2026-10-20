@@ -33,8 +33,8 @@ Nimground3_purple.111	ground/nimground/Nimground3_purple.base.111.png	32x32	Nimg
 Nimground3_purple.112	ground/nimground/Nimground3_purple.base.112.png	32x32	Nimground3_purple	flat	folder ground/: ground and its smoothing edges
 Nimground3_purple.113	ground/nimground/Nimground3_purple.base.113.png	32x32	Nimground3_purple	flat	folder ground/: ground and its smoothing edges
 Nimground3_purple.114	ground/nimground/Nimground3_purple.base.114.png	32x32	Nimground3_purple	flat	folder ground/: ground and its smoothing edges
-Pdragonmail.111	armour/mail/Pdragonmail.base.111.png	32x32	Pdragon_mail	scratch	type ARMOUR: worn on the body: must fit the 3D character
-Pdragonmail.112	armour/mail/Pdragonmail.base.112.png	32x32	Pdragon_mail	scratch	type ARMOUR: worn on the body: must fit the 3D character
+Pdragonmail.111	armour/mail/Pdragonmail.base.111.png	32x32	Pdragon_mail	existing	models.txt: building
+Pdragonmail.112	armour/mail/Pdragonmail.base.112.png	32x32	Pdragon_mail	existing	models.txt: building
 a_bridge1.111	road/a_bridge/a_bridge1.base.111.png	32x32	a_bridge1	flat	folder road/: road
 a_bridge2.111	road/a_bridge/a_bridge2.base.111.png	32x32	a_bridge2	flat	folder road/: road
 a_civic.x11	construct/town/a_civic.base.x11.png	96x96	a_civic,a_civic_2,a_civic_3	existing	models.txt: building
@@ -367,8 +367,8 @@ b_gauntlet_s.111	armour/gauntlets/b_gauntlet_s.base.111.png	32x32	b_gauntlets	ex
 b_helmet.111	armour/helmet/b_helmet.base.111.png	32x32	b_helmet	existing	models.txt: model
 b_hornhelmet.111	armour/helmet/b_hornhelmet.base.111.png	32x32	b_horned_helmet	existing	models.txt: model
 b_lsword.111	weapon/sword/b_lsword.base.111.png	32x32	b_lsword	existing	models.txt: model
-b_plate_mail.111	armour/mail/b_plate_mail.base.111.png	32x32	b_plate_mail	scratch	type ARMOUR: worn on the body: must fit the 3D character
-b_scale_mail.111	armour/mail/b_scale_mail.base.111.png	32x32	b_scale_mail	scratch	type ARMOUR: worn on the body: must fit the 3D character
+b_plate_mail.111	armour/mail/b_plate_mail.base.111.png	32x32	b_plate_mail	existing	models.txt: building
+b_scale_mail.111	armour/mail/b_scale_mail.base.111.png	32x32	b_scale_mail	existing	models.txt: building
 b_scimitar.111	weapon/sword/b_scimitar.base.111.png	32x32	b_scimitar	existing	models.txt: model
 b_shield.111	armour/shield/b_shield.base.111.png	32x32	b_shield	existing	models.txt: model
 b_sicklesword.111	weapon/sword/b_sicklesword.base.111.png	32x32	b_sicklesword	existing	models.txt: model
@@ -548,7 +548,7 @@ black_dragon2.151	monster/humanoid/Dragon/black_dragon2.base.151.png	32x32	black
 black_dragon2.152	monster/humanoid/Dragon/black_dragon2.base.152.png	32x32	black_dragon2	rigged	alive: a creature
 black_dragon2.171	monster/humanoid/Dragon/black_dragon2.base.171.png	32x32	black_dragon2	rigged	alive: a creature
 black_dragon2.172	monster/humanoid/Dragon/black_dragon2.base.172.png	32x32	black_dragon2	rigged	alive: a creature
-blackdragonmail.111	armour/mail/blackdragonmail.base.111.png	32x32	black_dragon_mail	scratch	type ARMOUR: worn on the body: must fit the 3D character
+blackdragonmail.111	armour/mail/blackdragonmail.base.111.png	32x32	black_dragon_mail	existing	models.txt: building
 blackfirebullet.111	misc/blackfirebullet.base.111.png	32x32		scratch	folder misc/ (no object uses it)
 blackfirebullet.121	misc/blackfirebullet.base.121.png	32x32		scratch	folder misc/ (no object uses it)
 blackfirebullet.131	misc/blackfirebullet.base.131.png	32x32		scratch	folder misc/ (no object uses it)
@@ -666,7 +666,7 @@ blue_dragon2.151	monster/humanoid/Dragon/blue_dragon2.base.151.png	32x32	blue_dr
 blue_dragon2.152	monster/humanoid/Dragon/blue_dragon2.base.152.png	32x32	blue_dragon2	rigged	alive: a creature
 blue_dragon2.171	monster/humanoid/Dragon/blue_dragon2.base.171.png	32x32	blue_dragon2	rigged	alive: a creature
 blue_dragon2.172	monster/humanoid/Dragon/blue_dragon2.base.172.png	32x32	blue_dragon2	rigged	alive: a creature
-bluedragonmail.111	armour/mail/bluedragonmail.base.111.png	32x32	blue_dragon_mail	scratch	type ARMOUR: worn on the body: must fit the 3D character
+bluedragonmail.111	armour/mail/bluedragonmail.base.111.png	32x32	blue_dragon_mail	existing	models.txt: building
 bluemarble.111	floor/bluemarble.base.111.png	32x32	bluemarble	flat	folder floor/: floor
 bluemarblemedium.111	floor/bluemarblemedium.base.111.png	32x32	bluemarblemedium	flat	folder floor/: floor
 bluesphere.111	monster/acid/bluesphere.base.111.png	32x32		rigged	folder monster/ (no object uses it)
@@ -1173,7 +1173,7 @@ ch_queen.111	monster/misc/Chess/ch_queen.base.111.png	32x32	chess_queen	rigged	a
 ch_queen_w.111	monster/misc/Chess/ch_queen_w.base.111.png	32x32		rigged	folder monster/ (no object uses it)
 ch_rook.111	monster/misc/Chess/ch_rook.base.111.png	32x32	chess_rook	rigged	alive: a creature
 ch_rook_w.111	monster/misc/Chess/ch_rook_w.base.111.png	32x32		rigged	folder monster/ (no object uses it)
-chainmail.111	armour/mail/chainmail.base.111.png	32x32	chain_mail	scratch	type ARMOUR: worn on the body: must fit the 3D character
+chainmail.111	armour/mail/chainmail.base.111.png	32x32	chain_mail	existing	models.txt: building
 chair.111	indoor/chair.base.111.png	32x32	chair	existing	models.txt: model
 chair_1.101	indoor/chair_1.base.101.png	32x32	chair_1.1	existing	models.txt: model
 chair_1.111	indoor/chair_1.base.111.png	32x32	chair_1.2	existing	models.txt: model
@@ -1315,16 +1315,16 @@ cleric.151	player/class/Religious/cleric.base.151.png	32x32	cleric	rigged	alive:
 cleric.152	player/class/Religious/cleric.base.152.png	32x32		existing	folder player/ (no object uses it)
 cleric.171	player/class/Religious/cleric.base.171.png	32x32	cleric	rigged	alive: a creature
 cleric.172	player/class/Religious/cleric.base.172.png	32x32		existing	folder player/ (no object uses it)
-cloak.111	armour/cloak/cloak.base.111.png	32x32	cloak	scratch	type CLOAK: worn on the body: must fit the 3D character
-cloak_acid_proofing.111	armour/cloak/cloak_acid_proofing.base.111.png	32x32		scratch	folder armour/ (no object uses it)
-cloak_black.111	armour/cloak/cloak_black.base.111.png	32x32		scratch	folder armour/ (no object uses it)
-cloak_lblue.111	armour/cloak/cloak_lblue.base.111.png	32x32		scratch	folder armour/ (no object uses it)
-cloak_lgrey.111	armour/cloak/cloak_lgrey.base.111.png	32x32		scratch	folder armour/ (no object uses it)
-cloak_plenty.111	armour/cloak/cloak_plenty.base.111.png	32x32	cloak_plenty	scratch	type CLOAK: worn on the body: must fit the 3D character
-cloak_purple.111	armour/cloak/cloak_purple.base.111.png	32x32		scratch	folder armour/ (no object uses it)
-cloak_red.111	armour/cloak/cloak_red.base.111.png	32x32		scratch	folder armour/ (no object uses it)
-cloak_trans.112	armour/cloak/cloak_trans.base.112.png	32x32		scratch	folder armour/ (no object uses it)
-cloak_white.111	armour/cloak/cloak_white.base.111.png	32x32		scratch	folder armour/ (no object uses it)
+cloak.111	armour/cloak/cloak.base.111.png	32x32	cloak	existing	models.txt: building
+cloak_acid_proofing.111	armour/cloak/cloak_acid_proofing.base.111.png	32x32		existing	models.txt: building
+cloak_black.111	armour/cloak/cloak_black.base.111.png	32x32		existing	models.txt: building
+cloak_lblue.111	armour/cloak/cloak_lblue.base.111.png	32x32		existing	models.txt: building
+cloak_lgrey.111	armour/cloak/cloak_lgrey.base.111.png	32x32		existing	models.txt: building
+cloak_plenty.111	armour/cloak/cloak_plenty.base.111.png	32x32	cloak_plenty	existing	models.txt: building
+cloak_purple.111	armour/cloak/cloak_purple.base.111.png	32x32		existing	models.txt: building
+cloak_red.111	armour/cloak/cloak_red.base.111.png	32x32		existing	models.txt: building
+cloak_trans.112	armour/cloak/cloak_trans.base.112.png	32x32		existing	models.txt: building
+cloak_white.111	armour/cloak/cloak_white.base.111.png	32x32		existing	models.txt: building
 clock.111	indoor/clock.base.111.png	32x32	clock	existing	models.txt: building
 clock.112	indoor/clock.base.112.png	32x32	clock	existing	models.txt: building
 clock_ag.111	indoor/clock_ag.base.111.png	32x32	clock_ag	existing	models.txt: building
@@ -1918,7 +1918,7 @@ dragoncave_green.112	monster/dragon/dragoncave_green.base.112.png	32x32	generate
 dragoncave_green.113	monster/dragon/dragoncave_green.base.113.png	32x32	generate_cold_dragon	existing	models.txt: building
 dragoncave_green.114	monster/dragon/dragoncave_green.base.114.png	32x32	generate_cold_dragon	existing	models.txt: building
 dragonclaw_dagger.111	weapon/sword/dragonclaw_dagger.base.111.png	32x32	dragonclaw_dagger	existing	models.txt: model
-dragonmail.111	armour/mail/dragonmail.base.111.png	32x32	dragon_mail	scratch	type ARMOUR: worn on the body: must fit the 3D character
+dragonmail.111	armour/mail/dragonmail.base.111.png	32x32	dragon_mail	existing	models.txt: building
 dragonman.x31	monster/dragon/Dragonman/dragonman.base.x31.png	32x64	dragonman,dragonman_2	rigged	alive: a creature
 dragonman.x32	monster/dragon/Dragonman/dragonman.base.x32.png	32x64	dragonman,dragonman_2	rigged	alive: a creature
 dragonman.x33	monster/dragon/Dragonman/dragonman.base.x33.png	32x64	dragonman,dragonman_2	rigged	alive: a creature
@@ -1941,9 +1941,9 @@ dread.x13	monster/beholder/dread.base.x13.png	64x64	dread,dread_2,dread_3	rigged
 dread.x14	monster/beholder/dread.base.x14.png	64x64	dread,dread_2,dread_3	rigged	alive: a creature
 dread.x15	monster/beholder/dread.base.x15.png	64x64	dread,dread_2,dread_3	rigged	alive: a creature
 dread.x16	monster/beholder/dread.base.x16.png	64x64	dread,dread_2,dread_3	rigged	alive: a creature
-dress1.111	armour/mail/dress1.base.111.png	32x32	dress1	scratch	type ARMOUR: worn on the body: must fit the 3D character
-dress2.111	armour/mail/dress2.base.111.png	32x32	dress2	scratch	type ARMOUR: worn on the body: must fit the 3D character
-dress3.111	armour/mail/dress3.base.111.png	32x32	dress3	scratch	type ARMOUR: worn on the body: must fit the 3D character
+dress1.111	armour/mail/dress1.base.111.png	32x32	dress1	existing	models.txt: building
+dress2.111	armour/mail/dress2.base.111.png	32x32	dress2	existing	models.txt: building
+dress3.111	armour/mail/dress3.base.111.png	32x32	dress3	existing	models.txt: building
 dresser.111	misc/Container/dresser.base.111.png	32x32	dresser	existing	models.txt: model
 dresser2.111	misc/Container/dresser2.base.111.png	32x32	dresser2	existing	models.txt: model
 dresser2_cw.111	misc/Container/dresser2_cw.base.111.png	32x32	dresser2_cw	existing	models.txt: model
@@ -2129,7 +2129,7 @@ elf_player_class_ranger.171	player/race/elf_player_class_ranger.base.171.png	32x
 elf_player_class_ranger.172	player/race/elf_player_class_ranger.base.172.png	32x32		existing	folder player/ (no object uses it)
 elf_stoned.111	player/stoned/elf_stoned.base.111.png	32x32		existing	folder player/ (no object uses it)
 elven_bow.111	weapon/bow/elven_bow.base.111.png	32x32	bow_lythander,elven_bow	existing	models.txt: model
-elven_robe.111	armour/mail/elven_robe.base.111.png	32x32	elven_robe	scratch	type ARMOUR: worn on the body: must fit the 3D character
+elven_robe.111	armour/mail/elven_robe.base.111.png	32x32	elven_robe	existing	models.txt: building
 elvenboots.111	armour/boots/elvenboots.base.111.png	32x32	elvenboots	existing	models.txt: model
 emerald.111	jewel/gems/emerald.base.111.png	32x32	emerald	existing	models.txt: model
 emerald.112	jewel/gems/emerald.base.112.png	32x32	emerald	existing	models.txt: model
@@ -2584,7 +2584,7 @@ gaelotroll.x33	monster/troll/Gaelotroll/gaelotroll.base.x33.png	64x96	gaelotroll
 gaelotroll.x71	monster/troll/Gaelotroll/gaelotroll.base.x71.png	64x96	gaelotroll,gaelotroll_2,gaelotroll_3	existing	models.txt: monster
 gaelotroll.x72	monster/troll/Gaelotroll/gaelotroll.base.x72.png	64x96	gaelotroll,gaelotroll_2,gaelotroll_3	existing	models.txt: monster
 gaelotroll.x73	monster/troll/Gaelotroll/gaelotroll.base.x73.png	64x96	gaelotroll,gaelotroll_2,gaelotroll_3	existing	models.txt: monster
-gale.111	armour/mail/gale.base.111.png	32x32	gale	scratch	type ARMOUR: worn on the body: must fit the 3D character
+gale.111	armour/mail/gale.base.111.png	32x32	gale	existing	models.txt: building
 galleon.111	transport/galleon.base.111.png	32x32	galleon,sailing_galleon	existing	models.txt: building
 galleon.121	transport/galleon.base.121.png	32x32	sailing_galleon	existing	models.txt: building
 gard_gate.111	connect/Garden_gate/gard_gate.base.111.png	32x32	ggate_breakable,ggate_closed,ggate_open	existing	models.txt: model
@@ -2802,7 +2802,7 @@ green_dragon3.151	monster/humanoid/Dragon/green_dragon3.base.151.png	32x32		rigg
 green_dragon3.152	monster/humanoid/Dragon/green_dragon3.base.152.png	32x32		rigged	folder monster/ (no object uses it)
 green_dragon3.171	monster/humanoid/Dragon/green_dragon3.base.171.png	32x32		rigged	folder monster/ (no object uses it)
 green_dragon3.172	monster/humanoid/Dragon/green_dragon3.base.172.png	32x32		rigged	folder monster/ (no object uses it)
-greendragonmail.111	armour/mail/greendragonmail.base.111.png	32x32	green_dragon_mail	scratch	type ARMOUR: worn on the body: must fit the 3D character
+greendragonmail.111	armour/mail/greendragonmail.base.111.png	32x32	green_dragon_mail	existing	models.txt: building
 greenmarble.111	floor/greenmarble.base.111.png	32x32	greenmarble	flat	folder floor/: floor
 greenmarblelight.111	floor/greenmarblelight.base.111.png	32x32	greenmarblelight	flat	folder floor/: floor
 greenmarblemedium.111	floor/greenmarblemedium.base.111.png	32x32	greenmarblemedium	flat	folder floor/: floor
@@ -3359,7 +3359,7 @@ lantern.111	light/lantern.base.111.png	32x32	lantern_1	existing	models.txt: buil
 lantern2.111	light/lantern2.base.111.png	32x32	lantern2_1	existing	models.txt: building
 lantern2_off.111	light/lantern2_off.base.111.png	32x32	lantern2_unlit	existing	models.txt: building
 lantern_off.111	light/lantern_off.base.111.png	32x32	lantern_unlit	existing	models.txt: building
-lapron.111	armour/mail/lapron.base.111.png	32x32	lapron	scratch	type ARMOUR: worn on the body: must fit the 3D character
+lapron.111	armour/mail/lapron.base.111.png	32x32	lapron	existing	models.txt: building
 large_hdoor.111	door/large_hdoor.base.111.png	96x32	large_hdoor1,large_hdoor2,large_hdoor3	existing	models.txt: model
 large_vdoor.111	door/large_vdoor.base.111.png	32x96	large_vdoor1,large_vdoor2,large_vdoor3	existing	models.txt: model
 largestone.111	ground/Stone/largestone.base.111.png	32x32	large_stones	flat	folder ground/: ground and its smoothing edges
@@ -3474,11 +3474,11 @@ ldoor_white1.111	door/Locked/ldoor_white1.base.111.png	32x32	locked_white_door1	
 ldoor_white2.111	door/Locked/ldoor_white2.base.111.png	32x32	locked_white_door2	existing	models.txt: model
 lead.111	inorganic/lead.base.111.png	32x32	lead	existing	models.txt: model
 lead_fullhelmet.111	armour/helmet/lead_fullhelmet.base.111.png	32x32	lead_full_helmet	existing	models.txt: model
-lead_scale_mail.111	armour/mail/lead_scale_mail.base.111.png	32x32	lead_scale_mail	scratch	type ARMOUR: worn on the body: must fit the 3D character
+lead_scale_mail.111	armour/mail/lead_scale_mail.base.111.png	32x32	lead_scale_mail	existing	models.txt: building
 lead_shield.111	armour/shield/lead_shield.base.111.png	32x32	lead_shield	existing	models.txt: model
 leadbar.111	jewel/bars/leadbar.base.111.png	32x32	leadbar	existing	models.txt: model
 leather.111	crafting/Materials/leather.base.111.png	32x32	leather	existing	models.txt: model
-leather_ar.111	armour/mail/leather_ar.base.111.png	32x32	leather_armour	scratch	type ARMOUR: worn on the body: must fit the 3D character
+leather_ar.111	armour/mail/leather_ar.base.111.png	32x32	leather_armour	existing	models.txt: building
 leather_black.111	crafting/Materials/leather_black.base.111.png	32x32	leather_black	existing	models.txt: model
 leather_strips.111	crafting/Materials/leather_strips.base.111.png	32x32	leather_strips	existing	models.txt: model
 leather_white.111	crafting/Materials/leather_white.base.111.png	32x32	leather_white	existing	models.txt: model
@@ -3734,7 +3734,7 @@ magic_portal_failed.115	exit/magic_portal/magic_portal_failed.base.115.png	32x32
 magic_portal_failed.116	exit/magic_portal/magic_portal_failed.base.116.png	32x32	town_portal_failed	existing	models.txt: building
 magic_portal_failed.117	exit/magic_portal/magic_portal_failed.base.117.png	32x32	town_portal_failed	existing	models.txt: building
 magic_portal_failed.118	exit/magic_portal/magic_portal_failed.base.118.png	32x32	town_portal_failed	existing	models.txt: building
-magic_resist.111	armour/cloak/magic_resist.base.111.png	32x32	magic_resist	scratch	type CLOAK: worn on the body: must fit the 3D character
+magic_resist.111	armour/cloak/magic_resist.base.111.png	32x32	magic_resist	existing	models.txt: building
 magic_whistle.111	misc/magic_whistle.base.111.png	32x32	magic_whistle	scratch	type CLOCK: boxy, drawn from an angle, or furniture
 magicmouth.111	connect/magicmouth.base.111.png	32x32	magic_mouth	scratch	type SIGN: boxy, drawn from an angle, or furniture
 magma.111	planes/fire/magma.base.111.png	32x32	magma	scratch	a monster generator (a building or object)
@@ -3853,7 +3853,7 @@ mesangel.113	monster/angel/mesangel.base.113.png	32x32	mesangel	rigged	alive: a 
 mesangel.114	monster/angel/mesangel.base.114.png	32x32	mesangel	rigged	alive: a creature
 messageboard.111	readable/messageboard.base.111.png	32x32	messageboard	existing	models.txt: building
 messageboard_red.111	readable/messageboard_red.base.111.png	32x32	messageboard_red	scratch	type SIGN: boxy, drawn from an angle, or furniture
-metalrobe.111	armour/mail/metalrobe.base.111.png	32x32		scratch	folder armour/ (no object uses it)
+metalrobe.111	armour/mail/metalrobe.base.111.png	32x32		existing	models.txt: building
 meteor.111	spell/Bullet/meteor.base.111.png	32x32	meteor	flat	type SPELL_EFFECT: on the ground or an effect
 min_oil.111	inorganic/min_oil.base.111.png	32x32	min_oil,phil_oil	existing	models.txt: model
 mine_0.111	wall/mine/mine_0.base.111.png	32x32	mine0,mine_0	existing	models.txt: wall
@@ -3900,12 +3900,12 @@ mithril.111	jewel/mithril.base.111.png	32x32	mithril	existing	models.txt: model
 mithril.112	jewel/mithril.base.112.png	32x32	mithril	existing	models.txt: model
 mithril.113	jewel/mithril.base.113.png	32x32	mithril	existing	models.txt: model
 mithril.114	jewel/mithril.base.114.png	32x32	mithril	existing	models.txt: model
-mithril_ar.111	armour/mail/mithril_ar.base.111.png	32x32	mithril_chainmail	scratch	type ARMOUR: worn on the body: must fit the 3D character
-mithril_ar.112	armour/mail/mithril_ar.base.112.png	32x32	mithril_chainmail	scratch	type ARMOUR: worn on the body: must fit the 3D character
-mithril_ar.113	armour/mail/mithril_ar.base.113.png	32x32	mithril_chainmail	scratch	type ARMOUR: worn on the body: must fit the 3D character
-mithril_ar_ele.111	armour/mail/mithril_ar_ele.base.111.png	32x32	mithril_ar_ele,mithril_ar_ele_sorig	scratch	type ARMOUR: worn on the body: must fit the 3D character
-mithril_ar_ele.112	armour/mail/mithril_ar_ele.base.112.png	32x32	mithril_ar_ele,mithril_ar_ele_sorig	scratch	type ARMOUR: worn on the body: must fit the 3D character
-mithril_ar_ele.113	armour/mail/mithril_ar_ele.base.113.png	32x32	mithril_ar_ele,mithril_ar_ele_sorig	scratch	type ARMOUR: worn on the body: must fit the 3D character
+mithril_ar.111	armour/mail/mithril_ar.base.111.png	32x32	mithril_chainmail	existing	models.txt: building
+mithril_ar.112	armour/mail/mithril_ar.base.112.png	32x32	mithril_chainmail	existing	models.txt: building
+mithril_ar.113	armour/mail/mithril_ar.base.113.png	32x32	mithril_chainmail	existing	models.txt: building
+mithril_ar_ele.111	armour/mail/mithril_ar_ele.base.111.png	32x32	mithril_ar_ele,mithril_ar_ele_sorig	existing	models.txt: building
+mithril_ar_ele.112	armour/mail/mithril_ar_ele.base.112.png	32x32	mithril_ar_ele,mithril_ar_ele_sorig	existing	models.txt: building
+mithril_ar_ele.113	armour/mail/mithril_ar_ele.base.113.png	32x32	mithril_ar_ele,mithril_ar_ele_sorig	existing	models.txt: building
 mjoellnir.111	weapon/artifact/mjoellnir.base.111.png	32x32	mjoellnir	existing	models.txt: model
 moat_0.111	wall/moat/moat_0.base.111.png	32x32	moat_0	existing	models.txt: building
 moat_1.111	wall/moat/moat_1.base.111.png	32x32	moat_1_2	existing	models.txt: building
@@ -4088,7 +4088,7 @@ oil_sea_S.111	ground/smooth/oil_sea_S.base.111.png	512x64		flat	folder ground/: 
 oil_sea_S.112	ground/smooth/oil_sea_S.base.112.png	512x64		flat	folder ground/: ground and its smoothing edges
 oil_sea_S.113	ground/smooth/oil_sea_S.base.113.png	512x64		flat	folder ground/: ground and its smoothing edges
 oil_sea_S.114	ground/smooth/oil_sea_S.base.114.png	512x64		flat	folder ground/: ground and its smoothing edges
-oilskin.111	armour/cloak/oilskin.base.111.png	32x32	oilskin	scratch	type CLOAK: worn on the body: must fit the 3D character
+oilskin.111	armour/cloak/oilskin.base.111.png	32x32	oilskin	existing	models.txt: building
 ologhi.111	monster/goblin/ologhi.base.111.png	32x32	ologhi	rigged	alive: a creature
 ologhi.112	monster/goblin/ologhi.base.112.png	32x32	ologhi	rigged	alive: a creature
 onion.111	food/produce/onion.base.111.png	32x32	onion	existing	models.txt: model
@@ -4391,7 +4391,7 @@ pl_half_orc.172	player/race/pl_half_orc.base.172.png	32x32	pl_half_orc	existing	
 platbar.111	jewel/bars/platbar.base.111.png	32x32	platbar	existing	models.txt: model
 platblock.111	jewel/platblock.base.111.png	32x32	platblock	existing	models.txt: model
 plate.111	misc/plate.base.111.png	32x32	plate	existing	models.txt: model
-plate_mail.111	armour/mail/plate_mail.base.111.png	32x32	mail_mostrai,plate_mail	scratch	type ARMOUR: worn on the body: must fit the 3D character
+plate_mail.111	armour/mail/plate_mail.base.111.png	32x32	mail_mostrai,plate_mail	existing	models.txt: building
 platinum_converter.111	shop/platinum_converter.base.111.png	32x32	platinum_converter	scratch	type CONVERTER: boxy, drawn from an angle, or furniture
 platinum_converter2.111	shop/platinum_converter2.base.111.png	32x32	platinum_converter2	scratch	type CONVERTER: boxy, drawn from an angle, or furniture
 platround.111	jewel/platround.base.111.png	32x32	platround	existing	models.txt: model
@@ -4817,8 +4817,8 @@ ring_ice.111	talisman/ring_ice.base.111.png	32x32		existing	models.txt: model
 ring_ice.112	talisman/ring_ice.base.112.png	32x32		existing	models.txt: model
 ring_magic.111	talisman/ring_magic.base.111.png	32x32		existing	models.txt: model
 ring_magic.112	talisman/ring_magic.base.112.png	32x32		existing	models.txt: model
-ring_mail.111	armour/mail/ring_mail.base.111.png	32x32	ring_mail	scratch	type ARMOUR: worn on the body: must fit the 3D character
-ring_mail2.111	armour/mail/ring_mail2.base.111.png	32x32	ring_mail2	scratch	type ARMOUR: worn on the body: must fit the 3D character
+ring_mail.111	armour/mail/ring_mail.base.111.png	32x32	ring_mail	existing	models.txt: building
+ring_mail2.111	armour/mail/ring_mail2.base.111.png	32x32	ring_mail2	existing	models.txt: building
 ring_saint.111	talisman/ring_saint.base.111.png	32x32		existing	models.txt: model
 ring_saint.112	talisman/ring_saint.base.112.png	32x32		existing	models.txt: model
 ring_storm.111	talisman/ring_storm.base.111.png	32x32		existing	models.txt: model
@@ -4850,11 +4850,11 @@ rl_house2.x11	construct/town/rl_house2.base.x11.png	64x64	rl_house2,rl_house2_2,
 rl_house3.x11	construct/town/rl_house3.base.x11.png	64x64	rl_house3,rl_house3_2,rl_house3_3	existing	models.txt: building
 rl_house_west.x11	construct/town/rl_house_west.base.x11.png	64x64	rl_house_west,rl_house_west_2,rl_house_west_3	existing	models.txt: building
 roast_bird.111	food/roast_bird.base.111.png	32x32	roast_bird	existing	models.txt: model
-robe.111	armour/mail/robe.base.111.png	32x32	robe	scratch	type ARMOUR: worn on the body: must fit the 3D character
-robe2.111	armour/mail/robe2.base.111.png	32x32	robe2	scratch	type ARMOUR: worn on the body: must fit the 3D character
-robe_midnight.111	armour/mail/robe_midnight.base.111.png	32x32	robe_midnight	scratch	type ARMOUR: worn on the body: must fit the 3D character
-robe_midnight.112	armour/mail/robe_midnight.base.112.png	32x32	robe_midnight	scratch	type ARMOUR: worn on the body: must fit the 3D character
-robe_midnight.113	armour/mail/robe_midnight.base.113.png	32x32	robe_midnight	scratch	type ARMOUR: worn on the body: must fit the 3D character
+robe.111	armour/mail/robe.base.111.png	32x32	robe	existing	models.txt: building
+robe2.111	armour/mail/robe2.base.111.png	32x32	robe2	existing	models.txt: building
+robe_midnight.111	armour/mail/robe_midnight.base.111.png	32x32	robe_midnight	existing	models.txt: building
+robe_midnight.112	armour/mail/robe_midnight.base.112.png	32x32	robe_midnight	existing	models.txt: building
+robe_midnight.113	armour/mail/robe_midnight.base.113.png	32x32	robe_midnight	existing	models.txt: building
 rock.111	misc/rock.base.111.png	32x32	rock	existing	models.txt: model
 rock2.111	inorganic/rock2.base.111.png	32x32	rock2	existing	models.txt: model
 rod_heavy.111	spell/Wand/rod_heavy.base.111.png	32x32	rod_heavy	existing	models.txt: model
@@ -5030,7 +5030,7 @@ sapphire_exceptional.111	jewel/gems/sapphire_exceptional.base.111.png	32x32	raw_
 sapphire_flawless.111	jewel/gems/sapphire_flawless.base.111.png	32x32	raw_sapphire_flawless_beauty	existing	models.txt: model
 sarcophagus.111	misc/Container/sarcophagus.base.111.png	32x32	close_sarcophagus_container,sarcophagus_container	existing	models.txt: building
 saw.111	weapon/other/saw.base.111.png	32x32	saw	existing	models.txt: model
-scale_mail.111	armour/mail/scale_mail.base.111.png	32x32	scale_mail	scratch	type ARMOUR: worn on the body: must fit the 3D character
+scale_mail.111	armour/mail/scale_mail.base.111.png	32x32	scale_mail	existing	models.txt: building
 schest.111	misc/Container/schest.base.111.png	32x32	schest_2	existing	models.txt: model
 scimitar.111	weapon/sword/scimitar.base.111.png	32x32	scimitar	existing	models.txt: model
 scorpi_gen.111	monster/animal/scorpi_gen.base.111.png	32x32	generate_scorpion	existing	models.txt: building
@@ -5092,7 +5092,7 @@ sea_ne.111	ground/sea_ne.base.111.png	32x32	sea_ne	flat	folder ground/: ground a
 sea_nw.111	ground/sea_nw.base.111.png	32x32	sea_nw	flat	folder ground/: ground and its smoothing edges
 sea_se.111	ground/sea_se.base.111.png	32x32	sea_se	flat	folder ground/: ground and its smoothing edges
 sea_sw.111	ground/sea_sw.base.111.png	32x32	sea_sw	flat	folder ground/: ground and its smoothing edges
-serp_cloak.111	armour/cloak/serp_cloak.base.111.png	32x32	serp_cloak	scratch	type CLOAK: worn on the body: must fit the 3D character
+serp_cloak.111	armour/cloak/serp_cloak.base.111.png	32x32	serp_cloak	existing	models.txt: building
 serp_man.131	monster/misc/serpmen/serp_man.base.131.png	32x32	serp_man	rigged	alive: a creature
 serp_man.132	monster/misc/serpmen/serp_man.base.132.png	32x32	serp_man	rigged	alive: a creature
 serp_man.171	monster/misc/serpmen/serp_man.base.171.png	32x32	serp_man	rigged	alive: a creature
@@ -5654,31 +5654,31 @@ spider.183	monster/insect/spider/spider.base.183.png	32x32	spider	rigged	alive: 
 spider.184	monster/insect/spider/spider.base.184.png	32x32	spider	rigged	alive: a creature
 spider_web.111	monster/insect/spider/spider_web.base.111.png	32x32	spider_gen,spider_web,spider_web2	scratch	a monster generator (a building or object)
 spider_web.112	monster/insect/spider/spider_web.base.112.png	32x32	spider_gen,spider_web,spider_web2	scratch	a monster generator (a building or object)
-spike.110	connect/Gates/spike.base.110.png	32x32	spike_hidden	scratch	type GATE: boxy, drawn from an angle, or furniture
-spike.111	connect/Gates/spike.base.111.png	32x32	spike_closed,spike_hidden,spike_moving	scratch	type GATE: boxy, drawn from an angle, or furniture
-spike.112	connect/Gates/spike.base.112.png	32x32	spike_closed,spike_hidden,spike_moving	scratch	type GATE: boxy, drawn from an angle, or furniture
-spike.113	connect/Gates/spike.base.113.png	32x32	spike_closed,spike_hidden,spike_moving	scratch	type GATE: boxy, drawn from an angle, or furniture
-spike.114	connect/Gates/spike.base.114.png	32x32	spike_closed,spike_hidden,spike_moving	scratch	type GATE: boxy, drawn from an angle, or furniture
-spike.115	connect/Gates/spike.base.115.png	32x32	spike_closed,spike_hidden,spike_moving	scratch	type GATE: boxy, drawn from an angle, or furniture
-spike.116	connect/Gates/spike.base.116.png	32x32	spike_closed,spike_hidden,spike_moving	scratch	type GATE: boxy, drawn from an angle, or furniture
-spike.117	connect/Gates/spike.base.117.png	32x32	spike_closed,spike_hidden,spike_moving	scratch	type GATE: boxy, drawn from an angle, or furniture
-spike.118	connect/Gates/spike.base.118.png	32x32	spike_closed,spike_hidden,spike_moving	scratch	type GATE: boxy, drawn from an angle, or furniture
-spike.119	connect/Gates/spike.base.119.png	32x32	spike_closed,spike_hidden,spike_moving	scratch	type GATE: boxy, drawn from an angle, or furniture
-spike.120	connect/Gates/spike.base.120.png	32x32	spike_moving	scratch	type GATE: boxy, drawn from an angle, or furniture
-spike.121	connect/Gates/spike.base.121.png	32x32	spike_closed,spike_moving,spike_open	scratch	type GATE: boxy, drawn from an angle, or furniture
-spike.122	connect/Gates/spike.base.122.png	32x32	spike_closed,spike_moving,spike_open	scratch	type GATE: boxy, drawn from an angle, or furniture
+spike.110	connect/Gates/spike.base.110.png	32x32	spike_hidden	existing	models.txt: building
+spike.111	connect/Gates/spike.base.111.png	32x32	spike_closed,spike_hidden,spike_moving	existing	models.txt: building
+spike.112	connect/Gates/spike.base.112.png	32x32	spike_closed,spike_hidden,spike_moving	existing	models.txt: building
+spike.113	connect/Gates/spike.base.113.png	32x32	spike_closed,spike_hidden,spike_moving	existing	models.txt: building
+spike.114	connect/Gates/spike.base.114.png	32x32	spike_closed,spike_hidden,spike_moving	existing	models.txt: building
+spike.115	connect/Gates/spike.base.115.png	32x32	spike_closed,spike_hidden,spike_moving	existing	models.txt: building
+spike.116	connect/Gates/spike.base.116.png	32x32	spike_closed,spike_hidden,spike_moving	existing	models.txt: building
+spike.117	connect/Gates/spike.base.117.png	32x32	spike_closed,spike_hidden,spike_moving	existing	models.txt: building
+spike.118	connect/Gates/spike.base.118.png	32x32	spike_closed,spike_hidden,spike_moving	existing	models.txt: building
+spike.119	connect/Gates/spike.base.119.png	32x32	spike_closed,spike_hidden,spike_moving	existing	models.txt: building
+spike.120	connect/Gates/spike.base.120.png	32x32	spike_moving	existing	models.txt: building
+spike.121	connect/Gates/spike.base.121.png	32x32	spike_closed,spike_moving,spike_open	existing	models.txt: building
+spike.122	connect/Gates/spike.base.122.png	32x32	spike_closed,spike_moving,spike_open	existing	models.txt: building
 spiked_pit.111	traps/spiked_pit.base.111.png	32x32	trap_spike_pit	existing	models.txt: model
 spiked_shield.111	armour/shield/spiked_shield.base.111.png	32x32	spiked_shield	existing	models.txt: model
-spikes.110	connect/Gates/spikes.base.110.png	32x32	spikes_hidden	scratch	type GATE: boxy, drawn from an angle, or furniture
-spikes.111	connect/Gates/spikes.base.111.png	32x32	spikes_closed,spikes_hidden,spikes_moving	scratch	type GATE: boxy, drawn from an angle, or furniture
-spikes.112	connect/Gates/spikes.base.112.png	32x32	spikes_closed,spikes_hidden,spikes_moving	scratch	type GATE: boxy, drawn from an angle, or furniture
-spikes.113	connect/Gates/spikes.base.113.png	32x32	spikes_closed,spikes_hidden,spikes_moving	scratch	type GATE: boxy, drawn from an angle, or furniture
-spikes.114	connect/Gates/spikes.base.114.png	32x32	spikes_closed,spikes_hidden,spikes_moving	scratch	type GATE: boxy, drawn from an angle, or furniture
-spikes.115	connect/Gates/spikes.base.115.png	32x32	spikes_closed,spikes_hidden,spikes_moving	scratch	type GATE: boxy, drawn from an angle, or furniture
-spikes.116	connect/Gates/spikes.base.116.png	32x32	spikes_closed,spikes_hidden,spikes_moving	scratch	type GATE: boxy, drawn from an angle, or furniture
-spikes.117	connect/Gates/spikes.base.117.png	32x32	spikes_closed,spikes_hidden,spikes_moving	scratch	type GATE: boxy, drawn from an angle, or furniture
-spikes.118	connect/Gates/spikes.base.118.png	32x32	spikes_closed,spikes_hidden,spikes_moving	scratch	type GATE: boxy, drawn from an angle, or furniture
-spikes.119	connect/Gates/spikes.base.119.png	32x32	spikes_closed,spikes_moving,spikes_open	scratch	type GATE: boxy, drawn from an angle, or furniture
+spikes.110	connect/Gates/spikes.base.110.png	32x32	spikes_hidden	existing	models.txt: building
+spikes.111	connect/Gates/spikes.base.111.png	32x32	spikes_closed,spikes_hidden,spikes_moving	existing	models.txt: building
+spikes.112	connect/Gates/spikes.base.112.png	32x32	spikes_closed,spikes_hidden,spikes_moving	existing	models.txt: building
+spikes.113	connect/Gates/spikes.base.113.png	32x32	spikes_closed,spikes_hidden,spikes_moving	existing	models.txt: building
+spikes.114	connect/Gates/spikes.base.114.png	32x32	spikes_closed,spikes_hidden,spikes_moving	existing	models.txt: building
+spikes.115	connect/Gates/spikes.base.115.png	32x32	spikes_closed,spikes_hidden,spikes_moving	existing	models.txt: building
+spikes.116	connect/Gates/spikes.base.116.png	32x32	spikes_closed,spikes_hidden,spikes_moving	existing	models.txt: building
+spikes.117	connect/Gates/spikes.base.117.png	32x32	spikes_closed,spikes_hidden,spikes_moving	existing	models.txt: building
+spikes.118	connect/Gates/spikes.base.118.png	32x32	spikes_closed,spikes_hidden,spikes_moving	existing	models.txt: building
+spikes.119	connect/Gates/spikes.base.119.png	32x32	spikes_closed,spikes_moving,spikes_open	existing	models.txt: building
 spinner.111	connect/Spinner/spinner.base.111.png	32x32	spinner_-135,spinner_-45,spinner_-90	flat	type SPINNER: on the ground or an effect
 spinner.112	connect/Spinner/spinner.base.112.png	32x32	spinner_-45,spinner_-90,spinner_45	flat	type SPINNER: on the ground or an effect
 spinner.113	connect/Spinner/spinner.base.113.png	32x32	spinner_-135,spinner_-45,spinner_-90	flat	type SPINNER: on the ground or an effect
@@ -6176,7 +6176,7 @@ troll_p.172	player/race/troll_p.base.172.png	32x32	troll_player	existing	player 
 troll_stoned.111	player/stoned/troll_stoned.base.111.png	32x32		existing	folder player/ (no object uses it)
 true_lead.111	inorganic/true_lead.base.111.png	32x32	true_lead	existing	models.txt: model
 tspikes.111	traps/tspikes.base.111.png	32x32	trap_spikes2	existing	models.txt: model
-tunic.111	armour/mail/tunic.base.111.png	32x32	tunic	scratch	type ARMOUR: worn on the body: must fit the 3D character
+tunic.111	armour/mail/tunic.base.111.png	32x32	tunic	existing	models.txt: building
 turban.111	armour/helmet/turban.base.111.png	32x32	turban	existing	models.txt: model
 turningboat.x11	transport/turningboat.base.x11.png	64x64	turningboat,turningboat_2,turningboat_3	existing	models.txt: building
 turningboat.x21	transport/turningboat.base.x21.png	64x64	turningboat,turningboat_2,turningboat_3	existing	models.txt: building
@@ -6212,7 +6212,7 @@ unicorn.x33	monster/misc/Unicorn/unicorn.base.x33.png	64x32	unicorn,unicorn_2	ri
 unicorn.x71	monster/misc/Unicorn/unicorn.base.x71.png	64x32	unicorn,unicorn_2	rigged	alive: a creature
 unicorn.x72	monster/misc/Unicorn/unicorn.base.x72.png	64x32	unicorn,unicorn_2	rigged	alive: a creature
 unicorn.x73	monster/misc/Unicorn/unicorn.base.x73.png	64x32	unicorn,unicorn_2	rigged	alive: a creature
-unicorn_hide_robe.111	armour/mail/unicorn_hide_robe.base.111.png	32x32	unicorn_hide_robe	scratch	type ARMOUR: worn on the body: must fit the 3D character
+unicorn_hide_robe.111	armour/mail/unicorn_hide_robe.base.111.png	32x32	unicorn_hide_robe	existing	models.txt: building
 university.x11	construct/town/university.base.x11.png	160x128	university,university_10,university_11	existing	models.txt: building
 unlit_brazier.111	light/unlit_brazier.base.111.png	32x32	unlit brazier	existing	models.txt: building
 unlit_tikitorch.111	light/unlit_tikitorch.base.111.png	32x32	unlit tiki torch	existing	models.txt: model
@@ -6441,9 +6441,9 @@ wdoor.112	connect/Doors/wdoor.base.112.png	32x32	mdoor_closed_1,mdoor_open_1	exi
 wdoor.113	connect/Doors/wdoor.base.113.png	32x32	mdoor_closed_1,mdoor_open_1	existing	models.txt: model
 wdoor.114	connect/Doors/wdoor.base.114.png	32x32	mdoor_closed_1,mdoor_open_1	existing	models.txt: model
 wds.111	armour/shield/wds.base.111.png	32x32	wds	existing	models.txt: model
-wdsm.111	armour/mail/wdsm.base.111.png	32x32	wdsm	scratch	type ARMOUR: worn on the body: must fit the 3D character
-wdsm.112	armour/mail/wdsm.base.112.png	32x32	wdsm	scratch	type ARMOUR: worn on the body: must fit the 3D character
-wdsm.113	armour/mail/wdsm.base.113.png	32x32	wdsm	scratch	type ARMOUR: worn on the body: must fit the 3D character
+wdsm.111	armour/mail/wdsm.base.111.png	32x32	wdsm	existing	models.txt: building
+wdsm.112	armour/mail/wdsm.base.112.png	32x32	wdsm	existing	models.txt: building
+wdsm.113	armour/mail/wdsm.base.113.png	32x32	wdsm	existing	models.txt: building
 well.111	exit/well.base.111.png	32x32	well	existing	models.txt: model
 westcityport_0.111	wall/cwall-west/westcityport_0.base.111.png	32x32	westcityport_b	existing	models.txt: wall
 westcityport_1.111	wall/cwall-west/westcityport_1.base.111.png	32x32	westcityport_a	existing	models.txt: wall
