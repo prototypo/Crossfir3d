@@ -4,28 +4,28 @@ Made by `catalog.py` from the `base` picture set (6799 pictures). Every picture 
 
 | Group | Pictures | Things |
 | --- | ---: | ---: |
-| existing | 3656 | 2181 |
-| flat | 1283 | 669 |
+| existing | 3702 | 2216 |
+| flat | 1282 | 668 |
 | rigged | 1176 | 332 |
 | skip | 524 | 396 |
-| scratch | 160 | 103 |
+| scratch | 115 | 68 |
 
 ## Why (top reasons per group)
 
 | Group | Reason | Pictures |
 | --- | --- | ---: |
-| existing | models.txt: model | 1332 |
+| existing | models.txt: model | 1338 |
 | existing | models.txt: wall | 949 |
-| existing | models.txt: building | 646 |
+| existing | models.txt: building | 678 |
 | existing | player character | 259 |
 | existing | folder player/ | 214 |
 | existing | models.txt: monster | 91 |
-| existing | models.txt: flat | 80 |
+| existing | models.txt: flat | 88 |
 | existing | drawn as wall blocks | 67 |
 | existing | models.txt: person | 10 |
 | flat | folder ground/: ground and its smoothing edges | 285 |
 | flat | folder spell/ | 216 |
-| flat | type SPELL_EFFECT: on the ground or an effect | 215 |
+| flat | type SPELL_EFFECT: on the ground or an effect | 214 |
 | flat | folder floor/: floor | 144 |
 | flat | folder road/: road | 126 |
 | flat | type PLAYERMOVER: on the ground or an effect | 64 |
@@ -39,10 +39,8 @@ Made by `catalog.py` from the `base` picture set (6799 pictures). Every picture 
 | rigged | alive: a creature | 1064 |
 | rigged | folder monster/ | 112 |
 | scratch | big picture | 41 |
-| scratch | folder misc/ | 37 |
+| scratch | folder misc/ | 35 |
 | scratch | a monster generator | 19 |
-| scratch | type CONTAINER: boxy, drawn from an angle, or furniture | 14 |
-| scratch | type TRIGGER_ALTAR: boxy, drawn from an angle, or furniture | 12 |
 | skip | a spell or skill icon | 247 |
 | skip | folder system/ | 162 |
 | skip | folder skills/ | 36 |
