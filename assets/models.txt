@@ -883,8 +883,8 @@ polarbear beast beasts/cute/Panda.gltf 0.732
 fiend beast beasts/cute/Demon.gltf 0.494
 dragon beast beasts/flying/Dragon.gltf 0.637
 dragon_ac beast beasts/flying/Dragon.gltf 0.637
-wyvern beast beasts/dinosaurs/Trex.gltf 0.055 0.45,0.8,0.4
-Cwyvern beast beasts/dinosaurs/Trex.gltf 0.055 0.3,0.3,0.32
+wyvern beast beasts/dinosaurs/Trex.gltf 0.055 0.45,0.8,0.4 wings 0.4,0.65,0.35
+Cwyvern beast beasts/dinosaurs/Trex.gltf 0.055 0.3,0.3,0.32 wings 0.25,0.25,0.28
 s_wyvern beast beasts/flying/Dragon.gltf 0.510 0.3,0.3,0.4
 chaos_dragon beast beasts/flying/Dragon_Evolved.gltf 0.823 0.8,0.5,0.9
 shadow_dragon beast beasts/flying/Dragon_Evolved.gltf 0.823 0.3,0.3,0.35
