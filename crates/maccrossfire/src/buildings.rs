@@ -48,8 +48,6 @@ const ROOF_Y: f32 = 0.25;
 /// Height of one village storey at that scale.
 pub const STORY: f32 = 1.56;
 const STONE: [f32; 3] = [0.55, 0.55, 0.52];
-/// Kenney's castle colours are sandy; this pulls them toward grey stone.
-const STONE_TINT: [f32; 3] = [0.62, 0.74, 0.9];
 const WOOD: [f32; 3] = [0.45, 0.3, 0.18];
 const BOARD: [f32; 3] = [0.65, 0.5, 0.3];
 const WATER: [f32; 3] = [0.15, 0.3, 0.5];
@@ -275,29 +273,71 @@ fn shop(w: u32, h: u32) -> Vec<Part> {
     out
 }
 
-/// Stone blocks on every edge square: towers at the corners, a gateway in the middle
-/// of the south side.
+/// The stone city walls on every edge square, a gateway in the middle of the south
+/// side, and a tall square tower on each corner. One square alone is one tower.
 fn castle(w: u32, h: u32) -> Vec<Part> {
+    if (w, h) == (1, 1) {
+        return tower([0.0; 3], 0.5, 0.5);
+    }
     let (fw, fh) = (w as f32, h as f32);
     let mut out = Vec::new();
     for j in 0..h {
         for i in 0..w {
-            let (edge_x, edge_z) = (i == 0 || i == w - 1, j == 0 || j == h - 1);
-            if !edge_x && !edge_z {
-                continue;
+            let mut mask = 0;
+            if j == 0 || j == h - 1 {
+                mask |= if i > 0 { W } else { 0 } | if i < w - 1 { E } else { 0 };
+            }
+            if i == 0 || i == w - 1 {
+                mask |= if j > 0 { N } else { 0 } | if j < h - 1 { S } else { 0 };
             }
             let pos = [-fw / 2.0 + i as f32 + 0.5, 0.0, -fh / 2.0 + j as f32 + 0.5];
-            let (file, yaw) = if edge_x && edge_z {
-                ("castle/tower-square.glb", 0.0)
-            } else if j == h - 1 && i == w / 2 {
-                ("castle/wall-doorway.glb", 0.0)
-            } else if edge_z {
-                ("castle/wall.glb", 0.0)
-            } else {
-                ("castle/wall.glb", 90.0)
-            };
-            out.push(part(Shape::Model(file), pos, yaw, [1.0, 1.5, 1.0], Some(STONE_TINT)));
+            // Two wide: the south corners get only half a wall from the north, and the
+            // gate goes between them.
+            if w == 2 && j == h - 1 {
+                if mask & N != 0 {
+                    let half = [pos[0], 0.0, pos[2] - 0.25];
+                    out.push(part(Shape::Model("kaykit/wall.gltf"), half, 90.0, [0.125, 0.3, 0.25], None));
+                }
+            } else if mask != 0 {
+                let style = if j == h - 1 && i == w / 2 && mask == E | W { "gate" } else { "stone" };
+                out.extend(wall_parts(style, mask).into_iter().map(|p| Part { pos, ..p }));
+            }
+            if (i == 0 || i == w - 1) && (j == 0 || j == h - 1) {
+                out.extend(tower(pos, 0.3, 0.45));
+            }
         }
+    }
+    if w == 2 {
+        out.extend(wall_parts("gate", E | W).into_iter().map(|p| Part { pos: [0.0, 0.0, fh / 2.0 - 0.5], ..p }));
+    }
+    let gates: Vec<[f32; 3]> =
+        out.iter().filter(|p| matches!(p.shape, Shape::Model(f) if f.contains("doorway"))).map(|p| p.pos).collect();
+    for [x, _, z] in gates {
+        out.extend(portcullis().into_iter().map(|p| Part { pos: [p.pos[0] + x, p.pos[1], p.pos[2] + z], ..p }));
+    }
+    out
+}
+
+const IRON: [f32; 3] = [0.2, 0.2, 0.22];
+
+/// An iron grid filling a doorway that runs east-west, in the middle of the wall.
+fn portcullis() -> Vec<Part> {
+    let mut out: Vec<Part> = (0..5).map(|i| cube([0.025, 0.8, 0.025], [-0.2 + i as f32 * 0.1, 0.4, 0.0], IRON)).collect();
+    out.extend([0.15, 0.4, 0.65].map(|y| cube([0.5, 0.025, 0.025], [0.0, y, 0.0], IRON)));
+    out
+}
+
+/// A square stone tower: the KayKit pillar `wide` times across and `high` times up,
+/// with slit windows that climb round it, one face higher each time, like a stair
+/// winding up inside.
+fn tower(pos: [f32; 3], wide: f32, high: f32) -> Vec<Part> {
+    // The pillar's shaft faces are 0.55 from its middle, and it is 4 high.
+    let (face, top) = (0.55 * wide + 0.01, 4.0 * high);
+    let mut out = vec![part(Shape::Model("kaykit/pillar.gltf"), pos, 0.0, [wide, high, wide], None)];
+    for i in 0..4 {
+        let at = [face / 2.0, top * (0.2 + i as f32 * 0.17), 0.0];
+        let slit = cube([face, 0.12 * wide / 0.3, 0.05 * wide / 0.3], at, INSIDE);
+        out.extend(turned(vec![slit], 90.0 * i as f32).into_iter().map(|p| Part { pos: [p.pos[0] + pos[0], p.pos[1], p.pos[2] + pos[2]], ..p }));
     }
     out
 }
@@ -1062,6 +1102,19 @@ mod tests {
         assert_eq!(moat(N | E | S | W).len(), 1 + 4);
         assert_eq!(moat(N | S).len(), 1 + 2);
         assert_eq!(moat(N | E).len(), 1 + 2 + 1);
+    }
+
+    #[test]
+    fn castle_has_four_towers_and_a_gate_on_the_south_side() {
+        let m = models(&parts("castle", 3, 3).unwrap());
+        assert_eq!(m.iter().filter(|f| f.contains("pillar")).count(), 4);
+        let gate = parts("castle", 3, 3).unwrap().into_iter().find(|p| matches!(p.shape, Shape::Model(f) if f.contains("doorway")));
+        assert_eq!(gate.map(|p| p.pos), Some([0.0, 0.0, 1.0]));
+        assert_eq!(models(&parts("castle", 1, 1).unwrap()), ["kaykit/pillar.gltf"]);
+        let small = parts("castle", 2, 2).unwrap();
+        assert_eq!(models(&small).iter().filter(|f| f.contains("pillar")).count(), 4);
+        let gate = small.into_iter().find(|p| matches!(p.shape, Shape::Model(f) if f.contains("doorway")));
+        assert_eq!(gate.map(|p| p.pos), Some([0.0, 0.0, 0.5]));
     }
 
     #[test]
