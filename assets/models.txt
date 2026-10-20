@@ -883,8 +883,8 @@ polarbear beast beasts/cute/Panda.gltf 0.732
 fiend beast beasts/cute/Demon.gltf 0.494
 dragon beast beasts/flying/Dragon.gltf 0.637
 dragon_ac beast beasts/flying/Dragon.gltf 0.637
-wyvern beast beasts/flying/Dragon.gltf 0.510 0.6,0.8,0.5
-Cwyvern beast beasts/flying/Dragon.gltf 0.510 0.8,0.6,0.9
+wyvern beast beasts/dinosaurs/Trex.gltf 0.055 0.45,0.8,0.4
+Cwyvern beast beasts/dinosaurs/Trex.gltf 0.055 0.3,0.3,0.32
 s_wyvern beast beasts/flying/Dragon.gltf 0.510 0.3,0.3,0.4
 chaos_dragon beast beasts/flying/Dragon_Evolved.gltf 0.823 0.8,0.5,0.9
 shadow_dragon beast beasts/flying/Dragon_Evolved.gltf 0.823 0.3,0.3,0.35
@@ -937,7 +937,7 @@ demilich beast beasts/cute/Skull.gltf 0.290 1,0.85,0.5
 liv_chaos beast beasts/flying/Squidle.gltf 0.336 0.5,0.5,1
 archon beast beasts/flying/Hywirl.gltf 0.433 0.75,0.7,0.35
 scorpion beast beasts/cute/Crab.gltf 0.318 0.45,0.3,0.25
-sheep beast beasts/animals/Alpaca.gltf 0.167 1,1,1
+sheep beast beasts/farm/Sheep.gltf 0.1
 giantrat beast beasts/animals/Fox.gltf 0.168 0.55,0.5,0.45
 mouse beast beasts/animals/Fox.gltf 0.075 0.6,0.6,0.6
 pet_necro beast beasts/animals/Fox.gltf 0.149 0.75,0.75,0.72
@@ -945,7 +945,7 @@ rustmonste beast beasts/animals/Fox.gltf 0.224 0.75,0.45,0.25
 panther beast beasts/animals/Wolf.gltf 0.261 0.2,0.2,0.22
 shadowtiger beast beasts/animals/Wolf.gltf 0.299 0.35,0.3,0.4
 gryphon beast beasts/flying/Pigeon.gltf 0.476 0.9,0.75,0.4
-baslic beast beasts/big/Dino.gltf 0.310 0.3,0.35,0.3
+baslic beast beasts/dinosaurs/Velociraptor.gltf 0.15 0.3,0.22,0.22
 elem_earth beast beasts/flying/Goleling_Evolved.gltf 0.367 0.8,0.6,0.4
 elem_dust beast beasts/flying/Hywirl.gltf 0.433 0.85,0.75,0.55
 elem_fire beast beasts/flying/Hywirl.gltf 0.433 1,0.5,0.3
