@@ -40,6 +40,8 @@ Known problems left for later. Each line says what goes wrong and where to look.
 
 ## Before making the repo public
 
+- [ ] Ask GitHub Support to purge the old history: the closed PRs' refs (`refs/pull/*`, PRs #1-#53) still point at commits with the paid monster pack (`assets/models/monsters/`) and the old Hunyuan3D models of `assets/models/auto/`. Branches were rewritten and force-pushed on 2026-10-21; ask them to remove cached views and dereferenced commits of prototypo/Crossfir3d and run garbage collection.
+
 
 - [ ] Shops drawn as map buildings (`mapbuilding/`, e.g. `store_gems`) stay picture cards (they show the shop name).
 - [ ] Walking by typed direction words (`north` in the command line) does not turn the character; only movement keys set `Facing` (`input.rs`).
