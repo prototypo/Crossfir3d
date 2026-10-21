@@ -52,10 +52,11 @@ pub struct Combo {
 }
 
 impl Combo {
-    /// "shift+cmd+G" on a Mac, "Shift+Win+G" elsewhere.
+    /// "shift+cmd+g" on a Mac, "Shift+Win+g" elsewhere: letters in lower case, as on the keys.
     pub fn text(&self, mac: bool) -> String {
+        let key = if self.key.len() == 1 { self.key.to_ascii_lowercase() } else { self.key.clone() };
         let mut parts = self.mods.names(mac);
-        parts.push(&self.key);
+        parts.push(&key);
         parts.join("+")
     }
 }
@@ -255,7 +256,9 @@ fn parse_line(line: &str, character: &str) -> Option<Binding> {
     if who != character && who != "*" || key.is_empty() || command.is_empty() {
         return None;
     }
-    let combo = Combo { mods: Mods::parse(mods)?, key: key.into() };
+    // Key names spell letters in capitals; a hand-written "h" means the same key.
+    let key = if key.len() == 1 { key.to_ascii_uppercase() } else { key.into() };
+    let combo = Combo { mods: Mods::parse(mods)?, key };
     Some(Binding { all: who == "*", combo, edit: flags.contains('e'), command: command.into() })
 }
 
@@ -307,8 +310,8 @@ mod tests {
     #[test]
     fn combo_text_by_system() {
         let c = combo(Mods { shift: true, cmd: true, ..Default::default() }, "G");
-        assert_eq!(c.text(true), "shift+cmd+G");
-        assert_eq!(c.text(false), "Shift+Win+G");
+        assert_eq!(c.text(true), "shift+cmd+g");
+        assert_eq!(c.text(false), "Shift+Win+g");
     }
 
     #[test]
@@ -431,12 +434,20 @@ mod tests {
         let plain = |k: &str| Combo { mods: Mods::default(), key: k.into() };
         let b = Bindings::default();
         assert!(bind_question(&b, &plain("Escape"), "x", true).is_err());
-        assert_eq!(bind_question(&b, &plain("G"), "x", true), Ok(Some("G is the get key. Replace it? Type y or n.".into())));
+        assert_eq!(bind_question(&b, &plain("G"), "x", true), Ok(Some("g is the get key. Replace it? Type y or n.".into())));
         assert_eq!(bind_question(&b, &plain("D"), "x", true), Ok(None));
         let mut b2 = Bindings::default();
         b2.bind(Binding { all: false, combo: plain("D"), edit: false, command: "say a".into() });
-        assert_eq!(bind_question(&b2, &plain("D"), "x", true), Ok(Some("D runs say a. Replace it? Type y or n.".into())));
+        assert_eq!(bind_question(&b2, &plain("D"), "x", true), Ok(Some("d runs say a. Replace it? Type y or n.".into())));
         assert_eq!(bind_question(&b2, &plain("D"), "say a", true), Ok(None));
+    }
+
+    #[test]
+    fn hand_written_lower_case_letter_matches() {
+        let path = temp_file("lower");
+        std::fs::write(&path, "Ann\t-\th\t-\tsay hello\n").unwrap();
+        let b = load_bindings(&path, "Ann");
+        assert_eq!(b.lookup(&combo(Mods::default(), "H")).unwrap().command, "say hello");
     }
 
     #[test]

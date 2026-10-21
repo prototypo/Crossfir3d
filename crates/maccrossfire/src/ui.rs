@@ -380,7 +380,7 @@ mod tests {
         assert!(b.0.list.is_empty());
         p.0 = Some(BindStep::Confirm { binding: g });
         assert_eq!(typed_bind("y", &mut p, &mut b, &mut m, 0.0), Some(true));
-        assert_eq!(b.0.numbered(true), ["1. G  say g"]);
+        assert_eq!(b.0.numbered(true), ["1. g  say g"]);
         assert_eq!(typed_bind("unbind 2", &mut p, &mut b, &mut m, 0.0), Some(false));
         assert_eq!(typed_bind("unbind 1", &mut p, &mut b, &mut m, 0.0), Some(true));
         assert!(b.0.list.is_empty());
