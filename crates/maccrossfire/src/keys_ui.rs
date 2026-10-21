@@ -44,6 +44,24 @@ pub struct KeysSel {
     /// What each key really types on this keyboard, learnt from key presses.
     pub labels: HashMap<&'static str, String>,
     pub status: String,
+    /// The "New command" box under OTHER.
+    pub new_command: String,
+    /// The box has the keyboard: keys type text, they are not picked (and K does not close).
+    pub typing: bool,
+}
+
+impl KeysSel {
+    /// A fresh screen: nothing selected or asked; the learnt key labels stay.
+    pub fn reset(&mut self) {
+        *self = KeysSel { labels: std::mem::take(&mut self.labels), ..Default::default() };
+    }
+}
+
+/// The binding a click on `key` selects: the one with the modifiers held or picked,
+/// else any binding on that key.
+pub fn binding_for_click<'a>(list: &'a [Binding], key: &str, mods: Mods) -> Option<&'a Binding> {
+    let on_key = || list.iter().filter(|b| b.combo.key == key);
+    on_key().find(|b| b.combo.mods == mods).or_else(|| on_key().next())
 }
 
 /// Which of Bind, Change, Unbind, Clear selection can act.
@@ -136,6 +154,13 @@ pub fn other_commands(bindings: &[Binding], spells: &[String], skills: &[String]
     out
 }
 
+/// The action a command typed in the "New command" box selects (a known spell or skill
+/// is that spell or skill); None for an empty box.
+pub fn new_command(text: &str, spells: &[String], skills: &[String]) -> Option<Action> {
+    let text = text.trim();
+    (!text.is_empty()).then(|| action_of(text, spells, skills))
+}
+
 fn command_of(action: &Action) -> String {
     match action {
         Action::Spell(n) => spell_command(n),
@@ -180,6 +205,7 @@ pub fn keys_screen(
 
     // A real key press picks that combination (its modifiers plus the key).
     if sel.ask.is_none()
+        && !sel.typing
         && let Some(key) = keys.get_just_pressed().find_map(|k| key_name(*k))
     {
         let mods = held_mods(&keys);
@@ -217,6 +243,8 @@ pub fn keys_screen(
     let mut clicked_cap: Option<Cap> = None;
     let mut clicked_action: Option<Action> = None;
     let mut pressed: Option<usize> = None;
+    let mut new_text = std::mem::take(&mut sel.new_command);
+    let (mut typing, mut typed_action) = (false, None);
     egui::Window::new("key bindings")
         .title_bar(false)
         .resizable(false)
@@ -225,7 +253,7 @@ pub fn keys_screen(
         .frame(frame)
         .show(ctx, |ui| {
             ui.set_min_size(screen.size() - egui::vec2(32.0, 32.0));
-            ui.label(egui::RichText::new("K or Esc: close · pick an action, then keys (click them or press them) · also: bind / unbind in the command box").small());
+            ui.label(egui::RichText::new("K or Esc: close · pick an action (or type a new command under OTHER), then keys (click them or press them) · also: bind / unbind in the command box").small());
             ui.add_space(6.0);
             legend(ui);
             ui.add_space(8.0);
@@ -348,14 +376,34 @@ pub fn keys_screen(
                     ui.set_width(lists_w / 3.0);
                     heading(ui, "OTHER");
                     egui::ScrollArea::vertical().id_salt("other").show(ui, |ui| {
-                        for c in other_commands(&bindings.0.list, &spell_names, &skills) {
+                        let mut others = other_commands(&bindings.0.list, &spell_names, &skills);
+                        // A new command typed below shows here, selected, until it is bound.
+                        if let Some(Action::Command(c)) = &sel.action
+                            && !others.contains(c)
+                        {
+                            others.insert(0, c.clone());
+                        }
+                        for c in others {
                             row(ui, Action::Command(c), &mut clicked_action);
                         }
                     });
+                    ui.add_space(8.0);
+                    ui.label(egui::RichText::new("New command (Enter selects it):").small());
+                    let edit = ui.add(egui::TextEdit::singleline(&mut new_text).hint_text("say hello"));
+                    typing = edit.has_focus();
+                    if edit.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter)) {
+                        typed_action = new_command(&new_text, &spell_names, &skills);
+                        new_text.clear();
+                    }
                 });
             });
         });
 
+    (sel.new_command, sel.typing) = (new_text, typing);
+    if let Some(a) = typed_action {
+        sel.action = Some(a);
+        sel.status = "Now pick keys, then press Bind.".into();
+    }
     if let Some(a) = clicked_action {
         sel.action = if sel.action.as_ref() == Some(&a) { None } else { Some(a) };
     }
@@ -365,7 +413,9 @@ pub fn keys_screen(
             None => toggle(&mut sel.mods, i),
         },
         Some(Cap::Key(k)) => {
-            let here = bindings.0.list.iter().find(|b| b.combo.key == k).map(|b| action_of(&b.command, &spell_names, &skills));
+            let mods = held_mods(&keys);
+            let mods = if mods.none() { sel.mods } else { mods };
+            let here = binding_for_click(&bindings.0.list, k, mods).map(|b| action_of(&b.command, &spell_names, &skills));
             match (&sel.action, here) {
                 // Clicking a bound key with nothing selected selects what it runs.
                 (None, Some(action)) if sel.picked.is_none() => sel.action = Some(action),
@@ -483,8 +533,16 @@ fn legend(ui: &mut egui::Ui) {
 
 #[cfg(test)]
 mod tests {
-    use super::{buttons, other_commands, KeysSel};
+    use super::{binding_for_click, buttons, new_command, other_commands, KeysSel};
     use maccrossfire::keys::{Action, Binding, Combo, Mods};
+
+    #[test]
+    fn typed_new_command_becomes_the_action() {
+        let spells = ["burning hands".to_string()];
+        assert_eq!(new_command("  say hello ", &spells, &[]), Some(Action::Command("say hello".into())));
+        assert_eq!(new_command("cast Burning Hands", &spells, &[]), Some(Action::Spell("burning hands".into())));
+        assert_eq!(new_command("   ", &spells, &[]), None);
+    }
 
     #[test]
     fn other_list_has_each_plain_command_once() {
@@ -492,6 +550,26 @@ mod tests {
         let list = [b("Q", "say hi"), b("W", "cast burning hands"), b("E", "use_skill praying"), b("R", "say hi"), b("T", "cast fireball")];
         let (spells, skills) = (["burning hands".to_string()], ["praying".to_string()]);
         assert_eq!(other_commands(&list, &spells, &skills), ["cast fireball", "say hi"]);
+    }
+
+    #[test]
+    fn click_picks_the_binding_with_the_held_modifiers() {
+        let b = |mods: Mods, command: &str| Binding { all: false, combo: Combo { mods, key: "G".into() }, edit: false, command: command.into() };
+        let shift_cmd = Mods { shift: true, cmd: true, ..Default::default() };
+        let list = [b(Mods::default(), "say plain"), b(shift_cmd, "say shift cmd")];
+        assert_eq!(binding_for_click(&list, "G", shift_cmd).unwrap().command, "say shift cmd");
+        assert_eq!(binding_for_click(&list, "G", Mods::default()).unwrap().command, "say plain");
+        assert_eq!(binding_for_click(&list[1..], "G", Mods::default()).unwrap().command, "say shift cmd");
+        assert!(binding_for_click(&list, "H", Mods::default()).is_none());
+    }
+
+    #[test]
+    fn reset_clears_all_but_labels() {
+        let mut s = KeysSel { action: Some(Action::Command("x".into())), status: "y".into(), new_command: "z".into(), typing: true, ..Default::default() };
+        s.labels.insert("Q", "a".into());
+        s.reset();
+        assert!(s.action.is_none() && s.status.is_empty() && s.new_command.is_empty() && !s.typing);
+        assert_eq!(s.labels.get("Q").map(String::as_str), Some("a"));
     }
 
     #[test]
