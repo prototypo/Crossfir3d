@@ -187,3 +187,74 @@ fn create_chosen_character() {
     wait_for(&net, &mut flow, "the game to start", |m| matches!(m, ServerMsg::Map2(_)).then_some(()));
     assert_eq!(flow.character(), name);
 }
+
+/// A new character of `class` starting on `map` (arch names, e.g. "alchemist_class", "map_scorn"), in the game.
+fn play_as(prefix: &str, class: &str, map: &str) -> (Net, LoginFlow) {
+    let net = connect("localhost:13327").expect("is the server running? scripts/server.sh run");
+    let stamp = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_millis() % 1_000_000;
+    let name = format!("{prefix}{stamp}");
+    let creds = Creds { account: name.clone(), password: "testpw".into(), new_account: true, quick_character: None };
+    let (mut flow, first) = LoginFlow::start(creds);
+    for m in first {
+        net.tx.send(m).unwrap();
+    }
+    wait_for(&net, &mut flow, "character list", |m| matches!(m, ServerMsg::AccountPlayers(_)).then_some(()));
+    for m in flow.start_creating() {
+        net.tx.send(m).unwrap();
+    }
+    while !(flow.newchar.classes.iter().any(|c| c == class) && flow.newchar.map.is_some()) {
+        next(&net, &mut flow, Duration::from_secs(5));
+    }
+    let n = &mut flow.newchar;
+    n.race = Some(n.races[0].clone());
+    n.class = Some(class.into());
+    n.map = Some(map.into());
+    n.refresh_choices();
+    n.name = name;
+    for seed in 1.. {
+        n.roll(seed);
+        if n.problem().is_none() {
+            break;
+        }
+    }
+    for m in flow.create() {
+        net.tx.send(m).unwrap();
+    }
+    wait_for(&net, &mut flow, "the game to start", |m| matches!(m, ServerMsg::Map2(_)).then_some(()));
+    (net, flow)
+}
+
+fn say(net: &Net, packet: u16, command: &str) {
+    net.tx.send(ClientMsg::Ncom { packet, repeat: 0, command: command.into() }).unwrap();
+}
+
+#[test]
+#[ignore]
+fn read_a_sign_opens_the_box() {
+    use crossfir3d::messages::Messages;
+    // The Starting House puts you at 9,4; a welcome sign is one step south.
+    let (net, mut flow) = play_as("sign", "alchemist_class", "map_tutorial_free_form");
+    say(&net, 1, "south");
+    say(&net, 2, "apply");
+    let mut msgs = Messages::default();
+    wait_for(&net, &mut flow, "the sign's text", |m| match m {
+        ServerMsg::Text { kind, subtype, text } if text.contains("Welcome to Crossfire!") => {
+            msgs.push(*kind, *subtype, text, 1.0, Some(0.5));
+            Some(())
+        }
+        _ => None,
+    });
+    assert!(msgs.boxed.is_some_and(|b| b.contains("say hello")));
+}
+
+#[test]
+#[ignore]
+fn cast_a_known_spell() {
+    // Alchemists start knowing the spell transmutation (arch spell_alchemy).
+    let (net, mut flow) = play_as("cast", "alchemist_class", "map_scorn");
+    say(&net, 1, &crossfir3d::keys::spell_command("transmutation"));
+    wait_for(&net, &mut flow, "the spell readied", |m| match m {
+        ServerMsg::Text { text, .. } => text.contains("You ready the spell transmutation").then_some(()),
+        _ => None,
+    });
+}
