@@ -19,6 +19,7 @@ mod input;
 mod settings_ui;
 mod sky;
 mod inventory_ui;
+mod keys_ui;
 mod ui;
 mod world;
 
@@ -163,10 +164,11 @@ fn main() {
         .init_resource::<KeyBindings>()
         .init_resource::<ui::PendingBind>()
         .init_resource::<inventory_ui::InvSel>()
+        .init_resource::<keys_ui::KeysSel>()
         .init_resource::<input::Facing>()
         .init_resource::<input::CameraHeading>()
         .init_resource::<input::CameraView>()
-        .add_systems(EguiPrimaryContextPass, (hud::hud, inventory_ui::inventory_screen, combat_fx::draw).chain().run_if(in_state(AppState::InGame)))
+        .add_systems(EguiPrimaryContextPass, (hud::hud, inventory_ui::inventory_screen, keys_ui::keys_screen, combat_fx::draw).chain().run_if(in_state(AppState::InGame)))
         .init_resource::<combat_fx::CombatFx>()
         .add_systems(Update, combat_fx::watch.run_if(in_state(AppState::InGame)))
         .add_plugins(world::WorldPlugin)
@@ -218,6 +220,7 @@ fn reset_play_state(world: &mut World) {
     world.insert_resource(SkillNames::default());
     world.insert_resource(ui::PendingBind::default());
     world.insert_resource(inventory_ui::InvSel::default());
+    world.insert_resource(keys_ui::KeysSel::default());
     world.insert_resource(input::Facing::default());
     world.insert_resource(input::CameraHeading::default());
     world.insert_resource(input::CameraView::default());
@@ -380,12 +383,17 @@ fn time_reply_expected(world: &World, text: &str) -> bool {
 /// Asks the server for the game time once per login.
 /// Developer check: MACCROSSFIRE_COMMANDS="cmd1;cmd2" sends these game commands on
 /// entering the game (e.g. a local-server teleport for screenshots).
+/// MACCROSSFIRE_SCREEN=keys opens the key bindings screen.
 fn dev_commands(
     mut seq: ResMut<NcomSeq>,
+    mut mode: ResMut<KeyMode>,
     mut facing: ResMut<input::Facing>,
     mut heading: ResMut<input::CameraHeading>,
     session: Option<NonSend<Session>>,
 ) {
+    if std::env::var("MACCROSSFIRE_SCREEN").is_ok_and(|s| s == "keys") {
+        mode.0 = maccrossfire::modes::Mode::Keys;
+    }
     let (Ok(cmds), Some(session)) = (std::env::var("MACCROSSFIRE_COMMANDS"), session) else { return };
     for c in cmds.split(';').map(str::trim).filter(|c| !c.is_empty()) {
         facing.0 = maccrossfire::slots::dir_number(c).unwrap_or(facing.0);

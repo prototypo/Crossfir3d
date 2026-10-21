@@ -23,6 +23,7 @@ pub enum KeyName {
     M,
     C,
     T,
+    K,
     Space,
     Tab,
     Escape,
@@ -41,6 +42,9 @@ pub enum Act {
     CloseInventory,
     OpenSettings,
     CloseSettings,
+    /// K: the key bindings screen.
+    OpenKeys,
+    CloseKeys,
     ToggleLog,
     ToggleMute,
     /// Snap the camera straight behind the player.
@@ -65,6 +69,7 @@ pub fn act(mode: Mode, key: KeyName, box_open: bool) -> Act {
         (Mode::Inventory, _) => Act::Nothing,
         (Mode::Settings, KeyName::Escape) => Act::CloseSettings,
         (Mode::Settings, _) => Act::Nothing,
+        (Mode::Keys, KeyName::K | KeyName::Escape) => Act::CloseKeys,
         (Mode::Keys, _) => Act::Nothing,
         (Mode::World, KeyName::E | KeyName::Escape) if box_open => Act::CloseBox,
         (Mode::World, KeyName::Escape) => Act::OpenSettings,
@@ -72,6 +77,7 @@ pub fn act(mode: Mode, key: KeyName, box_open: bool) -> Act {
         (Mode::World, KeyName::G) => Act::Get,
         (Mode::World, KeyName::Digit(n @ 1..=4)) => Act::Slot(n as usize - 1),
         (Mode::World, KeyName::I) => Act::OpenInventory,
+        (Mode::World, KeyName::K) => Act::OpenKeys,
         (Mode::World, KeyName::L) => Act::ToggleLog,
         (Mode::World, KeyName::M) => Act::ToggleMute,
         (Mode::World, KeyName::C) => Act::CameraBehind,
@@ -101,6 +107,14 @@ pub fn command_line_allowed(mode: Mode) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn k_opens_and_closes_keys() {
+        assert_eq!(act(Mode::World, KeyName::K, false), Act::OpenKeys);
+        assert_eq!(act(Mode::Keys, KeyName::K, false), Act::CloseKeys);
+        assert_eq!(act(Mode::Keys, KeyName::Escape, false), Act::CloseKeys);
+        assert_eq!(act(Mode::Keys, KeyName::A, false), Act::Nothing);
+    }
 
     #[test]
     fn bindings_only_in_world() {
