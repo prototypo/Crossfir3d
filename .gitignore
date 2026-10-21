@@ -5,3 +5,6 @@ captures/
 experiments/sprite3d/.venv/
 assets/models/experiment/
 __pycache__/
+
+# Paid Quaternius Source tier (no redistribution as assets): made locally by scripts/pick_models.py
+assets/models/monsters/

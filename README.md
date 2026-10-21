@@ -79,6 +79,12 @@ licences. `assets/models.txt` says which picture becomes which model.
 models: `scripts/get-models.sh` (download, needs a browser for itch.io), then
 `python3 -I scripts/pick_models.py`.
 
+The skeleton, imp, werewolf and other monsters in `assets/models/monsters/` come from the
+paid Quaternius Dungeon Monsters Kit (Source tier), whose licence forbids sharing the
+files themselves, so they are not in git. With the kit unpacked in
+`upstream/packs/dungeon-monsters-kit-source/`, `scripts/pick_models.py` makes the folder;
+without it those monsters show as picture cards.
+
 ## Settings
 
 Escape in game (or "Settings" on the login screen) opens the settings:
