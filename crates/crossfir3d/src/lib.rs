@@ -19,3 +19,4 @@ pub mod buildings;
 pub mod signs;
 pub mod held;
 pub mod keys;
+pub mod markup;

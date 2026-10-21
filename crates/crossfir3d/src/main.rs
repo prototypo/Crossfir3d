@@ -395,6 +395,7 @@ fn time_reply_expected(world: &World, text: &str) -> bool {
 fn dev_commands(
     mut seq: ResMut<NcomSeq>,
     mut mode: ResMut<KeyMode>,
+    (time, mut last): (Res<Time>, ResMut<LastAction>),
     mut facing: ResMut<input::Facing>,
     mut heading: ResMut<input::CameraHeading>,
     session: Option<NonSend<Session>>,
@@ -405,6 +406,7 @@ fn dev_commands(
         _ => {}
     }
     let (Ok(cmds), Some(session)) = (std::env::var("CROSSFIR3D_COMMANDS"), session) else { return };
+    last.0 = Some(time.elapsed_secs()); // as if typed: a sign read this way opens its box
     for c in cmds.split(';').map(str::trim).filter(|c| !c.is_empty()) {
         facing.0 = crossfir3d::slots::dir_number(c).unwrap_or(facing.0);
         heading.0 = crossfir3d::camera::heading_of(facing.0);

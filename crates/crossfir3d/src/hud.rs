@@ -27,6 +27,23 @@ fn slot_label(slot: &Option<Slot>) -> &str {
     }
 }
 
+/// Server text with its styles (`[b]`, `[color=...]`, `[fixed]`, ...) as one wrapped
+/// piece of text: bold shows in the `strong` colour.
+fn styled(text: &str, size: f32, base: egui::Color32, strong: egui::Color32) -> egui::text::LayoutJob {
+    let mut job = egui::text::LayoutJob::default();
+    for span in crossfir3d::markup::spans(text) {
+        let color = match (span.color, span.bold) {
+            (Some([r, g, b]), _) => egui::Color32::from_rgb(r, g, b),
+            (None, true) => strong,
+            (None, false) => base,
+        };
+        let font_id = if span.fixed { egui::FontId::monospace(size) } else { egui::FontId::proportional(size) };
+        let underline = if span.underline { egui::Stroke::new(1.0, color) } else { egui::Stroke::NONE };
+        job.append(&span.text, 0.0, egui::TextFormat { font_id, color, italics: span.italic, underline, ..Default::default() });
+    }
+    job
+}
+
 pub fn hud(
     mut contexts: EguiContexts,
     time: Res<Time>,
@@ -84,7 +101,7 @@ pub fn hud(
             .frame(egui::Frame::new().fill(PARCHMENT).corner_radius(6.0).inner_margin(16.0).stroke(egui::Stroke::new(2.0, INK)))
             .max_width(460.0)
             .show(ctx, |ui| {
-                ui.label(egui::RichText::new(text).color(INK).size(16.0).family(egui::FontFamily::Proportional));
+                ui.label(styled(text, 16.0, INK, egui::Color32::BLACK));
                 ui.add_space(8.0);
                 ui.label(egui::RichText::new("E to close").small().italics().color(INK));
             });
@@ -94,7 +111,7 @@ pub fn hud(
         egui::Area::new("popups".into()).anchor(egui::Align2::CENTER_TOP, [0.0, 20.0]).show(ctx, |ui| {
             for (text, _) in &msgs.0.popups {
                 egui::Frame::new().fill(egui::Color32::from_rgba_unmultiplied(120, 20, 20, 200)).inner_margin(6.0).show(ui, |ui| {
-                    ui.label(egui::RichText::new(text).color(egui::Color32::WHITE));
+                    ui.label(styled(text, 14.0, egui::Color32::WHITE, egui::Color32::WHITE));
                 });
             }
         });
@@ -110,7 +127,7 @@ pub fn hud(
             let show = |ui: &mut egui::Ui| {
                 let skip = if hud.tall_log { 0 } else { msgs.0.log.len().saturating_sub(lines) };
                 for line in msgs.0.log.iter().skip(skip) {
-                    ui.label(egui::RichText::new(line).size(size).color(egui::Color32::from_gray(230)));
+                    ui.label(styled(line, size, egui::Color32::from_gray(230), egui::Color32::WHITE));
                 }
             };
             if hud.tall_log {
