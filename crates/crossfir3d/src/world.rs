@@ -1171,7 +1171,9 @@ pub(crate) fn darkness(view: &View, size: &ViewSize) -> u8 {
 
 /// Where the sun (or moon) is now, and the direction toward it.
 pub(crate) fn sun_now(clock: &Clock) -> (SunPose, Vec3) {
-    let forced = std::env::var("CROSSFIR3D_HOUR").ok().and_then(|h| h.parse().ok()); // screenshots
+    // CROSSFIR3D_HOUR fixes the hour for screenshots; read once, not every frame.
+    static FORCED: std::sync::OnceLock<Option<f32>> = std::sync::OnceLock::new();
+    let forced = *FORCED.get_or_init(|| std::env::var("CROSSFIR3D_HOUR").ok().and_then(|h| h.parse().ok()));
     let pose = sun_pose(forced.or(clock.0.hour()).unwrap_or(FALLBACK_HOUR));
     // azimuth 0 = east (+X), PI/2 = south (+Z), PI = west (-X)
     let dir = Vec3::new(

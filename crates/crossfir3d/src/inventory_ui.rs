@@ -110,10 +110,13 @@ pub fn inventory_screen(
     }
 
     let mut send: Vec<ClientMsg> = Vec::new();
-    if let Some(item) = selected_item {
-        if keys.just_pressed(KeyCode::KeyE) {
-            send.push(ClientMsg::Apply(item.tag));
-        }
+    if let Some(item) = selected_item
+        && keys.just_pressed(KeyCode::KeyE)
+    {
+        send.push(ClientMsg::Apply(item.tag));
+    }
+    // A page entry only pages (E); dropping, getting or examining it does nothing.
+    if let Some(item) = selected_item.filter(|i| !crossfir3d::messages::is_page_entry(i.tag)) {
         if keys.just_pressed(KeyCode::KeyD) && item.location != 0 {
             send.push(ClientMsg::Move { to: 0, tag: item.tag, count: item.nrof });
         }

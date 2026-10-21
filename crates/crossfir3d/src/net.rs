@@ -1,7 +1,7 @@
 //! TCP connection to a Crossfire server: a reader thread and a writer thread.
 
 use std::io;
-use std::net::{Shutdown, TcpStream};
+use std::net::{Shutdown, TcpStream, ToSocketAddrs};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::mpsc::{self, Receiver, RecvTimeoutError, Sender};
@@ -32,8 +32,23 @@ impl Drop for Net {
 /// With `setup beat` on, the server expects something from us every 3 s.
 const BEAT_AFTER: Duration = Duration::from_millis(2500);
 
+/// How long to wait for a server to answer before giving up (the window does not move
+/// while connecting).
+pub const CONNECT_TIMEOUT: Duration = Duration::from_secs(5);
+
 pub fn connect(addr: &str) -> io::Result<Net> {
-    let stream = TcpStream::connect(addr)?;
+    let mut last = io::Error::new(io::ErrorKind::NotFound, format!("no address for {addr}"));
+    let mut stream = None;
+    for a in addr.to_socket_addrs()? {
+        match TcpStream::connect_timeout(&a, CONNECT_TIMEOUT) {
+            Ok(s) => {
+                stream = Some(s);
+                break;
+            }
+            Err(e) => last = e,
+        }
+    }
+    let stream = stream.ok_or(last)?;
     stream.set_nodelay(true)?;
     let mut reader = stream.try_clone()?;
     let mut writer = stream.try_clone()?;
@@ -98,6 +113,14 @@ fn dump_packet(dir: &Path, payload: &[u8]) {
 mod tests {
     use super::*;
     use std::net::TcpListener;
+
+    #[test]
+    fn unreachable_server_gives_up_quickly() {
+        // 10.255.255.1 is a private address nobody answers on.
+        let start = std::time::Instant::now();
+        assert!(connect("10.255.255.1:13327").is_err());
+        assert!(start.elapsed() < CONNECT_TIMEOUT + Duration::from_secs(2));
+    }
 
     #[test]
     fn disconnect_reported() {

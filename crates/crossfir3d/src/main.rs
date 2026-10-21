@@ -344,6 +344,7 @@ fn pump_network(world: &mut World) {
                 world.resource_mut::<audio::AudioQueue>().sounds.push((action, volume, x, y))
             }
             ServerMsg::Music(name) => world.resource_mut::<audio::AudioQueue>().music = Some(name),
+            ServerMsg::Unknown(name) => debug!("ignored server command {name}"),
             _ => {}
         }
     }

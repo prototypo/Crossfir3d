@@ -91,7 +91,13 @@ fn names<'a>(items: &'a [&cfproto::Item]) -> impl Iterator<Item = String> + 'a {
 /// What lies under the player: things, and fixed things too (grass, a well, a sign),
 /// but not the player.
 pub fn ground_things(inv: &cfproto::Inventory) -> Vec<&cfproto::Item> {
-    inv.ground().into_iter().filter(|i| i.tag != inv.player).collect()
+    inv.ground().into_iter().filter(|i| i.tag != inv.player && !is_page_entry(i.tag)).collect()
+}
+
+/// The server's "next / previous group of items" entries in a long ground list: they
+/// page the list when applied, but they are not things.
+pub fn is_page_entry(tag: u32) -> bool {
+    tag & 0x8000_0000 != 0
 }
 
 /// The things that can be picked up: only they make a log line or open the box.
@@ -170,6 +176,15 @@ mod tests {
         assert_eq!(standing_on(&[&grass, &well]), None);
         assert_eq!(ground_box(&[&grass, &well]).unwrap(), "You are standing on:\ngrass\na well");
         assert_eq!(object_tags(&[&grass, &well, &sword]), [3]);
+    }
+
+    #[test]
+    fn page_entries_are_not_things() {
+        let mut inv = cfproto::Inventory::default();
+        inv.apply_item2(0, vec![thing(0x8000_0001, "next group of items", "", 1), thing(3, "sword", "swords", 1)]);
+        let names: Vec<&str> = ground_things(&inv).iter().map(|i| i.name.as_str()).collect();
+        assert_eq!(names, ["sword"]);
+        assert!(is_page_entry(0x8000_0002) && !is_page_entry(3));
     }
 
     #[test]

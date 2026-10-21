@@ -105,17 +105,22 @@ pub fn save_slots(path: &Path, character: &str, slots: &QuickSlots) -> io::Resul
     let old = std::fs::read_to_string(path).unwrap_or_default();
     let mut lines: Vec<String> =
         old.lines().filter(|l| l.split('\t').next() != Some(character)).map(String::from).collect();
+    // A line break or tab in a name would split the line: write them as spaces.
+    let clean = |n: &str| n.replace(['\t', '\n', '\r'], " ");
     for (i, slot) in slots.0.iter().enumerate() {
         match slot {
-            Some(Slot::Spell(n)) => lines.push(format!("{character}\t{i}\tspell\t{n}")),
-            Some(Slot::Item(n)) => lines.push(format!("{character}\t{i}\titem\t{n}")),
+            Some(Slot::Spell(n)) => lines.push(format!("{character}\t{i}\tspell\t{}", clean(n))),
+            Some(Slot::Item(n)) => lines.push(format!("{character}\t{i}\titem\t{}", clean(n))),
             None => {}
         }
     }
     if let Some(dir) = path.parent() {
         std::fs::create_dir_all(dir)?;
     }
-    std::fs::write(path, lines.join("\n") + "\n")
+    // Written whole and renamed into place: a crash cannot leave half a file.
+    let tmp = path.with_extension("txt.tmp");
+    std::fs::write(&tmp, lines.join("\n") + "\n")?;
+    std::fs::rename(&tmp, path)
 }
 
 #[cfg(test)]
@@ -232,6 +237,15 @@ mod tests {
         save_slots(&path, "Ann", &a).unwrap();
         assert_eq!(load_slots(&path, "Ann"), a);
         assert_eq!(load_slots(&path, "Bob"), b);
+    }
+
+    #[test]
+    fn line_break_in_a_name_stays_one_line() {
+        let path = temp_file("newline");
+        let a = QuickSlots([Some(Slot::Item("odd\nname\twith tab".into())), None, None, None]);
+        save_slots(&path, "Ann", &a).unwrap();
+        assert_eq!(load_slots(&path, "Ann").0[0], Some(Slot::Item("odd name with tab".into())));
+        assert!(!path.with_extension("txt.tmp").exists());
     }
 
     #[test]
