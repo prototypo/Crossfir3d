@@ -49,6 +49,9 @@ pub struct Settings {
     pub gamma: f32,
     /// Background music on (sound effects are not affected).
     pub music: bool,
+    /// Open the parchment box with what is under the player on every new square
+    /// (otherwise only when B is pressed).
+    pub ground_popup: bool,
 }
 
 impl Default for Settings {
@@ -65,6 +68,7 @@ impl Default for Settings {
             contrast: 1.0,
             gamma: 1.0,
             music: true,
+            ground_popup: false,
         }
     }
 }
@@ -105,6 +109,7 @@ impl Settings {
         out += &format!("anti_alias={}\n", anti_alias_name(self.anti_alias));
         out += &format!("brightness={}\ncontrast={}\ngamma={}\n", self.brightness, self.contrast, self.gamma);
         out += &format!("music={}\n", self.music);
+        out += &format!("ground_popup={}\n", self.ground_popup);
         out
     }
 
@@ -128,6 +133,7 @@ impl Settings {
                 "contrast" => s.contrast = value.parse().unwrap_or(s.contrast),
                 "gamma" => s.gamma = value.parse().unwrap_or(s.gamma),
                 "music" => s.music = value.parse().unwrap_or(s.music),
+                "ground_popup" => s.ground_popup = value.parse().unwrap_or(s.ground_popup),
                 _ => {}
             }
         }
@@ -252,6 +258,7 @@ mod tests {
             contrast: 1.2,
             gamma: 0.8,
             music: false,
+            ground_popup: true,
         };
         assert_eq!(Settings::from_text(&s.to_text()), s);
         let path = temp("roundtrip");

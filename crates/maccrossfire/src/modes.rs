@@ -24,6 +24,7 @@ pub enum KeyName {
     C,
     T,
     K,
+    B,
     Space,
     Tab,
     Escape,
@@ -45,6 +46,8 @@ pub enum Act {
     /// K: the key bindings screen.
     OpenKeys,
     CloseKeys,
+    /// B: the parchment box lists what is under the player.
+    ShowGround,
     ToggleLog,
     ToggleMute,
     /// Snap the camera straight behind the player.
@@ -78,6 +81,7 @@ pub fn act(mode: Mode, key: KeyName, box_open: bool) -> Act {
         (Mode::World, KeyName::Digit(n @ 1..=4)) => Act::Slot(n as usize - 1),
         (Mode::World, KeyName::I) => Act::OpenInventory,
         (Mode::World, KeyName::K) => Act::OpenKeys,
+        (Mode::World, KeyName::B) => Act::ShowGround,
         (Mode::World, KeyName::L) => Act::ToggleLog,
         (Mode::World, KeyName::M) => Act::ToggleMute,
         (Mode::World, KeyName::C) => Act::CameraBehind,
@@ -107,6 +111,12 @@ pub fn command_line_allowed(mode: Mode) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn b_shows_what_is_below() {
+        assert_eq!(act(Mode::World, KeyName::B, false), Act::ShowGround);
+        assert_eq!(act(Mode::Inventory, KeyName::B, false), Act::Nothing);
+    }
 
     #[test]
     fn k_opens_and_closes_keys() {

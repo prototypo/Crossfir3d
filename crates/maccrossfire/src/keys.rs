@@ -152,6 +152,7 @@ pub fn game_key(combo: &Combo) -> Option<&'static str> {
         "A" | "E" => "apply",
         "G" => "get",
         "I" => "inventory",
+        "B" => "what is below",
         "L" => "log",
         "M" => "mute",
         "C" => "camera behind",
@@ -388,6 +389,7 @@ mod tests {
         assert_eq!(game_key(&Combo { mods: Mods::default(), key: "G".into() }), Some("get"));
         assert_eq!(game_key(&Combo { mods: Mods { shift: true, ..Default::default() }, key: "G".into() }), None);
         assert_eq!(game_key(&Combo { mods: Mods::default(), key: "D".into() }), None);
+        assert_eq!(game_key(&Combo { mods: Mods::default(), key: "B".into() }), Some("what is below"));
         assert_eq!(game_key(&Combo { mods: Mods::default(), key: "Up".into() }), Some("move"));
     }
 
