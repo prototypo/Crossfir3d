@@ -1279,102 +1279,102 @@ exit building magic_portal
 
 # --- Small items, made from their pictures (experiments/sprite3d/auto.py: Hunyuan3D-2mini +
 # clean-up; inflated voxels for foot, mint, topaz). Half the size of the picture card. ---
-a_helmet model auto/a_helmet.glb 0.5 0 0
+a_helmet building helmet:0.68,0.68,0.68
 acidspit model auto/acidspit.glb 0.5 0 0
-amber_coin model auto/amber_coin.glb 0.5 0 0
-amethyst_exceptional model auto/amethyst_exceptional.glb 0.5 0 0
-amethyst_flawless model auto/amethyst_flawless.glb 0.5 0 0
-amethyst model auto/amethyst.glb 0.5 0 0
-amulet_aethereality model auto/amulet_aethereality.glb 0.5 0 0
-amulet_calling_death model auto/amulet_calling_death.glb 0.5 0 0
-amulet_dark model auto/amulet_dark.glb 0.5 0 0
-amulet_darkmagenta model auto/amulet_darkmagenta.glb 0.5 0 0
-amulet_darkred model auto/amulet_darkred.glb 0.5 0 0
-amulet_deflection model auto/amulet_deflection.glb 0.5 0 0
-amulet_destruction model auto/amulet_destruction.glb 0.5 0 0
-amulet_empowerement model auto/amulet_empowerement.glb 0.5 0 0
-amulet_free_action model auto/amulet_free_action.glb 0.5 0 0
-amulet_gray model auto/amulet_gray.glb 0.5 0 0
-amulet_holiness model auto/amulet_holiness.glb 0.5 0 0
-amulet_lif model auto/amulet_lif.glb 0.5 0 0
-amulet_magenta model auto/amulet_magenta.glb 0.5 0 0
-amulet_magi model auto/amulet_magi.glb 0.5 0 0
-amulet_power model auto/amulet_power.glb 0.5 0 0
-amulet_red model auto/amulet_red.glb 0.5 0 0
-amulet_shielded_mind model auto/amulet_shielded_mind.glb 0.5 0 0
-amulet_shielding model auto/amulet_shielding.glb 0.5 0 0
-amulet_sorrow model auto/amulet_sorrow.glb 0.5 0 0
-amulet_sustenance model auto/amulet_sustenance.glb 0.5 0 0
-amulet_unholiness model auto/amulet_unholiness.glb 0.5 0 0
-amulet_white model auto/amulet_white.glb 0.5 0 0
-amulet model auto/amulet.glb 0.5 0 0
+amber_coin building coin:0.63,0.55,0.43
+amethyst_exceptional building gem:0.58,0.03,0.58
+amethyst_flawless building gem:0.58,0.03,0.58
+amethyst building gem:0.50,0.03,0.50
+amulet_aethereality building amulet:0.74,0.59,0.19
+amulet_calling_death building amulet:0.77,0.58,0.00
+amulet_dark building amulet:0.48,0.48,0.48
+amulet_darkmagenta building amulet:0.68,0.00,0.67
+amulet_darkred building amulet:0.58,0.00,0.00
+amulet_deflection building amulet:0.85,0.67,0.09
+amulet_destruction building amulet:0.99,0.74,0.00
+amulet_empowerement building amulet:0.76,0.45,0.03
+amulet_free_action building amulet:0.69,0.42,0.11
+amulet_gray building amulet:0.62,0.62,0.62
+amulet_holiness building amulet:1.00,0.79,0.00
+amulet_lif building amulet:1.00,0.80,0.00
+amulet_magenta building amulet:0.86,0.39,0.86
+amulet_magi building amulet:1.00,0.76,0.00
+amulet_power building amulet:0.73,0.41,0.03
+amulet_red building amulet:0.80,0.07,0.07
+amulet_shielded_mind building amulet:0.39,0.39,0.30
+amulet_shielding building amulet:1.00,0.81,0.00
+amulet_sorrow building amulet:0.80,0.63,0.00
+amulet_sustenance building amulet:0.81,0.64,0.00
+amulet_unholiness building amulet:0.97,0.77,0.00
+amulet_white building amulet:0.68,0.68,0.68
+amulet building amulet:0.80,0.63,0.00
 apple_eighth model auto/apple_eighth.glb 0.5 0 0
 apple_fourth model auto/apple_fourth.glb 0.5 0 0
 apple_half model auto/apple_half.glb 0.5 0 0
-apple model auto/apple.glb 0.5 0 0
-aquamarine model auto/aquamarine.glb 0.5 0 0
+apple building fruit:0.90,0.08,0.00
+aquamarine building gem:0.65,0.85,0.88
 arm model auto/arm.glb 0.5 0 0
-arrow_assassinating_dragon model auto/arrow_assassinating_dragon.glb 0.5 0 0
-arrow_fire model auto/arrow_fire.glb 0.5 0 0
-arrow_frost model auto/arrow_frost.glb 0.5 0 0
-arrow_lightning model auto/arrow_lightning.glb 0.5 0 0
-arrow_magic model auto/arrow_magic.glb 0.5 0 0
-arrow_paralysis model auto/arrow_paralysis.glb 0.5 0 0
-arrow_poison model auto/arrow_poison.glb 0.5 0 0
-arrow_slay_dragon model auto/arrow_slay_dragon.glb 0.5 0 0
-arrow model auto/arrow.glb 0.5 0 0
+arrow_assassinating_dragon building arrow:0.71,0.56,0.50
+arrow_fire building arrow:0.72,0.40,0.40
+arrow_frost building arrow:0.40,0.58,0.71
+arrow_lightning building arrow:0.70,0.67,0.41
+arrow_magic building arrow:0.72,0.44,0.67
+arrow_paralysis building arrow:0.54,0.62,0.57
+arrow_poison building arrow:0.41,0.70,0.45
+arrow_slay_dragon building arrow:0.72,0.61,0.48
+arrow building arrow:0.64,0.54,0.47
 ashes model auto/ashes.glb 0.5 0 0
-axe_1 model auto/axe_1.glb 0.5 0 0
-axe_2 model auto/axe_2.glb 0.5 0 0
-axe_3_golden model auto/axe_3_golden.glb 0.5 0 0
-axe_3 model auto/axe_3.glb 0.5 0 0
-axe_4 model auto/axe_4.glb 0.5 0 0
-axe_5 model auto/axe_5.glb 0.5 0 0
-b_axe1 model auto/b_axe1.glb 0.5 0 0
-b_bsword_1 model auto/b_bsword_1.glb 0.5 0 0
-b_bsword_2 model auto/b_bsword_2.glb 0.5 0 0
-b_dagger model auto/b_dagger.glb 0.5 0 0
-b_fullhelmet model auto/b_fullhelmet.glb 0.5 0 0
+axe_1 building axe:0.51,0.42,0.38
+axe_2 building axe:0.53,0.42,0.37
+axe_3_golden building axe:0.70,0.57,0.16
+axe_3 building axe:0.51,0.41,0.36
+axe_4 building axe:0.51,0.42,0.37
+axe_5 building axe:0.56,0.45,0.34
+b_axe1 building axe:0.55,0.41,0.25
+b_bsword_1 building sword:0.72,0.65,0.45
+b_bsword_2 building sword:0.71,0.64,0.45
+b_dagger building dagger:0.63,0.52,0.34
+b_fullhelmet building helmet:0.45,0.39,0.23
 b_gauntlet_s model auto/b_gauntlet_s.glb 0.5 0 0
-b_helmet model auto/b_helmet.glb 0.5 0 0
-b_hornhelmet model auto/b_hornhelmet.glb 0.5 0 0
-b_lsword model auto/b_lsword.glb 0.5 0 0
-b_scimitar model auto/b_scimitar.glb 0.5 0 0
-b_shield model auto/b_shield.glb 0.5 0 0
-b_sicklesword model auto/b_sicklesword.glb 0.5 0 0
-b_slicingknife model auto/b_slicingknife.glb 0.5 0 0
-b_small_shie model auto/b_small_shie.glb 0.5 0 0
-b_ssword_1 model auto/b_ssword_1.glb 0.5 0 0
-b_ssword_2 model auto/b_ssword_2.glb 0.5 0 0
-b_sword_1 model auto/b_sword_1.glb 0.5 0 0
-b_sword_2 model auto/b_sword_2.glb 0.5 0 0
+b_helmet building helmet:0.62,0.55,0.32
+b_hornhelmet building helmet:0.73,0.65,0.43
+b_lsword building sword:0.74,0.64,0.45
+b_scimitar building sword:0.70,0.63,0.42
+b_shield building shield:0.68,0.59,0.34
+b_sicklesword building sword:0.65,0.58,0.40
+b_slicingknife building dagger:0.59,0.47,0.30
+b_small_shie building shield:0.41,0.36,0.19
+b_ssword_1 building sword:0.73,0.62,0.43
+b_ssword_2 building sword:0.70,0.62,0.42
+b_sword_1 building sword:0.78,0.72,0.52
+b_sword_2 building sword:0.71,0.64,0.44
 bag_empty model auto/bag_empty.glb 0.5 0 0
 bag_popcorn model auto/bag_popcorn.glb 0.5 0 0
 bagpipe model auto/bagpipe.glb 0.5 0 0
 balm_gen model auto/balm_gen.glb 0.5 0 0
 bat_wing model auto/bat_wing.glb 0.5 0 0
-battle_axe model auto/battle_axe.glb 0.5 0 0
+battle_axe building axe:0.54,0.40,0.28
 behold_eye model auto/behold_eye.glb 0.5 0 0
-big_club model auto/big_club.glb 0.5 0 0
+big_club building club:0.65,0.39,0.21
 big_dragon_dragon_wing model auto/big_dragon_dragon_wing.glb 0.5 0 0
 big_elec_dragon_wing model auto/big_elec_dragon_wing.glb 0.5 0 0
 big_eye model auto/big_eye.glb 0.5 0 0
 bighorn_he model auto/bighorn_he.glb 0.5 0 0
 blackroot model auto/blackroot.glb 0.5 0 0
-blades model auto/blades.glb 0.5 0 0
-bloodreaver model auto/bloodreaver.glb 0.5 0 0
-bloodstone model auto/bloodstone.glb 0.5 0 0
-blue_crystal model auto/blue_crystal.glb 0.5 0 0
-bolt_assassinating_dragon model auto/bolt_assassinating_dragon.glb 0.5 0 0
-bolt_fire model auto/bolt_fire.glb 0.5 0 0
-bolt_frost model auto/bolt_frost.glb 0.5 0 0
-bolt_lightning model auto/bolt_lightning.glb 0.5 0 0
-bolt_magic model auto/bolt_magic.glb 0.5 0 0
-bolt_poison model auto/bolt_poison.glb 0.5 0 0
-bolt_slay_dragon model auto/bolt_slay_dragon.glb 0.5 0 0
-bolt model auto/bolt.glb 0.5 0 0
-bone_helm model auto/bone_helm.glb 0.5 0 0
-bonecrush model auto/bonecrush.glb 0.5 0 0
+blades building sword:0.52,0.52,0.52
+bloodreaver building sword:0.44,0.26,0.31
+bloodstone building gem:0.42,0.28,0.13
+blue_crystal building gem:0.40,0.40,0.76
+bolt_assassinating_dragon building arrow:0.95,0.59,0.45
+bolt_fire building arrow:0.81,0.00,0.00
+bolt_frost building arrow:0.03,0.47,0.82
+bolt_lightning building arrow:0.76,0.68,0.04
+bolt_magic building arrow:0.90,0.20,0.78
+bolt_poison building arrow:0.03,0.81,0.14
+bolt_slay_dragon building arrow:1.00,0.65,0.25
+bolt building arrow:0.59,0.59,0.59
+bone_helm building helmet:0.74,0.74,0.74
+bonecrush building hammer:0.33,0.31,0.28
 bones1 model auto/bones1.glb 0.5 0 0
 bones2 model auto/bones2.glb 0.5 0 0
 bones3 model auto/bones3.glb 0.5 0 0
@@ -1382,18 +1382,18 @@ bones4 model auto/bones4.glb 0.5 0 0
 bones5 model auto/bones5.glb 0.5 0 0
 booze model auto/booze.glb 0.5 0 0
 boozebottle_empty model auto/boozebottle_empty.glb 0.5 0 0
-bow model auto/bow.glb 0.5 0 0
+bow building bow:0.40,0.31,0.19
 bracers_ac model auto/bracers_ac.glb 0.5 0 0
 bracersdex model auto/bracersdex.glb 0.5 0 0
 brain model auto/brain.glb 0.5 0 0
-brassbar model auto/brassbar.glb 0.5 0 0
-brdaxe_1 model auto/brdaxe_1.glb 0.5 0 0
-bronzebar model auto/bronzebar.glb 0.5 0 0
-bsword_1 model auto/bsword_1.glb 0.5 0 0
-bsword_2 model auto/bsword_2.glb 0.5 0 0
+brassbar building ingot:0.76,0.63,0.09
+brdaxe_1 building axe:0.53,0.34,0.24
+bronzebar building ingot:0.62,0.57,0.23
+bsword_1 building sword:0.60,0.59,0.58
+bsword_2 building sword:0.60,0.58,0.57
 burningtail model auto/burningtail.glb 0.5 0 0
-butterflysword_1 model auto/butterflysword_1.glb 0.5 0 0
-butterflysword_2 model auto/butterflysword_2.glb 0.5 0 0
+butterflysword_1 building sword:0.55,0.53,0.52
+butterflysword_2 building sword:0.66,0.64,0.63
 cabbage model auto/cabbage.glb 0.5 0 0
 cake model auto/cake.glb 0.5 0 0
 caramel model auto/caramel.glb 0.5 0 0
@@ -1413,40 +1413,40 @@ chocolate model auto/chocolate.glb 0.5 0 0
 cinna model auto/cinna.glb 0.5 0 0
 claypipe model auto/claypipe.glb 0.5 0 0
 clover model auto/clover.glb 0.5 0 0
-club model auto/club.glb 0.5 0 0
+club building club:0.60,0.36,0.20
 coffee_empty model auto/coffee_empty.glb 0.5 0 0
 coffee model auto/coffee.glb 0.5 0 0
 coffin model auto/coffin.glb 0.5 0 0
 coif model auto/coif.glb 0.5 0 0
 collar model auto/collar.glb 0.5 0 0
-compositebow model auto/compositebow.glb 0.5 0 0
+compositebow building bow:0.64,0.37,0.10
 cookingpot model auto/cookingpot.glb 0.5 0 0
-copperbar model auto/copperbar.glb 0.5 0 0
+copperbar building ingot:0.88,0.46,0.18
 corpse model auto/corpse.glb 0.5 0 0
 corpse1 model auto/corpse1.glb 0.5 0 0
-crossbow model auto/crossbow.glb 0.5 0 0
+crossbow building bow:0.58,0.44,0.37
 crown_dark model auto/crown_dark.glb 0.5 0 0
 crown_gray model auto/crown_gray.glb 0.5 0 0
 crown_r model auto/crown_r.glb 0.5 0 0
 crown_white model auto/crown_white.glb 0.5 0 0
 crown model auto/crown.glb 0.5 0 0
 CSword model auto/CSword.glb 0.5 0 0
-cudgel model auto/cudgel.glb 0.5 0 0
-dagger_f model auto/dagger_f.glb 0.5 0 0
-dagger_r model auto/dagger_r.glb 0.5 0 0
-dagger model auto/dagger.glb 0.5 0 0
-darkblade model auto/darkblade.glb 0.5 0 0
+cudgel building club:0.57,0.52,0.38
+dagger_f building dagger:0.94,0.68,0.70
+dagger_r building dagger:0.63,0.08,0.06
+dagger building dagger:0.53,0.47,0.44
+darkblade building sword:0.75,0.75,0.75
 dead_neko model auto/dead_neko.glb 0.5 0 0
-deathbring model auto/deathbring.glb 0.5 0 0
-defender model auto/defender.glb 0.5 0 0
+deathbring building sword:0.21,0.21,0.55
+defender building sword:0.26,0.54,0.52
 demon_head model auto/demon_head.glb 0.5 0 0
-demonbane model auto/demonbane.glb 0.5 0 0
+demonbane building sword:0.50,0.26,0.20
 demonhorn model auto/demonhorn.glb 0.5 0 0
-dhaxe_1 model auto/dhaxe_1.glb 0.5 0 0
-dhaxe_2 model auto/dhaxe_2.glb 0.5 0 0
-diamond_exceptional model auto/diamond_exceptional.glb 0.5 0 0
-diamond_flawless model auto/diamond_flawless.glb 0.5 0 0
-diamond model auto/diamond.glb 0.5 0 0
+dhaxe_1 building axe:0.50,0.44,0.41
+dhaxe_2 building axe:0.46,0.46,0.46
+diamond_exceptional building gem:0.74,0.74,0.74
+diamond_flawless building gem:0.73,0.73,0.73
+diamond building gem:0.67,0.67,0.67
 dirt model auto/dirt.glb 0.5 0 0
 drag_steak_cooked model auto/drag_steak_cooked.glb 0.5 0 0
 drag_steak model auto/drag_steak.glb 0.5 0 0
@@ -1459,30 +1459,30 @@ dragon_orange_scale model auto/dragon_orange_scale.glb 0.5 0 0
 dragon_sca model auto/dragon_sca.glb 0.5 0 0
 dragon_shi model auto/dragon_shi.glb 0.5 0 0
 dragon_wing model auto/dragon_wing.glb 0.5 0 0
-dragonclaw_dagger model auto/dragonclaw_dagger.glb 0.5 0 0
+dragonclaw_dagger building dagger:0.68,0.68,0.58
 dragonskin_boots model auto/dragonskin_boots.glb 0.5 0 0
-dragonslay model auto/dragonslay.glb 0.5 0 0
+dragonslay building sword:0.29,0.65,0.29
 DShield model auto/DShield.glb 0.5 0 0
 dust_effect model auto/dust_effect.glb 0.5 0 0
 dust_gen model auto/dust_gen.glb 0.5 0 0
-earth_shield model auto/earth_shield.glb 0.5 0 0
+earth_shield building shield:0.53,0.44,0.35
 ectoplasm model auto/ectoplasm.glb 0.5 0 0
-elven_bow model auto/elven_bow.glb 0.5 0 0
+elven_bow building bow:0.22,0.68,0.25
 elvenboots model auto/elvenboots.glb 0.5 0 0
-emerald_exceptional model auto/emerald_exceptional.glb 0.5 0 0
-emerald_flawless model auto/emerald_flawless.glb 0.5 0 0
-emerald model auto/emerald.glb 0.5 0 0
-excalibur model auto/excalibur.glb 0.5 0 0
+emerald_exceptional building gem:0.06,0.67,0.36
+emerald_flawless building gem:0.06,0.78,0.42
+emerald building gem:0.00,0.45,0.00
+excalibur building sword:0.71,0.62,0.30
 eye model auto/eye.glb 0.5 0 0
 eyeglasses model auto/eyeglasses.glb 0.5 0 0
 eyes model auto/eyes.glb 0.5 0 0
-eyeshield model auto/eyeshield.glb 0.5 0 0
-falchion model auto/falchion.glb 0.5 0 0
+eyeshield building shield:0.72,0.82,0.74
+falchion building sword:0.49,0.48,0.48
 falling_rocks model auto/falling_rocks.glb 0.5 0 0
 figurine_gen model auto/figurine_gen.glb 0.5 0 0
 file model auto/file.glb 0.5 0 0
 finger model auto/finger.glb 0.5 0 0
-firebrand model auto/firebrand.glb 0.5 0 0
+firebrand building sword:1.00,0.05,0.00
 firestar model auto/firestar.glb 0.5 0 0
 fish_1 model auto/fish_1.glb 0.5 0 0
 fish_2 model auto/fish_2.glb 0.5 0 0
@@ -1498,13 +1498,13 @@ flint_and_steel model auto/flint_and_steel.glb 0.5 0 0
 food model auto/food.glb 0.5 0 0
 foot model auto/foot.glb 0.5 0 0
 fried_egg model auto/fried_egg.glb 0.5 0 0
-frost_hammer model auto/frost_hammer.glb 0.5 0 0
-frostbrand model auto/frostbrand.glb 0.5 0 0
-frostshield model auto/frostshield.glb 0.5 0 0
-fullhelmet model auto/fullhelmet.glb 0.5 0 0
-garnet model auto/garnet.glb 0.5 0 0
+frost_hammer building hammer:1.00,1.00,1.00
+frostbrand building sword:0.91,1.00,1.00
+frostshield building shield:0.62,0.73,0.79
+fullhelmet building helmet:0.45,0.37,0.37
+garnet building gem:0.51,0.00,0.00
 gauntlet_s model auto/gauntlet_s.glb 0.5 0 0
-giants_knife model auto/giants_knife.glb 0.5 0 0
+giants_knife building dagger:0.61,0.59,0.57
 gir_strcon model auto/gir_strcon.glb 0.5 0 0
 girdle_con model auto/girdle_con.glb 0.5 0 0
 girdle_dam model auto/girdle_dam.glb 0.5 0 0
@@ -1520,29 +1520,29 @@ goblin_foot model auto/goblin_foot.glb 0.5 0 0
 goblin_hand model auto/goblin_hand.glb 0.5 0 0
 goblin_head model auto/goblin_head.glb 0.5 0 0
 god_finger model auto/god_finger.glb 0.5 0 0
-goldbar model auto/goldbar.glb 0.5 0 0
+goldbar building ingot:0.87,0.72,0.32
 goldblock model auto/goldblock.glb 0.5 0 0
-goldcoin model auto/goldcoin.glb 0.5 0 0
+goldcoin building coin:0.98,0.84,0.07
 goldround model auto/goldround.glb 0.5 0 0
 golem_shoes model auto/golem_shoes.glb 0.5 0 0
-gram model auto/gram.glb 0.5 0 0
+gram building sword:1.00,1.00,1.00
 graphite model auto/graphite.glb 0.5 0 0
 gu_horn model auto/gu_horn.glb 0.5 0 0
 gypsum model auto/gypsum.glb 0.5 0 0
 haggis model auto/haggis.glb 0.5 0 0
-hammer_1 model auto/hammer_1.glb 0.5 0 0
-hammer_2 model auto/hammer_2.glb 0.5 0 0
+hammer_1 building hammer:0.48,0.33,0.26
+hammer_2 building hammer:0.46,0.31,0.24
 hand model auto/hand.glb 0.5 0 0
-handcrossbow_bone model auto/handcrossbow_bone.glb 0.5 0 0
-handcrossbow model auto/handcrossbow.glb 0.5 0 0
+handcrossbow_bone building bow:0.59,0.58,0.58
+handcrossbow building bow:0.44,0.33,0.30
 handmirror model auto/handmirror.glb 0.5 0 0
 hands model auto/hands.glb 0.5 0 0
-harakiri model auto/harakiri.glb 0.5 0 0
+harakiri building sword:0.82,0.86,0.90
 head model auto/head.glb 0.5 0 0
 heart model auto/heart.glb 0.5 0 0
-helmet_bri model auto/helmet_bri.glb 0.5 0 0
-helmet model auto/helmet.glb 0.5 0 0
-helmetxray model auto/helmetxray.glb 0.5 0 0
+helmet_bri building helmet:0.71,0.71,0.71
+helmet building helmet:0.54,0.54,0.54
+helmetxray building helmet:0.64,0.65,0.64
 hide_black model auto/hide_black.glb 0.5 0 0
 hide_brown model auto/hide_brown.glb 0.5 0 0
 hide_grey model auto/hide_grey.glb 0.5 0 0
@@ -1551,34 +1551,34 @@ hide_white model auto/hide_white.glb 0.5 0 0
 high_boots_b model auto/high_boots_b.glb 0.5 0 0
 high_boots_w model auto/high_boots_w.glb 0.5 0 0
 high_boots model auto/high_boots.glb 0.5 0 0
-highshield model auto/highshield.glb 0.5 0 0
-holyave model auto/holyave.glb 0.5 0 0
-holyshield model auto/holyshield.glb 0.5 0 0
-hooksword model auto/hooksword.glb 0.5 0 0
+highshield building shield:0.42,0.42,0.51
+holyave building sword:1.00,1.00,1.00
+holyshield building shield:0.80,0.48,0.39
+hooksword building sword:0.68,0.68,0.68
 horn model auto/horn.glb 0.5 0 0
 horn2 model auto/horn2.glb 0.5 0 0
 horn3 model auto/horn3.glb 0.5 0 0
-hornhelmet model auto/hornhelmet.glb 0.5 0 0
-huntersbow model auto/huntersbow.glb 0.5 0 0
+hornhelmet building helmet:0.68,0.65,0.59
+huntersbow building bow:0.65,0.40,0.23
 icor model auto/icor.glb 0.5 0 0
-idaten model auto/idaten.glb 0.5 0 0
+idaten building sword:1.00,1.00,1.00
 imperial model auto/imperial.glb 0.5 0 0
 insect_sting model auto/insect_sting.glb 0.5 0 0
 insect_wing model auto/insect_wing.glb 0.5 0 0
-ironbar model auto/ironbar.glb 0.5 0 0
-jade_coin model auto/jade_coin.glb 0.5 0 0
-jetstone model auto/jetstone.glb 0.5 0 0
-k_dagger model auto/k_dagger.glb 0.5 0 0
-kama_1 model auto/kama_1.glb 0.5 0 0
-kama_2 model auto/kama_2.glb 0.5 0 0
-katana_1 model auto/katana_1.glb 0.5 0 0
-kite_shield model auto/kite_shield.glb 0.5 0 0
+ironbar building ingot:0.32,0.32,0.32
+jade_coin building coin:0.59,0.78,0.58
+jetstone building gem:0.44,0.44,0.44
+k_dagger building dagger:0.47,0.36,0.28
+kama_1 building dagger:0.63,0.58,0.43
+kama_2 building dagger:0.63,0.58,0.43
+katana_1 building sword:0.54,0.48,0.45
+kite_shield building shield:0.66,0.51,0.51
 kog model auto/kog.glb 0.5 0 0
 lava_s model auto/lava_s.glb 0.5 0 0
-lead_fullhelmet model auto/lead_fullhelmet.glb 0.5 0 0
-lead_shield model auto/lead_shield.glb 0.5 0 0
+lead_fullhelmet building helmet:0.38,0.50,0.40
+lead_shield building shield:0.47,0.47,0.47
 lead model auto/lead.glb 0.5 0 0
-leadbar model auto/leadbar.glb 0.5 0 0
+leadbar building ingot:0.51,0.51,0.51
 leather_black model auto/leather_black.glb 0.5 0 0
 leather_strips model auto/leather_strips.glb 0.5 0 0
 leather_white model auto/leather_white.glb 0.5 0 0
@@ -1587,64 +1587,64 @@ leg_mutton model auto/leg_mutton.glb 0.5 0 0
 leg model auto/leg.glb 0.5 0 0
 lev_boots model auto/lev_boots.glb 0.5 0 0
 lich_dust model auto/lich_dust.glb 0.5 0 0
-lightning_bow model auto/lightning_bow.glb 0.5 0 0
+lightning_bow building bow:0.63,0.32,0.18
 liver model auto/liver.glb 0.5 0 0
-lmornstar model auto/lmornstar.glb 0.5 0 0
+lmornstar building mace:0.47,0.34,0.27
 loaf model auto/loaf.glb 0.5 0 0
 lockpicks model auto/lockpicks.glb 0.5 0 0
-longbow model auto/longbow.glb 0.5 0 0
+longbow building bow:0.68,0.43,0.23
 low_boots model auto/low_boots.glb 0.5 0 0
-lspear model auto/lspear.glb 0.5 0 0
+lspear building spear:0.61,0.41,0.29
 lstone model auto/lstone.glb 0.5 0 0
-lsword model auto/lsword.glb 0.5 0 0
-lunar_shield model auto/lunar_shield.glb 0.5 0 0
-mace_1 model auto/mace_1.glb 0.5 0 0
-mace_2 model auto/mace_2.glb 0.5 0 0
-magi_staff model auto/magi_staff.glb 0.5 0 0
-magic_bow model auto/magic_bow.glb 0.5 0 0
+lsword building sword:0.63,0.59,0.57
+lunar_shield building shield:0.20,0.20,0.33
+mace_1 building mace:0.53,0.35,0.25
+mace_2 building mace:0.59,0.48,0.41
+magi_staff building staff:0.12,0.56,1.00
+magic_bow building bow:0.22,0.49,0.98
 magnifier model auto/magnifier.glb 0.5 0 0
-masamune model auto/masamune.glb 0.5 0 0
+masamune building sword:1.00,1.00,1.00
 mercury model auto/mercury.glb 0.5 0 0
 min_oil model auto/min_oil.glb 0.5 0 0
 mint model auto/mint.glb 0.5 0 0
 mithril model auto/mithril.glb 0.5 0 0
-mjoellnir model auto/mjoellnir.glb 0.5 0 0
-moonstone model auto/moonstone.glb 0.5 0 0
-mornstar model auto/mornstar.glb 0.5 0 0
-mournblade model auto/mournblade.glb 0.5 0 0
+mjoellnir building hammer:0.80,0.65,0.50
+moonstone building gem:0.69,0.90,0.94
+mornstar building mace:0.47,0.33,0.25
+mournblade building sword:0.47,0.27,0.50
 mushroom_1 model auto/mushroom_1.glb 0.5 0 0
 mushroom_2 model auto/mushroom_2.glb 0.5 0 0
 mushroom_3 model auto/mushroom_3.glb 0.5 0 0
 needle model auto/needle.glb 0.5 0 0
-nineringsword model auto/nineringsword.glb 0.5 0 0
+nineringsword building sword:0.69,0.60,0.51
 nugget_huge model auto/nugget_huge.glb 0.5 0 0
 nugget_lar model auto/nugget_lar.glb 0.5 0 0
 nugget_sma model auto/nugget_sma.glb 0.5 0 0
 nunchacu_1 model auto/nunchacu_1.glb 0.5 0 0
 nunchacu_2 model auto/nunchacu_2.glb 0.5 0 0
 onion model auto/onion.glb 0.5 0 0
-onyxstone model auto/onyxstone.glb 0.5 0 0
-opal model auto/opal.glb 0.5 0 0
-orange model auto/orange.glb 0.5 0 0
+onyxstone building gem:0.43,0.43,0.43
+opal building gem:0.00,0.98,1.00
+orange building fruit:0.94,0.62,0.00
 orcchop model auto/orcchop.glb 0.5 0 0
-order_sword model auto/order_sword.glb 0.5 0 0
+order_sword building sword:0.52,0.75,0.75
 ore_b model auto/ore_b.glb 0.5 0 0
 ore_g model auto/ore_g.glb 0.5 0 0
 ore_r model auto/ore_r.glb 0.5 0 0
 ore_y model auto/ore_y.glb 0.5 0 0
-pear model auto/pear.glb 0.5 0 0
-pearl model auto/pearl.glb 0.5 0 0
+pear building fruit:0.70,0.85,0.00
+pearl building gem:0.78,0.83,0.80
 phil_phos model auto/phil_phos.glb 0.5 0 0
 phil_salt model auto/phil_salt.glb 0.5 0 0
 phil_sulphur model auto/phil_sulphur.glb 0.5 0 0
 phosphor model auto/phosphor.glb 0.5 0 0
-pickaxe model auto/pickaxe.glb 0.5 0 0
+pickaxe building axe:0.45,0.46,0.39
 pipe model auto/pipe.glb 0.5 0 0
 pipeweed model auto/pipeweed.glb 0.5 0 0
 pirate_hat model auto/pirate_hat.glb 0.5 0 0
 pix_dust model auto/pix_dust.glb 0.5 0 0
 pix_wing model auto/pix_wing.glb 0.5 0 0
-platbar model auto/platbar.glb 0.5 0 0
+platbar building ingot:0.84,0.84,0.84
 platblock model auto/platblock.glb 0.5 0 0
 platround model auto/platround.glb 0.5 0 0
 platter1_bro model auto/platter1_bro.glb 0.5 0 0
@@ -1654,64 +1654,64 @@ platter1_iro model auto/platter1_iro.glb 0.5 0 0
 platter1_plat model auto/platter1_plat.glb 0.5 0 0
 platter1_sil model auto/platter1_sil.glb 0.5 0 0
 platter1_tin model auto/platter1_tin.glb 0.5 0 0
-plt_coin model auto/plt_coin.glb 0.5 0 0
-poleaxe model auto/poleaxe.glb 0.5 0 0
+plt_coin building coin:0.73,0.73,0.73
+poleaxe building axe:0.57,0.46,0.40
 potato model auto/potato.glb 0.5 0 0
-potion_aether model auto/potion_aether.glb 0.5 0 0
-potion_empty model auto/potion_empty.glb 0.5 0 0
-potion_heal2 model auto/potion_heal2.glb 0.5 0 0
-potioncha model auto/potioncha.glb 0.5 0 0
-potioncol model auto/potioncol.glb 0.5 0 0
-potioncon model auto/potioncon.glb 0.5 0 0
-potiondex model auto/potiondex.glb 0.5 0 0
-potionfir model auto/potionfir.glb 0.5 0 0
-potiongen model auto/potiongen.glb 0.5 0 0
-potionhea model auto/potionhea.glb 0.5 0 0
-potionhero model auto/potionhero.glb 0.5 0 0
-potionimp model auto/potionimp.glb 0.5 0 0
-potionint model auto/potionint.glb 0.5 0 0
-potioninv model auto/potioninv.glb 0.5 0 0
-potionmag model auto/potionmag.glb 0.5 0 0
-potionpow model auto/potionpow.glb 0.5 0 0
-potionstr model auto/potionstr.glb 0.5 0 0
-potionwis model auto/potionwis.glb 0.5 0 0
-power_crystal model auto/power_crystal.glb 0.5 0 0
-pretty_amethyst model auto/pretty_amethyst.glb 0.5 0 0
-pretty_crystal model auto/pretty_crystal.glb 0.5 0 0
-pretty_emerald model auto/pretty_emerald.glb 0.5 0 0
-pretty_ruby model auto/pretty_ruby.glb 0.5 0 0
-pretty_sapphire model auto/pretty_sapphire.glb 0.5 0 0
-punch_dagger model auto/punch_dagger.glb 0.5 0 0
+potion_aether building potion:0.60,0.63,0.66
+potion_empty building potion:0.74,0.42,0.21
+potion_heal2 building potion:0.10,0.33,0.71
+potioncha building potion:0.97,0.57,0.00
+potioncol building potion:0.33,0.33,0.83
+potioncon building potion:0.55,0.25,0.83
+potiondex building potion:0.82,0.50,0.00
+potionfir building potion:0.57,0.00,0.17
+potiongen building potion:0.00,0.37,0.70
+potionhea building potion:0.07,0.75,0.00
+potionhero building potion:0.51,0.49,0.47
+potionimp building potion:0.47,0.71,0.00
+potionint building potion:0.19,0.46,0.25
+potioninv building potion:0.76,0.48,0.00
+potionmag building potion:0.61,0.19,0.93
+potionpow building potion:0.85,0.06,0.46
+potionstr building potion:0.82,0.08,0.08
+potionwis building potion:0.71,0.70,0.68
+power_crystal building gem:0.80,0.80,0.80
+pretty_amethyst building gem:0.58,0.03,0.58
+pretty_crystal building gem:0.75,0.75,0.75
+pretty_emerald building gem:0.06,0.67,0.36
+pretty_ruby building gem:0.94,0.06,0.06
+pretty_sapphire building gem:0.00,0.00,0.77
+punch_dagger building dagger:0.48,0.37,0.33
 pyrite model auto/pyrite.glb 0.5 0 0
 quarters model auto/quarters.glb 0.5 0 0
-rapier model auto/rapier.glb 0.5 0 0
+rapier building sword:0.74,0.71,0.61
 reflector model auto/reflector.glb 0.5 0 0
-reflexbow_bone model auto/reflexbow_bone.glb 0.5 0 0
-reflexbow model auto/reflexbow.glb 0.5 0 0
+reflexbow_bone building bow:0.68,0.68,0.68
+reflexbow building bow:0.37,0.14,0.05
 residue model auto/residue.glb 0.5 0 0
-ring_acid model auto/ring_acid.glb 0.5 0 0
-ring_ancient_magic model auto/ring_ancient_magic.glb 0.5 0 0
-ring_combat model auto/ring_combat.glb 0.5 0 0
-ring_doom model auto/ring_doom.glb 0.5 0 0
-ring_drain model auto/ring_drain.glb 0.5 0 0
-ring_fighting model auto/ring_fighting.glb 0.5 0 0
-ring_fire model auto/ring_fire.glb 0.5 0 0
-ring_green model auto/ring_green.glb 0.5 0 0
-ring_halvor model auto/ring_halvor.glb 0.5 0 0
-ring_high_magic model auto/ring_high_magic.glb 0.5 0 0
-ring_ice model auto/ring_ice.glb 0.5 0 0
-ring_magic model auto/ring_magic.glb 0.5 0 0
-ring_saint model auto/ring_saint.glb 0.5 0 0
-ring_storm model auto/ring_storm.glb 0.5 0 0
-ring_strife model auto/ring_strife.glb 0.5 0 0
-ring_thieves model auto/ring_thieves.glb 0.5 0 0
-ring_war model auto/ring_war.glb 0.5 0 0
-ring_woe model auto/ring_woe.glb 0.5 0 0
-ring model auto/ring.glb 0.5 0 0
+ring_acid building ring:0.26,0.51,0.24
+ring_ancient_magic building ring:0.68,0.49,0.73
+ring_combat building ring:0.66,0.50,0.50
+ring_doom building ring:0.36,0.36,0.33
+ring_drain building ring:0.00,0.40,0.43
+ring_fighting building ring:0.65,0.59,0.59
+ring_fire building ring:0.55,0.41,0.45
+ring_green building ring:1.00,0.72,0.00
+ring_halvor building ring:0.23,0.61,0.19
+ring_high_magic building ring:0.62,0.40,0.67
+ring_ice building ring:0.49,0.45,0.55
+ring_magic building ring:0.66,0.53,0.69
+ring_saint building ring:0.63,0.68,0.45
+ring_storm building ring:0.33,0.65,0.66
+ring_strife building ring:0.66,0.49,0.49
+ring_thieves building ring:0.69,0.59,0.40
+ring_war building ring:0.75,0.12,0.12
+ring_woe building ring:0.45,0.46,0.44
+ring building ring:1.00,0.89,0.00
 roast_bird model auto/roast_bird.glb 0.5 0 0
 rock2 model auto/rock2.glb 0.5 0 0
-rod_heavy model auto/rod_heavy.glb 0.5 0 0
-rod_light model auto/rod_light.glb 0.5 0 0
+rod_heavy building staff:0.54,0.61,0.46
+rod_light building staff:0.54,0.56,0.48
 root model auto/root.glb 0.5 0 0
 rose_black model auto/rose_black.glb 0.5 0 0
 rose_pink model auto/rose_pink.glb 0.5 0 0
@@ -1719,73 +1719,73 @@ rose_red model auto/rose_red.glb 0.5 0 0
 rose_wh model auto/rose_wh.glb 0.5 0 0
 rose_yel model auto/rose_yel.glb 0.5 0 0
 round_shiel model auto/round_shiel.glb 0.5 0 0
-ruby_exceptional model auto/ruby_exceptional.glb 0.5 0 0
-ruby_flawless model auto/ruby_flawless.glb 0.5 0 0
-ruby model auto/ruby.glb 0.5 0 0
+ruby_exceptional building gem:0.94,0.06,0.06
+ruby_flawless building gem:0.94,0.06,0.06
+ruby building gem:0.63,0.00,0.00
 s_weasel model auto/s_weasel.glb 0.5 0 0
-sabre model auto/sabre.glb 0.5 0 0
-sai_1 model auto/sai_1.glb 0.5 0 0
-sai_2 model auto/sai_2.glb 0.5 0 0
+sabre building sword:0.64,0.62,0.61
+sai_1 building dagger:0.50,0.50,0.50
+sai_2 building dagger:0.50,0.50,0.50
 salt model auto/salt.glb 0.5 0 0
 sandals model auto/sandals.glb 0.5 0 0
-sapphire_exceptional model auto/sapphire_exceptional.glb 0.5 0 0
-sapphire_flawless model auto/sapphire_flawless.glb 0.5 0 0
-sapphire model auto/sapphire.glb 0.5 0 0
+sapphire_exceptional building gem:0.00,0.00,0.77
+sapphire_flawless building gem:0.00,0.00,0.77
+sapphire building gem:0.00,0.00,0.68
 saw model auto/saw.glb 0.5 0 0
-scimitar model auto/scimitar.glb 0.5 0 0
+scimitar building sword:0.58,0.56,0.55
 scythe_1 model auto/scythe_1.glb 0.5 0 0
-serp_sword model auto/serp_sword.glb 0.5 0 0
+serp_sword building sword:0.47,0.64,0.63
 serpent_skin model auto/serpent_skin.glb 0.5 0 0
-sflail_1 model auto/sflail_1.glb 0.5 0 0
-shaxe_1 model auto/shaxe_1.glb 0.5 0 0
+sflail_1 building mace:0.43,0.36,0.33
+shaxe_1 building axe:0.53,0.48,0.46
 sheepskin model auto/sheepskin.glb 0.5 0 0
 shellhorn1 model auto/shellhorn1.glb 0.5 0 0
 shellhorn2 model auto/shellhorn2.glb 0.5 0 0
-shield_imana model auto/shield_imana.glb 0.5 0 0
-shield model auto/shield.glb 0.5 0 0
+shield_imana building shield:0.42,0.26,0.52
+shield building shield:0.51,0.51,0.51
 shining_finger model auto/shining_finger.glb 0.5 0 0
 shootingstar model auto/shootingstar.glb 0.5 0 0
 shovel_1 model auto/shovel_1.glb 0.5 0 0
 sickle_1 model auto/sickle_1.glb 0.5 0 0
-sicklesword model auto/sicklesword.glb 0.5 0 0
+sicklesword building sword:0.71,0.69,0.69
 silver_filings model auto/silver_filings.glb 0.5 0 0
 silver_frost model auto/silver_frost.glb 0.5 0 0
-silverbar model auto/silverbar.glb 0.5 0 0
+silverbar building ingot:0.63,0.63,0.63
 silverblock model auto/silverblock.glb 0.5 0 0
-silvercoin model auto/silvercoin.glb 0.5 0 0
+silvercoin building coin:0.64,0.64,0.64
 silverround model auto/silverround.glb 0.5 0 0
 skin model auto/skin.glb 0.5 0 0
 skullcleav model auto/skullcleav.glb 0.5 0 0
-slicingknife model auto/slicingknife.glb 0.5 0 0
-small_shie model auto/small_shie.glb 0.5 0 0
-spear_ixalovh model auto/spear_ixalovh.glb 0.5 0 0
-spear model auto/spear.glb 0.5 0 0
+slicingknife building dagger:0.53,0.47,0.44
+small_shie building shield:0.46,0.46,0.46
+spear_ixalovh building spear:0.17,0.69,0.44
+spear building spear:0.53,0.36,0.29
 speedboots model auto/speedboots.glb 0.5 0 0
 spiked_pit model auto/spiked_pit.glb 0.5 0 0
-spiked_shield model auto/spiked_shield.glb 0.5 0 0
-ssword_1 model auto/ssword_1.glb 0.5 0 0
-ssword_2 model auto/ssword_2.glb 0.5 0 0
-staff model auto/staff.glb 0.5 0 0
-stake model auto/stake.glb 0.5 0 0
-steel_ssword_1 model auto/steel_ssword_1.glb 0.5 0 0
-steelbar model auto/steelbar.glb 0.5 0 0
+spiked_shield building shield:0.48,0.34,0.27
+ssword_1 building sword:0.62,0.57,0.54
+ssword_2 building sword:0.58,0.56,0.55
+staff building staff:0.75,0.32,0.12
+stake building dagger:0.94,0.90,0.55
+steel_ssword_1 building sword:0.67,0.62,0.60
+steelbar building ingot:0.48,0.48,0.48
 stew_fish model auto/stew_fish.glb 0.5 0 0
 stew_meat model auto/stew_meat.glb 0.5 0 0
 stew_mushroom model auto/stew_mushroom.glb 0.5 0 0
 stew_veg model auto/stew_veg.glb 0.5 0 0
 sting model auto/sting.glb 0.5 0 0
-stoneaxe model auto/stoneaxe.glb 0.5 0 0
-stonehamme model auto/stonehamme.glb 0.5 0 0
-stormbring model auto/stormbring.glb 0.5 0 0
+stoneaxe building axe:0.61,0.44,0.33
+stonehamme building hammer:0.67,0.50,0.37
+stormbring building sword:0.34,0.31,0.36
 stylus model auto/stylus.glb 0.5 0 0
 sulphur model auto/sulphur.glb 0.5 0 0
-sword_1 model auto/sword_1.glb 0.5 0 0
-sword_2 model auto/sword_2.glb 0.5 0 0
-sword_3 model auto/sword_3.glb 0.5 0 0
-sword_4 model auto/sword_4.glb 0.5 0 0
-t_dagger model auto/t_dagger.glb 0.5 0 0
+sword_1 building sword:0.65,0.65,0.65
+sword_2 building sword:0.59,0.58,0.57
+sword_3 building sword:0.53,0.51,0.51
+sword_4 building sword:0.59,0.57,0.57
+t_dagger building dagger:0.53,0.48,0.46
 t_star1 model auto/t_star1.glb 0.5 0 0
-taifu_1 model auto/taifu_1.glb 0.5 0 0
+taifu_1 building sword:0.45,0.41,0.40
 talisman_evocation model auto/talisman_evocation.glb 0.5 0 0
 talisman_pyromancy model auto/talisman_pyromancy.glb 0.5 0 0
 talisman_sorcery model auto/talisman_sorcery.glb 0.5 0 0
@@ -1793,53 +1793,53 @@ talisman_summoning model auto/talisman_summoning.glb 0.5 0 0
 tear model auto/tear.glb 0.5 0 0
 thunder_bolt model auto/thunder_bolt.glb 0.5 0 0
 thunderking_gauntlet model auto/thunderking_gauntlet.glb 0.5 0 0
-tinbar model auto/tinbar.glb 0.5 0 0
-tomato_big model auto/tomato_big.glb 0.5 0 0
-tomato model auto/tomato.glb 0.5 0 0
+tinbar building ingot:0.43,0.43,0.43
+tomato_big building fruit:0.68,0.11,0.07
+tomato building fruit:0.71,0.13,0.07
 tongue model auto/tongue.glb 0.5 0 0
 tooth_charm model auto/tooth_charm.glb 0.5 0 0
 tooth model auto/tooth.glb 0.5 0 0
 topaz model auto/topaz.glb 0.5 0 0
 torc model auto/torc.glb 0.5 0 0
 trap model auto/trap.glb 0.5 0 0
-trident model auto/trident.glb 0.5 0 0
+trident building spear:0.20,0.69,0.28
 true_lead model auto/true_lead.glb 0.5 0 0
 tspikes model auto/tspikes.glb 0.5 0 0
 turban model auto/turban.glb 0.5 0 0
-turquoise model auto/turquoise.glb 0.5 0 0
-twinblade_spear model auto/twinblade_spear.glb 0.5 0 0
+turquoise building gem:0.37,0.76,0.90
+twinblade_spear building sword:0.60,0.40,0.36
 u_horn model auto/u_horn.glb 0.5 0 0
 uf6 model auto/uf6.glb 0.5 0 0
 uf6pile model auto/uf6pile.glb 0.5 0 0
-uk_sd model auto/uk_sd.glb 0.5 0 0
+uk_sd building sword:1.00,1.00,1.00
 uranium model auto/uranium.glb 0.5 0 0
-uraniumbar model auto/uraniumbar.glb 0.5 0 0
-uw_shield model auto/uw_shield.glb 0.5 0 0
-uw_sword model auto/uw_sword.glb 0.5 0 0
+uraniumbar building ingot:0.27,0.27,0.27
+uw_shield building shield:0.55,0.30,0.27
+uw_sword building sword:0.21,0.89,0.25
 valkyrie_holy_oil model auto/valkyrie_holy_oil.glb 0.5 0 0
-vial_blue model auto/vial_blue.glb 0.5 0 0
-vial_cyan model auto/vial_cyan.glb 0.5 0 0
-vial_empty model auto/vial_empty.glb 0.5 0 0
-vial_green model auto/vial_green.glb 0.5 0 0
-vial_magenta model auto/vial_magenta.glb 0.5 0 0
-vial_red model auto/vial_red.glb 0.5 0 0
-vial_water model auto/vial_water.glb 0.5 0 0
-vial_yellow model auto/vial_yellow.glb 0.5 0 0
+vial_blue building potion:0.00,0.00,0.80
+vial_cyan building potion:0.00,0.79,0.80
+vial_empty building potion:0.74,0.42,0.21
+vial_green building potion:0.00,0.80,0.00
+vial_magenta building potion:0.80,0.00,0.79
+vial_red building potion:0.80,0.00,0.00
+vial_water building potion:0.09,0.48,0.93
+vial_yellow building potion:0.79,0.80,0.00
 violin model auto/violin.glb 0.5 0 0
-vlongsword model auto/vlongsword.glb 0.5 0 0
+vlongsword building sword:0.65,0.65,0.65
 w_glass_empty model auto/w_glass_empty.glb 0.5 0 0
 w_glass model auto/w_glass.glb 0.5 0 0
-wand model auto/wand.glb 0.5 0 0
-water_diamond model auto/water_diamond.glb 0.5 0 0
-water_emerald model auto/water_emerald.glb 0.5 0 0
-water_pearl model auto/water_pearl.glb 0.5 0 0
-water_ruby model auto/water_ruby.glb 0.5 0 0
-water_sapphire model auto/water_sapphire.glb 0.5 0 0
+wand building staff:0.63,0.32,0.18
+water_diamond building potion:0.91,0.88,0.77
+water_emerald building potion:0.04,0.63,0.20
+water_pearl building potion:0.97,0.95,0.94
+water_ruby building potion:0.95,0.04,0.04
+water_sapphire building potion:0.14,0.25,0.87
 water_wise model auto/water_wise.glb 0.5 0 0
 water model auto/water.glb 0.5 0 0
 waybread model auto/waybread.glb 0.5 0 0
 wbottle_empty model auto/wbottle_empty.glb 0.5 0 0
-wds model auto/wds.glb 0.5 0 0
+wds building sword:0.81,0.81,0.81
 wig model auto/wig.glb 0.5 0 0
 wine model auto/wine.glb 0.5 0 0
 winebottle_empty model auto/winebottle_empty.glb 0.5 0 0
@@ -1847,5 +1847,5 @@ wiz_hat model auto/wiz_hat.glb 0.5 0 0
 wizard_gloves model auto/wizard_gloves.glb 0.5 0 0
 wrench model auto/wrench.glb 0.5 0 0
 zinc_filings model auto/zinc_filings.glb 0.5 0 0
-zincbar model auto/zincbar.glb 0.5 0 0
+zincbar building ingot:0.63,0.63,0.63
 zombie_corpse model auto/zombie_corpse.glb 0.5 0 0
