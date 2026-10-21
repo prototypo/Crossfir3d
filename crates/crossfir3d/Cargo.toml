@@ -1,5 +1,5 @@
 [package]
-name = "maccrossfire"
+name = "crossfir3d"
 description = "3D client for Crossfire"
 version.workspace = true
 edition.workspace = true

@@ -15,20 +15,20 @@ use bevy::light::NotShadowCaster;
 use bevy::prelude::*;
 use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat};
 use bevy::world_serialization::{WorldAsset, WorldAssetRoot, WorldInstanceReady};
-use maccrossfire::buildings::{brick_pixels, doorstep, footprint, parts, wall_parts, wave_pixels, Part, Shape, BRICK_TILE, WAVE_TILE};
-use maccrossfire::models::{all_loaded, Load, ModelMap, Visual};
-use maccrossfire::races::{classify_player_face, clothes_for_class, look_for_race, Body, Look, PlayerFace};
-use maccrossfire::terrain::{ground_height, is_wall};
-use maccrossfire::walls::wall_masks;
+use crossfir3d::buildings::{brick_pixels, doorstep, footprint, parts, wall_parts, wave_pixels, Part, Shape, BRICK_TILE, WAVE_TILE};
+use crossfir3d::models::{all_loaded, Load, ModelMap, Visual};
+use crossfir3d::races::{classify_player_face, clothes_for_class, look_for_race, Body, Look, PlayerFace};
+use crossfir3d::terrain::{ground_height, is_wall};
+use crossfir3d::walls::wall_masks;
 
-use maccrossfire::clock::{sun_pose, SunPose, FALLBACK_HOUR};
-use maccrossfire::settings::Quality;
+use crossfir3d::clock::{sun_pose, SunPose, FALLBACK_HOUR};
+use crossfir3d::settings::Quality;
 
-use maccrossfire::held::{class_look, Garb};
+use crossfir3d::held::{class_look, Garb};
 use crate::characters3d::{character_files, class_dressed, ClassGear, outfit_file, spawn_beast, spawn_character, spawn_monster, Character, Outfit, OwnCharacter, OwnLook, PartOf, StatueFigure};
 use crate::graphics::CurrentSettings;
 use crate::input::{CameraHeading, CameraView, DoorExit, Facing};
-use maccrossfire::camera::{compass, pull_in, sight_blocked, zoom, PIXELS_PER_LINE};
+use crossfir3d::camera::{compass, pull_in, sight_blocked, zoom, PIXELS_PER_LINE};
 use crate::{AppState, Clock, Faces, LastComc, Session, View, ViewSize};
 
 const TILE_PX: f32 = 32.0;
@@ -170,11 +170,11 @@ impl Models {
     }
 }
 
-/// Developer check: MACCROSSFIRE_COMPARE=file, lines `picture_name file1 file2 ...`
+/// Developer check: CROSSFIR3D_COMPARE=file, lines `picture_name file1 file2 ...`
 /// (files under assets/models). Those pictures stay cards, with the models in a row
 /// to the right, turned a little so their depth shows.
 fn compare_list() -> HashMap<String, Vec<String>> {
-    let Ok(path) = std::env::var("MACCROSSFIRE_COMPARE") else { return HashMap::new() };
+    let Ok(path) = std::env::var("CROSSFIR3D_COMPARE") else { return HashMap::new() };
     let text = std::fs::read_to_string(&path).unwrap_or_else(|e| {
         warn!("{path}: {e}");
         String::new()
@@ -781,7 +781,7 @@ fn sign_material(
     images: &mut Assets<Image>,
     materials: &mut Assets<StandardMaterial>,
 ) -> (Handle<StandardMaterial>, f32) {
-    let (w, h, px) = maccrossfire::signs::sign_pixels(text, icon);
+    let (w, h, px) = crossfir3d::signs::sign_pixels(text, icon);
     let size = Extent3d { width: w, height: h, depth_or_array_layers: 1 };
     let mut image = Image::new(size, TextureDimension::D2, px, TextureFormat::Rgba8UnormSrgb, RenderAssetUsages::RENDER_WORLD);
     image.sampler = ImageSampler::nearest();
@@ -1171,7 +1171,7 @@ pub(crate) fn darkness(view: &View, size: &ViewSize) -> u8 {
 
 /// Where the sun (or moon) is now, and the direction toward it.
 pub(crate) fn sun_now(clock: &Clock) -> (SunPose, Vec3) {
-    let forced = std::env::var("MACCROSSFIRE_HOUR").ok().and_then(|h| h.parse().ok()); // screenshots
+    let forced = std::env::var("CROSSFIR3D_HOUR").ok().and_then(|h| h.parse().ok()); // screenshots
     let pose = sun_pose(forced.or(clock.0.hour()).unwrap_or(FALLBACK_HOUR));
     // azimuth 0 = east (+X), PI/2 = south (+Z), PI = west (-X)
     let dir = Vec3::new(

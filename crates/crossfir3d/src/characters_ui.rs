@@ -2,9 +2,9 @@
 
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts, EguiTextureHandle};
-use maccrossfire::login::LoginState;
-use maccrossfire::newchar::{stat_code, STAT_NAMES};
-use maccrossfire::races::{default_body_path, save_body, Body};
+use crossfir3d::login::LoginState;
+use crossfir3d::newchar::{stat_code, STAT_NAMES};
+use crossfir3d::races::{default_body_path, save_body, Body};
 
 use crate::characters3d::Preview;
 use crate::{Session, Status};
@@ -44,9 +44,9 @@ pub fn characters_screen(
     }
     let ctx = contexts.ctx_mut()?;
     let screen = ctx.content_rect().shrink(24.0);
-    // Developer screenshots: MACCROSSFIRE_SCREEN=newchar[:race_arch] opens the
+    // Developer screenshots: CROSSFIR3D_SCREEN=newchar[:race_arch] opens the
     // new-character screen, picks that race, and rolls once.
-    let dev = std::env::var("MACCROSSFIRE_SCREEN").ok().filter(|v| v.starts_with("newchar"));
+    let dev = std::env::var("CROSSFIR3D_SCREEN").ok().filter(|v| v.starts_with("newchar"));
     if !*auto && dev.is_some() && *session.login.state() == LoginState::Characters {
         *auto = true;
         let out = session.login.start_creating();
@@ -244,7 +244,7 @@ fn new_character(ctx: &egui::Context, screen: egui::Rect, session: &mut Session,
                 });
             });
         });
-    let dev = std::env::var("MACCROSSFIRE_SCREEN").ok().filter(|v| v.starts_with("newchar"));
+    let dev = std::env::var("CROSSFIR3D_SCREEN").ok().filter(|v| v.starts_with("newchar"));
     if dev.is_some() && n.used() == n.limits.min as u16 * 7 && !n.races.is_empty() {
         n.roll(seed());
     }

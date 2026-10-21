@@ -11,10 +11,10 @@ use bevy::gltf::{Gltf, GltfAssetLabel};
 use bevy::prelude::*;
 use bevy::render::render_resource::TextureFormat;
 use bevy::world_serialization::{WorldAsset, WorldAssetRoot, WorldInstanceReady};
-use maccrossfire::login::LoginState;
-use maccrossfire::anim::{clip_name, looping, Anim, AnimEvent, AnimState};
-use maccrossfire::held::{class_look, held, helmet, worn, Carry, ClassLook, Garb, Hand, Headwear};
-use maccrossfire::races::{default_body_path, head_triangles, load_body, look_for_race, tints, Body, Look};
+use crossfir3d::login::LoginState;
+use crossfir3d::anim::{clip_name, looping, Anim, AnimEvent, AnimState};
+use crossfir3d::held::{class_look, held, helmet, worn, Carry, ClassLook, Garb, Hand, Headwear};
+use crossfir3d::races::{default_body_path, head_triangles, load_body, look_for_race, tints, Body, Look};
 use std::collections::HashMap;
 
 use bevy::mesh::skinning::SkinnedMesh;
@@ -129,7 +129,7 @@ struct HeldModel;
 #[derive(Component)]
 struct OutfitPart;
 
-/// What the own character wears now (see `maccrossfire::held::worn`).
+/// What the own character wears now (see `crossfir3d::held::worn`).
 #[derive(Component, PartialEq)]
 struct Wearing(Option<(Garb, [f32; 3])>);
 
@@ -369,7 +369,7 @@ fn head_only(mesh: &Mesh, is_head: &[bool]) -> Option<Mesh> {
     Some(head)
 }
 
-/// Puts the applied weapon and shield (see `maccrossfire::held`) in the own character's
+/// Puts the applied weapon and shield (see `crossfir3d::held`) in the own character's
 /// hands, on the hand bones, so they follow the animations.
 #[allow(clippy::too_many_arguments)]
 fn hold_items(
@@ -445,7 +445,7 @@ fn wear_armour(
     commands.entity(root).try_insert(want);
 }
 
-/// The own character's applied helmet colour (see `maccrossfire::held::helmet`).
+/// The own character's applied helmet colour (see `crossfir3d::held::helmet`).
 #[derive(Component, PartialEq)]
 struct Helmeted(Option<[f32; 3]>);
 

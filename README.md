@@ -1,9 +1,9 @@
-# MacCrossfire
+# Crossfir3d
 
 A 3D client for [Crossfire](https://crossfire.real-time.com/), written in Rust.
 It plays on normal Crossfire servers (1.75.0 and newer). Licence: GPLv2 or later.
 
-Design: `docs/superpowers/specs/2026-10-17-maccrossfire-design.md`
+Design: `docs/superpowers/specs/2026-10-17-crossfir3d-design.md`
 
 ## Run a local server (macOS, needs Homebrew)
 
@@ -13,12 +13,12 @@ scripts/server.sh run     # listens on localhost:13327
 ```
 
 `build` also clones the Crossfire sound pack to `upstream/crossfire-sounds`; the client
-plays sounds and music from there (or from `$MACCROSSFIRE_SOUNDS`).
+plays sounds and music from there (or from `$CROSSFIR3D_SOUNDS`).
 
 ## Run the client
 
 ```sh
-cargo run --release -p maccrossfire
+cargo run --release -p crossfir3d
 ```
 
 ## Characters
@@ -60,7 +60,7 @@ The old clients' commands also work in the command box (**Enter**): `bind cast b
 hands` (then press the key), `bind -g ...` for all your characters, `bind -e ...` to put
 the command in the box instead of sending it, `unbind` to list them, `unbind 2` to
 remove one, `unbind reset` to remove all. Bindings are saved in
-`~/Library/Application Support/MacCrossfire/keys.txt`. Escape, K and Enter alone can
+`~/Library/Application Support/Crossfir3d/keys.txt`. Escape, K and Enter alone can
 never be bound.
 
 Shops are one-storey houses with a painted sign and icon (JEWELS, BANK, MAGIC, ...).
@@ -91,22 +91,22 @@ Escape in game (or "Settings" on the login screen) opens the settings:
 window/full screen, render scale, frame rate, ambient occlusion, shadows,
 anti-aliasing, brightness, contrast, gamma, and music on/off (M still mutes
 all sound). They are saved to
-`~/Library/Application Support/MacCrossfire/settings.txt` (override with
-`MACCROSSFIRE_SETTINGS`). The sun follows the server's game clock
-(`MACCROSSFIRE_HOUR=14` forces an hour, for screenshots): a blue sky with drifting
+`~/Library/Application Support/Crossfir3d/settings.txt` (override with
+`CROSSFIR3D_SETTINGS`). The sun follows the server's game clock
+(`CROSSFIR3D_HOUR=14` forces an hour, for screenshots): a blue sky with drifting
 clouds by day, a warm glow round the low sun at dawn and dusk, and stars at night.
 Wells and other one-square things stay in view when you stand on them.
 
 ## Developer switches
 
-- `MACCROSSFIRE_LOGIN=account:password:character[:new]` logs in at start (creates
+- `CROSSFIR3D_LOGIN=account:password:character[:new]` logs in at start (creates
   the character in Scorn if it does not exist; `:new` creates the account if it
   does not exist).
-- `MACCROSSFIRE_COMMANDS="cmd1;cmd2"` sends game commands on entering the game.
-- `MACCROSSFIRE_SCREEN=newchar[:race_arch]` opens the new-character screen.
-- `MACCROSSFIRE_SCREENSHOT=file.png` (with `MACCROSSFIRE_SCREENSHOT_AT=seconds`)
+- `CROSSFIR3D_COMMANDS="cmd1;cmd2"` sends game commands on entering the game.
+- `CROSSFIR3D_SCREEN=newchar[:race_arch]` opens the new-character screen.
+- `CROSSFIR3D_SCREENSHOT=file.png` (with `CROSSFIR3D_SCREENSHOT_AT=seconds`)
   saves one screenshot and quits.
-- `MACCROSSFIRE_COMPARE=file` (lines `picture_name model1.glb model2.glb ...`, files
+- `CROSSFIR3D_COMPARE=file` (lines `picture_name model1.glb model2.glb ...`, files
   under `assets/models`) keeps those pictures as cards with the models in a row
   beside them (`experiments/sprite3d/`).
 
@@ -115,5 +115,5 @@ Wells and other one-square things stay in view when you stand on them.
 ```sh
 cargo test --workspace
 # with the local server running:
-cargo test -p maccrossfire --test live_server -- --ignored
+cargo test -p crossfir3d --test live_server -- --ignored
 ```

@@ -1,4 +1,4 @@
-//! MacCrossfire client library: everything except the Bevy app entry point.
+//! Crossfir3d client library: everything except the Bevy app entry point.
 pub mod net;
 pub mod login;
 pub mod faces;

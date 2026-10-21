@@ -3,11 +3,11 @@
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
 use cfproto::ClientMsg;
-use maccrossfire::login::{Creds, LoginFlow};
+use crossfir3d::login::{Creds, LoginFlow};
 
-use maccrossfire::modes::{command_line_allowed, Mode};
+use crossfir3d::modes::{command_line_allowed, Mode};
 
-use maccrossfire::keys::{shadowed, bind_question, parse_typed, save_bindings, default_keys_path, Binding, Combo, Typed};
+use crossfir3d::keys::{shadowed, bind_question, parse_typed, save_bindings, default_keys_path, Binding, Combo, Typed};
 
 use crate::input::{held_mods, key_name, key_taken};
 use crate::{KeyBindings, KeyMode, LastAction, Msgs, NcomSeq, PendingQuery, Session, Status};
@@ -31,7 +31,7 @@ impl PendingBind {
 const MAC: bool = cfg!(target_os = "macos");
 
 /// "Bound g to say hi.", with a warning when this character's own binding hides it.
-fn bound_message(b: &maccrossfire::keys::Bindings, binding: &Binding) -> String {
+fn bound_message(b: &crossfir3d::keys::Bindings, binding: &Binding) -> String {
     let keys = binding.combo.text(MAC);
     let mut text = format!("Bound {keys} to {}.", binding.command);
     if shadowed(b, binding) {
@@ -190,7 +190,7 @@ pub fn login_screen(
         return Ok(());
     }
     let mut connect = false;
-    egui::Window::new("MacCrossfire").collapsible(false).resizable(false).show(contexts.ctx_mut()?, |ui| {
+    egui::Window::new("Crossfir3d").collapsible(false).resizable(false).show(contexts.ctx_mut()?, |ui| {
         egui::Grid::new("login").num_columns(2).show(ui, |ui| {
             ui.label("Server");
             ui.text_edit_singleline(&mut form.server);
@@ -236,7 +236,7 @@ fn queue_connect(commands: &mut Commands, server: String, creds: Creds) {
 }
 
 fn connect(world: &mut World, server: &str, creds: Creds) {
-    match maccrossfire::net::connect(server) {
+    match crossfir3d::net::connect(server) {
         Ok(net) => {
             let (login, first) = LoginFlow::start(creds);
             world.resource_mut::<Status>().0 = "Connecting...".into();
@@ -246,13 +246,13 @@ fn connect(world: &mut World, server: &str, creds: Creds) {
     }
 }
 
-/// Developer shortcut: MACCROSSFIRE_LOGIN="account:password:character[:new]" logs in to
+/// Developer shortcut: CROSSFIR3D_LOGIN="account:password:character[:new]" logs in to
 /// localhost at startup; with an empty character it stops at the character list.
 pub fn auto_login(mut commands: Commands) {
-    let Ok(v) = std::env::var("MACCROSSFIRE_LOGIN") else { return };
+    let Ok(v) = std::env::var("CROSSFIR3D_LOGIN") else { return };
     let parts: Vec<&str> = v.split(':').collect();
     let [account, password, character, rest @ ..] = parts.as_slice() else {
-        warn!("MACCROSSFIRE_LOGIN must be account:password:character[:new]");
+        warn!("CROSSFIR3D_LOGIN must be account:password:character[:new]");
         return;
     };
     let creds = Creds {
@@ -332,7 +332,7 @@ pub fn command_line(
             }
             last.0 = Some(now);
             if let (Some(session), false) = (session, command.trim().is_empty()) {
-                anim.0.extend(maccrossfire::anim::event_for_command(command.trim()));
+                anim.0.extend(crossfir3d::anim::event_for_command(command.trim()));
                 session.send([submit_message(command, query.0, seq.next())]);
                 query.0 = false;
             }
@@ -361,7 +361,7 @@ pub fn submit_message(text: String, pending_query: bool, packet: u16) -> ClientM
 mod tests {
     use super::{line_action, submit_message, typed_bind, BindStep, LineAction, PendingBind};
     use crate::{KeyBindings, Msgs};
-    use maccrossfire::keys::{Binding, Combo, Mods};
+    use crossfir3d::keys::{Binding, Combo, Mods};
 
     #[test]
     fn other_text_drops_a_waiting_question() {

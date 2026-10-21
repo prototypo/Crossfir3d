@@ -183,14 +183,25 @@ fn parse_window(value: &str) -> Option<WindowPlace> {
     Some(WindowPlace { x: x.parse().ok()?, y: y.parse().ok()?, width: w.parse().ok()?, height: h.parse().ok()? })
 }
 
-/// MACCROSSFIRE_SETTINGS overrides it (tests, screenshots).
+/// The game was called MacCrossfire: its data and cache folders move to the new name
+/// once, unless a Crossfir3d folder already exists.
+pub fn move_old_folders(home: &Path) {
+    for dir in ["Library/Application Support", "Library/Caches"] {
+        let (old, new) = (home.join(dir).join("MacCrossfire"), home.join(dir).join("Crossfir3d"));
+        if old.is_dir() && !new.exists() {
+            let _ = std::fs::rename(&old, &new);
+        }
+    }
+}
+
+/// CROSSFIR3D_SETTINGS overrides it (tests, screenshots).
 /// ponytail: Mac path; the `dirs` crate in M7.
 pub fn default_settings_path() -> PathBuf {
-    if let Some(p) = std::env::var_os("MACCROSSFIRE_SETTINGS") {
+    if let Some(p) = std::env::var_os("CROSSFIR3D_SETTINGS") {
         return PathBuf::from(p);
     }
     let home = std::env::var_os("HOME").map(PathBuf::from).unwrap_or_default();
-    home.join("Library/Application Support/MacCrossfire/settings.txt")
+    home.join("Library/Application Support/Crossfir3d/settings.txt")
 }
 
 pub fn load_settings(path: &Path) -> Settings {
@@ -231,6 +242,23 @@ mod tests {
         // Left on the 2x screen.
         assert_eq!(to_logical((800, 300), 2.0), (400, 150));
         assert_eq!(to_main_screen_physical((-600, 50), 2.0), (-1200, 100));
+    }
+
+    #[test]
+    fn old_folders_move_to_the_new_name_once() {
+        let home = std::env::temp_dir().join(format!("c3d-home-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&home);
+        let old = home.join("Library/Application Support/MacCrossfire");
+        std::fs::create_dir_all(&old).unwrap();
+        std::fs::write(old.join("keys.txt"), "x").unwrap();
+        move_old_folders(&home);
+        assert!(!old.exists());
+        assert_eq!(std::fs::read_to_string(home.join("Library/Application Support/Crossfir3d/keys.txt")).unwrap(), "x");
+        // A second old folder never replaces the new one.
+        std::fs::create_dir_all(&old).unwrap();
+        move_old_folders(&home);
+        assert!(old.exists());
+        let _ = std::fs::remove_dir_all(&home);
     }
 
     fn temp(tag: &str) -> PathBuf {

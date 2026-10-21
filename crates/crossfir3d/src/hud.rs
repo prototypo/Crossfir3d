@@ -2,7 +2,7 @@
 
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
-use maccrossfire::slots::{usable, Slot};
+use crossfir3d::slots::{usable, Slot};
 
 use crate::{HudState, Inv, Msgs, PlayerStats, Slots, Spells};
 

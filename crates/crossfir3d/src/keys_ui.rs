@@ -5,11 +5,11 @@ use std::collections::HashMap;
 use bevy::input::keyboard::{Key, KeyboardInput};
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
-use maccrossfire::keys::{
+use crossfir3d::keys::{
     action_of, bind_question, default_keys_path, game_key, reserved, save_bindings, skill_command, spell_command, Action,
     Binding, Combo, Mods,
 };
-use maccrossfire::modes::Mode;
+use crossfir3d::modes::Mode;
 
 use crate::input::{held_mods, key_name};
 use crate::{known_skills, KeyBindings, KeyMode, PlayerStats, Session, SkillNames, Spells};
@@ -534,7 +534,7 @@ fn legend(ui: &mut egui::Ui) {
 #[cfg(test)]
 mod tests {
     use super::{binding_for_click, buttons, new_command, other_commands, KeysSel};
-    use maccrossfire::keys::{Action, Binding, Combo, Mods};
+    use crossfir3d::keys::{Action, Binding, Combo, Mods};
 
     #[test]
     fn typed_new_command_becomes_the_action() {

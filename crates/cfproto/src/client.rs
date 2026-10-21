@@ -32,7 +32,7 @@ impl ClientMsg {
     /// The payload, without the frame length.
     pub fn encode(&self) -> Vec<u8> {
         match self {
-            ClientMsg::Version => b"version 1023 1030 MacCrossfire".to_vec(),
+            ClientMsg::Version => b"version 1023 1030 Crossfir3d".to_vec(),
             ClientMsg::Setup(opts) => {
                 let mut s = String::from("setup");
                 for (k, v) in opts {
@@ -98,7 +98,7 @@ mod tests {
 
     #[test]
     fn encode_version() {
-        assert_eq!(ClientMsg::Version.encode(), b"version 1023 1030 MacCrossfire");
+        assert_eq!(ClientMsg::Version.encode(), b"version 1023 1030 Crossfir3d");
     }
 
     #[test]
