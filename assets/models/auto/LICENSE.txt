@@ -1,0 +1,10 @@
+These models are made by experiments/sprite3d/voxel.py ("inflate"): each opaque pixel
+of a Crossfire item picture becomes a column of voxels, thicker in the middle.
+No AI model was used.
+
+They are derived from the Crossfire pictures in upstream/crossfire-arch, so each one
+carries its picture's licence: the Crossfire arch licence (GPL-2.0-or-later), or the
+licence in that picture's .LICENSE sidecar file where there is one.
+
+Items in a family (swords, rings, potions, ...) are not here: they are built in code
+(crates/maccrossfire/src/buildings.rs, `ITEM_KINDS`), chosen by scripts/item_families.py.
