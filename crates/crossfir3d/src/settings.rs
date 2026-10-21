@@ -132,23 +132,23 @@ impl Settings {
             match key.trim() {
                 "fullscreen" => s.fullscreen = value.parse().unwrap_or(s.fullscreen),
                 "window" => s.window = parse_window(value).or(s.window),
-                "render_scale" => s.render_scale = value.parse().unwrap_or(s.render_scale),
+                "render_scale" => s.render_scale = finite(value).unwrap_or(s.render_scale),
                 "frame_rate" => s.frame_rate = parse_name(value, FRAME_RATES, frame_rate_name).unwrap_or(s.frame_rate),
                 "ambient_occlusion" => {
                     s.ambient_occlusion = parse_name(value, QUALITIES, quality_name).unwrap_or(s.ambient_occlusion)
                 }
                 "shadows" => s.shadows = parse_name(value, QUALITIES, quality_name).unwrap_or(s.shadows),
                 "anti_alias" => s.anti_alias = parse_name(value, ANTI_ALIASES, anti_alias_name).unwrap_or(s.anti_alias),
-                "brightness" => s.brightness = value.parse().unwrap_or(s.brightness),
-                "contrast" => s.contrast = value.parse().unwrap_or(s.contrast),
-                "gamma" => s.gamma = value.parse().unwrap_or(s.gamma),
+                "brightness" => s.brightness = finite(value).unwrap_or(s.brightness),
+                "contrast" => s.contrast = finite(value).unwrap_or(s.contrast),
+                "gamma" => s.gamma = finite(value).unwrap_or(s.gamma),
                 "music" => s.music = value.parse().unwrap_or(s.music),
                 "ground_popup" => s.ground_popup = value.parse().unwrap_or(s.ground_popup),
                 "log_font_size" => {
-                    let v: f32 = value.parse().unwrap_or(s.log_font_size);
+                    let v = finite(value).unwrap_or(s.log_font_size);
                     s.log_font_size = v.clamp(LOG_FONT_SIZES.0, LOG_FONT_SIZES.1);
                 }
-                "log_opacity" => s.log_opacity = value.parse::<f32>().unwrap_or(s.log_opacity).clamp(0.0, 100.0),
+                "log_opacity" => s.log_opacity = finite(value).unwrap_or(s.log_opacity).clamp(0.0, 100.0),
                 _ => {}
             }
         }
@@ -195,7 +195,13 @@ fn parse_name<T: Copy>(value: &str, all: &[T], name: fn(T) -> &'static str) -> O
 fn parse_window(value: &str) -> Option<WindowPlace> {
     let parts: Vec<&str> = value.split(',').map(str::trim).collect();
     let [x, y, w, h] = parts[..] else { return None };
-    Some(WindowPlace { x: x.parse().ok()?, y: y.parse().ok()?, width: w.parse().ok()?, height: h.parse().ok()? })
+    let place = WindowPlace { x: x.parse().ok()?, y: y.parse().ok()?, width: w.parse().ok()?, height: h.parse().ok()? };
+    (place.width > 0 && place.height > 0).then_some(place)
+}
+
+/// A number, but not NaN or infinity (a hand edit could hold either).
+fn finite(value: &str) -> Option<f32> {
+    value.parse::<f32>().ok().filter(|v| v.is_finite())
 }
 
 /// The game was called MacCrossfire: its data and cache folders move to the new name
@@ -317,6 +323,15 @@ mod tests {
         assert_eq!(s.render_scale, 1.0);
         assert_eq!(s.shadows, Quality::Medium);
         assert_eq!(s.frame_rate, FrameRate::Cap60);
+    }
+
+    #[test]
+    fn nan_and_empty_window_are_ignored() {
+        let s = Settings::from_text("render_scale=NaN\nbrightness=nan\ncontrast=inf\ngamma=NaN\nlog_font_size=NaN\nwindow=0,0,0,600\n");
+        let d = Settings::default();
+        assert_eq!((s.render_scale, s.brightness, s.contrast, s.gamma), (d.render_scale, d.brightness, d.contrast, d.gamma));
+        assert_eq!(s.log_font_size, d.log_font_size);
+        assert_eq!(s.window, None);
     }
 
     #[test]

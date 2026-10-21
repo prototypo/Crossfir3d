@@ -302,6 +302,9 @@ fn pump_network(world: &mut World) {
             ServerMsg::Tick(t) => world.resource_mut::<Clock>().0.on_tick(t),
             // Every line of the reply to our own `time` request is for the clock, not the player.
             ServerMsg::Text { text, .. } if time_reply_expected(world, &text) => {
+                if crossfir3d::clock::ends_time_reply(&text) {
+                    world.resource_mut::<TimeRequest>().0 = None;
+                }
                 if is_time_reply(&text) {
                     match parse_time_reply(&text) {
                         Some((hour, minute)) => {
@@ -344,6 +347,7 @@ fn pump_network(world: &mut World) {
                 world.resource_mut::<audio::AudioQueue>().sounds.push((action, volume, x, y))
             }
             ServerMsg::Music(name) => world.resource_mut::<audio::AudioQueue>().music = Some(name),
+            ServerMsg::Unknown(name) => debug!("ignored server command {name}"),
             _ => {}
         }
     }

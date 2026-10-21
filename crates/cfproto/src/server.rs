@@ -61,6 +61,18 @@ const ACL_RACE: u8 = 3;
 const ACL_LEVEL: u8 = 4;
 const ACL_FACE_NUM: u8 = 8;
 
+/// True the first time this text is seen: a newer server's unknown stat would
+/// otherwise fill the log, once per `stats` packet.
+fn first_report(text: &str) -> bool {
+    static SEEN: std::sync::Mutex<Vec<String>> = std::sync::Mutex::new(Vec::new());
+    let mut seen = SEEN.lock().unwrap_or_else(|e| e.into_inner());
+    let new = !seen.iter().any(|s| s == text);
+    if new {
+        seen.push(text.to_string());
+    }
+    new
+}
+
 pub fn parse(payload: &[u8]) -> Result<ServerMsg, ParseError> {
     let (cmd, data) = match payload.iter().position(|&b| b == b' ') {
         Some(i) => (&payload[..i], &payload[i + 1..]),
@@ -176,7 +188,7 @@ pub fn parse(payload: &[u8]) -> Result<ServerMsg, ParseError> {
         }
         "stats" => {
             let (updates, err) = parse_stats(data);
-            if let Some(e) = err {
+            if let Some(e) = err.filter(|e| first_report(&e.0)) {
                 eprintln!("{}", e.0);
             }
             ServerMsg::Stats(updates)
@@ -405,6 +417,13 @@ mod tests {
     fn parse_drawextinfo() {
         assert_eq!(p(b"drawextinfo 0 1 2 hello world"), ServerMsg::Text { kind: 1, subtype: 2, text: "hello world".into() });
         assert_eq!(p(b"drawinfo 0 hi"), ServerMsg::Text { kind: 0, subtype: 0, text: "hi".into() });
+    }
+
+    #[test]
+    fn first_report_only() {
+        assert!(first_report("stats: unknown code 250"));
+        assert!(!first_report("stats: unknown code 250"));
+        assert!(first_report("stats: unknown code 251"));
     }
 
     #[test]
