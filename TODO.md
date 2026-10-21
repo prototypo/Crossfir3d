@@ -4,7 +4,7 @@ Known problems left for later. Each line says what goes wrong and where to look.
 
 ## Bugs
 
-- [ ] Music keeps playing on the login screen after logout or death. `end_session` in `crates/maccrossfire/src/main.rs` does not despawn the `Music` entity (`audio.rs`).
+- [ ] Music keeps playing on the login screen after logout or death. `end_session` in `crates/crossfir3d/src/main.rs` does not despawn the `Music` entity (`audio.rs`).
 - [ ] A corrupt (not missing) sound file can crash the app: Bevy 0.20's `AudioSource::decoder()` unwraps. Check the file decodes before spawning it (`audio.rs`).
 - [ ] Connect blocks the window for up to ~75 s on an unreachable host: `TcpStream::connect` runs on the main thread (`net.rs`). Use `connect_timeout` or connect on the net thread.
 - [ ] Face textures from one session stay in `Textures.images` for the next (`world.rs`). After changing server, reused face numbers show old pictures until new ones arrive.
@@ -23,7 +23,7 @@ Known problems left for later. Each line says what goes wrong and where to look.
 - [ ] Turning TAA off leaves `MipBias`/`TemporalJitter` on the camera (sharper, shimmering textures); slider drags reset TAA history.
 - [ ] The settings screen has no scroll area; in a short window the bottom buttons can be cut off (Escape still works).
 - [ ] A player's own `time` command within 10 s of login is hidden (the clock request stays open 10 s).
-- [ ] `MACCROSSFIRE_HOUR` is read from the environment every frame (`world.rs` `lighting`).
+- [ ] `CROSSFIR3D_HOUR` is read from the environment every frame (`world.rs` `lighting`).
 
 - [ ] A refused `accountplay` (e.g. "Character X is already playing" after a crash) ends the session instead of showing the reason on the character list; the screen is blank between Play and the first map (`login.rs`, `characters_ui.rs`).
 - [ ] "Connecting..." is cleared as soon as a session exists, so a slow account login shows a blank screen (`characters_ui.rs`).

@@ -10,7 +10,7 @@ pub struct Creds {
     pub account: String,
     pub password: String,
     pub new_account: bool,
-    /// Developer login only (MACCROSSFIRE_LOGIN): play this character, or quickly
+    /// Developer login only (CROSSFIR3D_LOGIN): play this character, or quickly
     /// create it (first race and class, all stats 12) if the account lacks it.
     pub quick_character: Option<String>,
 }

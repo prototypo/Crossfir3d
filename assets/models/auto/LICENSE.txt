@@ -7,4 +7,4 @@ carries its picture's licence: the Crossfire arch licence (GPL-2.0-or-later), or
 licence in that picture's .LICENSE sidecar file where there is one.
 
 Items in a family (swords, rings, potions, ...) are not here: they are built in code
-(crates/maccrossfire/src/buildings.rs, `ITEM_KINDS`), chosen by scripts/item_families.py.
+(crates/crossfir3d/src/buildings.rs, `ITEM_KINDS`), chosen by scripts/item_families.py.

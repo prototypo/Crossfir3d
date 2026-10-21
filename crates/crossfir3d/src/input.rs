@@ -3,12 +3,12 @@
 use bevy::prelude::*;
 use cfproto::{ClientMsg, Inventory, SpellBook};
 
-use maccrossfire::camera::{compass, heading_of, nearest_dir, screen_dir, Heading, CREATURE_LAYERS};
-use maccrossfire::modes::{act, bindings_active, Act, KeyName, Mode};
-use maccrossfire::anim::event_for_command;
-use maccrossfire::messages::{ground_box, ground_things, new_square, object_tags, standing_on};
-use maccrossfire::keys::{action_of, skill_command, Action, Binding, Combo, Mods};
-use maccrossfire::slots::{dir_number, fire_commands, slot_commands, Slot};
+use crossfir3d::camera::{compass, heading_of, nearest_dir, screen_dir, Heading, CREATURE_LAYERS};
+use crossfir3d::modes::{act, bindings_active, Act, KeyName, Mode};
+use crossfir3d::anim::event_for_command;
+use crossfir3d::messages::{ground_box, ground_things, new_square, object_tags, standing_on};
+use crossfir3d::keys::{action_of, skill_command, Action, Binding, Combo, Mods};
+use crossfir3d::slots::{dir_number, fire_commands, slot_commands, Slot};
 
 use crate::characters3d::PlayerAnimEvents;
 
@@ -28,9 +28,9 @@ pub struct CameraView {
 }
 
 impl Default for CameraView {
-    /// MACCROSSFIRE_TOP: start in the top view (screenshots).
+    /// CROSSFIR3D_TOP: start in the top view (screenshots).
     fn default() -> Self {
-        CameraView { top: std::env::var_os("MACCROSSFIRE_TOP").is_some(), face: false }
+        CameraView { top: std::env::var_os("CROSSFIR3D_TOP").is_some(), face: false }
     }
 }
 
@@ -179,7 +179,7 @@ fn act_key(key: KeyCode) -> KeyName {
     }
 }
 
-/// Key names used by bindings (`maccrossfire::keys`), by key position.
+/// Key names used by bindings (`crossfir3d::keys`), by key position.
 const KEY_NAMES: [(KeyCode, &str); 72] = [
     (KeyCode::KeyA, "A"), (KeyCode::KeyB, "B"), (KeyCode::KeyC, "C"), (KeyCode::KeyD, "D"), (KeyCode::KeyE, "E"),
     (KeyCode::KeyF, "F"), (KeyCode::KeyG, "G"), (KeyCode::KeyH, "H"), (KeyCode::KeyI, "I"), (KeyCode::KeyJ, "J"),
@@ -376,7 +376,7 @@ mod tests {
     use super::{binding_commands, key_code, key_name, may_send, wants_step};
     use bevy::prelude::KeyCode;
     use cfproto::{Inventory, SpellBook};
-    use maccrossfire::keys::{Binding, Combo, Mods};
+    use crossfir3d::keys::{Binding, Combo, Mods};
 
     #[test]
     fn modified_bound_key_is_taken() {

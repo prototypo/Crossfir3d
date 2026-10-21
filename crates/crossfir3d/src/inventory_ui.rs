@@ -3,8 +3,8 @@
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
 use cfproto::{ClientMsg, Inventory, Item};
-use maccrossfire::modes::Mode;
-use maccrossfire::slots::{default_slots_path, save_slots, Slot};
+use crossfir3d::modes::Mode;
+use crossfir3d::slots::{default_slots_path, save_slots, Slot};
 
 use crate::{Inv, KeyMode, LastAction, PlayerStats, Session, Slots, Spells};
 

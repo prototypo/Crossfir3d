@@ -1,4 +1,4 @@
-//! Parses real packets saved from a server with MACCROSSFIRE_DUMP=captures.
+//! Parses real packets saved from a server with CROSSFIR3D_DUMP=captures.
 
 use std::path::Path;
 

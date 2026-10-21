@@ -83,7 +83,7 @@ def convert(obj_path, out_dir):
         prims.append({"attributes": {"POSITION": pa, "NORMAL": na}, "indices": ia, "material": len(materials) - 1})
 
     gltf = {
-        "asset": {"version": "2.0", "generator": "MacCrossfire scripts/obj2gltf.py"},
+        "asset": {"version": "2.0", "generator": "Crossfir3d scripts/obj2gltf.py"},
         "scene": 0,
         "scenes": [{"nodes": [0]}],
         "nodes": [{"name": base, "mesh": 0}],

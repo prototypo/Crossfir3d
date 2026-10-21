@@ -2,8 +2,8 @@
 
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
-use maccrossfire::modes::Mode;
-use maccrossfire::settings::{AntiAlias, FrameRate, Quality, Settings};
+use crossfir3d::modes::Mode;
+use crossfir3d::settings::{AntiAlias, FrameRate, Quality, Settings};
 
 use crate::graphics::CurrentSettings;
 use crate::{AppState, KeyMode};

@@ -77,7 +77,7 @@ pub fn usable(slot: &Slot, inv: &Inventory, spells: &SpellBook) -> bool {
 /// ponytail: Mac path; the `dirs` crate in M7.
 pub fn default_slots_path() -> PathBuf {
     let home = std::env::var_os("HOME").map(PathBuf::from).unwrap_or_default();
-    home.join("Library/Application Support/MacCrossfire/slots.txt")
+    home.join("Library/Application Support/Crossfir3d/slots.txt")
 }
 
 /// Lines: character<TAB>index<TAB>spell|item<TAB>name.
@@ -217,7 +217,7 @@ mod tests {
     }
 
     fn temp_file(tag: &str) -> PathBuf {
-        let p = std::env::temp_dir().join(format!("maccrossfire-slots-{tag}-{}", std::process::id()));
+        let p = std::env::temp_dir().join(format!("crossfir3d-slots-{tag}-{}", std::process::id()));
         let _ = std::fs::remove_file(&p);
         p
     }

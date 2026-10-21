@@ -41,7 +41,7 @@ python3 -I experiments/sprite3d/run.py shoot     # screenshots, about 15 s per o
 
 `SPRITE3D_APPROACHES=extrude,inflate` picks approaches. Existing models are kept;
 delete one to remake it. The screenshots use the game's compare mode:
-`MACCROSSFIRE_COMPARE=file` with lines `picture_name model1.glb model2.glb ...`.
+`CROSSFIR3D_COMPARE=file` with lines `picture_name model1.glb model2.glb ...`.
 
 ## Sorting the whole catalog
 

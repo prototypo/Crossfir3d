@@ -1,5 +1,5 @@
 #!/bin/sh
-# Build and run a local Crossfire C server for MacCrossfire development.
+# Build and run a local Crossfire C server for Crossfir3d development.
 #   scripts/server.sh build   clone pinned upstream repos, build, install into upstream/install
 #   scripts/server.sh run     run the installed server in the foreground (port 13327)
 # Built with autotools (works on macOS with the workarounds below); the in-tree CMake build
@@ -55,7 +55,7 @@ build() {
         sed -i '' 's/defined(__FreeBSD__) || defined(__OpenBSD__) ||/defined(__FreeBSD__) || defined(__OpenBSD__) || defined(__APPLE__) ||/' socket/init.cpp
     # Upstream never saves a character with no experience, so a new character is gone
     # (and missing from its account) after the next run. Save it anyway.
-    sed -i '' 's|return 0; /\* no experience, no save \*/|; /* MacCrossfire: save new characters too */|' server/login.cpp
+    sed -i '' 's|return 0; /\* no experience, no save \*/|; /* Crossfir3d: save new characters too */|' server/login.cpp
     # No metaserver: a dev server must not be listed publicly, and its thread code is Linux-only.
     sh ./autogen.sh --prefix="$PREFIX" --without-libcurl
     make -j"$(sysctl -n hw.ncpu)"

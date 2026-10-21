@@ -252,7 +252,7 @@ pub fn parse_typed(line: &str) -> Option<Typed> {
 
 pub fn default_keys_path() -> PathBuf {
     let home = std::env::var_os("HOME").map(PathBuf::from).unwrap_or_default();
-    home.join("Library/Application Support/MacCrossfire/keys.txt")
+    home.join("Library/Application Support/Crossfir3d/keys.txt")
 }
 
 /// Lines: who<TAB>mods<TAB>key<TAB>flags<TAB>command; who is a character or `*` (all).
@@ -308,7 +308,7 @@ mod tests {
         Mods { alt: true, ..Default::default() }
     }
     fn temp_file(tag: &str) -> PathBuf {
-        let p = std::env::temp_dir().join(format!("maccrossfire-keys-{tag}-{}", std::process::id()));
+        let p = std::env::temp_dir().join(format!("crossfir3d-keys-{tag}-{}", std::process::id()));
         let _ = std::fs::remove_file(&p);
         p
     }

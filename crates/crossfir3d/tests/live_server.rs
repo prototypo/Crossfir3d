@@ -1,11 +1,11 @@
 //! Needs a local server: scripts/server.sh run, then
-//! cargo test -p maccrossfire --test live_server -- --ignored
+//! cargo test -p crossfir3d --test live_server -- --ignored
 
 use std::time::{Duration, Instant, SystemTime};
 
 use cfproto::{ClientMsg, Map2Item, ServerMsg};
-use maccrossfire::login::{Creds, LoginFlow};
-use maccrossfire::net::{connect, Net, NetEvent};
+use crossfir3d::login::{Creds, LoginFlow};
+use crossfir3d::net::{connect, Net, NetEvent};
 
 /// Next server message, or panic after `wait`. Answers login messages on the way.
 fn next(net: &Net, flow: &mut LoginFlow, wait: Duration) -> ServerMsg {

@@ -6,9 +6,9 @@ use std::sync::Arc;
 
 use bevy::audio::Volume;
 use bevy::prelude::*;
-use maccrossfire::sound::{music_changes, music_file, sounds_dir, SoundTable};
+use crossfir3d::sound::{music_changes, music_file, sounds_dir, SoundTable};
 
-use maccrossfire::modes::mute_key_allowed;
+use crossfir3d::modes::mute_key_allowed;
 
 use crate::graphics::CurrentSettings;
 use crate::{AppState, KeyMode};

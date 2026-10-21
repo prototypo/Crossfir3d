@@ -198,7 +198,7 @@ pub fn save_body(path: &Path, character: &str, body: Body) -> std::io::Result<()
 /// Next to the quick slots and settings. ponytail: Mac path; `dirs` crate in M7.
 pub fn default_body_path() -> std::path::PathBuf {
     let home = std::env::var_os("HOME").map(std::path::PathBuf::from).unwrap_or_default();
-    home.join("Library/Application Support/MacCrossfire/bodies.txt")
+    home.join("Library/Application Support/Crossfir3d/bodies.txt")
 }
 
 #[cfg(test)]

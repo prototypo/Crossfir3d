@@ -105,7 +105,7 @@ def write_map(category, arch, models):
 
 def shoot():
     os.makedirs(SHOTS, exist_ok=True)
-    subprocess.run(["cargo", "build", "--release", "-p", "maccrossfire"], cwd=ROOT, check=True)
+    subprocess.run(["cargo", "build", "--release", "-p", "crossfir3d"], cwd=ROOT, check=True)
     for category, arch, picture in objects():
         files = [f"experiment/sprite3d/{n}/{arch}.glb" for n, _, _ in approaches() if os.path.exists(os.path.join(OUT, n, arch + ".glb"))]
         labels = ["2D card"] + [lbl for n, lbl, _ in approaches() if os.path.exists(os.path.join(OUT, n, arch + ".glb"))]
@@ -116,14 +116,14 @@ def shoot():
         shot = os.path.join(SHOTS, arch + ".png")
         env = dict(
             os.environ,
-            MACCROSSFIRE_LOGIN=LOGIN,
-            MACCROSSFIRE_COMMANDS=f"dm {DM_PASSWORD};goto {map_path}",
-            MACCROSSFIRE_COMPARE=compare,
-            MACCROSSFIRE_SCREENSHOT=shot,
-            MACCROSSFIRE_SCREENSHOT_AT="10",
-            MACCROSSFIRE_HOUR="14",
+            CROSSFIR3D_LOGIN=LOGIN,
+            CROSSFIR3D_COMMANDS=f"dm {DM_PASSWORD};goto {map_path}",
+            CROSSFIR3D_COMPARE=compare,
+            CROSSFIR3D_SCREENSHOT=shot,
+            CROSSFIR3D_SCREENSHOT_AT="10",
+            CROSSFIR3D_HOUR="14",
         )
-        subprocess.run([os.path.join(ROOT, "target/release/maccrossfire")], env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        subprocess.run([os.path.join(ROOT, "target/release/crossfir3d")], env=env, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         ok = os.path.exists(shot)
         if ok:
             label(shot, f"{category}: {arch}", labels)

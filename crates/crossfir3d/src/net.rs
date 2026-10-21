@@ -39,7 +39,7 @@ pub fn connect(addr: &str) -> io::Result<Net> {
     let mut writer = stream.try_clone()?;
     let (tx, out_rx) = mpsc::channel::<ClientMsg>();
     let (in_tx, rx) = mpsc::channel();
-    let dump = std::env::var_os("MACCROSSFIRE_DUMP").map(PathBuf::from);
+    let dump = std::env::var_os("CROSSFIR3D_DUMP").map(PathBuf::from);
 
     thread::spawn(move || {
         let reason = loop {

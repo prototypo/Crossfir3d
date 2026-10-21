@@ -12,7 +12,7 @@ use bevy::pbr::{ScreenSpaceAmbientOcclusion, ScreenSpaceAmbientOcclusionQualityL
 use bevy::prelude::*;
 use bevy::render::view::{ColorGrading, ColorGradingGlobal, ColorGradingSection};
 use bevy::window::{Monitor, MonitorSelection, PrimaryMonitor, PresentMode, PrimaryWindow, WindowMode, WindowMoved, WindowPosition, WindowResized};
-use maccrossfire::settings::{
+use crossfir3d::settings::{
     default_settings_path, load_settings, save_settings, to_logical, to_main_screen_physical, AntiAlias, FrameRate,
     Quality, Settings, WindowPlace,
 };
@@ -36,7 +36,7 @@ impl Plugin for GraphicsPlugin {
 
 /// The primary window as the saved settings describe it (used when building the app).
 pub fn initial_window(s: &Settings) -> Window {
-    let mut w = Window { title: "MacCrossfire".into(), ..default() };
+    let mut w = Window { title: "Crossfir3d".into(), ..default() };
     w.mode = window_mode(s);
     w.present_mode = present_mode(s.frame_rate);
     // The position is set once the monitors are known (`place_window`).

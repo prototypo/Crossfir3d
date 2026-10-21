@@ -18,7 +18,7 @@ pub struct FaceStore {
 /// ponytail: Mac only, swap in the `dirs` crate in M7.
 pub fn default_cache_dir() -> PathBuf {
     let home = std::env::var_os("HOME").map(PathBuf::from).unwrap_or_default();
-    home.join("Library/Caches/MacCrossfire/faces")
+    home.join("Library/Caches/Crossfir3d/faces")
 }
 
 impl FaceStore {
@@ -121,7 +121,7 @@ mod tests {
     use super::*;
 
     fn temp_dir(tag: &str) -> PathBuf {
-        let d = std::env::temp_dir().join(format!("maccrossfire-test-{tag}-{}", std::process::id()));
+        let d = std::env::temp_dir().join(format!("crossfir3d-test-{tag}-{}", std::process::id()));
         let _ = std::fs::remove_dir_all(&d);
         d
     }

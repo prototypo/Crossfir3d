@@ -1,13 +1,13 @@
 use bevy::prelude::*;
 use bevy_egui::{EguiPlugin, EguiPrimaryContextPass};
 use cfproto::{ClientMsg, Inventory, MapView, ServerMsg, SpellBook, Stats};
-use maccrossfire::faces::FaceStore;
-use maccrossfire::login::{LoginFlow, LoginState};
-use maccrossfire::clock::{is_time_reply, is_time_reply_line, parse_time_reply, GameClock};
-use maccrossfire::messages::Messages;
-use maccrossfire::modes::Mode;
-use maccrossfire::slots::{default_slots_path, load_slots, QuickSlots};
-use maccrossfire::net::{Net, NetEvent};
+use crossfir3d::faces::FaceStore;
+use crossfir3d::login::{LoginFlow, LoginState};
+use crossfir3d::clock::{is_time_reply, is_time_reply_line, parse_time_reply, GameClock};
+use crossfir3d::messages::Messages;
+use crossfir3d::modes::Mode;
+use crossfir3d::slots::{default_slots_path, load_slots, QuickSlots};
+use crossfir3d::net::{Net, NetEvent};
 
 mod audio;
 mod characters3d;
@@ -112,7 +112,7 @@ pub struct Slots(pub QuickSlots);
 
 /// This character's key bindings and the all-characters ones (`keys.txt`).
 #[derive(Resource, Default)]
-pub struct KeyBindings(pub maccrossfire::keys::Bindings);
+pub struct KeyBindings(pub crossfir3d::keys::Bindings);
 
 /// Skill names by stat code (140-189), from `replyinfo skill_info`.
 #[derive(Resource, Default)]
@@ -131,6 +131,9 @@ pub struct HudState {
 }
 
 fn main() {
+    if let Some(home) = std::env::var_os("HOME") {
+        crossfir3d::settings::move_old_folders(std::path::Path::new(&home));
+    }
     let settings = graphics::startup_settings();
     App::new()
         .add_plugins(
@@ -194,7 +197,7 @@ pub fn start_session(world: &mut World, net: Net, login: LoginFlow, first: Vec<C
     let session = Session { net, login };
     session.send(first);
     world.insert_non_send(session);
-    world.insert_resource(Faces(FaceStore::new(maccrossfire::faces::default_cache_dir())));
+    world.insert_resource(Faces(FaceStore::new(crossfir3d::faces::default_cache_dir())));
     world.insert_resource(ViewSize(11, 11)); // until the setup reply says otherwise
     reset_play_state(world);
 }
@@ -251,7 +254,7 @@ fn pump_network(world: &mut World) {
 
         // On a permadeath server the character list comes back after death.
         let in_game = *world.resource::<State<AppState>>().get() == AppState::InGame;
-        if let (true, Some(reason)) = (in_game, maccrossfire::messages::in_game_reset(&msg)) {
+        if let (true, Some(reason)) = (in_game, crossfir3d::messages::in_game_reset(&msg)) {
             world.resource_mut::<Status>().0 = reason.to_string();
             world.resource_mut::<NextState<AppState>>().set(AppState::Login);
             reset_play_state(world);
@@ -293,7 +296,7 @@ fn pump_network(world: &mut World) {
                 world.resource_mut::<input::DoorExit>().new_map = true;
                 world.resource_mut::<world::MapGen>().0 += 1;
                 // A new map after dying is the respawn.
-                world.resource_mut::<characters3d::PlayerAnimEvents>().0.push(maccrossfire::anim::AnimEvent::Revived);
+                world.resource_mut::<characters3d::PlayerAnimEvents>().0.push(crossfir3d::anim::AnimEvent::Revived);
             }
             ServerMsg::Comc { packet, time_ms } => world.insert_resource(LastComc { time_ms, packet }),
             ServerMsg::Tick(t) => world.resource_mut::<Clock>().0.on_tick(t),
@@ -316,7 +319,7 @@ fn pump_network(world: &mut World) {
                 if kind == combat_fx::MSG_ATTACK {
                     world.resource_mut::<combat_fx::CombatFx>().attacks.push(subtype);
                 }
-                if let Some(ev) = maccrossfire::anim::event_for_message(kind, subtype) {
+                if let Some(ev) = crossfir3d::anim::event_for_message(kind, subtype) {
                     world.resource_mut::<characters3d::PlayerAnimEvents>().0.push(ev);
                 }
             }
@@ -350,12 +353,12 @@ fn pump_network(world: &mut World) {
 fn load_character_keys(mut slots: ResMut<Slots>, mut bindings: ResMut<KeyBindings>, session: Option<NonSend<Session>>) {
     if let Some(s) = session {
         slots.0 = load_slots(&default_slots_path(), s.login.character());
-        bindings.0 = maccrossfire::keys::load_bindings(&maccrossfire::keys::default_keys_path(), s.login.character());
+        bindings.0 = crossfir3d::keys::load_bindings(&crossfir3d::keys::default_keys_path(), s.login.character());
     }
 }
 
-/// Developer check: MACCROSSFIRE_SCREENSHOT=file.png saves one screenshot after
-/// MACCROSSFIRE_SCREENSHOT_AT seconds after start (default 8), then quits.
+/// Developer check: CROSSFIR3D_SCREENSHOT=file.png saves one screenshot after
+/// CROSSFIR3D_SCREENSHOT_AT seconds after start (default 8), then quits.
 fn dev_screenshot(
     mut commands: Commands,
     time: Res<Time>,
@@ -363,10 +366,10 @@ fn dev_screenshot(
     mut exit: MessageWriter<AppExit>,
 ) {
     use bevy::render::view::screenshot::{save_to_disk, Screenshot};
-    let Ok(path) = std::env::var("MACCROSSFIRE_SCREENSHOT") else { return };
+    let Ok(path) = std::env::var("CROSSFIR3D_SCREENSHOT") else { return };
     let start = *since.get_or_insert(time.elapsed_secs());
     let t = time.elapsed_secs() - start;
-    let at: f32 = std::env::var("MACCROSSFIRE_SCREENSHOT_AT").ok().and_then(|v| v.parse().ok()).unwrap_or(8.0);
+    let at: f32 = std::env::var("CROSSFIR3D_SCREENSHOT_AT").ok().and_then(|v| v.parse().ok()).unwrap_or(8.0);
     if (at..at + time.delta_secs()).contains(&t) {
         commands.spawn(Screenshot::primary_window()).observe(save_to_disk(path));
     } else if t > at + 2.0 {
@@ -381,9 +384,9 @@ fn time_reply_expected(world: &World, text: &str) -> bool {
 }
 
 /// Asks the server for the game time once per login.
-/// Developer check: MACCROSSFIRE_COMMANDS="cmd1;cmd2" sends these game commands on
+/// Developer check: CROSSFIR3D_COMMANDS="cmd1;cmd2" sends these game commands on
 /// entering the game (e.g. a local-server teleport for screenshots).
-/// MACCROSSFIRE_SCREEN=keys opens the key bindings screen.
+/// CROSSFIR3D_SCREEN=keys opens the key bindings screen.
 fn dev_commands(
     mut seq: ResMut<NcomSeq>,
     mut mode: ResMut<KeyMode>,
@@ -391,13 +394,13 @@ fn dev_commands(
     mut heading: ResMut<input::CameraHeading>,
     session: Option<NonSend<Session>>,
 ) {
-    if std::env::var("MACCROSSFIRE_SCREEN").is_ok_and(|s| s == "keys") {
-        mode.0 = maccrossfire::modes::Mode::Keys;
+    if std::env::var("CROSSFIR3D_SCREEN").is_ok_and(|s| s == "keys") {
+        mode.0 = crossfir3d::modes::Mode::Keys;
     }
-    let (Ok(cmds), Some(session)) = (std::env::var("MACCROSSFIRE_COMMANDS"), session) else { return };
+    let (Ok(cmds), Some(session)) = (std::env::var("CROSSFIR3D_COMMANDS"), session) else { return };
     for c in cmds.split(';').map(str::trim).filter(|c| !c.is_empty()) {
-        facing.0 = maccrossfire::slots::dir_number(c).unwrap_or(facing.0);
-        heading.0 = maccrossfire::camera::heading_of(facing.0);
+        facing.0 = crossfir3d::slots::dir_number(c).unwrap_or(facing.0);
+        heading.0 = crossfir3d::camera::heading_of(facing.0);
         session.send([ClientMsg::Ncom { packet: seq.next(), repeat: 0, command: c.into() }]);
     }
 }
