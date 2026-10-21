@@ -64,12 +64,28 @@ impl Messages {
 /// How many things the log line names before "... and N more".
 const STANDING_ON_NAMES: usize = 5;
 
-fn thing_name(item: &cfproto::Item) -> String {
+const F_NOPICK: u32 = 0x4000;
+
+fn fixed(item: &cfproto::Item) -> bool {
+    item.flags & F_NOPICK != 0
+}
+
+/// "a sword", "3 scrolls"; the floor (the bottom thing, when fixed) has no article:
+/// "grass", "cobblestones".
+fn thing_name(item: &cfproto::Item, floor: bool) -> String {
     if item.nrof > 1 {
         return format!("{} {}", item.nrof, item.plural);
     }
+    if floor {
+        return item.name.clone();
+    }
     let article = if item.name.starts_with(['a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U']) { "an" } else { "a" };
     format!("{article} {}", item.name)
+}
+
+/// Every name, bottom first (the server lists the floor first).
+fn names<'a>(items: &'a [&cfproto::Item]) -> impl Iterator<Item = String> + 'a {
+    items.iter().enumerate().map(|(i, item)| thing_name(item, i == 0 && fixed(item)))
 }
 
 /// What lies under the player: things, and fixed things too (grass, a well, a sign),
@@ -78,23 +94,25 @@ pub fn ground_things(inv: &cfproto::Inventory) -> Vec<&cfproto::Item> {
     inv.ground().into_iter().filter(|i| i.tag != inv.player).collect()
 }
 
-/// The log line for the things under the player; None when there are none.
-pub fn standing_on(items: &[&cfproto::Item]) -> Option<String> {
-    if items.is_empty() {
-        return None;
-    }
-    let names: Vec<String> = items.iter().take(STANDING_ON_NAMES).map(|i| thing_name(i)).collect();
-    let more = items.len().saturating_sub(STANDING_ON_NAMES);
-    let tail = if more > 0 { format!(" ... and {more} more (I to see all)") } else { String::new() };
-    Some(format!("You are standing on: {}{tail}.", names.join(", ")))
+/// The things that can be picked up: only they make a log line or open the box.
+pub fn object_tags(items: &[&cfproto::Item]) -> Vec<u32> {
+    items.iter().filter(|i| !fixed(i)).map(|i| i.tag).collect()
 }
 
-/// The parchment box text: every thing under the player, one per line.
+/// The log line for what is under the player; None when nothing there can be picked up.
+pub fn standing_on(items: &[&cfproto::Item]) -> Option<String> {
+    if object_tags(items).is_empty() {
+        return None;
+    }
+    let shown: Vec<String> = names(items).take(STANDING_ON_NAMES).collect();
+    let more = items.len().saturating_sub(STANDING_ON_NAMES);
+    let tail = if more > 0 { format!(" ... and {more} more (I to see all)") } else { String::new() };
+    Some(format!("You are standing on: {}{tail}.", shown.join(", ")))
+}
+
+/// The parchment box text: everything under the player, one per line.
 pub fn ground_box(items: &[&cfproto::Item]) -> Option<String> {
-    (!items.is_empty()).then(|| {
-        let lines: Vec<String> = items.iter().map(|i| thing_name(i)).collect();
-        format!("You are standing on:\n{}", lines.join("\n"))
-    })
+    (!items.is_empty()).then(|| format!("You are standing on:\n{}", names(items).collect::<Vec<_>>().join("\n")))
 }
 
 /// The ground list changed to a new square's things (none in common with before), not
@@ -138,6 +156,20 @@ mod tests {
         inv.apply_item2(0, vec![thing(9, "Showcase", "Showcase", 1), grass, thing(3, "sword", "swords", 1)]);
         let names: Vec<&str> = ground_things(&inv).iter().map(|i| i.name.as_str()).collect();
         assert_eq!(names, ["grass", "sword"]);
+    }
+
+    #[test]
+    fn floor_has_no_article_and_fixed_things_alone_stay_quiet() {
+        let fixed = |tag, name: &str| {
+            let mut t = thing(tag, name, name, 1);
+            t.flags = 0x4000; // F_NOPICK
+            t
+        };
+        let (grass, well, sword) = (fixed(1, "grass"), fixed(2, "well"), thing(3, "sword", "swords", 1));
+        assert_eq!(standing_on(&[&grass, &sword]).unwrap(), "You are standing on: grass, a sword.");
+        assert_eq!(standing_on(&[&grass, &well]), None);
+        assert_eq!(ground_box(&[&grass, &well]).unwrap(), "You are standing on:\ngrass\na well");
+        assert_eq!(object_tags(&[&grass, &well, &sword]), [3]);
     }
 
     #[test]
