@@ -29,6 +29,8 @@ pub struct Stats {
     pub pow: i16,
     pub range: String,
     pub title: String,
+    /// Known skills: stat code (140-189) to experience.
+    pub skills: std::collections::BTreeMap<u8, i64>,
 }
 
 /// Parses until the end or the first unknown stat code. Returns what was read and,
@@ -95,6 +97,9 @@ impl Stats {
                         23 => self.grace = short,
                         24 => self.max_grace = short,
                         28 => self.exp = *v,
+                        140..=189 => {
+                            self.skills.insert(*code, *v);
+                        }
                         _ => {}
                     }
                 }
@@ -106,6 +111,13 @@ impl Stats {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn skill_stats_are_kept() {
+        let mut s = Stats::default();
+        s.apply(&[(141, StatValue::Int(1200))]);
+        assert_eq!(s.skills.get(&141), Some(&1200));
+    }
 
     #[test]
     fn stats_hp_and_max() {
