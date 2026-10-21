@@ -11,7 +11,6 @@ Known problems left for later. Each line says what goes wrong and where to look.
 
 ## Missing
 
-- [ ] Server text markup such as `[b]` and `[fixed]` shows as plain text in the parchment box and log.
 - [ ] Torches and other wall-mounted things are hidden inside the solid wall blocks (`world.rs`).
 - [ ] Live tests for "read a sign → parchment box" and "cast a known spell".
 
@@ -37,6 +36,9 @@ Known problems left for later. Each line says what goes wrong and where to look.
 - [ ] Animation changes cut instead of blending (`player.stop_all()` then `play`).
 
 ## Not checked yet
+
+- [ ] After a `goto` from the test switch (`CROSSFIR3D_COMMANDS`), a sign's box opened by `apply` closes about 3 s later, as if the player stepped away (`input.rs` `DoorExit`?). Seen while testing text styles.
+- [ ] Bold server text (`[b]`) only shows a little darker; egui has no bold font loaded (`hud.rs` `styled`).
 
 - [ ] Key bindings by hand: typing `bind` in the command box, the Replace question on the K screen, and a bound spell cast in play (only the K screen picture was screenshot-checked).
 - [ ] European (ISO) and Japanese keyboards are drawn as a US Mac keyboard; only key labels change once a key is pressed (`keys_ui.rs`).
