@@ -11,7 +11,7 @@ use maccrossfire::slots::{dir_number, fire_commands, slot_commands, Slot};
 
 use crate::characters3d::PlayerAnimEvents;
 
-use crate::ui::CommandLine;
+use crate::ui::{CommandLine, PendingBind};
 use crate::{known_skills, HudState, Inv, KeyBindings, KeyMode, SkillNames, LastAction, LastComc, Msgs, NcomSeq, PlayerStats, Session, Slots, Spells, View, ViewSize};
 
 /// Where the camera looks (45° steps); the world rig eases its yaw toward it.
@@ -97,10 +97,13 @@ pub fn send_moves(
     mut wait: ResMut<MoveWait>,
     mut door: ResMut<DoorExit>,
     mut held: Local<Option<(f32, (i8, i8), Heading)>>, // (first step, screen dir, facing at key-down)
-    bindings: Res<KeyBindings>,
+    (bindings, pending): (Res<KeyBindings>, Res<PendingBind>),
     session: Option<NonSend<Session>>,
 ) {
     let Some(session) = session else { return };
+    if pending.waiting_key() {
+        return;
+    }
     let now = time.elapsed_secs();
     if door.came_out && may_send(wait.0, comc.packet, now) {
         // Out of the door, facing away from it, the camera behind.
@@ -245,10 +248,13 @@ pub fn world_keys(
     mut heading: ResMut<CameraHeading>,
     mut view: ResMut<CameraView>,
     mut anim: ResMut<PlayerAnimEvents>,
-    (bindings, skill_names, mut line): (Res<KeyBindings>, Res<SkillNames>, ResMut<CommandLine>),
+    (bindings, skill_names, mut line, pending): (Res<KeyBindings>, Res<SkillNames>, ResMut<CommandLine>, Res<PendingBind>),
     session: Option<NonSend<Session>>,
 ) {
     let Some(session) = session else { return };
+    if pending.waiting_key() {
+        return; // `capture_bind_key` takes this key press
+    }
     view.face = mode.0 == Mode::World && keys.pressed(KeyCode::KeyF) && !plain_bound(&bindings, "F");
     let mods = held_mods(&keys);
     let pressed: Vec<KeyCode> = keys.get_just_pressed().copied().collect();

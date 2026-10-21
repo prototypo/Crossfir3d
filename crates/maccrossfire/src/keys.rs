@@ -185,6 +185,21 @@ pub fn reserved(combo: &Combo, mac: bool) -> Option<&'static str> {
     }
 }
 
+/// Before binding `command` to `combo`: Err(reason) if it can never be bound,
+/// Ok(Some(question)) if it replaces a game key or another binding, Ok(None) to bind.
+pub fn bind_question(b: &Bindings, combo: &Combo, command: &str, mac: bool) -> Result<Option<String>, &'static str> {
+    if let Some(reason) = reserved(combo, mac) {
+        return Err(reason);
+    }
+    let name = combo.text(mac);
+    Ok(match (b.lookup(combo), game_key(combo)) {
+        (Some(old), _) if old.command == command => None,
+        (Some(old), _) => Some(format!("{name} runs {}. Replace it? Type y or n.", old.command)),
+        (None, Some(job)) => Some(format!("{name} is the {job} key. Replace it? Type y or n.")),
+        (None, None) => None,
+    })
+}
+
 /// A typed `bind` or `unbind` command (`lib/help/bind.en`).
 #[derive(Debug, PartialEq)]
 pub enum Typed {
@@ -409,6 +424,19 @@ mod tests {
         assert_eq!(parse_typed("unbind 3"), Some(Typed::Remove(3)));
         assert_eq!(parse_typed("unbind reset"), Some(Typed::Reset));
         assert_eq!(parse_typed("unbind x"), Some(Typed::Usage));
+    }
+
+    #[test]
+    fn bind_questions() {
+        let plain = |k: &str| Combo { mods: Mods::default(), key: k.into() };
+        let b = Bindings::default();
+        assert!(bind_question(&b, &plain("Escape"), "x", true).is_err());
+        assert_eq!(bind_question(&b, &plain("G"), "x", true), Ok(Some("G is the get key. Replace it? Type y or n.".into())));
+        assert_eq!(bind_question(&b, &plain("D"), "x", true), Ok(None));
+        let mut b2 = Bindings::default();
+        b2.bind(Binding { all: false, combo: plain("D"), edit: false, command: "say a".into() });
+        assert_eq!(bind_question(&b2, &plain("D"), "x", true), Ok(Some("D runs say a. Replace it? Type y or n.".into())));
+        assert_eq!(bind_question(&b2, &plain("D"), "say a", true), Ok(None));
     }
 
     #[test]

@@ -161,6 +161,7 @@ fn main() {
         .init_resource::<Slots>()
         .init_resource::<SkillNames>()
         .init_resource::<KeyBindings>()
+        .init_resource::<ui::PendingBind>()
         .init_resource::<inventory_ui::InvSel>()
         .init_resource::<input::Facing>()
         .init_resource::<input::CameraHeading>()
@@ -173,7 +174,7 @@ fn main() {
         .add_plugins(audio::AudioPlugin)
         .add_systems(Startup, ui::auto_login)
         .add_systems(Update, pump_network)
-        .add_systems(Update, (input::send_moves, input::world_keys).run_if(in_state(AppState::InGame)))
+        .add_systems(Update, (input::send_moves, input::world_keys, ui::capture_bind_key).chain().run_if(in_state(AppState::InGame)))
         .add_systems(Update, dev_screenshot)
         .add_systems(OnEnter(AppState::InGame), load_character_keys)
         .init_resource::<settings_ui::SettingsOpen>()
@@ -215,6 +216,7 @@ fn reset_play_state(world: &mut World) {
     world.insert_resource(Spells::default());
     world.insert_resource(Slots::default());
     world.insert_resource(SkillNames::default());
+    world.insert_resource(ui::PendingBind::default());
     world.insert_resource(inventory_ui::InvSel::default());
     world.insert_resource(input::Facing::default());
     world.insert_resource(input::CameraHeading::default());
