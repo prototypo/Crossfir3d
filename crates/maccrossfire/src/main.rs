@@ -109,6 +109,10 @@ pub struct Spells(pub SpellBook);
 #[derive(Resource, Default)]
 pub struct Slots(pub QuickSlots);
 
+/// This character's key bindings and the all-characters ones (`keys.txt`).
+#[derive(Resource, Default)]
+pub struct KeyBindings(pub maccrossfire::keys::Bindings);
+
 /// Skill names by stat code (140-189), from `replyinfo skill_info`.
 #[derive(Resource, Default)]
 pub struct SkillNames(pub std::collections::HashMap<u8, String>);
@@ -156,6 +160,7 @@ fn main() {
         .init_resource::<Spells>()
         .init_resource::<Slots>()
         .init_resource::<SkillNames>()
+        .init_resource::<KeyBindings>()
         .init_resource::<inventory_ui::InvSel>()
         .init_resource::<input::Facing>()
         .init_resource::<input::CameraHeading>()
@@ -170,7 +175,7 @@ fn main() {
         .add_systems(Update, pump_network)
         .add_systems(Update, (input::send_moves, input::world_keys).run_if(in_state(AppState::InGame)))
         .add_systems(Update, dev_screenshot)
-        .add_systems(OnEnter(AppState::InGame), load_character_slots)
+        .add_systems(OnEnter(AppState::InGame), load_character_keys)
         .init_resource::<settings_ui::SettingsOpen>()
         .add_systems(
             EguiPrimaryContextPass,
@@ -336,10 +341,11 @@ fn pump_network(world: &mut World) {
     }
 }
 
-/// Quick slots belong to the character actually being played.
-fn load_character_slots(mut slots: ResMut<Slots>, session: Option<NonSend<Session>>) {
+/// Quick slots and key bindings belong to the character actually being played.
+fn load_character_keys(mut slots: ResMut<Slots>, mut bindings: ResMut<KeyBindings>, session: Option<NonSend<Session>>) {
     if let Some(s) = session {
         slots.0 = load_slots(&default_slots_path(), s.login.character());
+        bindings.0 = maccrossfire::keys::load_bindings(&maccrossfire::keys::default_keys_path(), s.login.character());
     }
 }
 

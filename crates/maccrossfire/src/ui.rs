@@ -119,7 +119,7 @@ pub fn auto_login(mut commands: Commands) {
 #[derive(Resource, Default)]
 pub struct CommandLine {
     pub open: bool,
-    text: String,
+    pub text: String,
 }
 
 #[derive(Debug, PartialEq)]
