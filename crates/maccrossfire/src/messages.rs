@@ -72,11 +72,10 @@ fn thing_name(item: &cfproto::Item) -> String {
     format!("{article} {}", item.name)
 }
 
-/// What lies under the player worth naming: not the floor or other fixed things the
-/// server marks "no pick", and not the player.
+/// What lies under the player: things, and fixed things too (grass, a well, a sign),
+/// but not the player.
 pub fn ground_things(inv: &cfproto::Inventory) -> Vec<&cfproto::Item> {
-    const F_NOPICK: u32 = 0x4000;
-    inv.ground().into_iter().filter(|i| i.flags & F_NOPICK == 0 && i.tag != inv.player).collect()
+    inv.ground().into_iter().filter(|i| i.tag != inv.player).collect()
 }
 
 /// The log line for the things under the player; None when there are none.
@@ -131,14 +130,14 @@ mod tests {
     }
 
     #[test]
-    fn ground_things_skip_the_floor_and_the_player() {
+    fn ground_things_skip_only_the_player() {
         let mut inv = cfproto::Inventory::default();
         inv.player = 9;
         let mut grass = thing(2, "grass", "grass", 1);
         grass.flags = 0x4000; // F_NOPICK
         inv.apply_item2(0, vec![thing(9, "Showcase", "Showcase", 1), grass, thing(3, "sword", "swords", 1)]);
         let names: Vec<&str> = ground_things(&inv).iter().map(|i| i.name.as_str()).collect();
-        assert_eq!(names, ["sword"]);
+        assert_eq!(names, ["grass", "sword"]);
     }
 
     #[test]
