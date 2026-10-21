@@ -239,6 +239,13 @@ pub(crate) struct Recolour;
 #[derive(Component)]
 pub(crate) struct SkinTint(pub Color);
 
+impl Textures {
+    /// A face's picture and its size in pixels, once it has arrived.
+    pub(crate) fn picture(&self, face: u16) -> Option<(Handle<Image>, Vec2)> {
+        self.images.get(&face).map(|(h, size, _)| (h.clone(), *size))
+    }
+}
+
 /// Face numbers belong to one server and session: the next may reuse a number for
 /// another picture.
 fn forget_faces(mut textures: ResMut<Textures>) {
@@ -246,7 +253,7 @@ fn forget_faces(mut textures: ResMut<Textures>) {
 }
 
 #[derive(Resource, Default)]
-struct Textures {
+pub(crate) struct Textures {
     /// Each picture, its size, and its average colour (for the sides of raised squares).
     images: HashMap<u16, (Handle<Image>, Vec2, Color)>,
     ground: Handle<Mesh>,
