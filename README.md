@@ -44,6 +44,10 @@ it from the inventory: **I**, select it, **E**); arrows and bolts fly as 3D arro
 floats above you; "hit", "miss", and "killed!" float over the monster you attack, and
 it flashes red when hit. (The server sends no monster health or damage numbers.)
 
+The log in the bottom-left corner can be made easier to read in the Settings screen
+(Escape): "Log text size" (the box grows with the text) and "Log background" (how
+dark, in per cent).
+
 When you step onto things, the log names them ("You are standing on: a sack, a long
 sword, ..."). **B** shows the full list in the parchment box; the Settings screen's
 "Show what is under me" opens it on every new square.

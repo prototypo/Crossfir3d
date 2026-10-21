@@ -3,7 +3,7 @@
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
 use crossfir3d::modes::Mode;
-use crossfir3d::settings::{AntiAlias, FrameRate, Quality, Settings};
+use crossfir3d::settings::{AntiAlias, FrameRate, Quality, Settings, LOG_FONT_SIZES};
 
 use crate::graphics::CurrentSettings;
 use crate::{AppState, KeyMode};
@@ -119,6 +119,13 @@ pub fn settings_screen(
 
                 ui.label("Music");
                 ui.checkbox(&mut s.music, "");
+                ui.end_row();
+
+                ui.label("Log text size");
+                ui.add(egui::Slider::new(&mut s.log_font_size, LOG_FONT_SIZES.0..=LOG_FONT_SIZES.1));
+                ui.end_row();
+                ui.label("Log background");
+                ui.add(egui::Slider::new(&mut s.log_opacity, 0.0..=100.0).suffix(" %"));
                 ui.end_row();
 
                 ui.label("Show what is under me");
