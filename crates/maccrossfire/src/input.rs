@@ -278,6 +278,7 @@ pub fn world_keys(
     mut view: ResMut<CameraView>,
     mut anim: ResMut<PlayerAnimEvents>,
     (bindings, skill_names, mut line, pending): (Res<KeyBindings>, Res<SkillNames>, ResMut<CommandLine>, Res<PendingBind>),
+    keys_sel: Res<crate::keys_ui::KeysSel>,
     session: Option<NonSend<Session>>,
 ) {
     let Some(session) = session else { return };
@@ -319,7 +320,7 @@ pub fn world_keys(
             Act::CloseBox => msgs.0.close_box(),
             Act::OpenInventory => mode.0 = Mode::Inventory,
             // shift+K and the like are picked as keys on the bindings screen, not closing it.
-            Act::CloseKeys if !mods.none() => {}
+            Act::CloseKeys if !mods.none() || (key == KeyName::K && keys_sel.typing) => {}
             Act::CloseInventory | Act::CloseSettings | Act::CloseKeys => mode.0 = Mode::World,
             Act::OpenKeys => mode.0 = Mode::Keys,
             Act::ShowGround => match ground_box(&ground_things(&inv.0)) {
