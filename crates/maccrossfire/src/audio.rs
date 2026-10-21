@@ -80,8 +80,11 @@ fn toggle_mute(
     mode: Res<KeyMode>,
     state: Res<State<AppState>>,
     mut sounds: ResMut<Sounds>,
+    (bindings, pending): (Res<crate::KeyBindings>, Res<crate::ui::PendingBind>),
 ) {
-    if mute_key_allowed(*state.get() == AppState::InGame, mode.0) && keys.just_pressed(KeyCode::KeyM) {
+    // A bound M (or option+M, ...) runs its binding instead; a typed `bind` may be taking it.
+    let taken = crate::input::key_taken(&bindings, &keys, KeyCode::KeyM) || pending.waiting_key();
+    if mute_key_allowed(*state.get() == AppState::InGame, mode.0) && keys.just_pressed(KeyCode::KeyM) && !taken {
         sounds.muted = !sounds.muted;
     }
 }
