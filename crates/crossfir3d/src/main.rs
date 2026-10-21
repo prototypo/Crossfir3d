@@ -254,7 +254,8 @@ fn pump_network(world: &mut World) {
 
         // On a permadeath server the character list comes back after death.
         let in_game = *world.resource::<State<AppState>>().get() == AppState::InGame;
-        if let (true, Some(reason)) = (in_game, crossfir3d::messages::in_game_reset(&msg)) {
+        let died = world.resource::<Msgs>().0.died;
+        if let (true, Some(reason)) = (in_game, crossfir3d::messages::in_game_reset(&msg, died)) {
             world.resource_mut::<Status>().0 = reason.to_string();
             world.resource_mut::<NextState<AppState>>().set(AppState::Login);
             reset_play_state(world);

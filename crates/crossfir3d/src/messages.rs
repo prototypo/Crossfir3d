@@ -30,11 +30,14 @@ pub struct Messages {
     /// (text, time it appeared)
     pub popups: Vec<(String, f32)>,
     pub log: VecDeque<String>,
+    /// The server said the player died (it then sends the character list).
+    pub died: bool,
 }
 
 impl Messages {
     pub fn push(&mut self, kind: u8, subtype: u8, text: &str, now: f32, last_action: Option<f32>) {
         let caused = last_action.is_some_and(|t| now - t <= CAUSE_WINDOW_SECS);
+        self.died |= (kind, subtype) == (19, 5);
         match route(kind, subtype, caused) {
             Route::Box => match &mut self.boxed {
                 Some(b) => {
@@ -128,15 +131,26 @@ pub fn new_square(old: &[u32], new: &[u32]) -> bool {
     !new.is_empty() && !new.iter().any(|t| old.contains(t))
 }
 
-/// A message that ends play while in game: on a permadeath server the server sends the
-/// character list again after death.
-pub fn in_game_reset(msg: &cfproto::ServerMsg) -> Option<&'static str> {
-    matches!(msg, cfproto::ServerMsg::AccountPlayers(_)).then_some("Your character died")
+/// A message that ends play while in game: the character list again, after death (on
+/// a permadeath server) or for another reason, such as quitting.
+pub fn in_game_reset(msg: &cfproto::ServerMsg, died: bool) -> Option<&'static str> {
+    let reason = if died { "Your character died" } else { "Back to your characters" };
+    matches!(msg, cfproto::ServerMsg::AccountPlayers(_)).then_some(reason)
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn list_in_game_means_death_only_after_a_death_message() {
+        let mut m = Messages::default();
+        let list = cfproto::ServerMsg::AccountPlayers(vec![]);
+        assert_eq!(in_game_reset(&list, m.died), Some("Back to your characters"));
+        m.push(19, 5, "You die.", 0.0, None);
+        assert!(m.died);
+        assert_eq!(in_game_reset(&list, m.died), Some("Your character died"));
+    }
 
     fn thing(tag: u32, name: &str, plural: &str, nrof: u32) -> cfproto::Item {
         cfproto::Item { tag, location: 0, flags: 0, weight: 0, face: 0, name: name.into(), plural: plural.into(), anim: 0, anim_speed: 0, nrof, kind: 0 }
@@ -197,8 +211,8 @@ mod tests {
 
     #[test]
     fn accountplayers_in_game_means_death() {
-        assert_eq!(in_game_reset(&cfproto::ServerMsg::AccountPlayers(vec![])), Some("Your character died"));
-        assert_eq!(in_game_reset(&cfproto::ServerMsg::NewMap), None);
+        assert_eq!(in_game_reset(&cfproto::ServerMsg::AccountPlayers(vec![]), true), Some("Your character died"));
+        assert_eq!(in_game_reset(&cfproto::ServerMsg::NewMap, true), None);
     }
 
     #[test]

@@ -104,16 +104,16 @@ impl NewChar {
             .collect()
     }
 
-    /// Preselects the first option of every offered choice not chosen yet.
+    /// Preselects the first option of every offered choice not chosen yet, or chosen for
+    /// an earlier race or class and not offered now.
     pub fn refresh_choices(&mut self) {
-        let firsts: Vec<(String, String)> = self
+        let fixes: Vec<(String, String)> = self
             .offered_choices()
             .iter()
+            .filter(|c| !self.choices.get(&c.key).is_some_and(|v| c.options.iter().any(|(arch, _)| arch == v)))
             .filter_map(|c| c.options.first().map(|(arch, _)| (c.key.clone(), arch.clone())))
             .collect();
-        for (key, arch) in firsts {
-            self.choices.entry(key).or_insert(arch);
-        }
+        self.choices.extend(fixes);
     }
 
     /// Random stats within the limits: all start at min, then points go one at a time
@@ -198,6 +198,19 @@ impl NewChar {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_kept_choice_the_new_race_does_not_offer_is_replaced() {
+        let mut n = ready();
+        let god = |opts: &[&str]| Choice { key: "race_choice_1".into(), description: "God".into(), options: opts.iter().map(|o| (o.to_string(), o.to_string())).collect() };
+        n.infos.insert("dwarf_player".into(), info("dwarf_player", vec![], vec![god(&["Gaea", "Valriel"])]));
+        n.choices.insert("race_choice_1".into(), "Sorig".into()); // from an earlier race
+        n.refresh_choices();
+        assert_eq!(n.choices.get("race_choice_1").map(String::as_str), Some("Gaea"));
+        n.choices.insert("race_choice_1".into(), "Valriel".into());
+        n.refresh_choices();
+        assert_eq!(n.choices.get("race_choice_1").map(String::as_str), Some("Valriel"));
+    }
     use cfproto::Choice;
 
     fn info(arch: &str, stats: Vec<(u8, i16)>, choices: Vec<Choice>) -> ArchInfo {

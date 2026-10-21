@@ -27,6 +27,12 @@ pub enum LoginState {
     Failed(String),
 }
 
+/// Before the character list or the new-character form shows, the screen says
+/// "Connecting..." (a slow account login was a blank screen).
+pub fn still_connecting(state: &LoginState) -> bool {
+    matches!(state, LoginState::Handshake | LoginState::Account)
+}
+
 pub struct LoginFlow {
     creds: Creds,
     state: LoginState,
@@ -37,6 +43,8 @@ pub struct LoginFlow {
     pub selected: Option<usize>,
     /// A `createplayer` was sent and has no answer yet.
     create_pending: bool,
+    /// Why the last Play was refused ("Character X is already playing"), shown on the list.
+    pub notice: Option<String>,
 }
 
 impl LoginFlow {
@@ -61,6 +69,7 @@ impl LoginFlow {
             newchar: NewChar::default(),
             selected: None,
             create_pending: false,
+            notice: None,
         };
         (flow, vec![ClientMsg::Version, ClientMsg::Setup(setup.to_vec())])
     }
@@ -80,6 +89,14 @@ impl LoginFlow {
             {
                 self.creds.new_account = false;
                 vec![ClientMsg::AccountLogin { name: self.creds.account.clone(), password: self.creds.password.clone() }]
+            }
+            // Play refused (the character is still in the game after a crash, ...): back
+            // to the list with the reason, not out of the session.
+            (LoginState::Playing, ServerMsg::Failure { command, reason }) if command == "accountplay" => {
+                self.playing.clear();
+                self.state = LoginState::Characters;
+                self.notice = Some(reason.clone());
+                vec![]
             }
             (_, ServerMsg::Failure { reason, .. }) => {
                 self.state = LoginState::Failed(reason.clone());
@@ -130,6 +147,7 @@ impl LoginFlow {
     }
 
     pub fn play(&mut self, name: &str) -> Vec<ClientMsg> {
+        self.notice = None;
         self.playing = name.to_string();
         self.state = LoginState::Playing;
         vec![ClientMsg::AccountPlay(name.to_string())]
@@ -185,6 +203,24 @@ impl LoginFlow {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn refused_play_goes_back_to_the_list_with_the_reason() {
+        let mut f = logged_in(None);
+        f.on_message(&ServerMsg::AccountPlayers(vec![named("Ann")]));
+        f.play("Ann");
+        f.on_message(&ServerMsg::Failure { command: "accountplay".into(), reason: "Character Ann is already playing".into() });
+        assert_eq!(*f.state(), LoginState::Characters);
+        assert_eq!(f.notice.as_deref(), Some("Character Ann is already playing"));
+    }
+
+    #[test]
+    fn still_connecting_until_the_list_or_form_shows() {
+        assert!(still_connecting(&LoginState::Handshake));
+        assert!(still_connecting(&LoginState::Account));
+        assert!(!still_connecting(&LoginState::Characters));
+        assert!(!still_connecting(&LoginState::Creating));
+    }
 
     fn creds(new_account: bool, quick: Option<&str>) -> Creds {
         Creds { account: "acct".into(), password: "pw".into(), new_account, quick_character: quick.map(String::from) }

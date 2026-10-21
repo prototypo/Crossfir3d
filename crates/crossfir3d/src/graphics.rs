@@ -156,6 +156,7 @@ fn remember_window(
     window: Single<&Window, With<PrimaryWindow>>,
     mut last_pos: Local<Option<IVec2>>,
     mut settings: ResMut<CurrentSettings>,
+    monitors: Query<&Monitor>,
 ) {
     if let Some(m) = moved.read().last() {
         *last_pos = Some(m.position);
@@ -171,9 +172,20 @@ fn remember_window(
     // Saved in logical points: the screen the window is on may have another density.
     let (x, y) = to_logical((p.x, p.y), window.scale_factor() as f64);
     let place = WindowPlace { x, y, width: window.width() as u32, height: window.height() as u32 };
+    // macOS's green-button full screen keeps the mode Windowed: do not save it as a place.
+    let screens: Vec<(f32, f32)> =
+        monitors.iter().map(|m| (m.physical_width as f32 / m.scale_factor as f32, m.physical_height as f32 / m.scale_factor as f32)).collect();
+    if fills_a_screen(place, &screens) {
+        return;
+    }
     if settings.0.window != Some(place) {
         settings.0.window = Some(place);
     }
+}
+
+/// A window as big as one of the screens (logical points): full screen, not a place.
+fn fills_a_screen(place: WindowPlace, screens: &[(f32, f32)]) -> bool {
+    screens.iter().any(|&(w, h)| place.width as f32 >= w - 1.0 && place.height as f32 >= h - 40.0)
 }
 
 /// Saves at most once a second (window moves send many changes).
@@ -272,6 +284,14 @@ fn fit_scene_image(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_window_filling_a_screen_is_not_remembered() {
+        let place = |width, height| WindowPlace { x: 0, y: 0, width, height };
+        assert!(fills_a_screen(place(1512, 982), &[(1512.0, 982.0)]));
+        assert!(fills_a_screen(place(2560, 1440), &[(1512.0, 982.0), (2560.0, 1440.0)]));
+        assert!(!fills_a_screen(place(1200, 800), &[(1512.0, 982.0)]));
+    }
 
     #[test]
     fn scene_image_keeps_no_pixels_in_memory() {

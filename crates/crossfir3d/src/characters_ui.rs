@@ -2,7 +2,7 @@
 
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts, EguiTextureHandle};
-use crossfir3d::login::LoginState;
+use crossfir3d::login::{still_connecting, LoginState};
 use crossfir3d::newchar::{stat_code, STAT_NAMES};
 use crossfir3d::races::{default_body_path, save_body, Body};
 
@@ -39,8 +39,9 @@ pub fn characters_screen(
 ) -> Result {
     let Some(mut session) = session else { return Ok(()) };
     let picture = contexts.add_image(EguiTextureHandle::Weak(preview.image.id()));
-    if status.0 == "Connecting..." {
-        status.0.clear(); // connected: the list or form is showing now
+    let connecting = still_connecting(session.login.state());
+    if status.0 == "Connecting..." && !connecting {
+        status.0.clear(); // the list or form is showing now
     }
     let ctx = contexts.ctx_mut()?;
     let screen = ctx.content_rect().shrink(24.0);
@@ -68,6 +69,9 @@ pub fn characters_screen(
                     heading(ui, "CHOOSE A CHARACTER");
                     if !status.0.is_empty() {
                         ui.label(&status.0);
+                    }
+                    if let Some(notice) = &session.login.notice {
+                        ui.label(egui::RichText::new(notice).color(egui::Color32::from_rgb(0xe0, 0x80, 0x60)));
                     }
                     ui.add_space(12.0);
                     if chars.is_empty() {
@@ -106,6 +110,11 @@ pub fn characters_screen(
             }
         }
         LoginState::Creating => new_character(ctx, screen, &mut session, &mut preview.body, picture),
+        _ if connecting => {
+            egui::Window::new("connecting").title_bar(false).resizable(false).anchor(egui::Align2::CENTER_CENTER, [0.0, 0.0]).show(ctx, |ui| {
+                ui.label("Connecting...");
+            });
+        }
         _ => {}
     }
     Ok(())
