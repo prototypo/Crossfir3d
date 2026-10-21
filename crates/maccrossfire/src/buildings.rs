@@ -1675,9 +1675,12 @@ fn sword(c: [f32; 3], k: f32) -> Vec<Part> {
     ]
 }
 
-/// A wooden handle `len` long along x, centred on `x`.
-fn handle(len: f32, x: f32) -> Part {
-    cube([len, 0.025, 0.025], [x, 0.013, 0.0], WOOD)
+/// A wooden handle from its grip end on the ground at `grip_x` up through the middle of
+/// the head at `head`, a little past it (the thing leans on its head, not flat).
+fn shaft(grip_x: f32, head: [f32; 3]) -> Part {
+    let (dx, dy) = (head[0] - grip_x, head[1] - 0.013);
+    let k = 1.0 + 0.03 / dx;
+    limb([grip_x, 0.013, 0.0], [grip_x + dx * k, 0.013 + dy * k, 0.0], 0.026, WOOD)
 }
 
 fn item(kind: &str, c: [f32; 3]) -> Vec<Part> {
@@ -1685,21 +1688,39 @@ fn item(kind: &str, c: [f32; 3]) -> Vec<Part> {
     let parts = match kind {
         "sword" => sword(c, 1.0),
         "dagger" => sword(c, 0.55),
-        "axe" => vec![handle(0.5, 0.0), cube([0.07, 0.02, 0.18], [0.2, 0.012, 0.05], c)],
-        "hammer" => vec![handle(0.45, -0.02), cube([0.08, 0.07, 0.16], [0.22, 0.035, 0.0], c)],
-        "mace" => vec![handle(0.4, -0.05), ball(0.07, [0.2, 0.07, 0.0], [1.0; 3], c)],
-        "club" => vec![cube([0.4, 0.045, 0.045], [-0.03, 0.023, 0.0], c), ball(0.06, [0.2, 0.06, 0.0], [1.3, 1.0, 1.0], c)],
+        "axe" => vec![shaft(-0.26, [0.2, 0.045, 0.0]), cube([0.07, 0.03, 0.18], [0.2, 0.045, 0.05], c)],
+        "hammer" => vec![shaft(-0.25, [0.22, 0.05, 0.0]), cube([0.08, 0.07, 0.16], [0.22, 0.05, 0.0], c)],
+        // An iron head with four flanges, on a short iron-bound handle.
+        "mace" => vec![
+            shaft(-0.24, [0.15, 0.075, 0.0]),
+            ball(0.06, [0.15, 0.075, 0.0], [1.0; 3], c),
+            cube([0.13, 0.15, 0.016], [0.15, 0.075, 0.0], c),
+            cube([0.13, 0.016, 0.15], [0.15, 0.075, 0.0], c),
+        ],
+        // One piece of wood, thin at the grip and thick at the end.
+        "club" => vec![
+            Part { tilt_deg: -90.0, ..part(Shape::Frustum { radius: 0.06, height: 0.42 }, [0.0, 0.045, 0.0], 0.0, [1.0; 3], Some(c)) },
+            ball(0.06, [0.21, 0.05, 0.0], [0.5, 1.0, 1.0], c),
+        ],
         "spear" => vec![cube([0.78, 0.02, 0.02], [-0.06, 0.011, 0.0], WOOD), cube([0.12, 0.012, 0.045], [0.38, 0.011, 0.0], c)],
-        "staff" => vec![cube([0.7, 0.03, 0.03], [-0.03, 0.016, 0.0], WOOD), ball(0.045, [0.35, 0.045, 0.0], [1.0; 3], c)],
+        // A long staff, its gem glowing in a cage of three prongs at the top.
+        "staff" => {
+            let mut out = vec![shaft(-0.42, [0.37, 0.045, 0.0])];
+            for z in [-0.03, 0.0, 0.03] {
+                out.push(limb([0.3, 0.015, z * 0.6], [0.4, 0.05, z], 0.012, GOLD));
+            }
+            out.push(Part { yaw_deg: 45.0, tilt_deg: 45.0, ..part(Shape::Glow([0.045; 3]), [0.37, 0.045, 0.0], 0.0, [1.0; 3], Some(c)) });
+            out
+        }
+        // A smooth curved bow with its string.
         "bow" => {
-            let (cx, r) = (-0.2, 0.3);
-            let mut out: Vec<Part> = (0..11)
-                .map(|i| {
-                    let a = (-60.0 + 12.0 * i as f32).to_radians();
-                    ball(0.018, [cx + r * a.cos(), 0.018, r * a.sin()], [1.0; 3], c)
-                })
-                .collect();
-            out.push(cube([0.005, 0.005, 2.0 * r * 60f32.to_radians().sin()], [cx + r * 0.5, 0.01, 0.0], [0.9, 0.88, 0.8]));
+            let (cx, r, n) = (-0.2, 0.3, 10);
+            let at = |i: usize| {
+                let a = (-60.0 + 120.0 * i as f32 / n as f32).to_radians();
+                [cx + r * a.cos(), 0.015, r * a.sin()]
+            };
+            let mut out: Vec<Part> = (0..n).map(|i| limb(at(i), at(i + 1), 0.022, c)).collect();
+            out.push(limb(at(0), at(n), 0.004, [0.9, 0.88, 0.8]));
             out
         }
         "arrow" => vec![
