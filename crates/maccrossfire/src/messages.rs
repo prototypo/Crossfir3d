@@ -61,6 +61,50 @@ impl Messages {
     }
 }
 
+/// How many things the log line names before "... and N more".
+const STANDING_ON_NAMES: usize = 5;
+
+fn thing_name(item: &cfproto::Item) -> String {
+    if item.nrof > 1 {
+        return format!("{} {}", item.nrof, item.plural);
+    }
+    let article = if item.name.starts_with(['a', 'e', 'i', 'o', 'u', 'A', 'E', 'I', 'O', 'U']) { "an" } else { "a" };
+    format!("{article} {}", item.name)
+}
+
+/// What lies under the player worth naming: not the floor or other fixed things the
+/// server marks "no pick", and not the player.
+pub fn ground_things(inv: &cfproto::Inventory) -> Vec<&cfproto::Item> {
+    const F_NOPICK: u32 = 0x4000;
+    inv.ground().into_iter().filter(|i| i.flags & F_NOPICK == 0 && i.tag != inv.player).collect()
+}
+
+/// The log line for the things under the player; None when there are none.
+pub fn standing_on(items: &[&cfproto::Item]) -> Option<String> {
+    if items.is_empty() {
+        return None;
+    }
+    let names: Vec<String> = items.iter().take(STANDING_ON_NAMES).map(|i| thing_name(i)).collect();
+    let more = items.len().saturating_sub(STANDING_ON_NAMES);
+    let tail = if more > 0 { format!(" ... and {more} more (I to see all)") } else { String::new() };
+    Some(format!("You are standing on: {}{tail}.", names.join(", ")))
+}
+
+/// The parchment box text: every thing under the player, one per line.
+pub fn ground_box(items: &[&cfproto::Item]) -> Option<String> {
+    (!items.is_empty()).then(|| {
+        let lines: Vec<String> = items.iter().map(|i| thing_name(i)).collect();
+        format!("You are standing on:\n{}", lines.join("\n"))
+    })
+}
+
+/// The ground list changed to a new square's things (none in common with before), not
+/// just a drop or a pick-up here.
+/// ponytail: by item tags; the client is not told when the player moves onto a square.
+pub fn new_square(old: &[u32], new: &[u32]) -> bool {
+    !new.is_empty() && !new.iter().any(|t| old.contains(t))
+}
+
 /// A message that ends play while in game: on a permadeath server the server sends the
 /// character list again after death.
 pub fn in_game_reset(msg: &cfproto::ServerMsg) -> Option<&'static str> {
@@ -70,6 +114,40 @@ pub fn in_game_reset(msg: &cfproto::ServerMsg) -> Option<&'static str> {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn thing(tag: u32, name: &str, plural: &str, nrof: u32) -> cfproto::Item {
+        cfproto::Item { tag, location: 0, flags: 0, weight: 0, face: 0, name: name.into(), plural: plural.into(), anim: 0, anim_speed: 0, nrof, kind: 0 }
+    }
+
+    #[test]
+    fn standing_on_line_names_the_pile() {
+        let (a, b, c) = (thing(1, "sword", "swords", 1), thing(2, "scroll", "scrolls", 3), thing(3, "apple", "apples", 1));
+        assert_eq!(standing_on(&[]), None);
+        assert_eq!(standing_on(&[&a, &b, &c]).unwrap(), "You are standing on: a sword, 3 scrolls, an apple.");
+        let many: Vec<cfproto::Item> = (0..8).map(|i| thing(i, "coin", "coins", 1)).collect();
+        let refs: Vec<&cfproto::Item> = many.iter().collect();
+        assert_eq!(standing_on(&refs).unwrap(), "You are standing on: a coin, a coin, a coin, a coin, a coin ... and 3 more (I to see all).");
+        assert_eq!(ground_box(&[&a, &b]).unwrap(), "You are standing on:\na sword\n3 scrolls");
+    }
+
+    #[test]
+    fn ground_things_skip_the_floor_and_the_player() {
+        let mut inv = cfproto::Inventory::default();
+        inv.player = 9;
+        let mut grass = thing(2, "grass", "grass", 1);
+        grass.flags = 0x4000; // F_NOPICK
+        inv.apply_item2(0, vec![thing(9, "Showcase", "Showcase", 1), grass, thing(3, "sword", "swords", 1)]);
+        let names: Vec<&str> = ground_things(&inv).iter().map(|i| i.name.as_str()).collect();
+        assert_eq!(names, ["sword"]);
+    }
+
+    #[test]
+    fn new_square_when_nothing_is_shared() {
+        assert!(new_square(&[], &[1, 2]));
+        assert!(new_square(&[5], &[1, 2]));
+        assert!(!new_square(&[1, 2], &[1, 2, 3])); // something was dropped here
+        assert!(!new_square(&[1], &[]));
+    }
 
     #[test]
     fn accountplayers_in_game_means_death() {

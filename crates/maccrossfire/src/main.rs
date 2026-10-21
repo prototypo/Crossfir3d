@@ -176,7 +176,7 @@ fn main() {
         .add_plugins(audio::AudioPlugin)
         .add_systems(Startup, ui::auto_login)
         .add_systems(Update, pump_network)
-        .add_systems(Update, (input::send_moves, input::world_keys, ui::capture_bind_key).chain().run_if(in_state(AppState::InGame)))
+        .add_systems(Update, (input::send_moves, input::world_keys, ui::capture_bind_key, input::watch_ground).chain().run_if(in_state(AppState::InGame)))
         .add_systems(Update, dev_screenshot)
         .add_systems(OnEnter(AppState::InGame), load_character_keys)
         .init_resource::<settings_ui::SettingsOpen>()

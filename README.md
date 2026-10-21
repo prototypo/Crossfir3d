@@ -44,6 +44,10 @@ it from the inventory: **I**, select it, **E**); arrows and bolts fly as 3D arro
 floats above you; "hit", "miss", and "killed!" float over the monster you attack, and
 it flashes red when hit. (The server sends no monster health or damage numbers.)
 
+When you step onto things, the log names them ("You are standing on: a sack, a long
+sword, ..."). **B** shows the full list in the parchment box; the Settings screen's
+"Show what is under me" opens it on every new square.
+
 ### Key bindings
 
 **K** opens the key bindings screen: a keyboard with your bound keys in yellow, and
