@@ -43,6 +43,7 @@ impl Plugin for CharactersPlugin {
         app.init_resource::<PlayerAnimEvents>()
             .init_resource::<OwnLook>()
             .init_resource::<Preview>()
+            .init_resource::<crate::hat::Leather>()
             .add_observer(bind_bones)
             .add_systems(Startup, (load_anims, setup_preview))
             .add_systems(Update, (build_graph, animate, animate_beasts, hold_items, wear_armour, wear_helmet, dress_people, gear_up, freeze_statues))
@@ -466,6 +467,7 @@ fn wear_helmet(
     parents: Query<(&ChildOf, &Transform)>,
     parts: Query<(), With<PartOf>>,
     worn_now: Query<Entity, With<HelmetShape>>,
+    leather: Res<crate::hat::Leather>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
     mut cap: Local<Option<Handle<Mesh>>>,
@@ -492,7 +494,7 @@ fn wear_helmet(
         });
     } else if let Some(wear) = own_look.class.and_then(|c| c.head) {
         let k = own_look.look.scale / bone_scale(head, &parents, &parts);
-        put_on_head(&mut commands, head, wear, k, &mut meshes, &mut materials, HelmetShape);
+        put_on_head(&mut commands, head, wear, k, &leather, &mut meshes, &mut materials, HelmetShape);
     }
     commands.entity(root).try_insert(want);
 }
@@ -535,6 +537,7 @@ fn gear_up(
     names: Query<&Name>,
     parents: Query<(&ChildOf, &Transform)>,
     parts: Query<(), With<PartOf>>,
+    leather: Res<crate::hat::Leather>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
 ) {
@@ -543,7 +546,7 @@ fn gear_up(
         // The body scenes spawn a little later than the character: try again next frame.
         let (Some(head), Some(right), Some(left)) = (bone("Head"), bone("hand_r"), bone("hand_l")) else { continue };
         if let Some(wear) = class.head {
-            put_on_head(&mut commands, head, wear, scale / bone_scale(head, &parents, &parts), &mut meshes, &mut materials, ());
+            put_on_head(&mut commands, head, wear, scale / bone_scale(head, &parents, &parts), &leather, &mut meshes, &mut materials, ());
         }
         for (carry, bone) in [(class.right, right), (class.left, left)] {
             if let Some(carry) = carry {
@@ -563,22 +566,23 @@ fn plain(materials: &mut Assets<StandardMaterial>, [r, g, b]: [f32; 3], glow: bo
 
 /// Puts a hat, cap or mask on a head bone, `k` times its size for a human; `marker`
 /// goes on each shape. A hood is an outfit part, not a shape: nothing here.
+#[allow(clippy::too_many_arguments)]
 fn put_on_head(
     commands: &mut Commands,
     head: Entity,
     wear: Headwear,
     k: f32,
+    leather: &crate::hat::Leather,
     meshes: &mut Assets<Mesh>,
     materials: &mut Assets<StandardMaterial>,
     marker: impl Bundle + Clone,
 ) {
+    if let Headwear::PointedHat(c) = wear {
+        return crate::hat::put_on(commands, head, c, k, leather, meshes, materials, marker);
+    }
     let at = |x: f32, y: f32, z: f32, scale: Vec3| Transform::from_xyz(x * k, y * k, z * k).with_scale(scale * k);
     let shapes: Vec<(Mesh, Transform, [f32; 3])> = match wear {
-        Headwear::Hood => Vec::new(),
-        Headwear::PointedHat(c) => vec![
-            (Cylinder::new(0.21, 0.02).into(), at(0.0, 0.2, 0.0, Vec3::ONE), c),
-            (Cone::new(0.12, 0.34).into(), at(0.0, 0.37, -0.02, Vec3::ONE), c),
-        ],
+        Headwear::Hood | Headwear::PointedHat(_) => Vec::new(),
         Headwear::Skullcap(c) => vec![(Sphere::new(0.1).into(), at(0.0, 0.17, -0.01, Vec3::new(1.12, 0.6, 1.2)), c)],
         Headwear::BrimHat(c) => vec![
             (Cylinder::new(0.2, 0.02).into(), at(0.0, 0.2, 0.0, Vec3::ONE), c),

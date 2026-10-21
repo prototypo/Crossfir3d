@@ -284,7 +284,7 @@ fn move_waves(time: Res<Time>, waves: Query<(&MeshMaterial3d<StandardMaterial>, 
 }
 
 /// A picture that repeats across a face.
-fn tiled((w, h, px): (u32, u32, Vec<u8>), sampler: ImageSamplerDescriptor) -> Image {
+pub(crate) fn tiled((w, h, px): (u32, u32, Vec<u8>), sampler: ImageSamplerDescriptor) -> Image {
     let size = Extent3d { width: w, height: h, depth_or_array_layers: 1 };
     let mut image = Image::new(size, TextureDimension::D2, px, TextureFormat::Rgba8UnormSrgb, RenderAssetUsages::RENDER_WORLD);
     let repeat = ImageAddressMode::Repeat;
