@@ -1,16 +1,18 @@
 //! Arrow keys to ncom move commands, and one-key actions.
 
 use bevy::prelude::*;
-use cfproto::ClientMsg;
+use cfproto::{ClientMsg, Inventory, SpellBook};
 
 use maccrossfire::camera::{compass, heading_of, nearest_dir, screen_dir, Heading, CREATURE_LAYERS};
-use maccrossfire::modes::{act, Act, KeyName, Mode};
+use maccrossfire::modes::{act, bindings_active, Act, KeyName, Mode};
 use maccrossfire::anim::event_for_command;
-use maccrossfire::slots::{dir_number, fire_commands, slot_commands};
+use maccrossfire::keys::{action_of, skill_command, Action, Binding, Combo, Mods};
+use maccrossfire::slots::{dir_number, fire_commands, slot_commands, Slot};
 
 use crate::characters3d::PlayerAnimEvents;
 
-use crate::{HudState, Inv, KeyMode, LastAction, LastComc, Msgs, NcomSeq, PlayerStats, Session, Slots, Spells, View, ViewSize};
+use crate::ui::{CommandLine, PendingBind};
+use crate::{known_skills, HudState, Inv, KeyBindings, KeyMode, SkillNames, LastAction, LastComc, Msgs, NcomSeq, PlayerStats, Session, Slots, Spells, View, ViewSize};
 
 /// Where the camera looks (45° steps); the world rig eases its yaw toward it.
 /// It follows the player's facing, so the camera stays behind them.
@@ -95,9 +97,13 @@ pub fn send_moves(
     mut wait: ResMut<MoveWait>,
     mut door: ResMut<DoorExit>,
     mut held: Local<Option<(f32, (i8, i8), Heading)>>, // (first step, screen dir, facing at key-down)
+    (bindings, pending): (Res<KeyBindings>, Res<PendingBind>),
     session: Option<NonSend<Session>>,
 ) {
     let Some(session) = session else { return };
+    if pending.waiting_key() {
+        return;
+    }
     let now = time.elapsed_secs();
     if door.came_out && may_send(wait.0, comc.packet, now) {
         // Out of the door, facing away from it, the camera behind.
@@ -110,7 +116,8 @@ pub fn send_moves(
         return;
     }
     // just_pressed too: a press and release in one frame (a very fast tap) still steps.
-    let key = |k| keys.pressed(k) || keys.just_pressed(k);
+    // An arrow a binding took no longer moves.
+    let key = |k| (keys.pressed(k) || keys.just_pressed(k)) && !key_taken(&bindings, &keys, k);
     let screen = screen_dir(key(KeyCode::ArrowUp), key(KeyCode::ArrowDown), key(KeyCode::ArrowLeft), key(KeyCode::ArrowRight));
     let (Some(screen), Mode::World) = (screen, mode.0) else {
         *held = None; // key released: the next press is a new tap
@@ -144,7 +151,7 @@ pub fn send_moves(
     session.send([ClientMsg::Ncom { packet, repeat: 0, command: command.into() }]);
 }
 
-fn key_name(key: KeyCode) -> KeyName {
+fn act_key(key: KeyCode) -> KeyName {
     match key {
         KeyCode::KeyA => KeyName::A,
         KeyCode::KeyE => KeyName::E,
@@ -156,6 +163,7 @@ fn key_name(key: KeyCode) -> KeyName {
         KeyCode::KeyM => KeyName::M,
         KeyCode::KeyC => KeyName::C,
         KeyCode::KeyT => KeyName::T,
+        KeyCode::KeyK => KeyName::K,
         KeyCode::Space => KeyName::Space,
         KeyCode::Tab => KeyName::Tab,
         KeyCode::Escape => KeyName::Escape,
@@ -166,6 +174,66 @@ fn key_name(key: KeyCode) -> KeyName {
         KeyCode::Digit4 => KeyName::Digit(4),
         _ => KeyName::Other,
     }
+}
+
+/// Key names used by bindings (`maccrossfire::keys`), by key position.
+const KEY_NAMES: [(KeyCode, &str); 72] = [
+    (KeyCode::KeyA, "A"), (KeyCode::KeyB, "B"), (KeyCode::KeyC, "C"), (KeyCode::KeyD, "D"), (KeyCode::KeyE, "E"),
+    (KeyCode::KeyF, "F"), (KeyCode::KeyG, "G"), (KeyCode::KeyH, "H"), (KeyCode::KeyI, "I"), (KeyCode::KeyJ, "J"),
+    (KeyCode::KeyK, "K"), (KeyCode::KeyL, "L"), (KeyCode::KeyM, "M"), (KeyCode::KeyN, "N"), (KeyCode::KeyO, "O"),
+    (KeyCode::KeyP, "P"), (KeyCode::KeyQ, "Q"), (KeyCode::KeyR, "R"), (KeyCode::KeyS, "S"), (KeyCode::KeyT, "T"),
+    (KeyCode::KeyU, "U"), (KeyCode::KeyV, "V"), (KeyCode::KeyW, "W"), (KeyCode::KeyX, "X"), (KeyCode::KeyY, "Y"),
+    (KeyCode::KeyZ, "Z"),
+    (KeyCode::Digit0, "0"), (KeyCode::Digit1, "1"), (KeyCode::Digit2, "2"), (KeyCode::Digit3, "3"), (KeyCode::Digit4, "4"),
+    (KeyCode::Digit5, "5"), (KeyCode::Digit6, "6"), (KeyCode::Digit7, "7"), (KeyCode::Digit8, "8"), (KeyCode::Digit9, "9"),
+    (KeyCode::F1, "F1"), (KeyCode::F2, "F2"), (KeyCode::F3, "F3"), (KeyCode::F4, "F4"), (KeyCode::F5, "F5"),
+    (KeyCode::F6, "F6"), (KeyCode::F7, "F7"), (KeyCode::F8, "F8"), (KeyCode::F9, "F9"), (KeyCode::F10, "F10"),
+    (KeyCode::F11, "F11"), (KeyCode::F12, "F12"),
+    (KeyCode::ArrowUp, "Up"), (KeyCode::ArrowDown, "Down"), (KeyCode::ArrowLeft, "Left"), (KeyCode::ArrowRight, "Right"),
+    (KeyCode::Space, "Space"), (KeyCode::Tab, "Tab"), (KeyCode::Enter, "Enter"), (KeyCode::Escape, "Escape"),
+    (KeyCode::Backspace, "Backspace"), (KeyCode::CapsLock, "CapsLock"),
+    (KeyCode::Backquote, "`"), (KeyCode::Minus, "-"), (KeyCode::Equal, "="), (KeyCode::BracketLeft, "["),
+    (KeyCode::BracketRight, "]"), (KeyCode::Backslash, "\\"), (KeyCode::Semicolon, ";"), (KeyCode::Quote, "'"),
+    (KeyCode::Comma, ","), (KeyCode::Period, "."), (KeyCode::Slash, "/"), (KeyCode::Fn, "fn"),
+    (KeyCode::Delete, "Delete"), (KeyCode::Home, "Home"),
+];
+
+/// The binding name of a key; None for modifier keys and keys bindings do not use.
+pub fn key_name(key: KeyCode) -> Option<&'static str> {
+    KEY_NAMES.iter().find(|(k, _)| *k == key).map(|(_, n)| *n)
+}
+
+#[cfg(test)]
+pub fn key_code(name: &str) -> Option<KeyCode> {
+    KEY_NAMES.iter().find(|(_, n)| *n == name).map(|(k, _)| *k)
+}
+
+pub fn held_mods(keys: &ButtonInput<KeyCode>) -> Mods {
+    let any = |a, b| keys.pressed(a) || keys.pressed(b);
+    Mods {
+        shift: any(KeyCode::ShiftLeft, KeyCode::ShiftRight),
+        ctrl: any(KeyCode::ControlLeft, KeyCode::ControlRight),
+        alt: any(KeyCode::AltLeft, KeyCode::AltRight),
+        cmd: any(KeyCode::SuperLeft, KeyCode::SuperRight),
+    }
+}
+
+/// The ncom commands a binding sends: a known spell is cast in the facing direction
+/// (as a quick slot does), a known skill is used, anything else goes as typed.
+pub fn binding_commands(b: &Binding, inv: &Inventory, spells: &SpellBook, skills: &[String], facing: u8, range: &str) -> Vec<String> {
+    let names: Vec<String> = spells.all().iter().map(|s| s.name.clone()).collect();
+    match action_of(&b.command, &names, skills) {
+        Action::Spell(n) => slot_commands(&Slot::Spell(n), inv, spells, facing, range),
+        Action::Skill(n) => vec![skill_command(&n)],
+        Action::Command(c) => c.split(';').map(str::trim).filter(|c| !c.is_empty()).map(String::from).collect(),
+    }
+}
+
+/// Whether pressing `code` with the modifiers held now runs a binding: then the key's
+/// own game job (walk, face view, mute, command box) must not run too.
+pub fn key_taken(bindings: &KeyBindings, keys: &ButtonInput<KeyCode>, code: KeyCode) -> bool {
+    let mods = held_mods(keys);
+    key_name(code).is_some_and(|key| bindings.0.lookup(&Combo { mods, key: key.into() }).is_some())
 }
 
 /// One-key actions (the spec's key table, via `modes::act`). Enter is handled by the
@@ -184,12 +252,37 @@ pub fn world_keys(
     mut heading: ResMut<CameraHeading>,
     mut view: ResMut<CameraView>,
     mut anim: ResMut<PlayerAnimEvents>,
+    (bindings, skill_names, mut line, pending): (Res<KeyBindings>, Res<SkillNames>, ResMut<CommandLine>, Res<PendingBind>),
     session: Option<NonSend<Session>>,
 ) {
     let Some(session) = session else { return };
-    view.face = mode.0 == Mode::World && keys.pressed(KeyCode::KeyF);
-    let pressed: Vec<KeyName> = keys.get_just_pressed().map(|k| key_name(*k)).collect();
-    for key in pressed {
+    if pending.waiting_key() {
+        return; // `capture_bind_key` takes this key press
+    }
+    view.face = mode.0 == Mode::World && keys.pressed(KeyCode::KeyF) && !key_taken(&bindings, &keys, KeyCode::KeyF);
+    let mods = held_mods(&keys);
+    let pressed: Vec<KeyCode> = keys.get_just_pressed().copied().collect();
+    for code in pressed {
+        let bound = key_name(code)
+            .filter(|_| bindings_active(mode.0))
+            .and_then(|key| bindings.0.lookup(&Combo { mods, key: key.into() }))
+            .cloned();
+        if let Some(b) = bound {
+            if b.edit {
+                line.open = true;
+                line.text = b.command.clone();
+                mode.0 = Mode::CommandLine;
+                continue;
+            }
+            last.0 = Some(time.elapsed_secs());
+            let skills = known_skills(&stats.0, &skill_names);
+            for c in binding_commands(&b, &inv.0, &spells.0, &skills, facing.0, &stats.0.range) {
+                anim.0.extend(event_for_command(&c));
+                session.send([ClientMsg::Ncom { packet: seq.next(), repeat: 0, command: c }]);
+            }
+            continue;
+        }
+        let key = act_key(code);
         let mut command = |c: &str| {
             last.0 = Some(time.elapsed_secs());
             anim.0.extend(event_for_command(c));
@@ -200,7 +293,10 @@ pub fn world_keys(
             Act::Get => command("get"),
             Act::CloseBox => msgs.0.close_box(),
             Act::OpenInventory => mode.0 = Mode::Inventory,
-            Act::CloseInventory | Act::CloseSettings => mode.0 = Mode::World,
+            // shift+K and the like are picked as keys on the bindings screen, not closing it.
+            Act::CloseKeys if !mods.none() => {}
+            Act::CloseInventory | Act::CloseSettings | Act::CloseKeys => mode.0 = Mode::World,
+            Act::OpenKeys => mode.0 = Mode::Keys,
             Act::OpenSettings => mode.0 = Mode::Settings,
             Act::ToggleLog => hud.tall_log = !hud.tall_log,
             Act::Slot(i) => {
@@ -239,7 +335,45 @@ pub fn world_keys(
 
 #[cfg(test)]
 mod tests {
-    use super::{may_send, wants_step};
+    use super::{binding_commands, key_code, key_name, may_send, wants_step};
+    use bevy::prelude::KeyCode;
+    use cfproto::{Inventory, SpellBook};
+    use maccrossfire::keys::{Binding, Combo, Mods};
+
+    #[test]
+    fn modified_bound_key_is_taken() {
+        use bevy::input::ButtonInput;
+        let mut b = crate::KeyBindings::default();
+        let shift = Mods { shift: true, ..Default::default() };
+        b.0.bind(Binding { all: false, combo: Combo { mods: shift, key: "Up".into() }, edit: false, command: "say up".into() });
+        let mut keys = ButtonInput::<KeyCode>::default();
+        keys.press(KeyCode::ArrowUp);
+        assert!(!super::key_taken(&b, &keys, KeyCode::ArrowUp)); // plain Up still walks
+        keys.press(KeyCode::ShiftLeft);
+        assert!(super::key_taken(&b, &keys, KeyCode::ArrowUp)); // shift+Up runs the binding only
+        assert!(!super::key_taken(&b, &keys, KeyCode::ArrowDown));
+    }
+
+    #[test]
+    fn key_names_roundtrip() {
+        for k in [KeyCode::KeyG, KeyCode::Digit6, KeyCode::F3, KeyCode::ArrowUp, KeyCode::Slash] {
+            assert_eq!(key_code(key_name(k).unwrap()), Some(k));
+        }
+        assert_eq!(key_name(KeyCode::ShiftLeft), None);
+    }
+
+    #[test]
+    fn binding_beats_game_key() {
+        let bind = |command: &str| Binding { all: false, combo: Combo { mods: Mods::default(), key: "G".into() }, edit: false, command: command.into() };
+        let (inv, spells) = (Inventory::default(), SpellBook::default());
+        assert_eq!(binding_commands(&bind("say hi"), &inv, &spells, &[], 1, ""), ["say hi"]);
+        assert_eq!(
+            binding_commands(&bind("use_skill sense curse; use_skill sense magic;"), &inv, &spells, &[], 1, ""),
+            ["use_skill sense curse", "use_skill sense magic"]
+        );
+        let skills = ["praying".to_string()];
+        assert_eq!(binding_commands(&bind("use_skill Praying"), &inv, &spells, &skills, 1, ""), ["use_skill praying"]);
+    }
 
     #[test]
     fn tap_is_one_step() {

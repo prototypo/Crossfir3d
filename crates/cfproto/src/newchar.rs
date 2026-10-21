@@ -1,6 +1,8 @@
 //! Character creation data from `requestinfo`: race/class info, starting maps, stat
 //! limits. Formats follow the server's socket/requestinfo.cpp.
 
+use std::collections::HashMap;
+
 use crate::server::{ParseError, Reader};
 
 #[derive(Clone, Debug, PartialEq)]
@@ -113,6 +115,17 @@ pub fn parse_starting_maps(data: &[u8]) -> Result<Vec<StartMap>, ParseError> {
 }
 
 /// `newcharinfo` data: lstring lines like "V points 85", "V statrange 3 18".
+/// `replyinfo skill_info`: lines "141:alchemy" (or "141:alchemy:face"), stat code to name.
+pub fn parse_skill_info(data: &[u8]) -> HashMap<u8, String> {
+    let text = String::from_utf8_lossy(data);
+    let skill = |line: &str| {
+        let mut parts = line.split(':');
+        let code = parts.next()?.trim().parse().ok()?;
+        Some((code, parts.next()?.trim().to_string()))
+    };
+    text.lines().filter_map(skill).collect()
+}
+
 pub fn parse_newcharinfo(data: &[u8]) -> StatLimits {
     let mut limits = StatLimits::default();
     let mut r = Reader(data);
@@ -135,6 +148,14 @@ pub fn parse_newcharinfo(data: &[u8]) -> StatLimits {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn skill_info_lines() {
+        let m = parse_skill_info(b"140:alchemy\n141:praying:77\nbad\n");
+        assert_eq!(m.get(&140).map(String::as_str), Some("alchemy"));
+        assert_eq!(m.get(&141).map(String::as_str), Some("praying"));
+        assert_eq!(m.len(), 2);
+    }
 
     fn lstr(b: &mut Vec<u8>, s: &str) {
         b.push(s.len() as u8);
