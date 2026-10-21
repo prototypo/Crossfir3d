@@ -30,7 +30,9 @@ pub fn item_rows(inv: &Inventory) -> Vec<(usize, u32)> {
 /// Where G sends `item`: into the chosen open container, else to the player. None if
 /// that is where it already is.
 pub fn get_target(inv: &Inventory, item: &Item, container: Option<u32>) -> Option<u32> {
-    let to = container.filter(|&c| c != item.tag).unwrap_or(inv.player);
+    // The chosen bag may have been closed or dropped since: then to the player.
+    let open = |c: u32| inv.get(c).is_some_and(|b| b.open());
+    let to = container.filter(|&c| c != item.tag && open(c)).unwrap_or(inv.player);
     (to != item.location).then_some(to)
 }
 
@@ -211,6 +213,16 @@ pub fn inventory_screen(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn get_ignores_a_bag_that_is_no_longer_open() {
+        let mut inv = inv();
+        let apple_tag = 30;
+        inv.apply_upd(10, &[cfproto::ItemChange::Flags(0)]); // the bag is closed
+        let apple = inv.get(apple_tag).unwrap();
+        assert_eq!(get_target(&inv, apple, Some(10)), Some(1));
+        assert_eq!(get_target(&inv, apple, Some(99)), Some(1)); // gone
+    }
 
     fn item(tag: u32, location: u32, name: &str, flags: u32) -> Item {
         Item {

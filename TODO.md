@@ -4,16 +4,10 @@ Known problems left for later. Each line says what goes wrong and where to look.
 
 ## Bugs
 
-- [ ] The bag chosen for G (`InvSel.container`, `inventory_ui.rs`) can go stale if it is closed or deleted while another column is selected. The server answers with an error; nothing breaks.
-- [ ] "Your character died" also shows when `accountplayers` arrives for other reasons, for example after deleting a character (`messages.rs` `in_game_reset`).
 
 
-- [ ] macOS green-button full screen is saved as a screen-sized window place (`graphics.rs` `remember_window`).
 - [ ] Dragging a settings slider resets the TAA history (a brief blur while dragging).
 
-- [ ] A refused `accountplay` (e.g. "Character X is already playing" after a crash) ends the session instead of showing the reason on the character list; the screen is blank between Play and the first map (`login.rs`, `characters_ui.rs`).
-- [ ] "Connecting..." is cleared as soon as a session exists, so a slow account login shows a blank screen (`characters_ui.rs`).
-- [ ] A kept race/class choice is not re-checked against the newly offered options after changing race or class (`newchar.rs` `refresh_choices`); a choice with no options sends an empty value. Stock data has only one choice, so this cannot happen today.
 
 ## Missing
 
