@@ -36,6 +36,7 @@ pub fn hud(
     spells: Res<Spells>,
     hud: Res<HudState>,
     mut msgs: ResMut<Msgs>,
+    settings: Res<crate::graphics::CurrentSettings>,
 ) -> Result {
     let ctx = contexts.ctx_mut()?;
     let s = &stats.0;
@@ -100,17 +101,20 @@ pub fn hud(
     }
 
     let lines = if hud.tall_log { TALL_LOG } else { SHORT_LOG };
+    // The log box grows with its text: 420 px wide at the default size 10.
+    let size = settings.0.log_font_size;
+    let fill = egui::Color32::from_black_alpha((settings.0.log_opacity / 100.0 * 255.0).round() as u8);
     egui::Area::new("log".into()).anchor(egui::Align2::LEFT_BOTTOM, [10.0, -10.0]).show(ctx, |ui| {
-        egui::Frame::new().fill(egui::Color32::from_black_alpha(120)).inner_margin(6.0).show(ui, |ui| {
-            ui.set_max_width(420.0);
+        egui::Frame::new().fill(fill).inner_margin(6.0).show(ui, |ui| {
+            ui.set_max_width(42.0 * size);
             let show = |ui: &mut egui::Ui| {
                 let skip = if hud.tall_log { 0 } else { msgs.0.log.len().saturating_sub(lines) };
                 for line in msgs.0.log.iter().skip(skip) {
-                    ui.label(egui::RichText::new(line).small().color(egui::Color32::from_gray(230)));
+                    ui.label(egui::RichText::new(line).size(size).color(egui::Color32::from_gray(230)));
                 }
             };
             if hud.tall_log {
-                egui::ScrollArea::vertical().max_height(lines as f32 * 16.0).stick_to_bottom(true).show(ui, show);
+                egui::ScrollArea::vertical().max_height(lines as f32 * size * 1.6).stick_to_bottom(true).show(ui, show);
             } else {
                 show(ui);
             }

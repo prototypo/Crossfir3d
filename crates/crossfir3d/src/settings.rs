@@ -52,7 +52,14 @@ pub struct Settings {
     /// Open the parchment box with what is under the player on every new square
     /// (otherwise only when B is pressed).
     pub ground_popup: bool,
+    /// Text size of the log in the bottom-left corner; the log box grows with it.
+    pub log_font_size: f32,
+    /// How solid the log's dark background is, 0 (clear) to 100 (black) per cent.
+    pub log_opacity: f32,
 }
+
+/// Smallest and largest log text size.
+pub const LOG_FONT_SIZES: (f32, f32) = (8.0, 32.0);
 
 impl Default for Settings {
     fn default() -> Self {
@@ -69,6 +76,8 @@ impl Default for Settings {
             gamma: 1.0,
             music: true,
             ground_popup: false,
+            log_font_size: 10.0,
+            log_opacity: 47.0,
         }
     }
 }
@@ -110,6 +119,7 @@ impl Settings {
         out += &format!("brightness={}\ncontrast={}\ngamma={}\n", self.brightness, self.contrast, self.gamma);
         out += &format!("music={}\n", self.music);
         out += &format!("ground_popup={}\n", self.ground_popup);
+        out += &format!("log_font_size={}\nlog_opacity={}\n", self.log_font_size, self.log_opacity);
         out
     }
 
@@ -134,6 +144,11 @@ impl Settings {
                 "gamma" => s.gamma = value.parse().unwrap_or(s.gamma),
                 "music" => s.music = value.parse().unwrap_or(s.music),
                 "ground_popup" => s.ground_popup = value.parse().unwrap_or(s.ground_popup),
+                "log_font_size" => {
+                    let v: f32 = value.parse().unwrap_or(s.log_font_size);
+                    s.log_font_size = v.clamp(LOG_FONT_SIZES.0, LOG_FONT_SIZES.1);
+                }
+                "log_opacity" => s.log_opacity = value.parse::<f32>().unwrap_or(s.log_opacity).clamp(0.0, 100.0),
                 _ => {}
             }
         }
@@ -287,6 +302,8 @@ mod tests {
             gamma: 0.8,
             music: false,
             ground_popup: true,
+            log_font_size: 16.0,
+            log_opacity: 85.0,
         };
         assert_eq!(Settings::from_text(&s.to_text()), s);
         let path = temp("roundtrip");
@@ -300,6 +317,14 @@ mod tests {
         assert_eq!(s.render_scale, 1.0);
         assert_eq!(s.shadows, Quality::Medium);
         assert_eq!(s.frame_rate, FrameRate::Cap60);
+    }
+
+    #[test]
+    fn log_values_stay_in_range() {
+        let s = Settings::from_text("log_font_size=200\nlog_opacity=-5\n");
+        assert_eq!((s.log_font_size, s.log_opacity), (LOG_FONT_SIZES.1, 0.0));
+        let s = Settings::from_text("log_font_size=1\nlog_opacity=300\n");
+        assert_eq!((s.log_font_size, s.log_opacity), (LOG_FONT_SIZES.0, 100.0));
     }
 
     #[test]
