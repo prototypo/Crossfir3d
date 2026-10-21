@@ -19,7 +19,7 @@ use crossfir3d::buildings::{brick_pixels, doorstep, footprint, parts, wall_parts
 use crossfir3d::models::{all_loaded, Load, ModelMap, Visual};
 use crossfir3d::races::{classify_player_face, clothes_for_class, look_for_race, Body, Look, PlayerFace};
 use crossfir3d::terrain::{ground_height, is_wall};
-use crossfir3d::walls::wall_masks;
+use crossfir3d::walls::{hangs_on_walls, open_side, wall_masks};
 
 use crossfir3d::clock::{sun_pose, SunPose, FALLBACK_HOUR};
 use crossfir3d::settings::Quality;
@@ -465,6 +465,7 @@ fn sync_visuals(
         .collect();
     let player = view.0.world((view_size.0 / 2) as i8, (view_size.1 / 2) as i8);
     let joins = wall_masks(&walls);
+    let wall_squares = walls.clone();
     solid.0 = walls;
     for ((x, y, layer), (face, _, join)) in want.iter_mut() {
         if let Some(m) = joins.get(&(*x, *y)) {
@@ -511,6 +512,11 @@ fn sync_visuals(
         let h = heights.get(&(x, y)).copied().unwrap_or(0.0);
         let shade = darkness as f32 / 255.0;
         let tile = Vec3::new(x as f32, h, y as f32);
+        // A brazier or torch on a wall square stands against the wall's open side.
+        let tile = match open_side(&wall_squares, x, y).filter(|_| !is_wall(name) && hangs_on_walls(name)) {
+            Some((dx, dy)) => tile + Vec3::new(dx as f32, 0.0, dy as f32) * 0.75,
+            None => tile,
+        };
 
         // A creature that stepped one tile: move the old entity instead of making a new one.
         // A 3D character keeps its body when only its picture changes (each turn and step

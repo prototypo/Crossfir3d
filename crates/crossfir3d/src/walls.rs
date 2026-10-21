@@ -56,9 +56,38 @@ pub fn wall_masks(walls: &HashSet<(i32, i32)>) -> HashMap<(i32, i32), u8> {
         .collect()
 }
 
+/// Lights that maps put on wall squares (a brazier or torch drawn over the wall in the
+/// old top-down view): in 3D they hang on the wall's open side instead of inside it.
+pub fn hangs_on_walls(face_name: &str) -> bool {
+    let base = face_name.split('.').next().unwrap_or(face_name);
+    ["brazier", "firepot", "torch", "lamppost", "candle", "chandelier"].iter().any(|w| base.contains(w))
+}
+
+/// The side of the wall square (x, y) open to walk on, as a step (south first, as the
+/// top-down view shows it; then east, west, north). None off a wall or when walled in.
+pub fn open_side(walls: &HashSet<(i32, i32)>, x: i32, y: i32) -> Option<(i32, i32)> {
+    if !walls.contains(&(x, y)) {
+        return None;
+    }
+    [(0, 1), (1, 0), (-1, 0), (0, -1)].into_iter().find(|(dx, dy)| !walls.contains(&(x + dx, y + dy)))
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn lights_on_a_wall_move_to_its_open_side() {
+        let walls: HashSet<(i32, i32)> = [(5, 5), (6, 5), (5, 6)].into();
+        // (5,5): south (5,6) and east (6,5) are walls; west is open.
+        assert_eq!(open_side(&walls, 5, 5), Some((-1, 0)));
+        assert_eq!(open_side(&walls, 6, 5), Some((0, 1))); // south first
+        assert_eq!(open_side(&walls, 9, 9), None); // not on a wall
+        let boxed: HashSet<(i32, i32)> = [(0, 0), (1, 0), (-1, 0), (0, 1), (0, -1)].into();
+        assert_eq!(open_side(&boxed, 0, 0), None); // walled in on every side
+        assert!(hangs_on_walls("brazier.111") && hangs_on_walls("torch_lit.112") && hangs_on_walls("firepot.113"));
+        assert!(!hangs_on_walls("goldcoin.111") && !hangs_on_walls("club.111"));
+    }
 
     /// Which sides a piece joins after rotation, to check `piece_for` against its mask.
     fn sides(piece: Piece, yaw: f32) -> u8 {

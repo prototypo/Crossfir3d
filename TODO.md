@@ -11,7 +11,6 @@ Known problems left for later. Each line says what goes wrong and where to look.
 
 ## Missing
 
-- [ ] Torches and other wall-mounted things are hidden inside the solid wall blocks (`world.rs`).
 - [ ] Live tests for "read a sign → parchment box" and "cast a known spell".
 
 
