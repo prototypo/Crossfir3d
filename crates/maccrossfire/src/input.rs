@@ -163,6 +163,7 @@ fn act_key(key: KeyCode) -> KeyName {
         KeyCode::KeyM => KeyName::M,
         KeyCode::KeyC => KeyName::C,
         KeyCode::KeyT => KeyName::T,
+        KeyCode::KeyK => KeyName::K,
         KeyCode::Space => KeyName::Space,
         KeyCode::Tab => KeyName::Tab,
         KeyCode::Escape => KeyName::Escape,
@@ -202,6 +203,7 @@ pub fn key_name(key: KeyCode) -> Option<&'static str> {
     KEY_NAMES.iter().find(|(k, _)| *k == key).map(|(_, n)| *n)
 }
 
+#[cfg(test)]
 pub fn key_code(name: &str) -> Option<KeyCode> {
     KEY_NAMES.iter().find(|(_, n)| *n == name).map(|(k, _)| *k)
 }
@@ -289,7 +291,10 @@ pub fn world_keys(
             Act::Get => command("get"),
             Act::CloseBox => msgs.0.close_box(),
             Act::OpenInventory => mode.0 = Mode::Inventory,
-            Act::CloseInventory | Act::CloseSettings => mode.0 = Mode::World,
+            // shift+K and the like are picked as keys on the bindings screen, not closing it.
+            Act::CloseKeys if !mods.none() => {}
+            Act::CloseInventory | Act::CloseSettings | Act::CloseKeys => mode.0 = Mode::World,
+            Act::OpenKeys => mode.0 = Mode::Keys,
             Act::OpenSettings => mode.0 = Mode::Settings,
             Act::ToggleLog => hud.tall_log = !hud.tall_log,
             Act::Slot(i) => {
