@@ -391,7 +391,7 @@ fn time_reply_expected(world: &World, text: &str) -> bool {
 /// Asks the server for the game time once per login.
 /// Developer check: CROSSFIR3D_COMMANDS="cmd1;cmd2" sends these game commands on
 /// entering the game (e.g. a local-server teleport for screenshots).
-/// CROSSFIR3D_SCREEN=keys opens the key bindings screen.
+/// CROSSFIR3D_SCREEN=keys or =inventory opens that screen.
 fn dev_commands(
     mut seq: ResMut<NcomSeq>,
     mut mode: ResMut<KeyMode>,
@@ -399,8 +399,10 @@ fn dev_commands(
     mut heading: ResMut<input::CameraHeading>,
     session: Option<NonSend<Session>>,
 ) {
-    if std::env::var("CROSSFIR3D_SCREEN").is_ok_and(|s| s == "keys") {
-        mode.0 = crossfir3d::modes::Mode::Keys;
+    match std::env::var("CROSSFIR3D_SCREEN").as_deref() {
+        Ok("keys") => mode.0 = crossfir3d::modes::Mode::Keys,
+        Ok("inventory") => mode.0 = crossfir3d::modes::Mode::Inventory,
+        _ => {}
     }
     let (Ok(cmds), Some(session)) = (std::env::var("CROSSFIR3D_COMMANDS"), session) else { return };
     for c in cmds.split(';').map(str::trim).filter(|c| !c.is_empty()) {

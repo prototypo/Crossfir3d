@@ -1,12 +1,20 @@
 //! Full-screen inventory (I): carried items with open bags, the ground, spells, stats.
 
 use bevy::prelude::*;
-use bevy_egui::{egui, EguiContexts};
+use bevy_egui::{egui, EguiContexts, EguiTextureHandle};
 use cfproto::{ClientMsg, Inventory, Item};
 use crossfir3d::modes::Mode;
 use crossfir3d::slots::{default_slots_path, save_slots, Slot};
 
 use crate::{Inv, KeyMode, LastAction, PlayerStats, Session, Slots, Spells};
+
+/// Height of the item and spell pictures in the lists.
+const ICON: f32 = 22.0;
+
+/// A picture's size in the list: ICON high, as wide as its shape needs.
+fn icon_size(px: Vec2) -> egui::Vec2 {
+    egui::vec2(ICON * px.x / px.y.max(1.0), ICON)
+}
 
 const GOLD: egui::Color32 = egui::Color32::from_rgb(0xc9, 0xa2, 0x4a);
 
@@ -74,6 +82,7 @@ pub fn inventory_screen(
     mut slots: ResMut<Slots>,
     mut sel: ResMut<InvSel>,
     mut last: ResMut<LastAction>,
+    textures: Res<crate::world::Textures>,
     session: Option<NonSend<Session>>,
 ) -> Result {
     if mode.0 != Mode::Inventory {
@@ -81,7 +90,7 @@ pub fn inventory_screen(
     }
     let inv = &inv.0;
     let items = item_rows(inv);
-    let ground: Vec<u32> = inv.ground().iter().map(|i| i.tag).collect();
+    let ground: Vec<u32> = inv.ground().iter().map(|i| i.tag).filter(|&t| t != inv.player).collect(); // not you
     let spell_list = spells.0.all();
     let lens = [items.len(), ground.len(), spell_list.len()];
 
@@ -149,6 +158,27 @@ pub fn inventory_screen(
         session.send(send);
     }
 
+    // Each item's and spell's picture, as egui textures (faces still on the way: none).
+    let faces = items.iter().map(|(_, t)| *t).chain(ground.iter().copied()).filter_map(|t| inv.get(t)).map(|i| i.face);
+    let mut icons = std::collections::HashMap::new();
+    for face in faces.chain(spell_list.iter().map(|s| s.face)) {
+        if let Some((h, px)) = textures.picture(face as u16) {
+            icons.entry(face).or_insert_with(|| (contexts.add_image(EguiTextureHandle::Weak(h.id())), icon_size(px)));
+        }
+    }
+    // A row: the picture (or a gap of its width), then the selectable text.
+    let row = |ui: &mut egui::Ui, face: u32, selected: bool, text: egui::RichText| {
+        ui.horizontal(|ui| {
+            match icons.get(&face) {
+                Some(&(id, size)) => {
+                    ui.add(egui::Image::new((id, size)));
+                }
+                None => ui.add_space(ICON),
+            }
+            ui.selectable_label(selected, text)
+        })
+        .inner
+    };
     let ctx = contexts.ctx_mut()?;
     let frame = egui::Frame::new()
         .fill(egui::Color32::from_rgba_unmultiplied(20, 22, 30, 238))
@@ -172,27 +202,27 @@ pub fn inventory_screen(
                     ui.label(egui::RichText::new(t).color(GOLD).strong());
                 };
                 heading(&mut cols[0], "ITEMS");
-                for (row, (depth, tag)) in items.iter().enumerate() {
+                for (i, (depth, tag)) in items.iter().enumerate() {
                     let Some(item) = inv.get(*tag) else { continue };
                     let text = format!("{}{}", "    ".repeat(*depth), item_text(item));
                     let rich = if item.cursed() { egui::RichText::new(text).color(egui::Color32::LIGHT_RED) } else { egui::RichText::new(text) };
-                    if cols[0].selectable_label(sel.column == 0 && sel.row == row, rich).clicked() {
-                        clicked = Some((0, row));
+                    if row(&mut cols[0], item.face, sel.column == 0 && sel.row == i, rich).clicked() {
+                        clicked = Some((0, i));
                     }
                 }
                 heading(&mut cols[1], "ON THE GROUND");
-                for (row, tag) in ground.iter().enumerate() {
+                for (i, tag) in ground.iter().enumerate() {
                     let Some(item) = inv.get(*tag) else { continue };
-                    if cols[1].selectable_label(sel.column == 1 && sel.row == row, item_text(item)).clicked() {
-                        clicked = Some((1, row));
+                    if row(&mut cols[1], item.face, sel.column == 1 && sel.row == i, egui::RichText::new(item_text(item))).clicked() {
+                        clicked = Some((1, i));
                     }
                 }
                 heading(&mut cols[2], "SPELLS");
-                for (row, s) in spell_list.iter().enumerate() {
+                for (i, s) in spell_list.iter().enumerate() {
                     let cost = if s.grace > 0 { format!("{} grace", s.grace) } else { format!("{} mana", s.mana) };
                     let text = format!("{} (lvl {}, {cost})", s.name, s.level);
-                    if cols[2].selectable_label(sel.column == 2 && sel.row == row, text).clicked() {
-                        clicked = Some((2, row));
+                    if row(&mut cols[2], s.face, sel.column == 2 && sel.row == i, egui::RichText::new(text)).clicked() {
+                        clicked = Some((2, i));
                     }
                 }
                 cols[2].add_space(16.0);
@@ -213,6 +243,13 @@ pub fn inventory_screen(
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn icons_keep_their_shape_in_the_row() {
+        assert_eq!(icon_size(Vec2::new(32.0, 32.0)), egui::vec2(ICON, ICON));
+        assert_eq!(icon_size(Vec2::new(64.0, 32.0)), egui::vec2(2.0 * ICON, ICON)); // a wide picture stays wide
+        assert_eq!(icon_size(Vec2::new(32.0, 96.0)), egui::vec2(ICON / 3.0, ICON));
+    }
 
     #[test]
     fn get_ignores_a_bag_that_is_no_longer_open() {

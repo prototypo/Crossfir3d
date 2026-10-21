@@ -11,12 +11,10 @@ Known problems left for later. Each line says what goes wrong and where to look.
 
 ## Missing
 
-- [ ] Item pictures (icons) in the inventory.
 - [ ] Server text markup such as `[b]` and `[fixed]` shows as plain text in the parchment box and log.
 - [ ] Torches and other wall-mounted things are hidden inside the solid wall blocks (`world.rs`).
 - [ ] Live tests for "read a sign → parchment box" and "cast a known spell".
 
-- [ ] Monsters the Bestiary kit does not cover (orcs, animals, dragons, undead other than skeletons, ...) are still picture cards or tinted 3D people (`person` in `assets/models.txt`).
 
 ## Before making the repo public
 
