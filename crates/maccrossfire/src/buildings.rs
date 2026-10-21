@@ -205,6 +205,7 @@ pub fn parts(recipe: &str, w: u32, h: u32) -> Option<Vec<Part>> {
             "centipede" => return Some(centipede([r, g, b])),
             "tentacle" => return Some(tentacle([r, g, b])),
             _ if kind.starts_with("chess_") => return Some(chess_piece(&kind[6..], [r, g, b])),
+            _ if ITEM_KINDS.contains(&kind) => return Some(item(kind, [r, g, b])),
             // A low mattress with a white pillow at its north end.
             "futon" => {
                 return Some(vec![
@@ -1644,6 +1645,116 @@ fn magma(heat: f32) -> Vec<Part> {
 }
 
 /// A white note lying on the floor with lines of writing on it.
+/// Small things lying on the ground, in the colour after the colon (`ring:0.8,0.1,0.1`):
+/// our own shapes for the item families (the blade, the gem, the liquid takes the colour).
+pub const ITEM_KINDS: [&str; 19] = [
+    "sword", "dagger", "axe", "hammer", "mace", "club", "spear", "staff", "bow", "arrow", "ring", "amulet", "potion",
+    "shield", "helmet", "coin", "gem", "ingot", "fruit",
+];
+
+const GRIP: [f32; 3] = [0.35, 0.2, 0.12];
+
+/// A ring of `n` small balls lying flat round the middle (chains, bands).
+fn hoop(radius: f32, n: usize, ball: f32, y: f32, z: f32, color: [f32; 3]) -> Vec<Part> {
+    (0..n)
+        .map(|i| {
+            let (sin, cos) = (i as f32 / n as f32 * std::f32::consts::TAU).sin_cos();
+            part(Shape::Ball(ball), [radius * cos, y, z + radius * sin], 0.0, [1.0; 3], Some(color))
+        })
+        .collect()
+}
+
+/// A sword `k` times full length (a dagger is a short one), lying east-west.
+fn sword(c: [f32; 3], k: f32) -> Vec<Part> {
+    vec![
+        cube([0.42 * k, 0.012, 0.045 * k.sqrt()], [0.07 * k, 0.008, 0.0], c),
+        cube([0.06 * k, 0.01, 0.025 * k.sqrt()], [0.31 * k, 0.008, 0.0], c),
+        cube([0.03, 0.025, 0.15 * k.sqrt()], [-0.15 * k, 0.013, 0.0], GOLD),
+        cube([0.1 * k, 0.028, 0.028], [-0.22 * k, 0.014, 0.0], GRIP),
+        part(Shape::Ball(0.022), [-0.285 * k, 0.022, 0.0], 0.0, [1.0; 3], Some(GOLD)),
+    ]
+}
+
+/// A wooden handle from its grip end on the ground at `grip_x` up through the middle of
+/// the head at `head`, a little past it (the thing leans on its head, not flat).
+fn shaft(grip_x: f32, head: [f32; 3]) -> Part {
+    let (dx, dy) = (head[0] - grip_x, head[1] - 0.013);
+    let k = 1.0 + 0.03 / dx;
+    limb([grip_x, 0.013, 0.0], [grip_x + dx * k, 0.013 + dy * k, 0.0], 0.026, WOOD)
+}
+
+fn item(kind: &str, c: [f32; 3]) -> Vec<Part> {
+    let ball = |r: f32, pos: [f32; 3], scale: [f32; 3], color| part(Shape::Ball(r), pos, 0.0, scale, Some(color));
+    let parts = match kind {
+        "sword" => sword(c, 1.0),
+        "dagger" => sword(c, 0.55),
+        "axe" => vec![shaft(-0.26, [0.2, 0.045, 0.0]), cube([0.07, 0.03, 0.18], [0.2, 0.045, 0.05], c)],
+        "hammer" => vec![shaft(-0.25, [0.22, 0.05, 0.0]), cube([0.08, 0.07, 0.16], [0.22, 0.05, 0.0], c)],
+        // An iron head with four flanges, on a short iron-bound handle.
+        "mace" => vec![
+            shaft(-0.24, [0.15, 0.075, 0.0]),
+            ball(0.06, [0.15, 0.075, 0.0], [1.0; 3], c),
+            cube([0.13, 0.15, 0.016], [0.15, 0.075, 0.0], c),
+            cube([0.13, 0.016, 0.15], [0.15, 0.075, 0.0], c),
+        ],
+        // One piece of wood, thin at the grip and thick at the end.
+        "club" => vec![
+            Part { tilt_deg: -90.0, ..part(Shape::Frustum { radius: 0.06, height: 0.42 }, [0.0, 0.045, 0.0], 0.0, [1.0; 3], Some(c)) },
+            ball(0.06, [0.21, 0.05, 0.0], [0.5, 1.0, 1.0], c),
+        ],
+        "spear" => vec![cube([0.78, 0.02, 0.02], [-0.06, 0.011, 0.0], WOOD), cube([0.12, 0.012, 0.045], [0.38, 0.011, 0.0], c)],
+        // A long staff, its gem glowing in a cage of three prongs at the top.
+        "staff" => {
+            let mut out = vec![shaft(-0.42, [0.37, 0.045, 0.0])];
+            for z in [-0.03, 0.0, 0.03] {
+                out.push(limb([0.3, 0.015, z * 0.6], [0.4, 0.05, z], 0.012, GOLD));
+            }
+            out.push(Part { yaw_deg: 45.0, tilt_deg: 45.0, ..part(Shape::Glow([0.045; 3]), [0.37, 0.045, 0.0], 0.0, [1.0; 3], Some(c)) });
+            out
+        }
+        // A smooth curved bow with its string.
+        "bow" => {
+            let (cx, r, n) = (-0.2, 0.3, 10);
+            let at = |i: usize| {
+                let a = (-60.0 + 120.0 * i as f32 / n as f32).to_radians();
+                [cx + r * a.cos(), 0.015, r * a.sin()]
+            };
+            let mut out: Vec<Part> = (0..n).map(|i| limb(at(i), at(i + 1), 0.022, c)).collect();
+            out.push(limb(at(0), at(n), 0.004, [0.9, 0.88, 0.8]));
+            out
+        }
+        "arrow" => vec![
+            cube([0.5, 0.012, 0.012], [0.0, 0.007, 0.0], WOOD),
+            cube([0.05, 0.01, 0.03], [0.27, 0.007, 0.0], c),
+            cube([0.08, 0.004, 0.045], [-0.21, 0.007, 0.0], [0.92, 0.92, 0.88]),
+        ],
+        "ring" => {
+            let mut out = hoop(0.045, 12, 0.012, 0.012, 0.0, GOLD);
+            out.push(ball(0.022, [0.05, 0.03, 0.0], [1.0; 3], c));
+            out
+        }
+        "amulet" => {
+            let mut out = hoop(0.1, 20, 0.007, 0.007, -0.03, GOLD);
+            out.push(cylinder(0.04, 0.012, [0.0, 0.006, 0.1], GOLD));
+            out.push(ball(0.026, [0.0, 0.016, 0.1], [1.0, 0.6, 1.0], c));
+            out
+        }
+        "potion" => vec![
+            ball(0.07, [0.0, 0.075, 0.0], [1.0, 1.1, 1.0], c),
+            cylinder(0.022, 0.06, [0.0, 0.17, 0.0], c),
+            cylinder(0.018, 0.03, [0.0, 0.215, 0.0], [0.6, 0.45, 0.3]),
+        ],
+        "shield" => vec![cylinder(0.24, 0.03, [0.0, 0.015, 0.0], c), ball(0.05, [0.0, 0.03, 0.0], [1.0, 0.5, 1.0], STEEL)],
+        "helmet" => vec![ball(0.12, [0.0, 0.0, 0.0], [1.0, 0.85, 1.05], c), cylinder(0.13, 0.015, [0.0, 0.008, 0.0], c.map(|v| v * 0.7))],
+        "coin" => [(0.0, 0.005), (0.01, 0.015), (-0.005, 0.025)].map(|(x, y)| cylinder(0.045, 0.01, [x, y, 0.0], c)).to_vec(),
+        "gem" => vec![point(0.05, 0.06, [0.0, 0.03, 0.0], c), Part { tilt_deg: 180.0, ..point(0.05, 0.03, [0.0, 0.0, 0.0], c) }],
+        "ingot" => vec![cube([0.2, 0.05, 0.08], [0.0, 0.025, 0.0], c), cube([0.17, 0.01, 0.06], [0.0, 0.055, 0.0], c)],
+        "fruit" => vec![ball(0.06, [0.0, 0.06, 0.0], [1.0; 3], c), cube([0.008, 0.03, 0.008], [0.0, 0.13, 0.0], [0.35, 0.25, 0.12])],
+        _ => Vec::new(),
+    };
+    turned(parts, 25.0)
+}
+
 fn note() -> Vec<Part> {
     let mut out = vec![Part { yaw_deg: -10.0, ..cube([0.18, 0.005, 0.24], [0.0, 0.003, 0.0], [0.97, 0.96, 0.92]) }];
     for i in 0..5 {
@@ -2278,6 +2389,19 @@ mod tests {
         assert_eq!((p.pos, p.yaw_deg, p.shape), ([0.0, 0.0, 1.0], 90.0, Shape::Box([2.0, 0.1, 0.1])));
         let up = limb([0.0, 0.0, 0.0], [1.0, 1.0, 0.0], 0.1, WOOD);
         assert!((up.tilt_deg + 45.0).abs() < 1e-4, "{}", up.tilt_deg);
+    }
+
+    #[test]
+    fn items_lie_small_on_their_square() {
+        for kind in ITEM_KINDS {
+            let p = parts(&format!("{kind}:0.5,0.6,0.7"), 1, 1).unwrap_or_else(|| panic!("no recipe {kind}"));
+            assert!(!p.is_empty(), "{kind} is empty");
+            assert!(p.iter().any(|x| x.color == Some([0.5, 0.6, 0.7])), "{kind} does not use its colour");
+            for x in &p {
+                assert!(x.pos[1] < 0.35, "{kind} stands too high");
+                assert!(x.pos[0].abs() < 0.5 && x.pos[2].abs() < 0.5, "{kind} leaves its square");
+            }
+        }
     }
 
     #[test]
