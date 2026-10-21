@@ -6,7 +6,7 @@ use cfproto::{ClientMsg, Inventory, SpellBook};
 use maccrossfire::camera::{compass, heading_of, nearest_dir, screen_dir, Heading, CREATURE_LAYERS};
 use maccrossfire::modes::{act, bindings_active, Act, KeyName, Mode};
 use maccrossfire::anim::event_for_command;
-use maccrossfire::messages::{ground_box, ground_things, new_square, standing_on};
+use maccrossfire::messages::{ground_box, ground_things, new_square, object_tags, standing_on};
 use maccrossfire::keys::{action_of, skill_command, Action, Binding, Combo, Mods};
 use maccrossfire::slots::{dir_number, fire_commands, slot_commands, Slot};
 
@@ -248,7 +248,7 @@ pub fn watch_ground(
     mut last: Local<Vec<u32>>,
 ) {
     let ground = ground_things(&inv.0);
-    let tags: Vec<u32> = ground.iter().map(|i| i.tag).collect();
+    let tags = object_tags(&ground); // walking from floor to floor stays quiet
     if tags == *last {
         return;
     }
