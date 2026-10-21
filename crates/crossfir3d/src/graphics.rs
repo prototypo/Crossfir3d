@@ -5,6 +5,7 @@ use std::time::{Duration, Instant};
 
 use bevy::anti_alias::taa::TemporalAntiAliasing;
 use bevy::camera::RenderTarget;
+use bevy::render::camera::{MipBias, TemporalJitter};
 use bevy::render::render_resource::{Extent3d, TextureFormat};
 use bevy_egui::PrimaryEguiContext;
 use bevy::light::DirectionalLightShadowMap;
@@ -30,7 +31,7 @@ impl Plugin for GraphicsPlugin {
                 Update,
                 (apply_settings, fit_scene_image, keep_window_on_screen, remember_window, save_settings_later),
             )
-            .add_systems(Last, frame_cap);
+            .add_systems(Last, (save_on_exit, frame_cap));
     }
 }
 
@@ -97,8 +98,9 @@ fn apply_settings(
             None => e.remove::<ScreenSpaceAmbientOcclusion>(),
         };
         match s.anti_alias {
-            AntiAlias::Off => e.insert(Msaa::Off).remove::<TemporalAntiAliasing>(),
-            AntiAlias::Msaa4 => e.insert(Msaa::Sample4).remove::<TemporalAntiAliasing>(),
+            // TAA brought its jitter and mip bias with it: they go too, or textures shimmer.
+            AntiAlias::Off => e.insert(Msaa::Off).remove::<(TemporalAntiAliasing, TemporalJitter, MipBias)>(),
+            AntiAlias::Msaa4 => e.insert(Msaa::Sample4).remove::<(TemporalAntiAliasing, TemporalJitter, MipBias)>(),
             AntiAlias::Taa => e.insert((Msaa::Off, TemporalAntiAliasing::default())),
         };
         let section = ColorGradingSection { contrast: s.contrast, gamma: s.gamma, ..default() };
@@ -189,6 +191,15 @@ fn save_settings_later(settings: Res<CurrentSettings>, mut dirty: Local<bool>, m
     }
 }
 
+/// Quitting within a second of a change would lose it (saves wait a second): save now.
+fn save_on_exit(mut exits: MessageReader<AppExit>, settings: Res<CurrentSettings>) {
+    if exits.read().next().is_some()
+        && let Err(e) = save_settings(&default_settings_path(), &settings.0)
+    {
+        warn!("could not save settings: {e}");
+    }
+}
+
 /// ponytail: sleep-based cap; a frame-pacing crate if it judders.
 fn frame_cap(settings: Res<CurrentSettings>, mut last: Local<Option<Instant>>) {
     let fps = match settings.0.frame_rate {
@@ -214,9 +225,16 @@ fn frame_cap(settings: Res<CurrentSettings>, mut last: Local<Option<Instant>>) {
 #[derive(Resource)]
 pub struct SceneImage(pub Handle<Image>);
 
+/// The scene image: drawn on by the GPU only, so it keeps no pixels in memory (a 5K
+/// window would hold ~59 MB of zeros, reallocated while resizing).
+fn scene_target() -> Image {
+    let mut image = Image::new_target_texture(1, 1, TextureFormat::Rgba8Unorm, Some(TextureFormat::Rgba8UnormSrgb));
+    image.data = None;
+    image
+}
+
 fn setup_scaled_view(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
-    let image = Image::new_target_texture(1, 1, TextureFormat::Rgba8Unorm, Some(TextureFormat::Rgba8UnormSrgb));
-    let handle = images.add(image);
+    let handle = images.add(scene_target());
     commands.insert_resource(SceneImage(handle.clone()));
     commands.spawn((Camera2d, Camera { order: 1, ..default() }, PrimaryEguiContext));
     commands.spawn((
@@ -248,5 +266,18 @@ fn fit_scene_image(
         if let Some(mut image) = images.get_mut(&scene.0) {
             image.resize(want);
         }
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn scene_image_keeps_no_pixels_in_memory() {
+        let mut image = scene_target();
+        assert!(image.data.is_none());
+        image.resize(Extent3d { width: 5120, height: 2880, depth_or_array_layers: 1 });
+        assert!(image.data.is_none());
     }
 }

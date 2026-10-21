@@ -4,17 +4,12 @@ Known problems left for later. Each line says what goes wrong and where to look.
 
 ## Bugs
 
-- [ ] Face textures from one session stay in `Textures.images` for the next (`world.rs`). After changing server, reused face numbers show old pictures until new ones arrive.
 - [ ] The bag chosen for G (`InvSel.container`, `inventory_ui.rs`) can go stale if it is closed or deleted while another column is selected. The server answers with an error; nothing breaks.
 - [ ] "Your character died" also shows when `accountplayers` arrives for other reasons, for example after deleting a character (`messages.rs` `in_game_reset`).
 
 
-- [ ] The last settings change can be lost if the game quits within 1 s of the previous save (`graphics.rs` `save_settings_later`); save on exit too.
-- [ ] The scene image keeps a full-size zeroed copy in RAM (~59 MB at 5K) and reallocates while the window is drag-resized (`graphics.rs`); set `image.data = None`.
 - [ ] macOS green-button full screen is saved as a screen-sized window place (`graphics.rs` `remember_window`).
-- [ ] Turning TAA off leaves `MipBias`/`TemporalJitter` on the camera (sharper, shimmering textures); slider drags reset TAA history.
-- [ ] The settings screen has no scroll area; in a short window the bottom buttons can be cut off (Escape still works).
-- [ ] A player's own `time` command within 10 s of login is hidden (the clock request stays open 10 s).
+- [ ] Dragging a settings slider resets the TAA history (a brief blur while dragging).
 
 - [ ] A refused `accountplay` (e.g. "Character X is already playing" after a crash) ends the session instead of showing the reason on the character list; the screen is blank between Play and the first map (`login.rs`, `characters_ui.rs`).
 - [ ] "Connecting..." is cleared as soon as a session exists, so a slow account login shows a blank screen (`characters_ui.rs`).

@@ -96,7 +96,7 @@ impl Plugin for WorldPlugin {
             )
             .add_systems(Update, move_waves.run_if(in_state(AppState::InGame)))
             .add_systems(OnEnter(AppState::InGame), spawn_arrow)
-            .add_systems(OnExit(AppState::InGame), (despawn_visuals, despawn_arrow));
+            .add_systems(OnExit(AppState::InGame), (despawn_visuals, despawn_arrow, forget_faces));
     }
 }
 
@@ -238,6 +238,12 @@ pub(crate) struct Recolour;
 /// Outfits carry bare skin too (parts named "...MI_Regular_..."); those get this colour.
 #[derive(Component)]
 pub(crate) struct SkinTint(pub Color);
+
+/// Face numbers belong to one server and session: the next may reuse a number for
+/// another picture.
+fn forget_faces(mut textures: ResMut<Textures>) {
+    textures.images.clear();
+}
 
 #[derive(Resource, Default)]
 struct Textures {
@@ -1216,6 +1222,17 @@ fn despawn_visuals(mut commands: Commands, q: Query<Entity, With<TileVisual>>) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn leaving_the_game_forgets_face_pictures() {
+        use bevy::ecs::system::RunSystemOnce;
+        let mut world = World::new();
+        let mut textures = Textures::default();
+        textures.images.insert(7, (Handle::default(), Vec2::ONE, Color::WHITE));
+        world.insert_resource(textures);
+        world.run_system_once(forget_faces).unwrap();
+        assert!(world.resource::<Textures>().images.is_empty());
+    }
 
     #[test]
     fn mean_colour_skips_see_through_pixels() {

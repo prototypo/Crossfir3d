@@ -63,6 +63,8 @@ pub fn settings_screen(
             ui.spacing_mut().slider_width = 260.0;
             ui.label(egui::RichText::new("SETTINGS").color(GOLD).strong().size(18.0));
             ui.add_space(12.0);
+            // Scrolls in a short window, so the buttons below always show.
+            egui::ScrollArea::vertical().max_height(ui.available_height() - 60.0).show(ui, |ui| {
             egui::Grid::new("settings-grid").num_columns(2).spacing([24.0, 12.0]).show(ui, |ui| {
                 ui.label("Full screen");
                 ui.checkbox(&mut s.fullscreen, "");
@@ -131,6 +133,7 @@ pub fn settings_screen(
                 ui.label("Show what is under me");
                 ui.checkbox(&mut s.ground_popup, "on every new square (B shows it any time)");
                 ui.end_row();
+            });
             });
             ui.add_space(16.0);
             ui.horizontal(|ui| {

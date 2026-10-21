@@ -46,6 +46,12 @@ pub fn is_time_reply_line(text: &str) -> bool {
         || text.starts_with("Time of Year: ")
 }
 
+/// The last line of the server's reply to `time` (common/time.cpp `time_info`): after
+/// it, a `time` the player types is theirs to see.
+pub fn ends_time_reply(text: &str) -> bool {
+    text.starts_with("Time of Year: ")
+}
+
 #[derive(Default)]
 pub struct GameClock {
     /// (hour at sync, tick at sync)
@@ -129,6 +135,12 @@ mod tests {
         assert!(is_time_reply_line("Time of Year: The Season of New Year"));
         assert!(!is_time_reply_line("The house is being over run with monsters!"));
         assert!(!is_time_reply_line("You miss bird!"));
+    }
+
+    #[test]
+    fn season_line_ends_the_reply() {
+        assert!(ends_time_reply("Time of Year: The Season of New Year"));
+        assert!(!ends_time_reply("It is 1 minute past 2 o'clock am, on the Day of the Bull"));
     }
 
     #[test]
