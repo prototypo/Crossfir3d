@@ -19,6 +19,7 @@ mod input;
 mod settings_ui;
 mod sky;
 mod inventory_ui;
+mod keys_ui;
 mod ui;
 mod world;
 
@@ -109,6 +110,21 @@ pub struct Spells(pub SpellBook);
 #[derive(Resource, Default)]
 pub struct Slots(pub QuickSlots);
 
+/// This character's key bindings and the all-characters ones (`keys.txt`).
+#[derive(Resource, Default)]
+pub struct KeyBindings(pub maccrossfire::keys::Bindings);
+
+/// Skill names by stat code (140-189), from `replyinfo skill_info`.
+#[derive(Resource, Default)]
+pub struct SkillNames(pub std::collections::HashMap<u8, String>);
+
+/// The skills this character knows, by name, sorted.
+pub fn known_skills(stats: &Stats, names: &SkillNames) -> Vec<String> {
+    let mut known: Vec<String> = stats.skills.keys().filter_map(|c| names.0.get(c).cloned()).collect();
+    known.sort();
+    known
+}
+
 #[derive(Resource, Default)]
 pub struct HudState {
     pub tall_log: bool,
@@ -138,17 +154,21 @@ fn main() {
         .init_resource::<PendingQuery>()
         .init_resource::<Clock>()
         .init_resource::<TimeRequest>()
-        .add_systems(OnEnter(AppState::InGame), (ask_time, dev_commands))
+        .add_systems(OnEnter(AppState::InGame), (ask_time, ask_skills, dev_commands))
         .init_resource::<HudState>()
         .init_resource::<PlayerStats>()
         .init_resource::<Inv>()
         .init_resource::<Spells>()
         .init_resource::<Slots>()
+        .init_resource::<SkillNames>()
+        .init_resource::<KeyBindings>()
+        .init_resource::<ui::PendingBind>()
         .init_resource::<inventory_ui::InvSel>()
+        .init_resource::<keys_ui::KeysSel>()
         .init_resource::<input::Facing>()
         .init_resource::<input::CameraHeading>()
         .init_resource::<input::CameraView>()
-        .add_systems(EguiPrimaryContextPass, (hud::hud, inventory_ui::inventory_screen, combat_fx::draw).chain().run_if(in_state(AppState::InGame)))
+        .add_systems(EguiPrimaryContextPass, (hud::hud, inventory_ui::inventory_screen, keys_ui::keys_screen, combat_fx::draw).chain().run_if(in_state(AppState::InGame)))
         .init_resource::<combat_fx::CombatFx>()
         .add_systems(Update, combat_fx::watch.run_if(in_state(AppState::InGame)))
         .add_plugins(world::WorldPlugin)
@@ -156,9 +176,9 @@ fn main() {
         .add_plugins(audio::AudioPlugin)
         .add_systems(Startup, ui::auto_login)
         .add_systems(Update, pump_network)
-        .add_systems(Update, (input::send_moves, input::world_keys).run_if(in_state(AppState::InGame)))
+        .add_systems(Update, (input::send_moves, input::world_keys, ui::capture_bind_key).chain().run_if(in_state(AppState::InGame)))
         .add_systems(Update, dev_screenshot)
-        .add_systems(OnEnter(AppState::InGame), load_character_slots)
+        .add_systems(OnEnter(AppState::InGame), load_character_keys)
         .init_resource::<settings_ui::SettingsOpen>()
         .add_systems(
             EguiPrimaryContextPass,
@@ -197,7 +217,10 @@ fn reset_play_state(world: &mut World) {
     world.insert_resource(Inv::default());
     world.insert_resource(Spells::default());
     world.insert_resource(Slots::default());
+    world.insert_resource(SkillNames::default());
+    world.insert_resource(ui::PendingBind::default());
     world.insert_resource(inventory_ui::InvSel::default());
+    world.insert_resource(keys_ui::KeysSel::default());
     world.insert_resource(input::Facing::default());
     world.insert_resource(input::CameraHeading::default());
     world.insert_resource(input::CameraView::default());
@@ -311,6 +334,9 @@ fn pump_network(world: &mut World) {
             ServerMsg::AddSpell(spells) => world.resource_mut::<Spells>().0.add(spells),
             ServerMsg::UpdSpell { tag, mana, grace, damage } => world.resource_mut::<Spells>().0.update(tag, mana, grace, damage),
             ServerMsg::DelSpell(tag) => world.resource_mut::<Spells>().0.remove(tag),
+            ServerMsg::ReplyInfo { kind, data } if kind == "skill_info" => {
+                world.insert_resource(SkillNames(cfproto::parse_skill_info(&data)))
+            }
             ServerMsg::Sound { action, volume, x, y, .. } => {
                 world.resource_mut::<audio::AudioQueue>().sounds.push((action, volume, x, y))
             }
@@ -320,10 +346,11 @@ fn pump_network(world: &mut World) {
     }
 }
 
-/// Quick slots belong to the character actually being played.
-fn load_character_slots(mut slots: ResMut<Slots>, session: Option<NonSend<Session>>) {
+/// Quick slots and key bindings belong to the character actually being played.
+fn load_character_keys(mut slots: ResMut<Slots>, mut bindings: ResMut<KeyBindings>, session: Option<NonSend<Session>>) {
     if let Some(s) = session {
         slots.0 = load_slots(&default_slots_path(), s.login.character());
+        bindings.0 = maccrossfire::keys::load_bindings(&maccrossfire::keys::default_keys_path(), s.login.character());
     }
 }
 
@@ -356,17 +383,28 @@ fn time_reply_expected(world: &World, text: &str) -> bool {
 /// Asks the server for the game time once per login.
 /// Developer check: MACCROSSFIRE_COMMANDS="cmd1;cmd2" sends these game commands on
 /// entering the game (e.g. a local-server teleport for screenshots).
+/// MACCROSSFIRE_SCREEN=keys opens the key bindings screen.
 fn dev_commands(
     mut seq: ResMut<NcomSeq>,
+    mut mode: ResMut<KeyMode>,
     mut facing: ResMut<input::Facing>,
     mut heading: ResMut<input::CameraHeading>,
     session: Option<NonSend<Session>>,
 ) {
+    if std::env::var("MACCROSSFIRE_SCREEN").is_ok_and(|s| s == "keys") {
+        mode.0 = maccrossfire::modes::Mode::Keys;
+    }
     let (Ok(cmds), Some(session)) = (std::env::var("MACCROSSFIRE_COMMANDS"), session) else { return };
     for c in cmds.split(';').map(str::trim).filter(|c| !c.is_empty()) {
         facing.0 = maccrossfire::slots::dir_number(c).unwrap_or(facing.0);
         heading.0 = maccrossfire::camera::heading_of(facing.0);
         session.send([ClientMsg::Ncom { packet: seq.next(), repeat: 0, command: c.into() }]);
+    }
+}
+
+fn ask_skills(session: Option<NonSend<Session>>) {
+    if let Some(session) = session {
+        session.send([ClientMsg::RequestInfo("skill_info".into())]);
     }
 }
 
@@ -379,6 +417,14 @@ fn ask_time(time: Res<Time>, mut request: ResMut<TimeRequest>, mut seq: ResMut<N
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn known_skills_are_named_and_sorted() {
+        let mut stats = Stats::default();
+        stats.apply(&[(142, cfproto::StatValue::Int(5)), (140, cfproto::StatValue::Int(9)), (150, cfproto::StatValue::Int(1))]);
+        let names = SkillNames([(140, "praying".to_string()), (142, "alchemy".to_string())].into());
+        assert_eq!(known_skills(&stats, &names), ["alchemy", "praying"]);
+    }
 
     #[test]
     fn back_to_list_keeps_server_view_size() {

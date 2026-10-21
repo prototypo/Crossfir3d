@@ -7,6 +7,8 @@ pub enum Mode {
     CommandLine,
     Inventory,
     Settings,
+    /// The key bindings screen (K).
+    Keys,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -21,6 +23,7 @@ pub enum KeyName {
     M,
     C,
     T,
+    K,
     Space,
     Tab,
     Escape,
@@ -39,6 +42,9 @@ pub enum Act {
     CloseInventory,
     OpenSettings,
     CloseSettings,
+    /// K: the key bindings screen.
+    OpenKeys,
+    CloseKeys,
     ToggleLog,
     ToggleMute,
     /// Snap the camera straight behind the player.
@@ -63,12 +69,15 @@ pub fn act(mode: Mode, key: KeyName, box_open: bool) -> Act {
         (Mode::Inventory, _) => Act::Nothing,
         (Mode::Settings, KeyName::Escape) => Act::CloseSettings,
         (Mode::Settings, _) => Act::Nothing,
+        (Mode::Keys, KeyName::K | KeyName::Escape) => Act::CloseKeys,
+        (Mode::Keys, _) => Act::Nothing,
         (Mode::World, KeyName::E | KeyName::Escape) if box_open => Act::CloseBox,
         (Mode::World, KeyName::Escape) => Act::OpenSettings,
         (Mode::World, KeyName::A | KeyName::E) => Act::Apply,
         (Mode::World, KeyName::G) => Act::Get,
         (Mode::World, KeyName::Digit(n @ 1..=4)) => Act::Slot(n as usize - 1),
         (Mode::World, KeyName::I) => Act::OpenInventory,
+        (Mode::World, KeyName::K) => Act::OpenKeys,
         (Mode::World, KeyName::L) => Act::ToggleLog,
         (Mode::World, KeyName::M) => Act::ToggleMute,
         (Mode::World, KeyName::C) => Act::CameraBehind,
@@ -78,6 +87,11 @@ pub fn act(mode: Mode, key: KeyName, box_open: bool) -> Act {
         (Mode::World, KeyName::Enter) => Act::OpenCommand,
         (Mode::World, _) => Act::Nothing,
     }
+}
+
+/// Bound keys run only while playing in the world, never over a screen or the command box.
+pub fn bindings_active(mode: Mode) -> bool {
+    mode == Mode::World
 }
 
 /// M mutes only while playing in the world, never while typing (login form, command box).
@@ -93,6 +107,22 @@ pub fn command_line_allowed(mode: Mode) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn k_opens_and_closes_keys() {
+        assert_eq!(act(Mode::World, KeyName::K, false), Act::OpenKeys);
+        assert_eq!(act(Mode::Keys, KeyName::K, false), Act::CloseKeys);
+        assert_eq!(act(Mode::Keys, KeyName::Escape, false), Act::CloseKeys);
+        assert_eq!(act(Mode::Keys, KeyName::A, false), Act::Nothing);
+    }
+
+    #[test]
+    fn bindings_only_in_world() {
+        assert!(bindings_active(Mode::World));
+        for m in [Mode::CommandLine, Mode::Inventory, Mode::Settings, Mode::Keys] {
+            assert!(!bindings_active(m));
+        }
+    }
 
     #[test]
     fn enter_does_not_open_command_box_over_screens() {

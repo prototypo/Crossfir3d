@@ -44,6 +44,21 @@ it from the inventory: **I**, select it, **E**); arrows and bolts fly as 3D arro
 floats above you; "hit", "miss", and "killed!" float over the monster you attack, and
 it flashes red when hit. (The server sends no monster health or damage numbers.)
 
+### Key bindings
+
+**K** opens the key bindings screen: a keyboard with your bound keys in yellow, and
+your spells and skills beside it. Pick a spell or skill, then pick keys (click them, or
+press the real combination, such as option + 6), and press **Bind**. A key bound with
+modifiers has a ring in each modifier's colour. Picking a key the game already uses
+asks first. A bound spell casts the way you face; a bound skill is used.
+
+The old clients' commands also work in the command box (**Enter**): `bind cast burning
+hands` (then press the key), `bind -g ...` for all your characters, `bind -e ...` to put
+the command in the box instead of sending it, `unbind` to list them, `unbind 2` to
+remove one, `unbind reset` to remove all. Bindings are saved in
+`~/Library/Application Support/MacCrossfire/keys.txt`. Escape, K and Enter alone can
+never be bound.
+
 Shops are one-storey houses with a painted sign and icon (JEWELS, BANK, MAGIC, ...).
 Standing on a house's squares (a shop's entrance row, say) shows you on its
 doorstep; apply goes in. Leaving a shop, or stepping south off its squares, puts you

@@ -58,6 +58,9 @@ Known problems left for later. Each line says what goes wrong and where to look.
 
 ## Not checked yet
 
+- [ ] Key bindings by hand: typing `bind` in the command box, the Replace question on the K screen, and a bound spell cast in play (only the K screen picture was screenshot-checked).
+- [ ] European (ISO) and Japanese keyboards are drawn as a US Mac keyboard; only key labels change once a key is pressed (`keys_ui.rs`).
+
 - [ ] Wooden gates (`gate.glb`) and the garden gate in 3D: only portcullis gates were screenshot-checked.
 - [ ] The attack, cast, and death animations in play (only idle and walk were screenshot-checked).
 - [ ] Other players as 3D characters (only one player was online in tests).
