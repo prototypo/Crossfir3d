@@ -9,7 +9,7 @@ use maccrossfire::modes::{command_line_allowed, Mode};
 
 use maccrossfire::keys::{bind_question, parse_typed, save_bindings, default_keys_path, Binding, Combo, Typed};
 
-use crate::input::{held_mods, key_name};
+use crate::input::{held_mods, key_name, key_taken};
 use crate::{KeyBindings, KeyMode, LastAction, Msgs, NcomSeq, PendingQuery, Session, Status};
 
 /// A typed `bind` waiting for its key, or a yes/no question waiting for its answer.
@@ -45,14 +45,14 @@ fn save(bindings: &KeyBindings, session: &Option<NonSend<Session>>, msgs: &mut M
 /// send it to the server.
 fn typed_bind(text: &str, pending: &mut PendingBind, bindings: &mut KeyBindings, msgs: &mut Msgs, now: f32) -> Option<bool> {
     if let Some(step) = pending.0.take() {
-        let yes = text.trim().eq_ignore_ascii_case("y");
+        let answer = text.trim().to_ascii_lowercase();
         match step {
-            BindStep::Confirm { binding } if yes => {
+            BindStep::Confirm { binding } if answer == "y" => {
                 log(msgs, &format!("Bound {} to {}.", binding.combo.text(MAC), binding.command), now);
                 bindings.0.bind(binding);
                 return Some(true);
             }
-            BindStep::ConfirmReset if yes => {
+            BindStep::ConfirmReset if answer == "y" => {
                 bindings.0.reset();
                 log(msgs, "Key bindings removed.", now);
                 return Some(true);
@@ -60,7 +60,10 @@ fn typed_bind(text: &str, pending: &mut PendingBind, bindings: &mut KeyBindings,
             BindStep::WaitKey { .. } => pending.0 = Some(step), // still waiting for the key
             _ => {
                 log(msgs, "Not changed.", now);
-                return Some(false);
+                if answer == "n" {
+                    return Some(false);
+                }
+                // Any other text drops the question and is handled as typed.
             }
         }
     }
@@ -294,7 +297,9 @@ pub fn command_line(
     if !command_line_allowed(mode.0) {
         return Ok(());
     }
-    match line_action(line.open, keys.just_pressed(KeyCode::Enter), keys.just_pressed(KeyCode::Escape)) {
+    // A bound shift+Enter (or the like) runs its binding, not the command box.
+    let enter = keys.just_pressed(KeyCode::Enter) && (line.open || !key_taken(&bindings, &keys, KeyCode::Enter));
+    match line_action(line.open, enter, keys.just_pressed(KeyCode::Escape)) {
         LineAction::Open => {
             line.open = true;
             mode.0 = Mode::CommandLine;
@@ -347,6 +352,19 @@ mod tests {
     use super::{line_action, submit_message, typed_bind, BindStep, LineAction, PendingBind};
     use crate::{KeyBindings, Msgs};
     use maccrossfire::keys::{Binding, Combo, Mods};
+
+    #[test]
+    fn other_text_drops_a_waiting_question() {
+        let (mut p, mut b, mut m) = (PendingBind::default(), KeyBindings::default(), Msgs::default());
+        let g = Binding { all: false, combo: Combo { mods: Mods::default(), key: "G".into() }, edit: false, command: "say g".into() };
+        p.0 = Some(BindStep::Confirm { binding: g });
+        assert_eq!(typed_bind("shout help", &mut p, &mut b, &mut m, 0.0), None); // goes to the server
+        assert!(p.0.is_none());
+        assert!(b.0.list.is_empty());
+        p.0 = Some(BindStep::ConfirmReset);
+        assert_eq!(typed_bind("unbind", &mut p, &mut b, &mut m, 0.0), Some(false)); // handled as typed
+        assert!(p.0.is_none());
+    }
 
     #[test]
     fn typed_bind_flow() {

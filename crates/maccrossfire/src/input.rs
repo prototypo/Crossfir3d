@@ -117,7 +117,7 @@ pub fn send_moves(
     }
     // just_pressed too: a press and release in one frame (a very fast tap) still steps.
     // An arrow a binding took no longer moves.
-    let key = |k| (keys.pressed(k) || keys.just_pressed(k)) && !key_name(k).is_some_and(|n| plain_bound(&bindings, n));
+    let key = |k| (keys.pressed(k) || keys.just_pressed(k)) && !key_taken(&bindings, &keys, k);
     let screen = screen_dir(key(KeyCode::ArrowUp), key(KeyCode::ArrowDown), key(KeyCode::ArrowLeft), key(KeyCode::ArrowRight));
     let (Some(screen), Mode::World) = (screen, mode.0) else {
         *held = None; // key released: the next press is a new tap
@@ -229,9 +229,11 @@ pub fn binding_commands(b: &Binding, inv: &Inventory, spells: &SpellBook, skills
     }
 }
 
-/// The binding a plain key has, if any (bound game keys lose their own job).
-fn plain_bound(bindings: &KeyBindings, key: &str) -> bool {
-    bindings.0.lookup(&Combo { mods: Mods::default(), key: key.into() }).is_some()
+/// Whether pressing `code` with the modifiers held now runs a binding: then the key's
+/// own game job (walk, face view, mute, command box) must not run too.
+pub fn key_taken(bindings: &KeyBindings, keys: &ButtonInput<KeyCode>, code: KeyCode) -> bool {
+    let mods = held_mods(keys);
+    key_name(code).is_some_and(|key| bindings.0.lookup(&Combo { mods, key: key.into() }).is_some())
 }
 
 /// One-key actions (the spec's key table, via `modes::act`). Enter is handled by the
@@ -257,7 +259,7 @@ pub fn world_keys(
     if pending.waiting_key() {
         return; // `capture_bind_key` takes this key press
     }
-    view.face = mode.0 == Mode::World && keys.pressed(KeyCode::KeyF) && !plain_bound(&bindings, "F");
+    view.face = mode.0 == Mode::World && keys.pressed(KeyCode::KeyF) && !key_taken(&bindings, &keys, KeyCode::KeyF);
     let mods = held_mods(&keys);
     let pressed: Vec<KeyCode> = keys.get_just_pressed().copied().collect();
     for code in pressed {
@@ -337,6 +339,20 @@ mod tests {
     use bevy::prelude::KeyCode;
     use cfproto::{Inventory, SpellBook};
     use maccrossfire::keys::{Binding, Combo, Mods};
+
+    #[test]
+    fn modified_bound_key_is_taken() {
+        use bevy::input::ButtonInput;
+        let mut b = crate::KeyBindings::default();
+        let shift = Mods { shift: true, ..Default::default() };
+        b.0.bind(Binding { all: false, combo: Combo { mods: shift, key: "Up".into() }, edit: false, command: "say up".into() });
+        let mut keys = ButtonInput::<KeyCode>::default();
+        keys.press(KeyCode::ArrowUp);
+        assert!(!super::key_taken(&b, &keys, KeyCode::ArrowUp)); // plain Up still walks
+        keys.press(KeyCode::ShiftLeft);
+        assert!(super::key_taken(&b, &keys, KeyCode::ArrowUp)); // shift+Up runs the binding only
+        assert!(!super::key_taken(&b, &keys, KeyCode::ArrowDown));
+    }
 
     #[test]
     fn key_names_roundtrip() {
