@@ -202,6 +202,11 @@ pub fn bind_question(b: &Bindings, combo: &Combo, command: &str, mac: bool) -> R
     })
 }
 
+/// An all-characters binding that this character's own binding on the same keys hides.
+pub fn shadowed(b: &Bindings, new: &Binding) -> bool {
+    new.all && b.list.iter().any(|x| !x.all && x.combo == new.combo)
+}
+
 /// A typed `bind` or `unbind` command (`lib/help/bind.en`).
 #[derive(Debug, PartialEq)]
 pub enum Typed {
@@ -272,11 +277,11 @@ pub fn load_bindings(path: &Path, character: &str) -> Bindings {
 /// lines, and replaces the file in one rename (a crash cannot leave half a file).
 pub fn save_bindings(path: &Path, character: &str, b: &Bindings) -> io::Result<()> {
     let old = std::fs::read_to_string(path).unwrap_or_default();
-    let mut lines: Vec<String> = old
-        .lines()
-        .filter(|l| !matches!(l.split('\t').next(), Some(w) if w == character || w == "*"))
-        .map(String::from)
-        .collect();
+    // Other characters' lines stay, and so do this character's (and `*`) lines that do
+    // not load (a typo in a hand edit): they are not ours to drop.
+    let ours = |l: &str| matches!(l.split('\t').next(), Some(w) if w == character || w == "*");
+    let mut lines: Vec<String> =
+        old.lines().filter(|l| !ours(l) || parse_line(l, character).is_none()).map(String::from).collect();
     for x in &b.list {
         let who = if x.all { "*" } else { character };
         let mods = if x.combo.mods.none() { "-".to_string() } else { x.combo.mods.names(true).join("+") };
@@ -450,6 +455,29 @@ mod tests {
         std::fs::write(&path, "Ann\t-\th\t-\tsay hello\n").unwrap();
         let b = load_bindings(&path, "Ann");
         assert_eq!(b.lookup(&combo(Mods::default(), "H")).unwrap().command, "say hello");
+    }
+
+    #[test]
+    fn save_keeps_own_lines_it_could_not_read() {
+        let path = temp_file("keepbad");
+        let bad = "*\tshfit\tG\t-\tsay typo";
+        std::fs::write(&path, format!("{bad}\nAnn\t-\tQ\t-\tsay q\n")).unwrap();
+        let b = load_bindings(&path, "Ann");
+        save_bindings(&path, "Ann", &b).unwrap();
+        let text = std::fs::read_to_string(&path).unwrap();
+        assert!(text.lines().any(|l| l == bad));
+        assert_eq!(text.lines().filter(|l| l.ends_with("say q")).count(), 1);
+    }
+
+    #[test]
+    fn all_binding_under_own_binding_is_shadowed() {
+        let g = Combo { mods: Mods::default(), key: "G".into() };
+        let mut b = Bindings::default();
+        b.bind(Binding { all: false, combo: g.clone(), edit: false, command: "say me".into() });
+        let all = Binding { all: true, combo: g.clone(), edit: false, command: "say all".into() };
+        assert!(shadowed(&b, &all));
+        assert!(!shadowed(&b, &Binding { all: false, ..all.clone() }));
+        assert!(!shadowed(&Bindings::default(), &all));
     }
 
     #[test]

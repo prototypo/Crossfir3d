@@ -7,7 +7,7 @@ use maccrossfire::login::{Creds, LoginFlow};
 
 use maccrossfire::modes::{command_line_allowed, Mode};
 
-use maccrossfire::keys::{bind_question, parse_typed, save_bindings, default_keys_path, Binding, Combo, Typed};
+use maccrossfire::keys::{shadowed, bind_question, parse_typed, save_bindings, default_keys_path, Binding, Combo, Typed};
 
 use crate::input::{held_mods, key_name, key_taken};
 use crate::{KeyBindings, KeyMode, LastAction, Msgs, NcomSeq, PendingQuery, Session, Status};
@@ -30,6 +30,16 @@ impl PendingBind {
 
 const MAC: bool = cfg!(target_os = "macos");
 
+/// "Bound g to say hi.", with a warning when this character's own binding hides it.
+fn bound_message(b: &maccrossfire::keys::Bindings, binding: &Binding) -> String {
+    let keys = binding.combo.text(MAC);
+    let mut text = format!("Bound {keys} to {}.", binding.command);
+    if shadowed(b, binding) {
+        text += &format!(" This character's own binding on {keys} still wins (unbind it to use this one).");
+    }
+    text
+}
+
 fn log(msgs: &mut Msgs, text: &str, now: f32) {
     msgs.0.push(0, 0, text, now, None);
 }
@@ -48,7 +58,7 @@ fn typed_bind(text: &str, pending: &mut PendingBind, bindings: &mut KeyBindings,
         let answer = text.trim().to_ascii_lowercase();
         match step {
             BindStep::Confirm { binding } if answer == "y" => {
-                log(msgs, &format!("Bound {} to {}.", binding.combo.text(MAC), binding.command), now);
+                log(msgs, &bound_message(&bindings.0, &binding), now);
                 bindings.0.bind(binding);
                 return Some(true);
             }
@@ -140,7 +150,7 @@ pub fn capture_bind_key(
             pending.0 = Some(BindStep::Confirm { binding });
         }
         Ok(None) => {
-            log(&mut msgs, &format!("Bound {} to {}.", binding.combo.text(MAC), binding.command), now);
+            log(&mut msgs, &bound_message(&bindings.0, &binding), now);
             bindings.0.bind(binding);
             pending.0 = None;
             save(&bindings, &session, &mut msgs, now);
