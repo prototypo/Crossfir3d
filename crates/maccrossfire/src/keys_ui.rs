@@ -44,6 +44,10 @@ pub struct KeysSel {
     /// What each key really types on this keyboard, learnt from key presses.
     pub labels: HashMap<&'static str, String>,
     pub status: String,
+    /// The "New command" box under OTHER.
+    pub new_command: String,
+    /// The box has the keyboard: keys type text, they are not picked (and K does not close).
+    pub typing: bool,
 }
 
 /// Which of Bind, Change, Unbind, Clear selection can act.
@@ -136,6 +140,13 @@ pub fn other_commands(bindings: &[Binding], spells: &[String], skills: &[String]
     out
 }
 
+/// The action a command typed in the "New command" box selects (a known spell or skill
+/// is that spell or skill); None for an empty box.
+pub fn new_command(text: &str, spells: &[String], skills: &[String]) -> Option<Action> {
+    let text = text.trim();
+    (!text.is_empty()).then(|| action_of(text, spells, skills))
+}
+
 fn command_of(action: &Action) -> String {
     match action {
         Action::Spell(n) => spell_command(n),
@@ -180,6 +191,7 @@ pub fn keys_screen(
 
     // A real key press picks that combination (its modifiers plus the key).
     if sel.ask.is_none()
+        && !sel.typing
         && let Some(key) = keys.get_just_pressed().find_map(|k| key_name(*k))
     {
         let mods = held_mods(&keys);
@@ -217,6 +229,8 @@ pub fn keys_screen(
     let mut clicked_cap: Option<Cap> = None;
     let mut clicked_action: Option<Action> = None;
     let mut pressed: Option<usize> = None;
+    let mut new_text = std::mem::take(&mut sel.new_command);
+    let (mut typing, mut typed_action) = (false, None);
     egui::Window::new("key bindings")
         .title_bar(false)
         .resizable(false)
@@ -225,7 +239,7 @@ pub fn keys_screen(
         .frame(frame)
         .show(ctx, |ui| {
             ui.set_min_size(screen.size() - egui::vec2(32.0, 32.0));
-            ui.label(egui::RichText::new("K or Esc: close · pick an action, then keys (click them or press them) · also: bind / unbind in the command box").small());
+            ui.label(egui::RichText::new("K or Esc: close · pick an action (or type a new command under OTHER), then keys (click them or press them) · also: bind / unbind in the command box").small());
             ui.add_space(6.0);
             legend(ui);
             ui.add_space(8.0);
@@ -348,14 +362,34 @@ pub fn keys_screen(
                     ui.set_width(lists_w / 3.0);
                     heading(ui, "OTHER");
                     egui::ScrollArea::vertical().id_salt("other").show(ui, |ui| {
-                        for c in other_commands(&bindings.0.list, &spell_names, &skills) {
+                        let mut others = other_commands(&bindings.0.list, &spell_names, &skills);
+                        // A new command typed below shows here, selected, until it is bound.
+                        if let Some(Action::Command(c)) = &sel.action
+                            && !others.contains(c)
+                        {
+                            others.insert(0, c.clone());
+                        }
+                        for c in others {
                             row(ui, Action::Command(c), &mut clicked_action);
                         }
                     });
+                    ui.add_space(8.0);
+                    ui.label(egui::RichText::new("New command (Enter selects it):").small());
+                    let edit = ui.add(egui::TextEdit::singleline(&mut new_text).hint_text("say hello"));
+                    typing = edit.has_focus();
+                    if edit.lost_focus() && ui.input(|i| i.key_pressed(egui::Key::Enter)) {
+                        typed_action = new_command(&new_text, &spell_names, &skills);
+                        new_text.clear();
+                    }
                 });
             });
         });
 
+    (sel.new_command, sel.typing) = (new_text, typing);
+    if let Some(a) = typed_action {
+        sel.action = Some(a);
+        sel.status = "Now pick keys, then press Bind.".into();
+    }
     if let Some(a) = clicked_action {
         sel.action = if sel.action.as_ref() == Some(&a) { None } else { Some(a) };
     }
@@ -483,8 +517,16 @@ fn legend(ui: &mut egui::Ui) {
 
 #[cfg(test)]
 mod tests {
-    use super::{buttons, other_commands, KeysSel};
+    use super::{buttons, new_command, other_commands, KeysSel};
     use maccrossfire::keys::{Action, Binding, Combo, Mods};
+
+    #[test]
+    fn typed_new_command_becomes_the_action() {
+        let spells = ["burning hands".to_string()];
+        assert_eq!(new_command("  say hello ", &spells, &[]), Some(Action::Command("say hello".into())));
+        assert_eq!(new_command("cast Burning Hands", &spells, &[]), Some(Action::Spell("burning hands".into())));
+        assert_eq!(new_command("   ", &spells, &[]), None);
+    }
 
     #[test]
     fn other_list_has_each_plain_command_once() {
