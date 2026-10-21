@@ -9,11 +9,6 @@ Known problems left for later. Each line says what goes wrong and where to look.
 - [ ] Dragging a settings slider resets the TAA history (a brief blur while dragging).
 
 
-## Missing
-
-- [ ] Live tests for "read a sign → parchment box" and "cast a known spell".
-
-
 ## Before making the repo public
 
 - [ ] Ask GitHub Support to purge the old history: the closed PRs' refs (`refs/pull/*`, PRs #1-#53) still point at commits with the paid monster pack (`assets/models/monsters/`) and the old Hunyuan3D models of `assets/models/auto/`. Branches were rewritten and force-pushed on 2026-10-21; ask them to remove cached views and dereferenced commits of prototypo/Crossfir3d and run garbage collection.
