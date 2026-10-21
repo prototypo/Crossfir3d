@@ -109,6 +109,17 @@ pub struct Spells(pub SpellBook);
 #[derive(Resource, Default)]
 pub struct Slots(pub QuickSlots);
 
+/// Skill names by stat code (140-189), from `replyinfo skill_info`.
+#[derive(Resource, Default)]
+pub struct SkillNames(pub std::collections::HashMap<u8, String>);
+
+/// The skills this character knows, by name, sorted.
+pub fn known_skills(stats: &Stats, names: &SkillNames) -> Vec<String> {
+    let mut known: Vec<String> = stats.skills.keys().filter_map(|c| names.0.get(c).cloned()).collect();
+    known.sort();
+    known
+}
+
 #[derive(Resource, Default)]
 pub struct HudState {
     pub tall_log: bool,
@@ -138,12 +149,13 @@ fn main() {
         .init_resource::<PendingQuery>()
         .init_resource::<Clock>()
         .init_resource::<TimeRequest>()
-        .add_systems(OnEnter(AppState::InGame), (ask_time, dev_commands))
+        .add_systems(OnEnter(AppState::InGame), (ask_time, ask_skills, dev_commands))
         .init_resource::<HudState>()
         .init_resource::<PlayerStats>()
         .init_resource::<Inv>()
         .init_resource::<Spells>()
         .init_resource::<Slots>()
+        .init_resource::<SkillNames>()
         .init_resource::<inventory_ui::InvSel>()
         .init_resource::<input::Facing>()
         .init_resource::<input::CameraHeading>()
@@ -197,6 +209,7 @@ fn reset_play_state(world: &mut World) {
     world.insert_resource(Inv::default());
     world.insert_resource(Spells::default());
     world.insert_resource(Slots::default());
+    world.insert_resource(SkillNames::default());
     world.insert_resource(inventory_ui::InvSel::default());
     world.insert_resource(input::Facing::default());
     world.insert_resource(input::CameraHeading::default());
@@ -311,6 +324,9 @@ fn pump_network(world: &mut World) {
             ServerMsg::AddSpell(spells) => world.resource_mut::<Spells>().0.add(spells),
             ServerMsg::UpdSpell { tag, mana, grace, damage } => world.resource_mut::<Spells>().0.update(tag, mana, grace, damage),
             ServerMsg::DelSpell(tag) => world.resource_mut::<Spells>().0.remove(tag),
+            ServerMsg::ReplyInfo { kind, data } if kind == "skill_info" => {
+                world.insert_resource(SkillNames(cfproto::parse_skill_info(&data)))
+            }
             ServerMsg::Sound { action, volume, x, y, .. } => {
                 world.resource_mut::<audio::AudioQueue>().sounds.push((action, volume, x, y))
             }
@@ -370,6 +386,12 @@ fn dev_commands(
     }
 }
 
+fn ask_skills(session: Option<NonSend<Session>>) {
+    if let Some(session) = session {
+        session.send([ClientMsg::RequestInfo("skill_info".into())]);
+    }
+}
+
 fn ask_time(time: Res<Time>, mut request: ResMut<TimeRequest>, mut seq: ResMut<NcomSeq>, session: Option<NonSend<Session>>) {
     let Some(session) = session else { return };
     session.send([ClientMsg::Ncom { packet: seq.next(), repeat: 0, command: "time".into() }]);
@@ -379,6 +401,14 @@ fn ask_time(time: Res<Time>, mut request: ResMut<TimeRequest>, mut seq: ResMut<N
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn known_skills_are_named_and_sorted() {
+        let mut stats = Stats::default();
+        stats.apply(&[(142, cfproto::StatValue::Int(5)), (140, cfproto::StatValue::Int(9)), (150, cfproto::StatValue::Int(1))]);
+        let names = SkillNames([(140, "praying".to_string()), (142, "alchemy".to_string())].into());
+        assert_eq!(known_skills(&stats, &names), ["alchemy", "praying"]);
+    }
 
     #[test]
     fn back_to_list_keeps_server_view_size() {

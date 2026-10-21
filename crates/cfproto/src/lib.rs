@@ -13,7 +13,7 @@ pub mod view;
 pub use client::ClientMsg;
 pub use frame::{read_frame, write_frame};
 pub use items::{Inventory, Item, ItemChange};
-pub use newchar::{ArchInfo, Choice, StartMap, StatLimits};
+pub use newchar::{parse_skill_info, ArchInfo, Choice, StartMap, StatLimits};
 pub use map2::{Map2Item, TileOp, ANIM_MASK, FACE_IS_ANIM};
 pub use server::{parse, CharacterInfo, ParseError, ServerMsg};
 pub use spells::{Spell, SpellBook};
