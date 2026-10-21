@@ -50,6 +50,20 @@ pub struct KeysSel {
     pub typing: bool,
 }
 
+impl KeysSel {
+    /// A fresh screen: nothing selected or asked; the learnt key labels stay.
+    pub fn reset(&mut self) {
+        *self = KeysSel { labels: std::mem::take(&mut self.labels), ..Default::default() };
+    }
+}
+
+/// The binding a click on `key` selects: the one with the modifiers held or picked,
+/// else any binding on that key.
+pub fn binding_for_click<'a>(list: &'a [Binding], key: &str, mods: Mods) -> Option<&'a Binding> {
+    let on_key = || list.iter().filter(|b| b.combo.key == key);
+    on_key().find(|b| b.combo.mods == mods).or_else(|| on_key().next())
+}
+
 /// Which of Bind, Change, Unbind, Clear selection can act.
 pub fn buttons(sel: &KeysSel, bound: bool) -> [bool; 4] {
     let (action, picked) = (sel.action.is_some(), sel.picked.is_some());
@@ -399,7 +413,9 @@ pub fn keys_screen(
             None => toggle(&mut sel.mods, i),
         },
         Some(Cap::Key(k)) => {
-            let here = bindings.0.list.iter().find(|b| b.combo.key == k).map(|b| action_of(&b.command, &spell_names, &skills));
+            let mods = held_mods(&keys);
+            let mods = if mods.none() { sel.mods } else { mods };
+            let here = binding_for_click(&bindings.0.list, k, mods).map(|b| action_of(&b.command, &spell_names, &skills));
             match (&sel.action, here) {
                 // Clicking a bound key with nothing selected selects what it runs.
                 (None, Some(action)) if sel.picked.is_none() => sel.action = Some(action),
@@ -517,7 +533,7 @@ fn legend(ui: &mut egui::Ui) {
 
 #[cfg(test)]
 mod tests {
-    use super::{buttons, new_command, other_commands, KeysSel};
+    use super::{binding_for_click, buttons, new_command, other_commands, KeysSel};
     use maccrossfire::keys::{Action, Binding, Combo, Mods};
 
     #[test]
@@ -534,6 +550,26 @@ mod tests {
         let list = [b("Q", "say hi"), b("W", "cast burning hands"), b("E", "use_skill praying"), b("R", "say hi"), b("T", "cast fireball")];
         let (spells, skills) = (["burning hands".to_string()], ["praying".to_string()]);
         assert_eq!(other_commands(&list, &spells, &skills), ["cast fireball", "say hi"]);
+    }
+
+    #[test]
+    fn click_picks_the_binding_with_the_held_modifiers() {
+        let b = |mods: Mods, command: &str| Binding { all: false, combo: Combo { mods, key: "G".into() }, edit: false, command: command.into() };
+        let shift_cmd = Mods { shift: true, cmd: true, ..Default::default() };
+        let list = [b(Mods::default(), "say plain"), b(shift_cmd, "say shift cmd")];
+        assert_eq!(binding_for_click(&list, "G", shift_cmd).unwrap().command, "say shift cmd");
+        assert_eq!(binding_for_click(&list, "G", Mods::default()).unwrap().command, "say plain");
+        assert_eq!(binding_for_click(&list[1..], "G", Mods::default()).unwrap().command, "say shift cmd");
+        assert!(binding_for_click(&list, "H", Mods::default()).is_none());
+    }
+
+    #[test]
+    fn reset_clears_all_but_labels() {
+        let mut s = KeysSel { action: Some(Action::Command("x".into())), status: "y".into(), new_command: "z".into(), typing: true, ..Default::default() };
+        s.labels.insert("Q", "a".into());
+        s.reset();
+        assert!(s.action.is_none() && s.status.is_empty() && s.new_command.is_empty() && !s.typing);
+        assert_eq!(s.labels.get("Q").map(String::as_str), Some("a"));
     }
 
     #[test]

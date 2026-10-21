@@ -103,6 +103,7 @@ pub fn send_moves(
 ) {
     let Some(session) = session else { return };
     if pending.waiting_key() {
+        *held = None; // the next arrow after the bind key is a new tap
         return;
     }
     let now = time.elapsed_secs();
@@ -278,7 +279,7 @@ pub fn world_keys(
     mut view: ResMut<CameraView>,
     mut anim: ResMut<PlayerAnimEvents>,
     (bindings, skill_names, mut line, pending): (Res<KeyBindings>, Res<SkillNames>, ResMut<CommandLine>, Res<PendingBind>),
-    keys_sel: Res<crate::keys_ui::KeysSel>,
+    mut keys_sel: ResMut<crate::keys_ui::KeysSel>,
     session: Option<NonSend<Session>>,
 ) {
     let Some(session) = session else { return };
@@ -321,8 +322,15 @@ pub fn world_keys(
             Act::OpenInventory => mode.0 = Mode::Inventory,
             // shift+K and the like are picked as keys on the bindings screen, not closing it.
             Act::CloseKeys if !mods.none() || (key == KeyName::K && keys_sel.typing) => {}
-            Act::CloseInventory | Act::CloseSettings | Act::CloseKeys => mode.0 = Mode::World,
-            Act::OpenKeys => mode.0 = Mode::Keys,
+            Act::CloseInventory | Act::CloseSettings => mode.0 = Mode::World,
+            Act::CloseKeys => {
+                keys_sel.reset();
+                mode.0 = Mode::World;
+            }
+            Act::OpenKeys => {
+                keys_sel.reset();
+                mode.0 = Mode::Keys;
+            }
             Act::ShowGround => match ground_box(&ground_things(&inv.0)) {
                 Some(text) => msgs.0.boxed = Some(text),
                 None => msgs.0.push(0, 0, "There is nothing under you.", time.elapsed_secs(), None),
