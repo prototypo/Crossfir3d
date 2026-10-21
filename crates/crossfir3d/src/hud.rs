@@ -29,6 +29,25 @@ fn slot_label(slot: &Option<Slot>) -> &str {
 
 /// Server text with its styles (`[b]`, `[color=...]`, `[fixed]`, ...) as one wrapped
 /// piece of text: bold shows in the `strong` colour.
+/// The font family of bold text (egui's own fonts have no bold).
+const BOLD: &str = "bold";
+
+/// Adds the bold font to egui, once.
+pub fn load_fonts(mut contexts: EguiContexts, mut done: Local<bool>) -> Result {
+    if *done {
+        return Ok(());
+    }
+    let mut fonts = egui::FontDefinitions::default();
+    let data = egui::FontData::from_static(include_bytes!("../../../assets/fonts/Ubuntu-Bold.ttf"));
+    fonts.font_data.insert(BOLD.into(), data.into());
+    let mut family = vec![BOLD.to_string()];
+    family.extend(fonts.families[&egui::FontFamily::Proportional].iter().cloned());
+    fonts.families.insert(egui::FontFamily::Name(BOLD.into()), family);
+    contexts.ctx_mut()?.set_fonts(fonts);
+    *done = true;
+    Ok(())
+}
+
 fn styled(text: &str, size: f32, base: egui::Color32, strong: egui::Color32) -> egui::text::LayoutJob {
     let mut job = egui::text::LayoutJob::default();
     for span in crossfir3d::markup::spans(text) {
@@ -37,7 +56,11 @@ fn styled(text: &str, size: f32, base: egui::Color32, strong: egui::Color32) -> 
             (None, true) => strong,
             (None, false) => base,
         };
-        let font_id = if span.fixed { egui::FontId::monospace(size) } else { egui::FontId::proportional(size) };
+        let font_id = match (span.fixed, span.bold) {
+            (true, _) => egui::FontId::monospace(size),
+            (false, true) => egui::FontId::new(size, egui::FontFamily::Name(BOLD.into())),
+            (false, false) => egui::FontId::proportional(size),
+        };
         let underline = if span.underline { egui::Stroke::new(1.0, color) } else { egui::Stroke::NONE };
         job.append(&span.text, 0.0, egui::TextFormat { font_id, color, italics: span.italic, underline, ..Default::default() });
     }
@@ -138,4 +161,18 @@ pub fn hud(
         });
     });
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn bold_text_uses_the_bold_font() {
+        let job = styled("a [b]b[/b] [fixed][b]c", 12.0, INK, INK);
+        let families: Vec<_> = job.sections.iter().map(|s| s.format.font_id.family.clone()).collect();
+        assert_eq!(families[0], egui::FontFamily::Proportional);
+        assert_eq!(families[1], egui::FontFamily::Name(BOLD.into()));
+        assert_eq!(families[3], egui::FontFamily::Monospace);
+    }
 }
