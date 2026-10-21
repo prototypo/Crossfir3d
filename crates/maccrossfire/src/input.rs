@@ -6,6 +6,7 @@ use cfproto::{ClientMsg, Inventory, SpellBook};
 use maccrossfire::camera::{compass, heading_of, nearest_dir, screen_dir, Heading, CREATURE_LAYERS};
 use maccrossfire::modes::{act, bindings_active, Act, KeyName, Mode};
 use maccrossfire::anim::event_for_command;
+use maccrossfire::messages::{ground_box, ground_things, new_square, standing_on};
 use maccrossfire::keys::{action_of, skill_command, Action, Binding, Combo, Mods};
 use maccrossfire::slots::{dir_number, fire_commands, slot_commands, Slot};
 
@@ -164,6 +165,7 @@ fn act_key(key: KeyCode) -> KeyName {
         KeyCode::KeyC => KeyName::C,
         KeyCode::KeyT => KeyName::T,
         KeyCode::KeyK => KeyName::K,
+        KeyCode::KeyB => KeyName::B,
         KeyCode::Space => KeyName::Space,
         KeyCode::Tab => KeyName::Tab,
         KeyCode::Escape => KeyName::Escape,
@@ -236,6 +238,29 @@ pub fn key_taken(bindings: &KeyBindings, keys: &ButtonInput<KeyCode>, code: KeyC
     key_name(code).is_some_and(|key| bindings.0.lookup(&Combo { mods, key: key.into() }).is_some())
 }
 
+/// When the things under the player change: one log line, and on a new square the
+/// parchment box too if the "every new square" setting is on.
+pub fn watch_ground(
+    inv: Res<Inv>,
+    time: Res<Time>,
+    settings: Res<crate::graphics::CurrentSettings>,
+    mut msgs: ResMut<Msgs>,
+    mut last: Local<Vec<u32>>,
+) {
+    let ground = ground_things(&inv.0);
+    let tags: Vec<u32> = ground.iter().map(|i| i.tag).collect();
+    if tags == *last {
+        return;
+    }
+    if let Some(line) = standing_on(&ground) {
+        msgs.0.push(0, 0, &line, time.elapsed_secs(), None);
+    }
+    if settings.0.ground_popup && new_square(&last, &tags) {
+        msgs.0.boxed = ground_box(&ground);
+    }
+    *last = tags;
+}
+
 /// One-key actions (the spec's key table, via `modes::act`). Enter is handled by the
 /// command line, M by the audio plugin.
 #[allow(clippy::too_many_arguments)]
@@ -297,6 +322,10 @@ pub fn world_keys(
             Act::CloseKeys if !mods.none() => {}
             Act::CloseInventory | Act::CloseSettings | Act::CloseKeys => mode.0 = Mode::World,
             Act::OpenKeys => mode.0 = Mode::Keys,
+            Act::ShowGround => match ground_box(&ground_things(&inv.0)) {
+                Some(text) => msgs.0.boxed = Some(text),
+                None => msgs.0.push(0, 0, "There is nothing under you.", time.elapsed_secs(), None),
+            },
             Act::OpenSettings => mode.0 = Mode::Settings,
             Act::ToggleLog => hud.tall_log = !hud.tall_log,
             Act::Slot(i) => {

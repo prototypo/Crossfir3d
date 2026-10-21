@@ -120,6 +120,10 @@ pub fn settings_screen(
                 ui.label("Music");
                 ui.checkbox(&mut s.music, "");
                 ui.end_row();
+
+                ui.label("Show what is under me");
+                ui.checkbox(&mut s.ground_popup, "on every new square (B shows it any time)");
+                ui.end_row();
             });
             ui.add_space(16.0);
             ui.horizontal(|ui| {
