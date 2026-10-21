@@ -121,6 +121,21 @@ fn bindings_of<'a>(bindings: &'a [Binding], action: &Action, spells: &[String], 
     bindings.iter().filter(|b| action_of(&b.command, spells, skills) == *action).collect()
 }
 
+/// Bound commands that are not a known spell or skill (typed `bind say hi`, ...),
+/// each once, sorted: the OTHER list.
+pub fn other_commands(bindings: &[Binding], spells: &[String], skills: &[String]) -> Vec<String> {
+    let mut out: Vec<String> = bindings
+        .iter()
+        .filter_map(|b| match action_of(&b.command, spells, skills) {
+            Action::Command(c) => Some(c),
+            _ => None,
+        })
+        .collect();
+    out.sort();
+    out.dedup();
+    out
+}
+
 fn command_of(action: &Action) -> String {
     match action {
         Action::Spell(n) => spell_command(n),
@@ -215,7 +230,7 @@ pub fn keys_screen(
             legend(ui);
             ui.add_space(8.0);
             ui.horizontal_top(|ui| {
-                let lists_w = 460.0f32.min(ui.available_width() * 0.35);
+                let lists_w = 660.0f32.min(ui.available_width() * 0.42);
                 ui.vertical(|ui| {
                     // The widest rows are 15 key units, with a 7 px gap after each key.
                     let unit = ((ui.available_width() - lists_w - 40.0) / 15.0 - 7.0).clamp(26.0, 56.0);
@@ -312,7 +327,7 @@ pub fn keys_screen(
                     }
                 };
                 ui.vertical(|ui| {
-                    ui.set_width(lists_w / 2.0);
+                    ui.set_width(lists_w / 3.0);
                     heading(ui, "SPELLS");
                     egui::ScrollArea::vertical().id_salt("spells").show(ui, |ui| {
                         for n in &spell_names {
@@ -321,11 +336,20 @@ pub fn keys_screen(
                     });
                 });
                 ui.vertical(|ui| {
-                    ui.set_width(lists_w / 2.0);
+                    ui.set_width(lists_w / 3.0);
                     heading(ui, "SKILLS");
                     egui::ScrollArea::vertical().id_salt("skills").show(ui, |ui| {
                         for n in &skills {
                             row(ui, Action::Skill(n.clone()), &mut clicked_action);
+                        }
+                    });
+                });
+                ui.vertical(|ui| {
+                    ui.set_width(lists_w / 3.0);
+                    heading(ui, "OTHER");
+                    egui::ScrollArea::vertical().id_salt("other").show(ui, |ui| {
+                        for c in other_commands(&bindings.0.list, &spell_names, &skills) {
+                            row(ui, Action::Command(c), &mut clicked_action);
                         }
                     });
                 });
@@ -459,8 +483,16 @@ fn legend(ui: &mut egui::Ui) {
 
 #[cfg(test)]
 mod tests {
-    use super::{buttons, KeysSel};
-    use maccrossfire::keys::{Action, Combo, Mods};
+    use super::{buttons, other_commands, KeysSel};
+    use maccrossfire::keys::{Action, Binding, Combo, Mods};
+
+    #[test]
+    fn other_list_has_each_plain_command_once() {
+        let b = |key: &str, command: &str| Binding { all: false, combo: Combo { mods: Mods::default(), key: key.into() }, edit: false, command: command.into() };
+        let list = [b("Q", "say hi"), b("W", "cast burning hands"), b("E", "use_skill praying"), b("R", "say hi"), b("T", "cast fireball")];
+        let (spells, skills) = (["burning hands".to_string()], ["praying".to_string()]);
+        assert_eq!(other_commands(&list, &spells, &skills), ["cast fireball", "say hi"]);
+    }
 
     #[test]
     fn buttons_follow_input() {
