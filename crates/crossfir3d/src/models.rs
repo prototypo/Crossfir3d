@@ -460,6 +460,15 @@ bad model x.glb notanumber 0 0
     }
 
     #[test]
+    fn rare_things_are_3d() {
+        let m = ModelMap::parse(&std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/../../assets/models.txt")).unwrap());
+        let names = ["campfire", "cannon_0", "cannon_3", "cannon_8", "logs1", "logs2", "light_bulb_1", "light_bulb_4", "helmet2", "helmet3", "quiver_arrow", "quiver_bolt", "card_crown", "card_sword", "wallclock"];
+        for name in names {
+            assert!(matches!(m.lookup(&format!("{name}.111")), Visual::Building { .. } | Visual::Model { .. }), "{name}: {:?}", m.lookup(name));
+        }
+    }
+
+    #[test]
     fn players_turned_to_stone_are_statues() {
         let m = ModelMap::parse(&std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/../../assets/models.txt")).unwrap());
         for race in ["dragon", "dwarf", "elf", "gnome", "half_orc", "halfling", "human", "troll"] {

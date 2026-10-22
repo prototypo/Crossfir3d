@@ -75,7 +75,7 @@ const GABLE_Y: f32 = 0.75;
 /// square in front of it, where they step out to.
 const DOORSTEP: f32 = 0.5;
 
-pub const RECIPES: [&str; 114] = [
+pub const RECIPES: [&str; 115] = [
     "cottage", "house", "tavern", "barn", "temple", "tower", "castle", "shop", "well", "fountain", "signpost", "crossroads",
     "noticeboard", "lamppost", "clock", "lever", "lever_pulled", "ladder_down", "altar", "altar_green", "altar_black",
     "altar_red", "altar_white", "altar_blue", "brazier", "brazier_unlit", "lantern", "lantern_off",
@@ -84,7 +84,7 @@ pub const RECIPES: [&str; 114] = [
     "campfire", "campfire_out", "teleporter", "magic_portal", "pier",
     "rowboat", "longship", "fishboat", "galleon", "big_galleon", "big_galleon_west", "wagon", "hidden", "pedestal", "alchemy_bath", "trapdoor", "lava_well", "rope_up", "volcano",
     "bomb", "button", "button_small", "forge",
-    "chimney", "anchor", "bee", "acid_pool", "card", "card_skull", "magma", "coldmagma", "crack", "lips", "note", "rune", "charm", "bouquet", "fist", "ant_egg", "halo", "speedball", "mat", "letter", "map", "whistle", "utensils", "fog", "steam", "spider_web", "rabbit_foot", "doll", "cat_basket", "spinningwheel", "machine", "beehive", "bolt_silk", "crystalball", "dice", "fireplace", "shipswheel", "skull", "ten_kilo", "wheel_tall", "wheel_short", "tissue", "stove", "mailbox", "quiver", "frypan", "icecube", "smallicecube",
+    "chimney", "anchor", "bee", "acid_pool", "card", "card_skull", "magma", "coldmagma", "crack", "lips", "note", "rune", "charm", "bouquet", "fist", "ant_egg", "halo", "speedball", "mat", "letter", "map", "whistle", "utensils", "fog", "steam", "spider_web", "rabbit_foot", "doll", "cat_basket", "spinningwheel", "machine", "beehive", "bolt_silk", "crystalball", "dice", "fireplace", "shipswheel", "skull", "ten_kilo", "wheel_tall", "wheel_short", "tissue", "stove", "mailbox", "quiver", "frypan", "icecube", "smallicecube", "logs",
 ];
 pub const WALL_STYLES: [&str; 7] = ["stone", "brick", "plaster", "wood", "hedge", "rock", "gate"];
 
@@ -176,6 +176,8 @@ pub fn parts(recipe: &str, w: u32, h: u32) -> Option<Vec<Part>> {
             "moat" => return Some(moat(mask)),
             // A rowboat facing one of 8 ways: 1 north, 3 east, 5 south, 7 west.
             "rowboat" if (1..=8).contains(&mask) => return Some(turned(rowboat(), (mask as f32 - 3.0) * 45.0)),
+            // A cannon aimed one of 8 ways (0: not aimed, south).
+            "cannon" if mask <= 8 => return Some(turned(cannon(), (if mask == 0 { 5.0 } else { mask as f32 } - 3.0) * 45.0)),
             // Spike gates: the digit is how far up the spikes are, 0 down to all the way up.
             "spike" => return Some(spike(mask as f32 / 11.0)),
             "spikes" => return Some(spikes(mask as f32 / 8.0)),
@@ -404,6 +406,7 @@ pub fn parts(recipe: &str, w: u32, h: u32) -> Option<Vec<Part>> {
         "big_galleon_west" => Some(turned(galleon(1.9, 0.7), 180.0)),
         "wagon" => Some(wagon()),
         "campfire" => Some(campfire(true)),
+        "logs" => Some(logs()),
         "campfire_out" => Some(campfire(false)),
         "grave" => Some(grave()),
         "coffin" => Some(coffin()),
@@ -2006,6 +2009,29 @@ fn campfire(lit: bool) -> Vec<Part> {
     out
 }
 
+/// A cannon on a wooden carriage, aimed east: an iron barrel, thicker at the breech,
+/// and two spoked wheels.
+fn cannon() -> Vec<Part> {
+    let lying = |p: Part| Part { tilt_deg: 90.0, ..p };
+    let wheel = |z: f32| Part { yaw_deg: 90.0, tilt_deg: 90.0, ..cylinder(0.14, 0.04, [-0.05, 0.14, z], WOOD) };
+    vec![
+        cube([0.45, 0.12, 0.22], [-0.05, 0.16, 0.0], WOOD),
+        wheel(0.14),
+        wheel(-0.14),
+        Part { yaw_deg: 90.0, tilt_deg: 90.0, ..cylinder(0.03, 0.34, [-0.05, 0.14, 0.0], IRON) },
+        lying(cylinder(0.07, 0.3, [0.0, 0.3, 0.0], IRON)),
+        lying(cylinder(0.055, 0.3, [0.28, 0.3, 0.0], IRON)),
+        lying(cylinder(0.065, 0.05, [0.44, 0.3, 0.0], IRON)),
+        part(Shape::Ball(0.07), [-0.16, 0.3, 0.0], 0.0, [1.0; 3], Some(IRON)),
+    ]
+}
+
+/// Cut logs in a pile: two side by side and one on top.
+fn logs() -> Vec<Part> {
+    let log = |x: f32, y: f32| Part { tilt_deg: 90.0, ..cylinder(0.07, 0.6, [x, y, 0.0], WOOD) };
+    vec![log(-0.075, 0.07), log(0.075, 0.07), log(0.0, 0.19)]
+}
+
 // Monster generators: where monsters come from.
 
 /// A headstone at the north end of a low mound of earth.
@@ -2247,6 +2273,28 @@ mod tests {
             .filter(|recipe| parts(recipe, 1, 1).is_none() && parts(recipe, 2, 2).is_none())
             .collect();
         assert!(unknown.is_empty(), "drawn as flat pictures: {unknown:?}");
+    }
+
+    #[test]
+    fn a_cannon_points_the_way_it_faces() {
+        // The barrel is the part furthest out from the middle.
+        let muzzle = |recipe: &str| {
+            let p = parts(recipe, 1, 1).unwrap_or_else(|| panic!("{recipe}"));
+            let far = p.iter().max_by(|a, b| (a.pos[0].hypot(a.pos[2])).total_cmp(&b.pos[0].hypot(b.pos[2]))).unwrap();
+            (far.pos[0], far.pos[2])
+        };
+        let (x, z) = muzzle("cannon_3");
+        assert!(x > 0.1 && z.abs() < 0.05, "east: {x} {z}");
+        let (x, z) = muzzle("cannon_1");
+        assert!(z < -0.1 && x.abs() < 0.05, "north: {x} {z}");
+        assert!(parts("cannon_0", 1, 1).is_some(), "idle");
+    }
+
+    #[test]
+    fn logs_lie_in_a_pile() {
+        let p = parts("logs", 1, 1).unwrap();
+        assert!(p.len() >= 3 && p.iter().all(|l| l.tilt_deg == 90.0));
+        assert!(p.iter().any(|l| l.pos[1] > 0.1), "one on top");
     }
 
     #[test]

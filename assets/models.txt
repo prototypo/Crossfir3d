@@ -1249,6 +1249,25 @@ fork model props/Table_Fork.gltf 1.5 30 0.01
 knife model props/Table_Knife.gltf 1.5 30 0.01
 spoon model props/Table_Spoon.gltf 1.5 30 0.01
 campfire_out building campfire_out
+campfire building campfire
+logs1 building logs
+logs2 building logs
+cannon_0 building cannon_0
+cannon_1 building cannon_1
+cannon_2 building cannon_2
+cannon_3 building cannon_3
+cannon_4 building cannon_4
+cannon_5 building cannon_5
+cannon_6 building cannon_6
+cannon_7 building cannon_7
+cannon_8 building cannon_8
+light_bulb_* building lantern
+helmet2 building helmet:0.6,0.6,0.62
+helmet3 building helmet:0.55,0.5,0.4
+quiver_arrow building quiver
+quiver_bolt building quiver
+card_* building card
+wallclock building clock
 fire building campfire
 broken_gravestone building grave
 gravestone2 building grave
