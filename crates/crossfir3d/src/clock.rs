@@ -44,12 +44,19 @@ pub fn is_time_reply_line(text: &str) -> bool {
     is_time_reply(text)
         || (text.starts_with("The ") && text.contains(" Day of the ") && text.contains(", Year "))
         || text.starts_with("Time of Year: ")
+        || is_dm_timing_line(text)
 }
 
-/// The last line of the server's reply to `time` (common/time.cpp `time_info`): after
-/// it, a `time` the player types is theirs to see.
+/// A DM's reply to `time` goes on after the season with the server's tick timings.
+fn is_dm_timing_line(text: &str) -> bool {
+    ["Statistics for last ", "\tticks longer than ", "Time last ", "avg time=", "ticks longer than max time "].iter().any(|s| text.starts_with(s))
+}
+
+/// The last line of the server's reply to `time` (common/time.cpp `time_info`): the
+/// season for a player, the last timing line for a DM. After it, a `time` the player
+/// types is theirs to see.
 pub fn ends_time_reply(text: &str) -> bool {
-    text.starts_with("Time of Year: ")
+    text.starts_with("Time of Year: ") || text.starts_with("ticks longer than max time ")
 }
 
 #[derive(Default)]
@@ -99,6 +106,21 @@ pub fn sun_pose(hour: f32) -> SunPose {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_dms_timing_lines_are_part_of_the_reply() {
+        for line in [
+            "Statistics for last 1305757 ticks:\n\tmin/avg/max = 0/59/1309 ms per tick",
+            "\tticks longer than 120 ms = 9 (0%)",
+            "Time last 100 ticks:",
+            "avg time=5ms  max time=57ms  min time=0ms",
+            "ticks longer than max time (120ms) = 0 (0%)",
+        ] {
+            assert!(is_time_reply_line(line), "{line}");
+        }
+        assert!(ends_time_reply("ticks longer than max time (120ms) = 0 (0%)"), "a DM's reply ends here");
+        assert!(ends_time_reply("Time of Year: Season of the Blizzard"), "a player's ends here");
+    }
 
     #[test]
     fn parses_real_reply() {

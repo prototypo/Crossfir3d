@@ -1,7 +1,50 @@
 # Crossfir3d
 
-A 3D client for [Crossfire](https://crossfire.real-time.com/), written in Rust.
-It plays on normal Crossfire servers (1.75.0 and newer). Licence: GPLv2 or later.
+A 3D client for [Crossfire](https://crossfire.real-time.com/), the free multiplayer
+adventure game, written in Rust. It plays on normal Crossfire servers (1.75.0 and
+newer): the same world, quests and players as every other Crossfire client, drawn in
+3D. Licence: GPLv2 or later.
+
+![The town square of Scorn in Crossfir3d](docs/images/3d-world.jpg)
+
+## Before and after
+
+| The classic 2D client | Crossfir3d |
+|---|---|
+| ![Scorn in the GTK client](docs/images/2d-scorn.jpg) | ![Scorn in Crossfir3d](docs/images/3d-world.jpg) |
+
+The same square of Scorn, on the same server.
+
+## Screens
+
+Inventory (**I**), key bindings (**K**) and settings (**Escape**) open over the world.
+
+| Inventory | Key bindings | Settings |
+|---|---|---|
+| ![Inventory](docs/images/3d-inventory.jpg) | ![Key bindings](docs/images/3d-keys.jpg) | ![Settings](docs/images/3d-settings.jpg) |
+
+Every class has its own look: see [docs/classes.md](docs/classes.md).
+
+## The Crossfire community
+
+<img src="docs/images/crossfire-logo.png" alt="Crossfire" width="471">
+
+Crossfir3d is an independent client. The game, its server, maps and art are made by
+the Crossfire project, which has been running since 1992.
+
+- Home page, downloads and other clients: <https://crossfire.real-time.com/>
+- Servers to play on: [metaserver](https://crossfire.real-time.com/metaserver2/meta_html.php)
+- Wiki: <https://wiki.cross-fire.org/>
+- Forum: <https://forum.cross-fire.org/>
+- Chat: [Discord](https://discord.gg/CCQqbqu) and [IRC on Libera Chat](https://crossfire.real-time.com/irc/index.html)
+- Mailing lists: [crossfire](http://mailman.metalforge.org/mailman/listinfo/crossfire/) (discussion), [crossfire-announce](http://mailman.metalforge.org/mailman/listinfo/crossfire-announce)
+- Source code: [SourceForge](https://sourceforge.net/projects/crossfire)
+- News: [Mastodon](https://mastodon.social/@crossfiremrpg), [Bluesky](https://bsky.app/profile/crossfireproject.bsky.social)
+- World map: [Crossfire Atlas](https://www.crossfireatlas.net/)
+
+The Crossfire logo is by Lauwenmark (pencil original) and the Crossfire team (colour),
+under Lauwenmark's licence: see
+[docs/images/crossfire-logo-LICENSE.txt](docs/images/crossfire-logo-LICENSE.txt).
 
 Design: `docs/superpowers/specs/2026-10-17-crossfir3d-design.md`
 
@@ -26,8 +69,6 @@ cargo run --release -p crossfir3d
 Log in with an account, then pick a character from the list or press "New character"
 to choose race, class, rolled stats, and where to start (Scorn by default). The server
 (as patched by `scripts/server.sh`) saves new characters too.
-
-Each class has its own look: see [docs/classes.md](docs/classes.md).
 
 ## Playing in 3D
 
@@ -85,11 +126,9 @@ licences. `assets/models.txt` says which picture becomes which model.
 models: `scripts/get-models.sh` (download, needs a browser for itch.io), then
 `python3 -I scripts/pick_models.py`.
 
-The skeleton, imp, werewolf and other monsters in `assets/models/monsters/` come from the
-paid Quaternius Dungeon Monsters Kit (Source tier), whose licence forbids sharing the
-files themselves, so they are not in git. With the kit unpacked in
-`upstream/packs/dungeon-monsters-kit-source/`, `scripts/pick_models.py` makes the folder;
-without it those monsters show as picture cards.
+Goblins, trolls, ogres, golems, demons and gnolls are built from the people's body,
+reshaped and in rags; skeletons are bones built on the same body. No paid models
+are used.
 
 ## Settings
 
@@ -109,7 +148,8 @@ Wells and other one-square things stay in view when you stand on them.
   the character in Scorn if it does not exist; `:new` creates the account if it
   does not exist).
 - `CROSSFIR3D_COMMANDS="cmd1;cmd2"` sends game commands on entering the game.
-- `CROSSFIR3D_SCREEN=newchar[:race_arch]` opens the new-character screen.
+- `CROSSFIR3D_SCREEN=newchar[:race_arch]` opens the new-character screen;
+  `=inventory`, `=keys` or `=settings` opens that screen in game.
 - `CROSSFIR3D_SCREENSHOT=file.png` (with `CROSSFIR3D_SCREENSHOT_AT=seconds`)
   saves one screenshot and quits.
 - `CROSSFIR3D_COMPARE=file` (lines `picture_name model1.glb model2.glb ...`, files

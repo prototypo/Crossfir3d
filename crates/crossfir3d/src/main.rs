@@ -308,7 +308,10 @@ fn pump_network(world: &mut World) {
             // Every line of the reply to our own `time` request is for the clock, not the player.
             ServerMsg::Text { text, .. } if time_reply_expected(world, &text) => {
                 if crossfir3d::clock::ends_time_reply(&text) {
-                    world.resource_mut::<TimeRequest>().0 = None;
+                    // A DM's timing lines follow the season at once: hide them for 2 s more.
+                    let now = world.resource::<Time>().elapsed_secs();
+                    let rest = text.starts_with("Time of Year: ").then_some(now - 8.0);
+                    world.resource_mut::<TimeRequest>().0 = rest;
                 }
                 if is_time_reply(&text) {
                     match parse_time_reply(&text) {
@@ -407,6 +410,7 @@ fn dev_commands(
     match std::env::var("CROSSFIR3D_SCREEN").as_deref() {
         Ok("keys") => mode.0 = crossfir3d::modes::Mode::Keys,
         Ok("inventory") => mode.0 = crossfir3d::modes::Mode::Inventory,
+        Ok("settings") => mode.0 = crossfir3d::modes::Mode::Settings,
         _ => {}
     }
     let (Ok(cmds), Some(session)) = (std::env::var("CROSSFIR3D_COMMANDS"), session) else { return };
