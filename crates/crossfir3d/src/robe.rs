@@ -181,6 +181,15 @@ pub struct Dress {
     pub over: Option<crossfir3d::held::Over>,
 }
 
+impl Dress {
+    /// What a class puts on its outfit: over armour, only what is on its back. None: nothing.
+    pub fn of(class: Option<crossfir3d::held::ClassLook>, armour: bool) -> Option<Dress> {
+        let class = class?;
+        let dress = Dress { robe: !armour && class.garb == crossfir3d::held::Garb::Robe, back: class.back, over: class.over.filter(|_| !armour) };
+        (dress.robe || dress.back.is_some() || dress.over.is_some()).then_some(dress)
+    }
+}
+
 const SAFFRON: [f32; 3] = [0.98, 0.6, 0.12];
 const SASH: [f32; 3] = [0.7, 0.2, 0.06];
 const WOOD: [f32; 3] = [0.3, 0.17, 0.08];
@@ -313,6 +322,20 @@ pub(crate) fn peasant_rest() -> Rest {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn armour_keeps_the_back_but_covers_the_clothes() {
+        use crossfir3d::held::{class_look, Back, Over};
+        let monk = class_look("monk");
+        assert!(Dress::of(monk, false).is_some_and(|d| d.robe));
+        assert!(Dress::of(monk, true).is_none(), "no robe over armour");
+        let warrior = Dress::of(class_look("warrior"), true).unwrap();
+        assert!(matches!(warrior.back, Some(Back::Cape(_))), "a cape over armour");
+        assert_eq!(Dress::of(class_look("alchemist"), false).unwrap().over, Some(Over::Apron));
+        assert!(Dress::of(class_look("alchemist"), true).is_none(), "no apron over armour");
+        assert!(Dress::of(class_look("wizard"), false).is_none());
+        assert!(Dress::of(None, false).is_none());
+    }
     use super::peasant_rest as rest;
 
     #[test]
