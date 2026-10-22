@@ -1,9 +1,11 @@
-//! The soft leather pointed hat: a wavy, drooping brim and a crown whose tip flops back.
+//! Built headwear: the soft leather pointed hat (a wavy, drooping brim and a crown whose
+//! tip flops back), the tricorn, and the ninja's face cloth.
 //! Sizes are for a human head bone (+Y up, +Z the face).
 
 use std::f32::consts::TAU;
 
 use bevy::prelude::*;
+use crossfir3d::held::Headwear;
 
 /// Points of a surface, row by row; each row goes once around (its last point joins its first).
 type Grid = Vec<Vec<Vec3>>;
@@ -196,31 +198,107 @@ impl FromWorld for Leather {
     }
 }
 
-/// The hat's parts in `colour`, `k` times the size for a human, each with `marker`.
+/// The tricorn: a low round crown, and a brim turned up on three sides so that from
+/// above it is a triangle with one corner to the front.
+fn tricorn() -> [Grid; 2] {
+    // Lower than the pointed hat: it sits down over the hair.
+    let centre = Vec3::new(0.0, -0.04, -0.01);
+    let crown = (0..=16)
+        .map(|i| {
+            let up = std::f32::consts::FRAC_PI_2 * i as f32 / 16.0;
+            let r = (0.125 * up.cos().powf(0.6)).max(0.002);
+            (0..AROUND).map(|j| centre + Vec3::new(0.0, BRIM_Y - 0.005 + 0.12 * up.sin(), 0.0) + r * ring(j)).collect()
+        })
+        .collect();
+    let third = TAU / 3.0;
+    let brim = (0..=10)
+        .map(|i| {
+            // Out from under the crown, then curling up.
+            let curl = std::f32::consts::FRAC_PI_2 * i as f32 / 10.0;
+            (0..AROUND)
+                .map(|j| {
+                    let a = TAU * j as f32 / AROUND as f32;
+                    // How far round from the middle of a side: 0 there, ±60° at a corner.
+                    let off = (a - std::f32::consts::FRAC_PI_2).rem_euclid(third) - third / 2.0;
+                    // A triangle's edge, its corners rounded off.
+                    let sharp = 0.15 / off.cos();
+                    let reach = (sharp.powi(-6) + 0.25f32.powi(-6)).powf(-1.0 / 6.0);
+                    let rise = 0.04 + 0.075 * (off * 1.5).cos().powi(2);
+                    let d = 0.12 + (reach - 0.12) * curl.sin();
+                    centre + Vec3::new(0.0, BRIM_Y - 0.01 + rise * (1.0 - curl.cos()), 0.0) + d * ring(j)
+                })
+                .collect()
+        })
+        .collect();
+    [crown, brim]
+}
+
+/// The ninja's face cloth: a band round the head from the nose bridge down under the chin.
+fn mask() -> Grid {
+    // (height, half width, half depth, centre's depth), top to bottom.
+    let rows = [(0.105, 0.09, 0.105, 0.01), (0.07, 0.088, 0.108, 0.012), (0.03, 0.082, 0.104, 0.012), (0.0, 0.078, 0.1, 0.012), (-0.035, 0.07, 0.09, 0.0), (-0.07, 0.062, 0.068, -0.01)];
+    rows.iter()
+        .map(|&(y, wide, deep, z)| (0..AROUND).map(|j| Vec3::new(0.0, y, z) + ring(j) * Vec3::new(wide, 0.0, deep)).collect())
+        .collect()
+}
+
+#[derive(Clone, Copy, PartialEq)]
+enum Finish {
+    Leather,
+    Cloth,
+    Brass,
+}
+
+/// Puts a built hat or mask on a head bone, `k` times the size for a human; `marker` goes on
+/// each part. Other headwear is not built here: false.
 #[allow(clippy::too_many_arguments)]
 pub fn put_on(
     commands: &mut Commands,
     head: Entity,
-    colour: [f32; 3],
+    wear: Headwear,
     k: f32,
     leather: &Leather,
     meshes: &mut Assets<Mesh>,
     materials: &mut Assets<StandardMaterial>,
     marker: impl Bundle + Clone,
-) {
-    let [r, g, b] = colour;
-    let parts = [
-        (mesh(&crown(), false, Vec2::new(3.0, 2.0)), colour),
-        (mesh(&brim(), true, Vec2::new(5.0, 1.0)), colour),
-        (mesh(&band(), false, Vec2::new(6.0, 0.25)), [r * 0.45, g * 0.45, b * 0.45]),
-    ];
-    for (m, [r, g, b]) in parts {
+) -> bool {
+    let dark = |[r, g, b]: [f32; 3]| [r * 0.45, g * 0.45, b * 0.45];
+    // (mesh, colour, finish)
+    let parts: Vec<(Mesh, [f32; 3], Finish)> = match wear {
+        Headwear::PointedHat(c) => vec![
+            (mesh(&crown(), false, Vec2::new(3.0, 2.0)), c, Finish::Leather),
+            (mesh(&brim(), true, Vec2::new(5.0, 1.0)), c, Finish::Leather),
+            (mesh(&band(), false, Vec2::new(6.0, 0.25)), dark(c), Finish::Leather),
+        ],
+        Headwear::Tricorn(c) => {
+            let [crown, brim] = tricorn();
+            // Brass buttons on the two front sides, near the top edge.
+            let top = brim.last().unwrap();
+            let buttons = [AROUND / 4 + AROUND / 6, AROUND / 4 - AROUND / 6].map(|j| {
+                let at = top[j] - Vec3::Y * 0.015 + ring(j) * 0.004;
+                (Sphere::new(0.009).mesh().build().translated_by(at), [0.85, 0.65, 0.25], Finish::Brass)
+            });
+            [(mesh(&crown, false, Vec2::new(3.0, 1.0)), c, Finish::Leather), (mesh(&brim, false, Vec2::new(5.0, 0.5)), c, Finish::Leather)].into_iter().chain(buttons).collect()
+        }
+        Headwear::Mask => vec![(mesh(&mask(), false, Vec2::new(4.0, 0.3)), [0.05, 0.05, 0.06], Finish::Cloth)],
+        _ => return false,
+    };
+    for (m, [r, g, b], finish) in parts {
+        let leathered = finish == Finish::Leather;
         let material = materials.add(StandardMaterial {
             base_color: Color::srgb(r, g, b),
-            base_color_texture: Some(leather.colour.clone()),
-            normal_map_texture: Some(leather.bumps.clone()),
-            perceptual_roughness: 0.7,
+            base_color_texture: leathered.then(|| leather.colour.clone()),
+            normal_map_texture: leathered.then(|| leather.bumps.clone()),
+            perceptual_roughness: match finish {
+                Finish::Leather => 0.7,
+                Finish::Cloth => 0.95,
+                Finish::Brass => 0.35,
+            },
+            metallic: if finish == Finish::Brass { 0.8 } else { 0.0 },
             reflectance: 0.35,
+            // A turned-up brim shows its inside.
+            double_sided: true,
+            cull_mode: None,
             ..default()
         });
         let part = (Mesh3d(meshes.add(m)), MeshMaterial3d(material), Transform::from_scale(Vec3::splat(k)), marker.clone());
@@ -228,6 +306,7 @@ pub fn put_on(
             e.with_child(part);
         });
     }
+    true
 }
 
 #[cfg(test)]
@@ -255,6 +334,27 @@ mod tests {
         assert!(rim.iter().all(|y| *y < 0.18), "the outer edge hangs below the inner edge");
         let (lo, hi) = rim.iter().fold((f32::MAX, f32::MIN), |(lo, hi), y| (lo.min(*y), hi.max(*y)));
         assert!(hi - lo > 0.02, "the droop changes around the hat");
+    }
+
+    #[test]
+    fn the_tricorn_turns_up_three_sides() {
+        let [_, brim] = tricorn();
+        let top = brim.last().unwrap();
+        // Rows go from the crown out and up: the last row is the brim's top edge.
+        let corner = top[AROUND / 4]; // the front point
+        let side = top[AROUND / 4 + AROUND / 6]; // halfway to the next corner
+        assert!(corner.xz().length() > side.xz().length() + 0.05, "the corners reach out");
+        assert!(side.y > corner.y + 0.03, "the sides stand higher than the corners");
+        assert!(corner.z > 0.15, "a corner points forward");
+    }
+
+    #[test]
+    fn the_mask_covers_the_lower_face() {
+        let m = mask();
+        let front = |row: &Vec<Vec3>| row[AROUND / 4];
+        assert!(m.iter().any(|r| front(r).y > 0.09), "up to the nose");
+        assert!(m.iter().any(|r| front(r).y < 0.0), "down past the chin");
+        assert!(m.iter().all(|r| front(r).z > 0.05), "in front of the face");
     }
 
     #[test]
