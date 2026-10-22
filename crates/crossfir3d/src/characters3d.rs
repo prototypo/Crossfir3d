@@ -401,15 +401,15 @@ fn hold_items(
         commands.entity(e).try_despawn();
     }
     for (file, hand) in &want {
-        let hand = if *hand == Hand::Right { right } else { left };
-        put_in_hand(&mut commands, hand, Carry::Model(file), 1.0 / bone_scale(hand, &parents, &parts), &server, &mut meshes, &mut materials);
+        let (side, hand) = (*hand, if *hand == Hand::Right { right } else { left });
+        put_in_hand(&mut commands, hand, side, Carry::Model(file), 1.0 / bone_scale(hand, &parents, &parts), &server, &mut meshes, &mut materials);
     }
     // A hand holding nothing holds what the class carries.
     if let Some(class) = own_look.class {
         for (carry, side, bone) in [(class.right, Hand::Right, right), (class.left, Hand::Left, left)] {
             if let Some(carry) = carry.filter(|_| !want.iter().any(|(_, h)| *h == side)) {
                 let k = own_look.look.scale / bone_scale(bone, &parents, &parts);
-                put_in_hand(&mut commands, bone, carry, k, &server, &mut meshes, &mut materials);
+                put_in_hand(&mut commands, bone, side, carry, k, &server, &mut meshes, &mut materials);
             }
         }
     }
@@ -548,9 +548,9 @@ fn gear_up(
         if let Some(wear) = class.head {
             put_on_head(&mut commands, head, wear, scale / bone_scale(head, &parents, &parts), &leather, &mut meshes, &mut materials, ());
         }
-        for (carry, bone) in [(class.right, right), (class.left, left)] {
+        for (carry, side, bone) in [(class.right, Hand::Right, right), (class.left, Hand::Left, left)] {
             if let Some(carry) = carry {
-                put_in_hand(&mut commands, bone, carry, scale / bone_scale(bone, &parents, &parts), &server, &mut meshes, &mut materials);
+                put_in_hand(&mut commands, bone, side, carry, scale / bone_scale(bone, &parents, &parts), &server, &mut meshes, &mut materials);
             }
         }
         commands.entity(root).remove::<ClassGear>();
@@ -598,38 +598,66 @@ fn put_on_head(
     }
 }
 
+/// How a hand holds a thing: where its grip sits and how it turns. The hand bone's +Y runs
+/// along the fingers and +Z to the thumb; the palm faces -X on the right hand, +X on the left.
+/// A thing's own +Y is its blade, shaft or top; +Z is a shield's face.
+fn grip(side: Hand, carry: &Carry) -> (Vec3, Quat) {
+    use std::f32::consts::FRAC_PI_2;
+    let palm = if side == Hand::Right { -1.0 } else { 1.0 };
+    // In the curled fingers, a little toward the palm.
+    let fist = Vec3::new(0.02 * palm, 0.085, 0.0);
+    // Out of the thumb side of the fist, leaning toward the fingers by `lean` (radians):
+    // with the arm hanging, a positive lean points forward and down, a negative one up.
+    let out_of_fist = |lean: f32| (fist, Quat::from_rotation_x(FRAC_PI_2 - lean));
+    match carry {
+        // Strapped to the back of the forearm, face out, top up the arm.
+        Carry::Model(file) if file.contains("Shield") => {
+            let out = Vec3::X * -palm;
+            (Vec3::new(0.07 * -palm, -0.08, 0.0), Quat::from_mat3(&Mat3::from_cols(Vec3::NEG_Y.cross(out), Vec3::NEG_Y, out)))
+        }
+        Carry::Model(file) if file.contains("Bow") => out_of_fist(0.35),
+        Carry::Model(file) if file.contains("Spear") || file.contains("Scythe") => out_of_fist(-0.9),
+        Carry::Model(_) => out_of_fist(0.6),
+        Carry::Staff(_) | Carry::Potion => out_of_fist(-0.9),
+    }
+}
+
 /// Puts a carried thing in a hand bone: a model file, or a built staff or potion.
 /// `k` is the bone's scale for a human.
+#[allow(clippy::too_many_arguments)]
 fn put_in_hand(
     commands: &mut Commands,
     hand: Entity,
+    side: Hand,
     carry: Carry,
     k: f32,
     server: &AssetServer,
     meshes: &mut Assets<Mesh>,
     materials: &mut Assets<StandardMaterial>,
 ) {
-    let at = |y: f32| Transform::from_xyz(0.0, y * k, 0.0).with_scale(Vec3::splat(k));
+    let (at_fist, turn) = grip(side, &carry);
+    // `along`: how far along the thing's own +Y from the grip.
+    let at = |along: f32| Transform::from_translation((at_fist + turn * Vec3::Y * along) * k).with_rotation(turn).with_scale(Vec3::splat(k));
     let shapes: Vec<(Mesh, Transform, [f32; 3], bool)> = match carry {
         Carry::Model(file) => {
-            let t = Transform::from_scale(Vec3::splat(WEAPON_SCALE * k));
+            let t = at(0.0).with_scale(Vec3::splat(WEAPON_SCALE * k));
             let scene = server.load(GltfAssetLabel::Scene(0).from_asset(format!("models/{file}")));
             commands.entity(hand).queue_silenced(move |mut e: EntityWorldMut| {
                 e.with_child((WorldAssetRoot(scene), t, HeldModel));
             });
             return;
         }
-        // The hand's +Y runs down a hanging arm, so the staff's top (and orb) is at -Y.
+        // Held a third of the way up, the orb on top.
         Carry::Staff(orb) => {
-            let mut out = vec![(Cylinder::new(0.018, 1.1).into(), at(-0.3), [0.45, 0.3, 0.18], false)];
+            let mut out = vec![(Cylinder::new(0.018, 1.1).into(), at(0.18), [0.45, 0.3, 0.18], false)];
             if let Some(color) = orb {
-                out.push((Sphere::new(0.05).into(), at(-0.88), color, true));
+                out.push((Sphere::new(0.05).into(), at(0.76), color, true));
             }
             out
         }
         Carry::Potion => vec![
-            (Sphere::new(0.045).into(), at(0.06), [0.3, 0.75, 0.35], false),
-            (Cylinder::new(0.015, 0.05).into(), at(0.12), [0.85, 0.85, 0.9], false),
+            (Sphere::new(0.045).into(), at(0.02), [0.3, 0.75, 0.35], false),
+            (Cylinder::new(0.015, 0.05).into(), at(0.08), [0.85, 0.85, 0.9], false),
         ],
     };
     for (mesh, t, color, glow) in shapes {
@@ -867,6 +895,25 @@ fn clear_preview(mut commands: Commands, mut preview: ResMut<Preview>, bodies: Q
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn weapons_point_out_of_the_fist() {
+        let (at, turn) = grip(Hand::Right, &Carry::Model("weapons/Sword.gltf"));
+        let blade = turn * Vec3::Y;
+        assert!(blade.z > 0.5 && blade.y > 0.3, "forward and down the fingers: {blade}");
+        assert!(at.y > 0.05, "in the fist, past the wrist");
+        let staff = grip(Hand::Left, &Carry::Staff(None)).1 * Vec3::Y;
+        assert!(staff.y < -0.5, "the staff's top is up the arm: {staff}");
+    }
+
+    #[test]
+    fn shields_face_out_on_both_arms() {
+        for (side, out) in [(Hand::Right, Vec3::X), (Hand::Left, Vec3::NEG_X)] {
+            let (at, turn) = grip(side, &Carry::Model("weapons/Shield_Round.gltf"));
+            assert!(turn.is_normalized() && (turn * Vec3::X).cross(turn * Vec3::Y).abs_diff_eq(turn * Vec3::Z, 1e-5), "a turn, not a mirror");
+            assert!((turn * Vec3::Z).abs_diff_eq(out, 1e-5) && at.dot(out) > 0.0);
+        }
+    }
 
     #[test]
     fn facing_north_looks_down_minus_z() {
