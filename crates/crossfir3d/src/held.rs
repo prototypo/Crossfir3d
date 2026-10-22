@@ -148,6 +148,17 @@ pub enum Back {
     Scabbard,
 }
 
+/// What a class wears over its clothes.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum Over {
+    /// A leather apron from the chest to the knees.
+    Apron,
+    /// A cloth panel front and back, from the shoulders to the knees, in this colour.
+    Tabard([f32; 3]),
+    /// A wide cloth band round the waist, its ends hanging at the left hip, in this colour.
+    Sash([f32; 3]),
+}
+
 /// A class's own look: its outfit and the outfit's tint (multipliers for the model's own
 /// colours, as from `worn`), its headwear, and what it carries in each hand.
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -158,6 +169,7 @@ pub struct ClassLook {
     pub right: Option<Carry>,
     pub left: Option<Carry>,
     pub back: Option<Back>,
+    pub over: Option<Over>,
 }
 
 /// The look for a class, by arch ("wizard_class") or name ("Wizard"). Unknown: None.
@@ -179,7 +191,14 @@ pub fn class_look(class: &str) -> Option<ClassLook> {
         "ninja" => Some(Back::Scabbard),
         _ => None,
     };
-    let look = |garb, tint, head, right, left| Some(ClassLook { garb, tint, head, right, left, back });
+    let over = match key {
+        "alchemist" => Some(Over::Apron),
+        "swashbuckler" => Some(Over::Sash([0.85, 0.62, 0.15])),
+        "priest" => Some(Over::Tabard([0.9, 0.72, 0.3])),
+        "summoner" => Some(Over::Tabard([0.2, 0.36, 0.22])),
+        _ => None,
+    };
+    let look = |garb, tint, head, right, left| Some(ClassLook { garb, tint, head, right, left, back, over });
     match key {
         "warrior" => look(Garb::Metal, [1.3, 1.32, 1.38], Some(Helm), Some(Model("weapons/Sword.gltf")), Some(Model("weapons/Shield_Round.gltf"))),
         "barbarian" => look(Garb::Peasant, [1.0, 0.75, 0.65], Some(HornedCap), Some(Model("weapons/Axe_Double.gltf")), None),
@@ -277,6 +296,16 @@ mod tests {
             let (file, _) = held_model(kind, name).unwrap();
             assert!(root.join(file).is_file(), "missing {file}");
         }
+    }
+
+    #[test]
+    fn plain_shirts_get_something_over_them() {
+        let over = |c| class_look(c).unwrap().over;
+        assert_eq!(over("alchemist"), Some(Over::Apron));
+        assert!(matches!(over("swashbuckler"), Some(Over::Sash(_))));
+        assert!(matches!(over("priest"), Some(Over::Tabard(_))));
+        assert!(matches!(over("summoner"), Some(Over::Tabard(_))));
+        assert_ne!(over("priest"), over("summoner"));
     }
 
     #[test]

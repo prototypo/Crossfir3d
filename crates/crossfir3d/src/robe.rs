@@ -178,6 +178,7 @@ fn with_joints(mesh: Mesh, weights: &Weights, closed: bool, joints: [u16; 4]) ->
 pub struct Dress {
     pub robe: bool,
     pub back: Option<crossfir3d::held::Back>,
+    pub over: Option<crossfir3d::held::Over>,
 }
 
 const SAFFRON: [f32; 3] = [0.98, 0.6, 0.12];
@@ -200,7 +201,7 @@ pub fn dress_robes(
     leather: Res<crate::hat::Leather>,
 ) {
     use crate::back;
-    use crossfir3d::held::Back;
+    use crossfir3d::held::{Back, Over};
     for (root, dress) in &robed {
         // The outfit's scene spawns a little after the character: try again next frame.
         let Some(outfit) = children.get(root).into_iter().flatten().copied().find(|c| outfits.contains(*c)) else { continue };
@@ -240,15 +241,16 @@ pub fn dress_robes(
             normal_map_texture: Some(leather.bumps.clone()),
             ..cloth(c, rough)
         };
-        let on_chest = |m: Mesh| {
+        let on = |bone: usize, m: Mesh| {
             let n = m.count_vertices();
-            m.with_inserted_attribute(Mesh::ATTRIBUTE_JOINT_INDEX, bevy::mesh::VertexAttributeValues::Uint16x4(vec![[j(chest), 0, 0, 0]; n]))
+            m.with_inserted_attribute(Mesh::ATTRIBUTE_JOINT_INDEX, bevy::mesh::VertexAttributeValues::Uint16x4(vec![[j(bone), 0, 0, 0]; n]))
                 .with_inserted_attribute(Mesh::ATTRIBUTE_JOINT_WEIGHT, vec![[1.0f32, 0.0, 0.0, 0.0]; n])
         };
-        let cape = |hem: f32, teeth: f32| {
-            let grid = back::cape(&rest, &points, hem, teeth);
-            with_joints(crate::hat::mesh(&grid, false, Vec2::new(3.0, 3.0)), &back::cape_weights(&grid, &rest), false, [j(chest), j(pelvis), j(thigh_l), j(thigh_r)])
+        let on_chest = |m: Mesh| on(chest, m);
+        let hanging = |grid: &Grid| {
+            with_joints(crate::hat::mesh(grid, false, Vec2::new(6.0, 6.0)), &back::cape_weights(grid, &rest), false, [j(chest), j(pelvis), j(thigh_l), j(thigh_r)])
         };
+        let cape = |hem: f32, teeth: f32| hanging(&back::cape(&rest, &points, hem, teeth));
         let rigid = |parts: back::Parts| -> Vec<(Mesh, StandardMaterial)> {
             parts.into_iter().map(|(m, c, leathered)| (on_chest(m), if leathered { leathery(c, 0.75) } else { cloth(c, 0.6) })).collect()
         };
@@ -260,6 +262,25 @@ pub fn dress_robes(
             Some(Back::Scabbard) => rigid(back::scabbard(&rest, &points)),
             None => Vec::new(),
         };
+        match dress.over {
+            Some(Over::Apron) => {
+                let grid = back::apron(&rest, &points);
+                let brown = [0.4, 0.26, 0.15];
+                wear.push((hanging(&grid), leathery(brown, 0.7)));
+                wear.push((on_chest(back::apron_straps(&rest, &grid)), leathery(brown, 0.7)));
+            }
+            Some(Over::Tabard(c)) => {
+                let panels = back::tabard(&rest, &points);
+                wear.push((on_chest(back::tabard_straps(&rest, &points, &panels)), cloth(c, 0.9)));
+                wear.extend(panels.iter().map(|g| (hanging(g), cloth(c, 0.9))));
+            }
+            Some(Over::Sash(c)) => {
+                let grid = back::sash(&rest, &points);
+                wear.push((on(pelvis, crate::hat::mesh(&grid, false, Vec2::new(4.0, 0.5))), cloth(c, 0.85)));
+                wear.push((on(pelvis, back::sash_ends(&rest, &points)), cloth(c, 0.85)));
+            }
+            None => {}
+        }
         if dress.robe {
             let skirt_grid = skirt(&rest, &points);
             let sash_grid = sash(&rest, &points);
