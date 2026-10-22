@@ -591,13 +591,19 @@ fn sync_visuals(
         let who = match (classify_player_face(name), models.map.lookup(name)) {
             _ if own_tile => Some((own.look, own.body, None)),
             (Some(kind), _) => Some((other_look(kind), Body::Regular, None)),
-            (None, &Visual::Person { body, look, dress, broom, armour, wide, head, .. }) => {
-                Some((look, body, Some(Outfit { scale: look.scale, dress, broom, armour, wide, head })))
+            (None, &Visual::Person { body, look, dress, broom, armour, wide, head, build, horns, ears, .. }) => {
+                // Pointed ears are the skin's colour (its tint over a human's skin).
+                let ears = ears.then(|| [0.78 * look.skin[0], 0.56 * look.skin[1], 0.42 * look.skin[2]]);
+                Some((look, body, Some(Outfit { scale: look.scale, dress, broom, armour, wide, head, build, horns, ears })))
             }
             _ => None,
         };
         if glides(layer) && let Some((look, body, outfit)) = who {
             let (look, mut files) = class_dressed(look, body, class, outfit.is_some());
+            // Horns and pointed ears go on a bare head.
+            if outfit.is_some_and(|o| o.horns || o.ears.is_some()) {
+                files[1] = "";
+            }
             if outfit.is_some_and(|o| o.armour) {
                 files[2] = outfit_file(body, Garb::Metal);
             }
@@ -607,7 +613,14 @@ fn sync_visuals(
                 let at = Transform::from_translation(pos);
                 let e = spawn_character(&mut commands, load, files, &look, at, Visibility::Hidden, (tv, Glide { target: pos }));
                 commands.entity(e).insert(Assembled(files.iter().filter(|f| !f.is_empty()).map(|f| f.to_string()).collect()));
-                if let Some(dress) = crate::robe::Dress::of(class, outfit.is_some_and(|o| o.armour)) {
+                let rags = match models.map.lookup(name) {
+                    Visual::Person { rags, .. } => *rags,
+                    _ => None,
+                };
+                let dress = crate::robe::Dress::of(class, outfit.is_some_and(|o| o.armour))
+                    .map(|d| crate::robe::Dress { rags, ..d })
+                    .or(rags.map(|_| crate::robe::Dress { robe: false, back: None, over: None, rags }));
+                if let Some(dress) = dress {
                     commands.entity(e).insert(dress);
                 }
                 if own_tile {

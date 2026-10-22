@@ -449,6 +449,19 @@ pub fn put_on(
                 (mesh(&horn(-1.0), false, Vec2::ONE), [0.9, 0.85, 0.7], Finish::Bone),
             ]
         }
+        Headwear::Horns => {
+            // Sunk into a bare head (the cap's horns stand on its leather), their roots inside the skull.
+            let on_head = |m: Mesh, side: f32| m.translated_by(Vec3::new(-side * 0.04, -0.065, 0.0));
+            [1.0, -1.0].map(|side| (on_head(mesh(&horn(side), false, Vec2::ONE), side), [0.85, 0.8, 0.65], Finish::Bone)).into()
+        }
+        Headwear::Ears(c) => [1.0f32, -1.0]
+            .map(|side| {
+                // Out from the side of the head, up and back to a point.
+                let out = Vec3::new(side * 0.85, 0.45, -0.3).normalize();
+                let ear = Cone::new(0.03, 0.11).mesh().build().scaled_by(Vec3::new(1.0, 1.0, 0.35));
+                (ear.rotated_by(Quat::from_rotation_arc(Vec3::Y, out)).translated_by(Vec3::new(side * 0.075, 0.125, -0.01) + out * 0.05), c, Finish::Cloth)
+            })
+            .into(),
         Headwear::Goggles => {
             let mut out = vec![(mesh(&head_band(0.145, 0.165, 0.124, 0.134), false, Vec2::new(6.0, 0.2)), [0.25, 0.16, 0.1], Finish::Leather)];
             for x in [-0.036, 0.036] {

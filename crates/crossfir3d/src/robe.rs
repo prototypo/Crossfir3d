@@ -179,13 +179,15 @@ pub struct Dress {
     pub robe: bool,
     pub back: Option<crossfir3d::held::Back>,
     pub over: Option<crossfir3d::held::Over>,
+    /// A creature's rags, of this colour.
+    pub rags: Option<[f32; 3]>,
 }
 
 impl Dress {
     /// What a class puts on its outfit: over armour, only what is on its back. None: nothing.
     pub fn of(class: Option<crossfir3d::held::ClassLook>, armour: bool) -> Option<Dress> {
         let class = class?;
-        let dress = Dress { robe: !armour && class.garb == crossfir3d::held::Garb::Robe, back: class.back, over: class.over.filter(|_| !armour) };
+        let dress = Dress { robe: !armour && class.garb == crossfir3d::held::Garb::Robe, back: class.back, over: class.over.filter(|_| !armour), rags: None };
         (dress.robe || dress.back.is_some() || dress.over.is_some()).then_some(dress)
     }
 }
@@ -227,14 +229,12 @@ pub fn dress_robes(
         let at = |i: usize| poses[i].inverse().w_axis.truncate();
         let rest = Rest { pelvis: at(pelvis), chest: at(chest), neck: at(neck), left_shoulder: at(shoulder), ankle_y: at(foot).y };
         // The outfit's points, its arms left out (they stand out sideways in the rest pose).
-        let mut points = Vec::new();
+        let (mut points, mut arm_points) = (Vec::new(), Vec::new());
         for &e in &parts {
             let (mesh, ..) = skinned.get(e).unwrap();
-            if names.get(e).is_ok_and(|n| n.as_str().contains("Arms")) {
-                continue;
-            }
+            let arms = names.get(e).is_ok_and(|n| n.as_str().contains("Arms"));
             if let Some(bevy::mesh::VertexAttributeValues::Float32x3(p)) = meshes.get(&mesh.0).and_then(|m| m.attribute(Mesh::ATTRIBUTE_POSITION)) {
-                points.extend(p.iter().map(|v| Vec3::from_array(*v)));
+                (if arms { &mut arm_points } else { &mut points }).extend(p.iter().map(|v| Vec3::from_array(*v)));
             }
         }
         let j = |i: usize| i as u16;
@@ -289,6 +289,21 @@ pub fn dress_robes(
                 wear.push((on(pelvis, back::sash_ends(&rest, &points)), cloth(c, 0.85)));
             }
             None => {}
+        }
+        if let Some(c) = dress.rags {
+            wear.extend(back::rags(&rest, &points).iter().map(|g| (hanging(g), leathery(c, 1.0))));
+            // Sleeves over the shirt's own (its shoulder tabs and cuffs).
+            arm_points.extend(&points);
+            for side in ["l", "r"] {
+                let bone = |n: &str| slot(&format!("{n}_{side}"));
+                let (Some(upper), Some(lower), Some(hand)) = (bone("upperarm"), bone("lowerarm"), bone("hand")) else { continue };
+                // The upper arm to the elbow, and on over the shirt sleeve's end below it.
+                for (from, to, long) in [(upper, lower, 0.97), (lower, hand, 0.45)] {
+                    let grid = back::sleeve(&arm_points, at(from), at(to), long);
+                    let weights = vec![vec![[1.0, 0.0, 0.0, 0.0]; AROUND]; grid.len()];
+                    wear.push((with_joints(crate::hat::mesh(&grid, false, Vec2::new(3.0, 1.0)), &weights, false, [j(from), 0, 0, 0]), leathery(c, 1.0)));
+                }
+            }
         }
         if dress.robe {
             let skirt_grid = skirt(&rest, &points);

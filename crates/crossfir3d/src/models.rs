@@ -25,7 +25,22 @@ pub enum Visual {
     /// A creature drawn as a 3D character with this body and look, maybe in a long
     /// skirt of this colour, maybe with a broom in the right hand, maybe in metal armour,
     /// `wide` times as broad and with its head `head` times as big, maybe dressed as a class.
-    Person { body: Body, look: Look, dress: Option<[f32; 3]>, broom: bool, armour: bool, wide: f32, head: f32, class: Option<ClassLook> },
+    /// A creature (not a human) also has a `build`, rags of a colour over its clothes, and
+    /// horns or pointed ears (and no hair).
+    Person {
+        body: Body,
+        look: Look,
+        dress: Option<[f32; 3]>,
+        broom: bool,
+        armour: bool,
+        wide: f32,
+        head: f32,
+        class: Option<ClassLook>,
+        build: Option<Build>,
+        rags: Option<[f32; 3]>,
+        horns: bool,
+        ears: bool,
+    },
     /// A rigged creature model (one file) moved like a person.
     Monster { file: String, scale: f32, tint: Option<[f32; 3]> },
     /// A walking skeleton: a person's bones, built in code, `scale` times a person's size.
@@ -34,6 +49,57 @@ pub enum Visual {
     Beast { file: String, scale: f32, tint: Option<[f32; 3]> },
     Flat,
     Card,
+}
+
+/// A creature's body shape, made from a person's by resizing and bending its bones.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Build {
+    Goblin,
+    Troll,
+    Ogre,
+    Golem,
+    Demon,
+    Gnoll,
+}
+
+impl Build {
+    fn parse(word: &str) -> Option<Build> {
+        Some(match word {
+            "goblin" => Build::Goblin,
+            "troll" => Build::Troll,
+            "ogre" => Build::Ogre,
+            "golem" => Build::Golem,
+            "demon" => Build::Demon,
+            "gnoll" => Build::Gnoll,
+            _ => return None,
+        })
+    }
+
+    /// Each reshaped bone: its name, its scale (on the head: across, up, front; elsewhere
+    /// the same every way, as a child bone takes its parent's scale and a stretched parent
+    /// would shear it), and a bend forward in radians. A bone's scale carries on to the
+    /// bones beyond it: a bigger collarbone makes the whole arm bigger.
+    pub fn bones(self) -> Vec<(&'static str, [f32; 3], f32)> {
+        let both = |name: &'static str, k: f32| -> [(&'static str, [f32; 3], f32); 2] {
+            let side = |s: &str| -> &'static str { Box::leak(format!("{name}_{s}").into_boxed_str()) };
+            [(side("l"), [k; 3], 0.0), (side("r"), [k; 3], 0.0)]
+        };
+        // (head, collarbone: the whole arm, forearm, hand, thigh: the whole leg, hunch)
+        let (head, arm, forearm, hand, leg, hunch) = match self {
+            Build::Goblin => ([1.4, 1.15, 1.3], 0.95, 1.15, 1.25, 0.8, 0.35),
+            Build::Troll => ([1.25, 0.9, 1.3], 1.35, 1.1, 1.25, 0.88, 0.4),
+            Build::Ogre => ([1.4, 1.1, 1.25], 1.25, 1.0, 1.2, 0.92, 0.25),
+            Build::Golem => ([0.7, 0.65, 0.75], 1.45, 1.15, 1.4, 1.1, 0.0),
+            Build::Demon => ([1.0, 1.25, 1.2], 1.2, 1.2, 1.3, 1.05, 0.1),
+            Build::Gnoll => ([0.95, 1.0, 1.55], 1.05, 1.15, 1.2, 0.95, 0.4),
+        };
+        let mut out = vec![("Head", head, -hunch * 0.6), ("spine_03", [1.0; 3], hunch), ("neck_01", [1.0; 3], -hunch * 0.5)];
+        out.extend(both("clavicle", arm));
+        out.extend(both("lowerarm", forearm));
+        out.extend(both("hand", hand));
+        out.extend(both("thigh", leg));
+        out
+    }
 }
 
 #[derive(Default)]
@@ -100,6 +166,7 @@ fn parse_visual(words: &[&str]) -> Option<Visual> {
         },
         ["person", body, scale, skin, hair, clothes, ref rest @ ..] => {
             let (mut dress, mut broom, mut armour, mut wide, mut head, mut class) = (None, false, false, 1.0, 1.0, None);
+            let (mut build, mut rags, mut horns, mut ears) = (None, None, false, false);
             let mut words = rest.iter();
             while let Some(&w) = words.next() {
                 match w {
@@ -109,6 +176,10 @@ fn parse_visual(words: &[&str]) -> Option<Visual> {
                     "wide" => wide = words.next()?.parse().ok()?,
                     "head" => head = words.next()?.parse().ok()?,
                     "class" => class = Some(class_look(words.next()?)?),
+                    "build" => build = Some(Build::parse(words.next()?)?),
+                    "rags" => rags = Some(rgb(words.next()?)?),
+                    "horns" => horns = true,
+                    "ears" => ears = true,
                     _ => return None,
                 }
             }
@@ -125,6 +196,10 @@ fn parse_visual(words: &[&str]) -> Option<Visual> {
                 wide,
                 head,
                 class,
+                build,
+                rags,
+                horns,
+                ears,
             }
         }
         ["monster", file, scale, ref rest @ ..] => {
@@ -270,7 +345,7 @@ bad model x.glb notanumber 0 0
              bad2 person other 1 1,1,1 1,1,1 1,1,1 dress\n",
         );
         let look = Look { scale: 0.7, skin: [0.3, 0.5, 0.2], hair: [0.1, 0.1, 0.1], clothes: [0.4, 0.3, 0.2] };
-        let person = |body, dress, broom, armour, wide, head| Visual::Person { body, look, dress, broom, armour, wide, head, class: None };
+        let person = |body, dress, broom, armour, wide, head| Visual::Person { body, look, dress, broom, armour, wide, head, class: None, build: None, rags: None, horns: false, ears: false };
         assert_eq!(m.lookup("goblin.131"), &person(Body::Regular, None, false, false, 1.0, 1.0));
         assert_eq!(m.lookup("maid"), &person(Body::Other, Some([0.6, 0.2, 0.2]), true, false, 1.0, 1.0));
         assert_eq!(m.lookup("dwarf"), &person(Body::Regular, None, false, true, 1.3, 1.2));
@@ -292,6 +367,24 @@ bad model x.glb notanumber 0 0
     fn the_model_list_uses_no_paid_models() {
         let text = std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/../../assets/models.txt")).unwrap();
         assert!(!text.contains("monsters/"), "the paid monster pack may not be shared");
+    }
+
+    #[test]
+    fn creature_builds_parsed() {
+        let m = ModelMap::parse("gob person regular 0.7 1,1,1 1,1,1 1,1,1 build goblin rags 0.4,0.3,0.2 ears\ndev person regular 1 1,1,1 1,1,1 1,1,1 build demon horns\n");
+        let Visual::Person { build, rags, horns, ears, .. } = m.lookup("gob") else { panic!() };
+        assert_eq!((*build, *rags, *horns, *ears), (Some(Build::Goblin), Some([0.4, 0.3, 0.2]), false, true));
+        let Visual::Person { build, horns, .. } = m.lookup("dev") else { panic!() };
+        assert_eq!((*build, *horns), (Some(Build::Demon), true));
+    }
+
+    #[test]
+    fn builds_are_not_human_shaped() {
+        for build in [Build::Goblin, Build::Troll, Build::Ogre, Build::Golem, Build::Demon, Build::Gnoll] {
+            let head = build.bones().iter().find(|b| b.0 == "Head").expect("every build reshapes the head").1;
+            assert!(head.iter().any(|v| (v - 1.0).abs() > 0.15), "{build:?}: a head of a different shape");
+            assert!(build.bones().iter().any(|b| b.0 != "Head" && b.1.iter().any(|v| (v - 1.0).abs() > 0.15)), "{build:?}: other limbs too");
+        }
     }
 
     #[test]

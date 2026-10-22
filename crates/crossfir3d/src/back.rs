@@ -25,19 +25,19 @@ fn back_at(rest: &Rest, points: &[Vec3], x: f32, y: f32) -> f32 {
 
 /// A cape from over the shoulders down to `hem` (a height), with a ragged hem `teeth` deep.
 pub fn cape(rest: &Rest, points: &[Vec3], hem: f32, teeth: f32) -> Grid {
-    panel(rest, points, (rest.neck.y - 0.04, hem), (0.38, 0.46), false, teeth)
+    panel(rest, points, (rest.neck.y - 0.04, hem), (0.38, 0.46), false, teeth, 0.0)
 }
 
 /// A leather apron from the chest to the knees, wrapping a little round the hips.
 pub fn apron(rest: &Rest, points: &[Vec3]) -> Grid {
-    panel(rest, points, (rest.chest.y + 0.08, rest.pelvis.y - 0.38), (0.26, 0.3), true, 0.0)
+    panel(rest, points, (rest.chest.y + 0.08, rest.pelvis.y - 0.38), (0.26, 0.3), true, 0.0, 0.0)
 }
 
 /// A tabard: a straight panel in front from the collar and one behind from the shoulder
 /// blades, down to the knees.
 pub fn tabard(rest: &Rest, points: &[Vec3]) -> [Grid; 2] {
     let hem = rest.pelvis.y - 0.42;
-    [(true, rest.neck.y - 0.07), (false, rest.left_shoulder.y - 0.06)].map(|(front, high)| panel(rest, points, (high, hem), (0.26, 0.26), front, 0.0))
+    [(true, rest.neck.y - 0.07), (false, rest.left_shoulder.y - 0.06)].map(|(front, high)| panel(rest, points, (high, hem), (0.26, 0.26), front, 0.0, 0.0))
 }
 
 /// Thin flat straps over the shoulders, joining the tabard's front and back at their top
@@ -109,12 +109,56 @@ pub fn tabard_straps(rest: &Rest, points: &[Vec3], [front, back]: &[Grid; 2]) ->
     }))
 }
 
+/// A creature's rags: torn cloth all round from the neck to the thighs, front and back.
+pub fn rags(rest: &Rest, points: &[Vec3]) -> [Grid; 2] {
+    // Up to the neck, over the shirt's collar.
+    let span = (rest.neck.y, rest.pelvis.y - 0.3);
+    // Loose: a hunched creature's chest pulls the cloth in at the waist.
+    [true, false].map(|front| panel(rest, points, span, (0.5, 0.5), front, 0.12, 0.035))
+}
+
+/// A ragged sleeve round a limb bone, from just before `shoulder` toward `elbow`, `long`
+/// of the way, its end torn. Rows go from the shoulder out.
+pub fn sleeve(points: &[Vec3], shoulder: Vec3, elbow: Vec3, long: f32) -> Grid {
+    let along = (elbow - shoulder).normalize();
+    // Round the arm, so that the rows' normals face out.
+    let u = along.any_orthonormal_vector();
+    let v = u.cross(along);
+    let rows = 8;
+    let (from, to) = (-0.05, long * shoulder.distance(elbow));
+    (0..=rows)
+        .map(|i| {
+            let t = i as f32 / rows as f32;
+            let centre = shoulder + along * (from + (to - from) * t);
+            (0..AROUND)
+                .map(|j| {
+                    let a = std::f32::consts::TAU * j as f32 / AROUND as f32;
+                    let dir = u * a.cos() + v * a.sin();
+                    // The arm's own reach this way, near this ring.
+                    let arm = points
+                        .iter()
+                        .map(|p| *p - centre)
+                        .filter(|d| d.dot(along).abs() < 0.025)
+                        .map(|d| d.reject_from(along))
+                        .filter(|d| d.normalize_or_zero().dot(dir) > 0.966)
+                        .map(|d| d.length())
+                        .fold(0.05, f32::max)
+                        .min(0.12);
+                    let torn = if i == rows { 0.06 * (j * 37 % 11) as f32 / 10.0 } else { 0.0 };
+                    centre + dir * (arm + 0.015) - along * torn
+                })
+                .collect()
+        })
+        .collect()
+}
+
 /// Cloth from `high` down to `hem` (heights), in front of the body or behind it, hanging
 /// from the widest part above and flaring a little; `spread` is how far round the body it
 /// reaches at the top and the hem (in half turns). A thin double sheet, so a ring: across
 /// the outside from the right to the left, back across the inside. `teeth`: a ragged hem
 /// this deep. Rows go from the hem up, so its normals face out.
-fn panel(rest: &Rest, points: &[Vec3], (high, hem): (f32, f32), spread: (f32, f32), front: bool, teeth: f32) -> Grid {
+/// `loose`: this much further out from the body.
+fn panel(rest: &Rest, points: &[Vec3], (high, hem): (f32, f32), spread: (f32, f32), front: bool, teeth: f32, loose: f32) -> Grid {
     let rows = 16;
     let half = AROUND / 2;
     let side = if front { 1.0 } else { -1.0 };
@@ -136,7 +180,8 @@ fn panel(rest: &Rest, points: &[Vec3], (high, hem): (f32, f32), spread: (f32, f3
                     let dir = Vec3::new(a.cos(), 0.0, side * a.sin());
                     // Cloth hangs from the widest part above.
                     // Not out along the rest pose's sleeves; clear of the buttons and buckle in front.
-                    let clear = if front { 0.055 } else { 0.04 };
+                    // Loose cloth is still tight round the neck, so nothing shows inside it.
+                    let clear = if i == 0 && loose > 0.0 { 0.015 } else { (if front { 0.055 } else { 0.04 }) + loose };
                     hang[s] = hang[s].max(reach(points, centre, dir, 0.1).min(if dir.x.abs() > 0.6 { 0.21 } else { 1.0 }) + clear);
                     // Folds, deeper toward the hem.
                     let folds = 0.012 * t * (1.0 - (u * 7.0 * TAU).cos());
@@ -145,8 +190,9 @@ fn panel(rest: &Rest, points: &[Vec3], (high, hem): (f32, f32), spread: (f32, f3
                     if i == 0 && high > rest.chest.y + 0.1 {
                         p.y = p.y.max(top(points, p, rest.neck.y - 0.03) + 0.012);
                     }
-                    if i == rows && s % 2 == 1 {
-                        p.y += teeth;
+                    // Torn unevenly.
+                    if i == rows {
+                        p.y += teeth * (s * 37 % 11) as f32 / 10.0;
                     }
                     p
                 })
@@ -374,6 +420,34 @@ mod tests {
             assert!(off > 0.0 && off < 0.015, "{v}: {off}");
         }
         assert!(p.iter().map(|v| v.y).fold(f32::MIN, f32::max) > rest().chest.y + 0.14, "over the top");
+    }
+
+    #[test]
+    fn rags_wrap_all_round_with_a_torn_hem() {
+        let [front, back] = rags(&rest(), &[]);
+        let all: Vec<Vec3> = front.iter().chain(&back).flatten().copied().collect();
+        assert!(all.iter().any(|p| p.z > middle(&rest()) + 0.1) && all.iter().any(|p| p.z < middle(&rest()) - 0.1));
+        assert!(all.iter().any(|p| p.x > 0.12) && all.iter().any(|p| p.x < -0.12), "round the sides too");
+        let hem: Vec<f32> = front[0].iter().map(|p| p.y).collect();
+        let (low, high) = (hem.iter().cloned().fold(f32::MAX, f32::min), hem.iter().cloned().fold(f32::MIN, f32::max));
+        assert!(high - low > 0.05, "a torn hem");
+        assert!(low < rest().pelvis.y - 0.2, "down over the thighs");
+    }
+
+    #[test]
+    fn a_ragged_sleeve_wraps_the_upper_arm_and_faces_out() {
+        let (shoulder, elbow) = (Vec3::new(0.19, 1.45, -0.06), Vec3::new(0.45, 1.42, -0.07));
+        let g = sleeve(&[], shoulder, elbow, 0.97);
+        let along = (elbow - shoulder).normalize();
+        let n = crate::hat::normals(&g, false);
+        let mid = g.len() / 2;
+        for (p, n) in g[mid].iter().zip(&n[mid]) {
+            let out = (*p - shoulder).reject_from(along);
+            assert!(out.length() > 0.04 && n.dot(out) > 0.0, "round the arm, facing out: {p}");
+        }
+        let ends: Vec<f32> = g.last().unwrap().iter().map(|p| (*p - shoulder).dot(along)).collect();
+        assert!(ends.iter().cloned().fold(f32::MIN, f32::max) - ends.iter().cloned().fold(f32::MAX, f32::min) > 0.02, "a torn end");
+        assert!(g[0].iter().all(|p| (*p - shoulder).dot(along) < 0.0), "starting over the shoulder");
     }
 
     #[test]

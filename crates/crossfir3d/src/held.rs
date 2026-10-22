@@ -120,6 +120,10 @@ pub enum Headwear {
     Mask,
     /// No hair.
     Bald,
+    /// A creature's horns on a bare head.
+    Horns,
+    /// A creature's pointed ears, in its skin's colour.
+    Ears([f32; 3]),
 }
 
 /// The top of a staff; the colour is what glows.
