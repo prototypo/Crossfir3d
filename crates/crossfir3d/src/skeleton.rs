@@ -134,6 +134,7 @@ pub fn bones(j: &HashMap<&str, Vec3>, up: Vec3, front: Vec3) -> Vec<(&'static st
 pub struct Bony(pub [f32; 3]);
 
 /// Hides each `Bony` body's skin and puts the bones on its bones.
+#[allow(clippy::too_many_arguments)]
 pub fn build_skeletons(
     mut commands: Commands,
     bony: Query<(Entity, &Bony, &GlobalTransform)>,
