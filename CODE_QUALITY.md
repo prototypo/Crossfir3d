@@ -67,7 +67,7 @@ denominator grew.
 - Measured: complexity 135 (threshold 10); length 368 (threshold 50); nesting 6 (threshold 4); arguments 12 (threshold 5)
 - Recommendation: Pull each `if ... Visual::X` spawn branch (beast, monster, skeleton, person, statue, building, model, card) into its own `spawn_<kind>` function; the loop then only decides which one to call.
 
-### [ ] 🔴 Q3: complexity, length, nesting, arguments — crates/crossfir3d/src/keys_ui.rs:179 `keys_screen`
+### [x] 🔴 Q3: complexity, length, nesting, arguments — crates/crossfir3d/src/keys_ui.rs:179 `keys_screen`
 
 - Measured: complexity 128 (threshold 10); length 338 (threshold 50); nesting 10 (threshold 4); arguments 10 (threshold 5)
 - Recommendation: Split into `draw_bindings_list`, `draw_key_capture` and `draw_quick_slots` helpers; most of the depth comes from closures inside closures.
