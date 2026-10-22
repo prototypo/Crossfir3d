@@ -2237,6 +2237,19 @@ mod tests {
     }
 
     #[test]
+    fn every_building_in_the_model_list_is_built() {
+        let text = std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/../../assets/models.txt")).unwrap();
+        let unknown: Vec<&str> = text
+            .lines()
+            .map(|l| l.split('#').next().unwrap_or("").split_whitespace().collect::<Vec<_>>())
+            .filter(|w| w.get(1) == Some(&"building"))
+            .filter_map(|w| w.get(2).copied())
+            .filter(|recipe| parts(recipe, 1, 1).is_none() && parts(recipe, 2, 2).is_none())
+            .collect();
+        assert!(unknown.is_empty(), "drawn as flat pictures: {unknown:?}");
+    }
+
+    #[test]
     fn footprint_from_picture_size() {
         assert_eq!(footprint(32, 32), (1, 1));
         assert_eq!(footprint(64, 64), (2, 2));
