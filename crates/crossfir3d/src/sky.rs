@@ -62,6 +62,13 @@ pub struct SunDisc;
 #[derive(Component)]
 pub struct Clouds;
 
+/// The dark stone ceiling over an indoor map (in place of the sky).
+#[derive(Component)]
+pub struct Ceiling;
+
+/// How high the ceiling is: on top of the indoor walls (the stone wall is 1.2 high).
+const CEILING: f32 = 1.2 * crate::world::INDOOR_WALLS;
+
 #[derive(Resource)]
 pub struct SkyMaterials {
     stars: Handle<StandardMaterial>,
@@ -87,6 +94,15 @@ pub fn spawn_sky(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>, mut m
     let clouds = materials.add(sky_material(Color::WHITE, true));
     let sun = materials.add(sky_material(Color::srgb(1.0, 0.95, 0.7), false));
     let root = commands.spawn((SkyRoot, Transform::default(), Visibility::default())).id();
+    // Seen from below only: from above (the top view) it is not drawn.
+    commands.spawn((
+        Ceiling,
+        Mesh3d(meshes.add(Plane3d::new(Vec3::NEG_Y, Vec2::splat(60.0)))),
+        MeshMaterial3d(materials.add(StandardMaterial { base_color: Color::srgb(0.16, 0.15, 0.14), perceptual_roughness: 1.0, ..default() })),
+        Transform::from_xyz(0.0, CEILING, 0.0),
+        NotShadowCaster,
+        Visibility::Hidden,
+    ));
     let dome = meshes.add(Sphere::new(1.0).mesh().ico(4).unwrap());
     commands.spawn((
         Mesh3d(dome.clone()),
@@ -133,7 +149,7 @@ pub fn spawn_sky(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>, mut m
     commands.insert_resource(SkyMaterials { stars, clouds, dome });
 }
 
-#[allow(clippy::too_many_arguments)]
+#[allow(clippy::too_many_arguments, clippy::type_complexity)]
 pub fn update_sky(
     time: Res<Time>,
     clock: Res<Clock>,
@@ -147,6 +163,11 @@ pub fn update_sky(
     mut root: Single<&mut Transform, (With<SkyRoot>, Without<CameraRig>)>,
     sun: Single<(&mut Transform, &mut Visibility), (With<SunDisc>, Without<SkyRoot>, Without<CameraRig>)>,
     mut clouds: Single<&mut Transform, (With<Clouds>, Without<SunDisc>, Without<SkyRoot>, Without<CameraRig>)>,
+    (indoors, mut sky_shown, ceiling): (
+        Res<crate::world::Indoors>,
+        Single<&mut Visibility, (With<SkyRoot>, Without<SunDisc>, Without<Ceiling>)>,
+        Single<(&mut Transform, &mut Visibility), (With<Ceiling>, Without<SkyRoot>, Without<SunDisc>, Without<Clouds>, Without<CameraRig>)>,
+    ),
 ) {
     let (eye, mut fog) = camera.into_inner();
     let (pose, dir) = sun_now(&clock);
@@ -168,6 +189,13 @@ pub fn update_sky(
         dome.insert_attribute(Mesh::ATTRIBUTE_COLOR, colours);
     }
     let colour = Color::srgb(colour[0] * light, colour[1] * light, colour[2] * light);
+    // Indoors: a stone ceiling over the camera's square, darkness beyond, no sky.
+    let (mut ceiling_t, mut ceiling_shown) = ceiling.into_inner();
+    let inside = indoors.0;
+    sky_shown.set_if_neq(if inside { Visibility::Hidden } else { Visibility::Inherited });
+    ceiling_shown.set_if_neq(if inside { Visibility::Inherited } else { Visibility::Hidden });
+    ceiling_t.translation = Vec3::new(eye.translation.x, CEILING, eye.translation.z);
+    let colour = if inside { Color::srgb(0.02, 0.02, 0.025) } else { colour };
     clear.0 = colour;
     fog.color = colour;
     root.translation = eye.translation;

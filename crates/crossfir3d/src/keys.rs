@@ -250,7 +250,11 @@ pub fn parse_typed(line: &str) -> Option<Typed> {
     }
 }
 
+/// CROSSFIR3D_KEYS overrides it (screenshots).
 pub fn default_keys_path() -> PathBuf {
+    if let Some(p) = std::env::var_os("CROSSFIR3D_KEYS") {
+        return PathBuf::from(p);
+    }
     let home = std::env::var_os("HOME").map(PathBuf::from).unwrap_or_default();
     home.join("Library/Application Support/Crossfir3d/keys.txt")
 }
