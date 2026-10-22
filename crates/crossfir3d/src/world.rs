@@ -70,8 +70,11 @@ const FACE_DISTANCE: f32 = 1.3;
 const SUN_LUX: f32 = 10_000.0;
 const MOON_LUX: f32 = 2_500.0;
 const FOG_COLOR: Color = Color::srgb(0.05, 0.06, 0.08);
-/// Models and `models.txt`. ponytail: the source tree; next to the app when packaged (M7).
-pub const ASSET_DIR: &str = concat!(env!("CARGO_MANIFEST_DIR"), "/../../assets");
+/// Models and `models.txt`: bundled with the program, else the source tree's.
+pub fn asset_dir() -> String {
+    let dev = std::path::Path::new(concat!(env!("CARGO_MANIFEST_DIR"), "/../../assets"));
+    crossfir3d::settings::bundled(&std::env::current_exe().unwrap_or_default(), "assets", dev).to_string_lossy().into_owned()
+}
 
 pub struct WorldPlugin;
 
@@ -154,7 +157,7 @@ struct Models {
 
 impl Models {
     fn load() -> Models {
-        let path = format!("{ASSET_DIR}/models.txt");
+        let path = format!("{}/models.txt", asset_dir());
         let text = std::fs::read_to_string(&path).unwrap_or_else(|e| {
             warn!("{path}: {e}; every picture stays a card");
             String::new()

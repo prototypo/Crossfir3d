@@ -15,10 +15,8 @@ pub struct FaceStore {
     from_cache: HashSet<u16>,
 }
 
-/// ponytail: Mac only, swap in the `dirs` crate in M7.
 pub fn default_cache_dir() -> PathBuf {
-    let home = std::env::var_os("HOME").map(PathBuf::from).unwrap_or_default();
-    home.join("Library/Caches/Crossfir3d/faces")
+    crate::settings::cache_dir().join("faces")
 }
 
 impl FaceStore {

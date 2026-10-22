@@ -195,10 +195,9 @@ pub fn save_body(path: &Path, character: &str, body: Body) -> std::io::Result<()
     std::fs::write(path, lines.join("\n") + "\n")
 }
 
-/// Next to the quick slots and settings. ponytail: Mac path; `dirs` crate in M7.
+/// Next to the quick slots and settings.
 pub fn default_body_path() -> std::path::PathBuf {
-    let home = std::env::var_os("HOME").map(std::path::PathBuf::from).unwrap_or_default();
-    home.join("Library/Application Support/Crossfir3d/bodies.txt")
+    crate::settings::data_dir().join("bodies.txt")
 }
 
 #[cfg(test)]

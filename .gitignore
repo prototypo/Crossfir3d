@@ -8,3 +8,4 @@ __pycache__/
 
 # Paid Quaternius Source tier (no redistribution as assets): made locally by scripts/pick_models.py
 assets/models/monsters/
+/dist/

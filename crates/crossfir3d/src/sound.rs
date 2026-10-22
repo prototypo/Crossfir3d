@@ -8,11 +8,12 @@ pub struct SoundTable {
     sounds: HashMap<String, (String, u8)>,
 }
 
-/// ponytail: dev path until packaging (M5/M7). CROSSFIR3D_SOUNDS overrides it.
+/// Bundled with the program, else the source checkout's. CROSSFIR3D_SOUNDS overrides it.
 pub fn sounds_dir() -> PathBuf {
+    let dev = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../upstream/crossfire-sounds");
     std::env::var_os("CROSSFIR3D_SOUNDS")
         .map(PathBuf::from)
-        .unwrap_or_else(|| Path::new(env!("CARGO_MANIFEST_DIR")).join("../../upstream/crossfire-sounds"))
+        .unwrap_or_else(|| crate::settings::bundled(&std::env::current_exe().unwrap_or_default(), "sounds", &dev))
 }
 
 impl SoundTable {
