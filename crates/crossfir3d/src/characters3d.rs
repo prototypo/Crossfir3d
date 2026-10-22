@@ -621,7 +621,12 @@ fn grip(side: Hand, carry: &Carry) -> (Vec3, Quat) {
             (at - turn * Vec3::X * 0.67 * WEAPON_SCALE, turn)
         }
         Carry::Model(_) => out_of_fist(0.6),
-        Carry::Staff(_) | Carry::Potion => out_of_fist(-0.9),
+        // Tilted out, away from the body, so its top stands clear of a hat's brim.
+        Carry::Staff(_) => {
+            let (at, turn) = out_of_fist(-0.9);
+            (at, Quat::from_rotation_y(-palm * 0.3) * turn)
+        }
+        Carry::Potion => out_of_fist(-0.9),
     }
 }
 
@@ -650,12 +655,10 @@ fn put_in_hand(
             });
             return;
         }
-        // Held a third of the way up, the orb on top.
-        Carry::Staff(orb) => {
-            let mut out = vec![(Cylinder::new(0.018, 1.1).into(), at(0.18), [0.45, 0.3, 0.18], false)];
-            if let Some(color) = orb {
-                out.push((Sphere::new(0.05).into(), at(0.76), color, true));
-            }
+        // Held a quarter of the way up, its top on the end, above a hat.
+        Carry::Staff(top) => {
+            let mut out = vec![(Cylinder::new(0.018, 1.35).into(), at(0.305), [0.45, 0.3, 0.18], false)];
+            out.extend(staff_top(top).into_iter().map(|(m, c, glow)| (m, at(0.98), c, glow)));
             out
         }
         Carry::Potion => vec![
@@ -668,6 +671,78 @@ fn put_in_hand(
         commands.entity(hand).queue_silenced(move |mut e: EntityWorldMut| {
             e.with_child(shape);
         });
+    }
+}
+
+/// The top of a staff, from its end (at the origin) up +Y: (mesh, colour, glows?).
+fn staff_top(top: crossfir3d::held::StaffTop) -> Vec<(Mesh, [f32; 3], bool)> {
+    use crate::back::{merged, rod};
+    use crossfir3d::held::StaffTop;
+    use std::f32::consts::{FRAC_PI_2, TAU};
+    let wood = [0.45, 0.3, 0.18];
+    let brass = [0.8, 0.6, 0.25];
+    let orb = |r: f32, y: f32| Sphere::new(r).mesh().uv(24, 16).translated_by(Vec3::Y * y);
+    // Three of `make`, a third of a turn apart round the staff.
+    let three = |make: &dyn Fn(Vec3) -> Mesh| merged((0..3).map(|i| make(Vec3::new((TAU * i as f32 / 3.0).cos(), 0.0, (TAU * i as f32 / 3.0).sin()))));
+    match top {
+        StaffTop::Plain => Vec::new(),
+        StaffTop::Cradle(c) => vec![
+            (three(&|out| {
+                let (a, b, tip) = (out * 0.012, out * 0.05 + Vec3::Y * 0.06, out * 0.022 + Vec3::Y * 0.13);
+                merged([rod(a, b, 0.008), rod(b, tip, 0.006), Sphere::new(0.008).mesh().build().translated_by(b)])
+            }), wood, false),
+            (orb(0.042, 0.085), c, true),
+        ],
+        StaffTop::Flame(c) => {
+            // A teardrop, round below and pointed above, twisting a little.
+            let flame = crate::hat::rings(16, 0.0, |t| {
+                let r = 0.045 * (std::f32::consts::PI * t.max(0.02)).sin().powf(0.5) * (1.0 - t).powf(0.6);
+                (0.03 + 0.15 * t, r, r)
+            });
+            vec![
+                (Cylinder::new(0.034, 0.035).mesh().build().translated_by(Vec3::Y * 0.0175), brass, false),
+                (crate::hat::mesh(&flame, false, Vec2::ONE), c, true),
+            ]
+        }
+        StaffTop::Crystal(c) => vec![
+            (three(&|out| rod(out * 0.012, out * 0.03 + Vec3::Y * 0.05, 0.006)), brass, false),
+            (
+                merged([
+                    Cone::new(0.032, 0.12).mesh().resolution(6).build().translated_by(Vec3::Y * 0.12),
+                    Cone::new(0.032, 0.05).mesh().resolution(6).build().rotated_by(Quat::from_rotation_x(std::f32::consts::PI)).translated_by(Vec3::Y * 0.035),
+                ]),
+                c,
+                true,
+            ),
+        ],
+        StaffTop::Hoop(c) => vec![
+            (rod(Vec3::ZERO, Vec3::Y * 0.03, 0.012), brass, false),
+            (Torus::new(0.055, 0.065).mesh().build().rotated_by(Quat::from_rotation_x(FRAC_PI_2)).translated_by(Vec3::Y * 0.09), brass, false),
+            (orb(0.03, 0.09), c, true),
+        ],
+        StaffTop::Horns(c) => {
+            let horn = |side: f32| {
+                let path: Vec<(Vec3, f32)> = (0..=10)
+                    .map(|i| {
+                        let t = i as f32 / 10.0;
+                        (Vec3::new(side * (0.015 + 0.06 * t - 0.03 * t * t * t), 0.16 * t, 0.0), 0.014 * (1.0 - t) + 0.002)
+                    })
+                    .collect();
+                crate::hat::mesh(&crate::hat::tube(&path), false, Vec2::ONE)
+            };
+            vec![(merged([horn(1.0), horn(-1.0)]), [0.2, 0.15, 0.12], false), (orb(0.03, 0.07), c, true)]
+        }
+        StaffTop::Sun(c) => {
+            // Rays out from the orb every way, so it is a star from any side.
+            let rays = merged((0..14).map(|i| {
+                // Spread evenly over a ball (a golden-angle spiral).
+                let y = 1.0 - 2.0 * (i as f32 + 0.5) / 14.0;
+                let a = i as f32 * 2.4;
+                let out = Vec3::new((1.0 - y * y).sqrt() * a.cos(), y, (1.0 - y * y).sqrt() * a.sin());
+                Cone::new(0.012, 0.05).mesh().resolution(8).build().rotated_by(Quat::from_rotation_arc(Vec3::Y, out)).translated_by(Vec3::Y * 0.09 + out * 0.055)
+            }));
+            vec![(merged([rays, rod(Vec3::ZERO, Vec3::Y * 0.06, 0.012)]), [0.95, 0.75, 0.3], false), (orb(0.035, 0.09), c, true)]
+        }
     }
 }
 
@@ -925,8 +1000,9 @@ mod tests {
         let blade = turn * Vec3::Y;
         assert!(blade.z > 0.5 && blade.y > 0.3, "forward and down the fingers: {blade}");
         assert!(at.y > 0.05, "in the fist, past the wrist");
-        let staff = grip(Hand::Left, &Carry::Staff(None)).1 * Vec3::Y;
+        let staff = grip(Hand::Left, &Carry::Staff(crossfir3d::held::StaffTop::Plain)).1 * Vec3::Y;
         assert!(staff.y < -0.5, "the staff's top is up the arm: {staff}");
+        assert!(staff.x < -0.15, "and out, away from the body (the left palm faces +X): {staff}");
     }
 
     #[test]
@@ -936,6 +1012,23 @@ mod tests {
         // The model's handle runs up x = 0.67, not x = 0.
         let handle = at + turn * Vec3::X * 0.67 * WEAPON_SCALE;
         assert!(handle.abs_diff_eq(fist, 0.01), "{handle} {fist}");
+    }
+
+    #[test]
+    fn staff_tops_sit_on_the_staff_and_glow() {
+        use crossfir3d::held::StaffTop::*;
+        let c = [1.0, 0.5, 0.2];
+        for top in [Cradle(c), Flame(c), Crystal(c), Hoop(c), Horns(c), Sun(c)] {
+            let parts = staff_top(top);
+            assert!(parts.iter().any(|p| p.2), "{top:?} glows");
+            for (m, ..) in &parts {
+                let Some(bevy::mesh::VertexAttributeValues::Float32x3(p)) = m.attribute(Mesh::ATTRIBUTE_POSITION) else { panic!() };
+                for v in p {
+                    assert!(v[1] > -0.04 && v[1] < 0.22 && v[0].hypot(v[2]) < 0.11, "{top:?}: {v:?}");
+                }
+            }
+        }
+        assert!(staff_top(Plain).is_empty());
     }
 
     #[test]

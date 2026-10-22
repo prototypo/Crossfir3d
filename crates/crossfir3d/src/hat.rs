@@ -296,7 +296,7 @@ fn dome(base: f32, radius: f32, height: f32) -> Grid {
 }
 
 /// A tube along `path` (centre, radius), rings square to it.
-fn tube(path: &[(Vec3, f32)]) -> Grid {
+pub(crate) fn tube(path: &[(Vec3, f32)]) -> Grid {
     (0..path.len())
         .map(|i| {
             let (at, r) = path[i];

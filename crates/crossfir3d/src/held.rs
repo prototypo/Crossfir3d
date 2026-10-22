@@ -122,13 +122,31 @@ pub enum Headwear {
     Bald,
 }
 
+/// The top of a staff; the colour is what glows.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum StaffTop {
+    Plain,
+    /// An orb held in three wooden prongs.
+    Cradle([f32; 3]),
+    /// A flame in a brass cup.
+    Flame([f32; 3]),
+    /// A pointed crystal in claws.
+    Crystal([f32; 3]),
+    /// An orb in a brass hoop.
+    Hoop([f32; 3]),
+    /// An orb between two horns.
+    Horns([f32; 3]),
+    /// A bright orb with gold rays all round.
+    Sun([f32; 3]),
+}
+
 /// What a class carries in a hand when that hand holds nothing else.
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub enum Carry {
     /// A model file under assets/models (a weapon, shield or bow).
     Model(&'static str),
-    /// A wooden staff, with a glowing orb of this colour on top, or none.
-    Staff(Option<[f32; 3]>),
+    /// A wooden staff with this top.
+    Staff(StaffTop),
     /// A small potion bottle.
     Potion,
 }
@@ -209,12 +227,12 @@ pub fn class_look(class: &str) -> Option<ClassLook> {
         "swashbuckler" => look(Garb::Peasant, [1.4, 0.5, 0.65], Some(Tricorn([0.32, 0.2, 0.12])), Some(Model("weapons/Sword.gltf")), None),
         "monk" => look(Garb::Robe, [1.9, 1.4, 0.45], Some(Bald), None, None),
         "priest" => look(Garb::Peasant, white, Some(Mitre), Some(Model("weapons/Hammer_Small.gltf")), None),
-        "devotee" => look(Garb::Peasant, white, Some(Hood), Some(Staff(Some([1.0, 1.0, 0.95]))), None),
-        "wizard" => look(Garb::Peasant, [0.55, 0.75, 2.2], Some(PointedHat([0.45, 0.28, 0.15])), Some(Staff(Some([0.4, 0.6, 1.0]))), None),
-        "evoker" => look(Garb::Peasant, [1.7, 0.75, 0.5], Some(Hood), Some(Staff(Some([1.0, 0.4, 0.1]))), None),
-        "sorcerer" => look(Garb::Peasant, [1.0, 0.5, 1.8], Some(TallHat([0.3, 0.1, 0.42])), Some(Staff(Some([0.8, 0.4, 1.0]))), None),
-        "summoner" => look(Garb::Peasant, [1.7, 1.6, 0.6], Some(SlouchHat([0.6, 0.45, 0.15])), Some(Staff(Some([1.0, 0.9, 0.3]))), None),
-        "warlock" => look(Garb::Peasant, [0.55, 0.3, 0.9], Some(GlowEyes([0.4, 1.0, 0.4])), Some(Staff(Some([0.4, 1.0, 0.4]))), None),
+        "devotee" => look(Garb::Peasant, white, Some(Hood), Some(Staff(StaffTop::Sun([1.0, 1.0, 0.95]))), None),
+        "wizard" => look(Garb::Peasant, [0.55, 0.75, 2.2], Some(PointedHat([0.45, 0.28, 0.15])), Some(Staff(StaffTop::Cradle([0.4, 0.6, 1.0]))), None),
+        "evoker" => look(Garb::Peasant, [1.7, 0.75, 0.5], Some(Hood), Some(Staff(StaffTop::Flame([1.0, 0.4, 0.1]))), None),
+        "sorcerer" => look(Garb::Peasant, [1.0, 0.5, 1.8], Some(TallHat([0.3, 0.1, 0.42])), Some(Staff(StaffTop::Crystal([0.8, 0.4, 1.0]))), None),
+        "summoner" => look(Garb::Peasant, [1.7, 1.6, 0.6], Some(SlouchHat([0.6, 0.45, 0.15])), Some(Staff(StaffTop::Hoop([1.0, 0.9, 0.3]))), None),
+        "warlock" => look(Garb::Peasant, [0.55, 0.3, 0.9], Some(GlowEyes([0.4, 1.0, 0.4])), Some(Staff(StaffTop::Horns([0.4, 1.0, 0.4]))), None),
         "alchemist" => look(Garb::Peasant, [1.1, 0.95, 0.75], Some(Goggles), Some(Potion), None),
         _ => None,
     }
@@ -306,6 +324,20 @@ mod tests {
         assert!(matches!(over("priest"), Some(Over::Tabard(_))));
         assert!(matches!(over("summoner"), Some(Over::Tabard(_))));
         assert_ne!(over("priest"), over("summoner"));
+    }
+
+    #[test]
+    fn each_staff_class_has_its_own_staff_top() {
+        let tops: Vec<_> = ["devotee", "wizard", "evoker", "sorcerer", "summoner", "warlock"]
+            .iter()
+            .map(|c| match class_look(c).unwrap().right {
+                Some(Carry::Staff(top)) => std::mem::discriminant(&top),
+                other => panic!("{c}: {other:?}"),
+            })
+            .collect();
+        for (i, t) in tops.iter().enumerate() {
+            assert!(!tops[..i].contains(t), "two classes share a staff top");
+        }
     }
 
     #[test]
