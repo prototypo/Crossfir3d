@@ -40,6 +40,75 @@ pub fn tabard(rest: &Rest, points: &[Vec3]) -> [Grid; 2] {
     [(true, rest.neck.y - 0.07), (false, rest.left_shoulder.y - 0.06)].map(|(front, high)| panel(rest, points, (high, hem), (0.26, 0.26), front, 0.0))
 }
 
+/// Thin flat straps over the shoulders, joining the tabard's front and back at their top
+/// corners, just above the clothes.
+pub fn tabard_straps(rest: &Rest, points: &[Vec3], [front, back]: &[Grid; 2]) -> Mesh {
+    let (front, back) = (front.last().expect("a top row"), back.last().expect("a top row"));
+    // The front's top row runs left to right, the back's right to left.
+    let pairs = [(front[0], back[AROUND / 2 - 1]), (front[AROUND / 2 - 1], back[0])];
+    merged(pairs.into_iter().flat_map(|(a, b)| {
+        // Along the panels' inner edges; angles round a line along X through the upper chest,
+        // 0 to the front, a half turn to the back.
+        let x = (a.x + b.x) / 2.0 - a.x.signum() * 0.015;
+        let axis = Vec3::new(x, rest.chest.y + 0.02, middle(rest) - 0.01);
+        let angle = |p: Vec3| (p.y - axis.y).atan2(p.z - axis.z);
+        let out = |a: f32| Vec3::new(0.0, a.sin(), a.cos());
+        // How far out the clothes are at each angle (the head and neck left out), gaps filled in.
+        let steps = 24;
+        let mut far: Vec<f32> = (0..=steps)
+            .map(|k| {
+                let dir = out(PI * k as f32 / steps as f32);
+                points
+                    .iter()
+                    .filter(|p| (p.x - x).abs() < 0.03 && p.y < rest.neck.y - 0.03)
+                    .map(|p| (*p - axis).with_x(0.0))
+                    .filter(|v| v.normalize_or_zero().dot(dir) > 0.966)
+                    .map(|v| v.length())
+                    .fold(0.0, f32::max)
+            })
+            .collect();
+        let known: Vec<usize> = (0..=steps).filter(|&k| far[k] > 0.0).collect();
+        for k in 0..=steps {
+            if far[k] == 0.0 {
+                let before = known.iter().rev().find(|&&i| i < k);
+                let after = known.iter().find(|&&i| i > k);
+                far[k] = match (before, after) {
+                    (Some(&i), Some(&j)) => far[i] + (far[j] - far[i]) * (k - i) as f32 / (j - i) as f32,
+                    (Some(&i), None) | (None, Some(&i)) => far[i],
+                    (None, None) => 0.15,
+                };
+            }
+        }
+        let at = |a: f32| {
+            let k = (a / PI * steps as f32).clamp(0.0, steps as f32);
+            let (i, f) = (k.floor() as usize, k.fract());
+            far[i] + (far[(i + 1).min(steps)] - far[i]) * f
+        };
+        let (from, to) = (angle(a), angle(b));
+        let ends = [(a - axis).with_x(0.0).length(), (b - axis).with_x(0.0).length()];
+        let path: Vec<Vec3> = (0..=24)
+            .map(|k| {
+                let t = k as f32 / 24.0;
+                let a = from + (to - from) * t;
+                // Just above the cloth, out to the panels at the ends.
+                let lie = at(a) + 0.006;
+                let end = if t < 0.5 { ends[0] } else { ends[1] };
+                let r = lie + (end - lie) * smooth(1.0 - t.min(1.0 - t) / 0.15);
+                axis + r * out(a)
+            })
+            .collect();
+        path.windows(2)
+            .map(|w| {
+                let along = w[1] - w[0];
+                let length = along.length() + 0.004;
+                let along = along.normalize();
+                let turn = Quat::from_mat3(&Mat3::from_cols(Vec3::X, along, Vec3::X.cross(along)));
+                Cuboid::new(0.024, length, 0.003).mesh().build().rotated_by(turn).translated_by((w[0] + w[1]) / 2.0)
+            })
+            .collect::<Vec<_>>()
+    }))
+}
+
 /// Cloth from `high` down to `hem` (heights), in front of the body or behind it, hanging
 /// from the widest part above and flaring a little; `spread` is how far round the body it
 /// reaches at the top and the hem (in half turns). A thin double sheet, so a ring: across
@@ -283,6 +352,26 @@ mod tests {
         assert!(front.iter().flatten().all(|p| p.z > middle(&rest())));
         assert!(back.iter().flatten().all(|p| p.z < middle(&rest())));
         assert!(back.last().unwrap()[0].y < rest().left_shoulder.y - 0.03, "not showing over the shoulders");
+    }
+
+    #[test]
+    fn tabard_straps_lie_just_on_the_shoulders() {
+        // A round shoulder on each side, 14 cm round a line along X at chest height.
+        let axis = |x: f32| Vec3::new(x, rest().chest.y + 0.02, middle(&rest()) - 0.01);
+        let shoulder: Vec<Vec3> = [-0.12f32, -0.1, 0.1, 0.12]
+            .iter()
+            .flat_map(|&x| (0..=36).map(move |k| axis(x) + 0.14 * Vec3::new(0.0, (PI * k as f32 / 36.0).sin(), (PI * k as f32 / 36.0).cos())))
+            .collect();
+        let t = tabard(&rest(), &shoulder);
+        let Some(bevy::mesh::VertexAttributeValues::Float32x3(p)) = tabard_straps(&rest(), &shoulder, &t).attribute(Mesh::ATTRIBUTE_POSITION).cloned() else { panic!() };
+        let p: Vec<Vec3> = p.iter().map(|v| Vec3::from_array(*v)).collect();
+        assert!(p.iter().any(|v| v.x > 0.08) && p.iter().any(|v| v.x < -0.08), "one on each side");
+        // Over the top, each strap is just above the cloth.
+        for v in p.iter().filter(|v| v.y > rest().chest.y + 0.1 && (v.z - axis(0.0).z).abs() < 0.08) {
+            let off = (*v - axis(v.x)).with_x(0.0).length() - 0.14;
+            assert!(off > 0.0 && off < 0.015, "{v}: {off}");
+        }
+        assert!(p.iter().map(|v| v.y).fold(f32::MIN, f32::max) > rest().chest.y + 0.14, "over the top");
     }
 
     #[test]

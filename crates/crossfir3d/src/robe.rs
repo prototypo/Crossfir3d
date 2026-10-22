@@ -269,7 +269,11 @@ pub fn dress_robes(
                 wear.push((hanging(&grid), leathery(brown, 0.7)));
                 wear.push((on_chest(back::apron_straps(&rest, &grid)), leathery(brown, 0.7)));
             }
-            Some(Over::Tabard(c)) => wear.extend(back::tabard(&rest, &points).iter().map(|g| (hanging(g), cloth(c, 0.9)))),
+            Some(Over::Tabard(c)) => {
+                let panels = back::tabard(&rest, &points);
+                wear.push((on_chest(back::tabard_straps(&rest, &points, &panels)), cloth(c, 0.9)));
+                wear.extend(panels.iter().map(|g| (hanging(g), cloth(c, 0.9))));
+            }
             Some(Over::Sash(c)) => {
                 let grid = back::sash(&rest, &points);
                 wear.push((on(pelvis, crate::hat::mesh(&grid, false, Vec2::new(4.0, 0.5))), cloth(c, 0.85)));
