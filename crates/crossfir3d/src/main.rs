@@ -188,7 +188,7 @@ fn main() {
             EguiPrimaryContextPass,
             (ui::login_screen, characters_ui::characters_screen).run_if(in_state(AppState::Login)),
         )
-        .add_systems(EguiPrimaryContextPass, settings_ui::settings_screen)
+        .add_systems(EguiPrimaryContextPass, (hud::load_fonts, settings_ui::settings_screen).chain())
         .add_systems(EguiPrimaryContextPass, ui::command_line.run_if(in_state(AppState::InGame)))
         .run();
 }
