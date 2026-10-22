@@ -1,0 +1,125 @@
+The Crossfire logo (crossfire-logo.png)
+
+Author of the original (pencil) artwork: Lauwenmark.
+Colouring: the Crossfire team (tchize), as a subsequent work under the same licence.
+
+Where the originals are:
+- This copy: crossfire-server, utils/cre/resources/crossfirebanner.png
+  (https://sourceforge.net/projects/crossfire)
+- The licence and its history: https://crossfire.real-time.com/license/index.html#logo
+
+The licence, as published by the Crossfire project:
+
+-------------------------------------------------------------------------------
+
+Lauwenmark's License Proposal
+
+Version: 1.0
+
+(The Free Art License, made GPL-compatible by removing its Article 3, with Belgian
+law as the legal reference.)
+
+DEFINITIONS
+
+The work of art:
+A communal work which includes the initial artwork as well as all subsequent
+contributions (subsequent originals and copies). It is created at the initiative of
+the original artist who, by this license, defines the conditions according to which
+the contributions are made.
+
+The original work of art:
+This is the artwork created by the initiator of the communal work, of which copies
+will be modified by whosoever wishes.
+
+Subsequent works:
+These are the additions put forward by the artists who contribute to the formation
+of the work by taking advantage of the right to reproduction, distribution and
+modification that this license confers on them.
+
+The Original (the work's source or resource):
+A dated example of the work, of its definition, of its partition or of its program
+which the originator provides as the reference for all future updatings,
+interpretations, copies or reproductions.
+
+Copy:
+Any reproduction of an original as defined by this license.
+
+The author or the artist of the original work of art:
+This is the person who created the work which is at the heart of the ramifications
+of this modified work of art. By this license, the author determines the conditions
+under which these modifications are made.
+
+Contributor:
+Any person who contributes to the creation of the work of art. He is the author or
+the artist of an original art object resulting from the modification of a copy of
+the initial artwork or the modification of a copy of a subsequent work of art.
+
+AIMS
+
+The aim of this license is to define the conditions according to which you can use
+this work freely.
+
+EXTENT OF THE USAGE
+
+This work of art is subject to copyright, and the author, by this license, specifies
+the extent to which you can copy, distribute and modify it.
+
+FREEDOM TO COPY (OR OF REPRODUCTION)
+
+You have the right to copy this work of art for your personal use, for your friends
+or for any other person, by employing whatever technique you choose.
+
+FREEDOM TO DISTRIBUTE, TO INTERPRET (OR OF REPRESENTATION)
+
+You can freely distribute the copies of these works, modified or not, whatever their
+medium, wherever you wish, for a fee or for free, if you observe all the following
+conditions:
+- attach this license, in its entirety, to the copies or indicate precisely where
+  the license can be found,
+- specify to the recipient the name of the author of the originals,
+- specify to the recipient where he will be able to access the originals (original
+  and subsequent). The author of the original may, if he wishes, give you the right
+  to broadcast/distribute the original under the same conditions as the copies.
+
+FREEDOM TO MODIFY
+
+You have the right to modify the copies of the originals (original and subsequent),
+partially or otherwise, respecting the conditions set out in article In the event of
+distribution (or representation) of the modified copy. The author of the original
+may, if he wishes, give you the right to modify the original under the same
+conditions as the copies.
+
+YOUR AUTHOR'S RIGHTS
+
+The object of this license is not to deny your author's rights on your contribution.
+By choosing to contribute to the evolution of this work of art, you only agree to
+give to others the same rights with regard to your contribution as those which were
+granted to you by this license.
+
+DURATION OF THE LICENCE
+
+This license takes effect as of your acceptance of its provisions. The fact of
+copying, distributing, or of modifying the work constitutes a tacit agreement. This
+license will remain in force for as long as the copyright which is attached to the
+work of art. If you do not respect the terms of this license, you automatically lose
+the rights that it confers. If the legal status to which you are subject makes it
+impossible for you to respect the terms of this license, you may not make use of the
+rights which it confers.
+
+VARIOUS VERSIONS OF THE LICENCE
+
+This license may undergo periodic modifications to incorporate improvements by its
+authors (instigators of the "copyleft attitude" movement) by way of new, numbered
+versions. You will have the choice of accepting the provisions contained in the
+version under which the copy was communicated to you, or alternatively, to use the
+provisions of one of the subsequent versions.
+
+SUB-LICENSING
+
+Sub-licenses are not authorized by the present license. Any person who wishes to
+make use of the rights that it confers will be directly bound to the author of the
+original work.
+
+THE LAW APPLICABLE TO THIS CONTRACT
+
+This license is subject to Belgian law.
