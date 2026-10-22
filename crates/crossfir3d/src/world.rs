@@ -85,12 +85,13 @@ impl Plugin for WorldPlugin {
             .init_resource::<Doorstep>()
             .init_resource::<MapGen>()
             .init_resource::<DoorExit>()
+            .init_resource::<Indoors>()
             .insert_resource(Models::load())
             .add_observer(tint_model)
             .add_systems(Startup, (setup, crate::sky::spawn_sky))
             .add_systems(
                 Update,
-                (load_textures, sync_visuals, check_models, swap_models, reveal_assembled, hide_entered, glide, follow_player, face_camera, place_arrow, lighting, crate::sky::update_sky)
+                (load_textures, sync_visuals, check_models, swap_models, reveal_assembled, hide_entered, glide, follow_player, face_camera, place_arrow, detect_indoors, raise_walls, lighting, crate::sky::update_sky)
                     .chain()
                     .run_if(in_state(AppState::InGame)),
             )
@@ -223,6 +224,33 @@ struct Doorstep(Option<Vec3>);
 /// pixel art is never drawn for them.
 #[derive(Component)]
 struct Assembled(Vec<String>);
+
+/// Inside a dungeon, cave or house (most floors in view are indoor floors): a stone
+/// ceiling and taller walls instead of the sky.
+#[derive(Resource, Default)]
+pub(crate) struct Indoors(pub bool);
+
+/// Indoors, stone walls are this many times as tall, up to the ceiling.
+pub(crate) const INDOOR_WALLS: f32 = 2.0;
+
+/// A stone wall piece and its outdoor height scale.
+#[derive(Component)]
+struct StoneWall(f32);
+
+fn detect_indoors(view: Res<View>, faces: Res<Faces>, mut indoors: ResMut<Indoors>) {
+    let now = crossfir3d::models::is_indoors(view.0.cells().map(|(_, c)| faces.0.name(c.layers[0]).unwrap_or("")));
+    if indoors.0 != now {
+        indoors.0 = now;
+    }
+}
+
+fn raise_walls(indoors: Res<Indoors>, mut walls: Query<(Ref<StoneWall>, &mut Transform)>) {
+    for (wall, mut t) in &mut walls {
+        if indoors.is_changed() || wall.is_added() {
+            t.scale.y = wall.0 * if indoors.0 { INDOOR_WALLS } else { 1.0 };
+        }
+    }
+}
 
 /// The picture standing in for an `Assembled` thing.
 #[derive(Component)]
@@ -868,7 +896,11 @@ fn spawn_part(
     let (mesh, size) = match p.shape {
         Shape::Model(file) => {
             let handle = models.scene(server, file);
-            return commands.spawn((WorldAssetRoot(handle), t, ModelTint(color), Visibility::Hidden)).id();
+            let mut e = commands.spawn((WorldAssetRoot(handle), t, ModelTint(color), Visibility::Hidden));
+            if file.starts_with("kaykit/wall") {
+                e.insert(StoneWall(t.scale.y));
+            }
+            return e.id();
         }
         Shape::Box(size) => (textures.cube.clone(), Vec3::from(size)),
         Shape::Bricks([x, y, z]) | Shape::Water([x, y, z]) => {
@@ -1247,10 +1279,19 @@ fn lighting(
     size: Res<ViewSize>,
     clock: Res<Clock>,
     settings: Res<CurrentSettings>,
+    indoors: Res<Indoors>,
     sun: Single<(&mut DirectionalLight, &mut Transform), With<Sun>>,
 ) {
     let (mut light, mut transform) = sun.into_inner();
     let dark = darkness(&view, &size);
+    // Indoors no sun reaches: a dim, warm torchlight from high up, whatever the hour.
+    if indoors.0 {
+        *transform = Transform::from_xyz(3.0, 20.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y);
+        light.color = Color::srgb(1.0, 0.75, 0.5);
+        light.illuminance = 0.35 * SUN_LUX * dark as f32 / 255.0;
+        light.shadow_maps_enabled = settings.0.shadows != Quality::Off;
+        return;
+    }
     let (pose, dir) = sun_now(&clock);
     *transform = Transform::from_translation(dir * 20.0).looking_at(Vec3::ZERO, Vec3::Y);
     let (color, strength) = if pose.moon {

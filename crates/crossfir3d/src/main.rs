@@ -405,12 +405,14 @@ fn dev_commands(
     (time, mut last): (Res<Time>, ResMut<LastAction>),
     mut facing: ResMut<input::Facing>,
     mut heading: ResMut<input::CameraHeading>,
+    mut view: ResMut<input::CameraView>,
     session: Option<NonSend<Session>>,
 ) {
     match std::env::var("CROSSFIR3D_SCREEN").as_deref() {
         Ok("keys") => mode.0 = crossfir3d::modes::Mode::Keys,
         Ok("inventory") => mode.0 = crossfir3d::modes::Mode::Inventory,
         Ok("settings") => mode.0 = crossfir3d::modes::Mode::Settings,
+        Ok("top") => view.top = true,
         _ => {}
     }
     let (Ok(cmds), Some(session)) = (std::env::var("CROSSFIR3D_COMMANDS"), session) else { return };

@@ -102,6 +102,34 @@ impl Build {
     }
 }
 
+/// Whether a floor picture is indoors (Some(true): dungeon stone, cave, boards, marble),
+/// outdoors (Some(false): grass, roads, sand, water), or not a floor (None).
+fn indoor_floor(face_name: &str) -> Option<bool> {
+    let name = face_name.split('.').next().unwrap_or(face_name);
+    let has = |words: &[&str]| words.iter().any(|w| name.contains(w));
+    if has(&["flagstone", "dung_floor", "dun_floor", "cave", "woodfloor", "wood_floor", "dirtfloor", "marble", "checkered", "stonefloor", "tile"]) {
+        Some(true)
+    } else if has(&["grass", "cobblesto", "road", "sand", "desert", "water", "sea", "beach", "swamp", "snow", "dirt", "earth", "hills", "steppe", "brush", "plains"]) {
+        Some(false)
+    } else {
+        None
+    }
+}
+
+/// Indoors (a dungeon, cave or house: a ceiling, no sky) when most floors in view are
+/// indoor floors. The server does not send a map's outdoor flag.
+pub fn is_indoors<'a>(floors: impl IntoIterator<Item = &'a str>) -> bool {
+    let (mut inside, mut out) = (0, 0);
+    for f in floors {
+        match indoor_floor(f) {
+            Some(true) => inside += 1,
+            Some(false) => out += 1,
+            None => {}
+        }
+    }
+    inside > out
+}
+
 #[derive(Default)]
 pub struct ModelMap {
     exact: Vec<(String, Visual)>,
@@ -367,6 +395,16 @@ bad model x.glb notanumber 0 0
     fn the_model_list_uses_no_paid_models() {
         let text = std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/../../assets/models.txt")).unwrap();
         assert!(!text.contains("monsters/"), "the paid monster pack may not be shared");
+    }
+
+    #[test]
+    fn indoors_by_the_floor() {
+        assert!(is_indoors(["flagstone.111", "flagstone.111", "dung_floor.111", "grass.111"]));
+        assert!(!is_indoors(["grass.111", "cobblesto1.111", "flagstone.111"]));
+        assert!(is_indoors(["cave1.111", "woodfloor.111"]));
+        assert!(is_indoors(["white-gray-x-marble_111.111", "dirtfloor.111"]));
+        assert!(!is_indoors(Vec::<&str>::new()), "nothing seen yet: outdoors");
+        assert!(!is_indoors(["blank.111", "torch.111"]), "only floors count");
     }
 
     #[test]

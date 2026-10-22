@@ -1,3 +1,5 @@
+<img src="docs/images/crossfire-logo.png" alt="Crossfire" width="471">
+
 # Crossfir3d
 
 A 3D client for [Crossfire](https://crossfire.real-time.com/), the free multiplayer
@@ -15,9 +17,27 @@ newer): the same world, quests and players as every other Crossfire client, draw
 
 The same square of Scorn, on the same server.
 
+### The top view
+
+Press **Tab** for a top view, north up, much like the classic clients' map. Arrow keys
+then move north, east, south and west, as they always did, so you can play the way you
+are used to and still see the world in 3D. **Tab** again (or **C**) goes back behind
+your character.
+
+![The top view of Scorn's square](docs/images/3d-top.jpg)
+
+## Dungeons
+
+Indoors (a dungeon, cave or house) the sky goes: a stone ceiling closes over you,
+the walls rise to meet it, and torchlight takes the place of the sun.
+
+![A lair of monsters under a stone ceiling](docs/images/3d-dungeon.jpg)
+
 ## Screens
 
-Inventory (**I**), key bindings (**K**) and settings (**Escape**) open over the world.
+Inventory (**I**), key bindings (**K**) and settings (**Escape**) are overlays: they
+open over the game, which goes on behind them, darkened so the text is easy to read.
+Close them with the same key or **Escape**.
 
 | Inventory | Key bindings | Settings |
 |---|---|---|
@@ -26,8 +46,6 @@ Inventory (**I**), key bindings (**K**) and settings (**Escape**) open over the 
 Every class has its own look: see [docs/classes.md](docs/classes.md).
 
 ## The Crossfire community
-
-<img src="docs/images/crossfire-logo.png" alt="Crossfire" width="471">
 
 Crossfir3d is an independent client. The game, its server, maps and art are made by
 the Crossfire project, which has been running since 1992.
@@ -149,7 +167,10 @@ Wells and other one-square things stay in view when you stand on them.
   does not exist).
 - `CROSSFIR3D_COMMANDS="cmd1;cmd2"` sends game commands on entering the game.
 - `CROSSFIR3D_SCREEN=newchar[:race_arch]` opens the new-character screen;
-  `=inventory`, `=keys` or `=settings` opens that screen in game.
+  `=inventory`, `=keys` or `=settings` opens that screen in game; `=top` starts in
+  the top view.
+- `CROSSFIR3D_KEYS=file` reads and saves key bindings there instead of
+  `~/Library/Application Support/Crossfir3d/keys.txt`.
 - `CROSSFIR3D_SCREENSHOT=file.png` (with `CROSSFIR3D_SCREENSHOT_AT=seconds`)
   saves one screenshot and quits.
 - `CROSSFIR3D_COMPARE=file` (lines `picture_name model1.glb model2.glb ...`, files
