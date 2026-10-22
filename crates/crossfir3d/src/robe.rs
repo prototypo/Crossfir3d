@@ -21,7 +21,7 @@ type Weights = Vec<Vec<[f32; 4]>>;
 
 /// How far out from `centre` the outfit reaches at `centre`'s height in direction `dir`
 /// (its points within 3.5 cm of that height and about 12° of that direction), or `none`.
-fn reach(points: &[Vec3], centre: Vec3, dir: Vec3, none: f32) -> f32 {
+pub(crate) fn reach(points: &[Vec3], centre: Vec3, dir: Vec3, none: f32) -> f32 {
     points
         .iter()
         .filter(|p| (p.y - centre.y).abs() < 0.035)
@@ -32,11 +32,11 @@ fn reach(points: &[Vec3], centre: Vec3, dir: Vec3, none: f32) -> f32 {
 }
 
 /// The highest of the outfit's points within 2.5 cm across of `at` and below `under`.
-fn top(points: &[Vec3], at: Vec3, under: f32) -> f32 {
+pub(crate) fn top(points: &[Vec3], at: Vec3, under: f32) -> f32 {
     points.iter().filter(|p| p.y < under && p.xz().distance(at.xz()) < 0.025).map(|p| p.y).fold(f32::MIN, f32::max)
 }
 
-fn smooth(t: f32) -> f32 {
+pub(crate) fn smooth(t: f32) -> f32 {
     let t = t.clamp(0.0, 1.0);
     t * t * (3.0 - 2.0 * t)
 }
@@ -173,19 +173,23 @@ fn with_joints(mesh: Mesh, weights: &Weights, closed: bool, joints: [u16; 4]) ->
         .with_inserted_attribute(Mesh::ATTRIBUTE_JOINT_WEIGHT, w)
 }
 
-/// A character to put a robe on once its outfit's bones exist.
+/// What to put on a character once its outfit's bones exist: a robe, and what is on its back.
 #[derive(Component)]
-pub struct Robed;
+pub struct Dress {
+    pub robe: bool,
+    pub back: Option<crossfir3d::held::Back>,
+}
 
 const SAFFRON: [f32; 3] = [0.98, 0.6, 0.12];
 const SASH: [f32; 3] = [0.7, 0.2, 0.06];
 const WOOD: [f32; 3] = [0.3, 0.17, 0.08];
 
-/// Puts the robe, sash and beads on each `Robed` character, as skinned parts of its outfit.
+/// Puts the robe, sash and beads, and the back pieces, on each `Dress`ed character, as
+/// skinned parts of its outfit.
 #[allow(clippy::too_many_arguments)]
 pub fn dress_robes(
     mut commands: Commands,
-    robed: Query<Entity, With<Robed>>,
+    robed: Query<(Entity, &Dress)>,
     children: Query<&Children>,
     names: Query<&Name>,
     outfits: Query<(), With<crate::characters3d::OutfitPart>>,
@@ -193,8 +197,11 @@ pub fn dress_robes(
     poses: Res<Assets<bevy::mesh::skinning::SkinnedMeshInverseBindposes>>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    leather: Res<crate::hat::Leather>,
 ) {
-    for root in &robed {
+    use crate::back;
+    use crossfir3d::held::Back;
+    for (root, dress) in &robed {
         // The outfit's scene spawns a little after the character: try again next frame.
         let Some(outfit) = children.get(root).into_iter().flatten().copied().find(|c| outfits.contains(*c)) else { continue };
         let parts: Vec<_> = children.iter_descendants(outfit).filter(|e| skinned.contains(*e)).collect();
@@ -204,7 +211,7 @@ pub fn dress_robes(
         let slot = |name: &str| skin.joints.iter().position(|j| names.get(*j).is_ok_and(|n| n.as_str() == name));
         let bones = ["pelvis", "thigh_l", "thigh_r", "spine_03", "spine_01", "neck_01", "upperarm_l", "clavicle_l", "foot_l"].map(slot);
         let [Some(pelvis), Some(thigh_l), Some(thigh_r), Some(chest), Some(waist), Some(neck), Some(shoulder), Some(collar), Some(foot)] = bones else {
-            commands.entity(root).remove::<Robed>();
+            commands.entity(root).remove::<Dress>();
             continue;
         };
         let at = |i: usize| poses[i].inverse().w_axis.truncate();
@@ -220,16 +227,7 @@ pub fn dress_robes(
                 points.extend(p.iter().map(|v| Vec3::from_array(*v)));
             }
         }
-        let skirt_grid = skirt(&rest, &points);
-        let sash_grid = sash(&rest, &points);
         let j = |i: usize| i as u16;
-        let skirt_mesh = with_joints(crate::hat::mesh(&skirt_grid, false, Vec2::new(4.0, 2.0)), &skirt_weights(&skirt_grid, &rest), false, [j(pelvis), j(thigh_l), j(thigh_r), 0]);
-        let sash_mesh = with_joints(crate::hat::mesh(&sash_grid, false, Vec2::new(6.0, 0.3)), &sash_weights(&sash_grid, &rest), false, [j(chest), j(waist), j(pelvis), j(collar)]);
-        let bead_mesh = beads(&rest, &points);
-        let n = bead_mesh.count_vertices();
-        let bead_mesh = bead_mesh
-            .with_inserted_attribute(Mesh::ATTRIBUTE_JOINT_INDEX, bevy::mesh::VertexAttributeValues::Uint16x4(vec![[j(chest), 0, 0, 0]; n]))
-            .with_inserted_attribute(Mesh::ATTRIBUTE_JOINT_WEIGHT, vec![[1.0f32, 0.0, 0.0, 0.0]; n]);
         let cloth = |[r, g, b]: [f32; 3], rough: f32| StandardMaterial {
             base_color: Color::srgb(r, g, b),
             perceptual_roughness: rough,
@@ -237,30 +235,64 @@ pub fn dress_robes(
             cull_mode: None,
             ..default()
         };
-        for (mesh, material) in [(skirt_mesh, cloth(SAFFRON, 0.95)), (sash_mesh, cloth(SASH, 0.9)), (bead_mesh, cloth(WOOD, 0.5))] {
+        let leathery = |c: [f32; 3], rough: f32| StandardMaterial {
+            base_color_texture: Some(leather.colour.clone()),
+            normal_map_texture: Some(leather.bumps.clone()),
+            ..cloth(c, rough)
+        };
+        let on_chest = |m: Mesh| {
+            let n = m.count_vertices();
+            m.with_inserted_attribute(Mesh::ATTRIBUTE_JOINT_INDEX, bevy::mesh::VertexAttributeValues::Uint16x4(vec![[j(chest), 0, 0, 0]; n]))
+                .with_inserted_attribute(Mesh::ATTRIBUTE_JOINT_WEIGHT, vec![[1.0f32, 0.0, 0.0, 0.0]; n])
+        };
+        let cape = |hem: f32, teeth: f32| {
+            let grid = back::cape(&rest, &points, hem, teeth);
+            with_joints(crate::hat::mesh(&grid, false, Vec2::new(3.0, 3.0)), &back::cape_weights(&grid, &rest), false, [j(chest), j(pelvis), j(thigh_l), j(thigh_r)])
+        };
+        let rigid = |parts: back::Parts| -> Vec<(Mesh, StandardMaterial)> {
+            parts.into_iter().map(|(m, c, leathered)| (on_chest(m), if leathered { leathery(c, 0.75) } else { cloth(c, 0.6) })).collect()
+        };
+        let mut wear = match dress.back {
+            Some(Back::Cape(c)) => vec![(cape(rest.pelvis.y - 0.5, 0.0), cloth(c, 0.9))],
+            Some(Back::Fur) => vec![(cape(rest.chest.y - 0.12, 0.05), leathery([0.42, 0.3, 0.2], 1.0))],
+            Some(Back::Quiver) => rigid(back::quiver(&rest, &points)),
+            Some(Back::Sack) => rigid(back::sack(&rest, &points)),
+            Some(Back::Scabbard) => rigid(back::scabbard(&rest, &points)),
+            None => Vec::new(),
+        };
+        if dress.robe {
+            let skirt_grid = skirt(&rest, &points);
+            let sash_grid = sash(&rest, &points);
+            let skirt_mesh = with_joints(crate::hat::mesh(&skirt_grid, false, Vec2::new(4.0, 2.0)), &skirt_weights(&skirt_grid, &rest), false, [j(pelvis), j(thigh_l), j(thigh_r), 0]);
+            let sash_mesh = with_joints(crate::hat::mesh(&sash_grid, false, Vec2::new(6.0, 0.3)), &sash_weights(&sash_grid, &rest), false, [j(chest), j(waist), j(pelvis), j(collar)]);
+            wear.extend([(skirt_mesh, cloth(SAFFRON, 0.95)), (sash_mesh, cloth(SASH, 0.9)), (on_chest(beads(&rest, &points)), cloth(WOOD, 0.5))]);
+        }
+        for (mesh, material) in wear {
             let part = (Mesh3d(meshes.add(mesh)), MeshMaterial3d(materials.add(material)), skin.clone(), ChildOf(parent.parent()));
             commands.queue_silenced(move |world: &mut World| {
                 world.spawn(part);
             });
         }
-        commands.entity(root).remove::<Robed>();
+        commands.entity(root).remove::<Dress>();
+    }
+}
+
+/// The male peasant outfit's bones.
+#[cfg(test)]
+pub(crate) fn peasant_rest() -> Rest {
+    Rest {
+        pelvis: Vec3::new(0.0, 0.949, -0.043),
+        chest: Vec3::new(0.0, 1.311, 0.007),
+        neck: Vec3::new(0.0, 1.52, -0.041),
+        left_shoulder: Vec3::new(0.192, 1.456, -0.065),
+        ankle_y: 0.086,
     }
 }
 
 #[cfg(test)]
 mod tests {
     use super::*;
-
-    // The male peasant outfit's bones.
-    fn rest() -> Rest {
-        Rest {
-            pelvis: Vec3::new(0.0, 0.949, -0.043),
-            chest: Vec3::new(0.0, 1.311, 0.007),
-            neck: Vec3::new(0.0, 1.52, -0.041),
-            left_shoulder: Vec3::new(0.192, 1.456, -0.065),
-            ankle_y: 0.086,
-        }
-    }
+    use super::peasant_rest as rest;
 
     #[test]
     fn the_skirt_falls_from_waist_to_ankles_and_flares() {

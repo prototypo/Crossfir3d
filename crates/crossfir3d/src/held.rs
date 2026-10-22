@@ -133,6 +133,21 @@ pub enum Carry {
     Potion,
 }
 
+/// What a class wears on its back.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub enum Back {
+    /// A cloth cape from the shoulders to the knees, in this colour.
+    Cape([f32; 3]),
+    /// A short fur cloak over the shoulders.
+    Fur,
+    /// A quiver of arrows, their ends over the right shoulder.
+    Quiver,
+    /// A full sack of loot.
+    Sack,
+    /// A sword in its sheath, its hilt over the right shoulder.
+    Scabbard,
+}
+
 /// A class's own look: its outfit and the outfit's tint (multipliers for the model's own
 /// colours, as from `worn`), its headwear, and what it carries in each hand.
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -142,6 +157,7 @@ pub struct ClassLook {
     pub head: Option<Headwear>,
     pub right: Option<Carry>,
     pub left: Option<Carry>,
+    pub back: Option<Back>,
 }
 
 /// The look for a class, by arch ("wizard_class") or name ("Wizard"). Unknown: None.
@@ -150,9 +166,20 @@ pub fn class_look(class: &str) -> Option<ClassLook> {
     use Headwear::{Bald, Circlet, GlowEyes, Goggles, Helm, HornedCap, Hood, Mask, Mitre, PointedHat, SlouchHat, TallHat, Tricorn};
     let key = class.to_ascii_lowercase();
     let key = key.strip_suffix("_class").unwrap_or(&key);
-    let look = |garb, tint, head, right, left| Some(ClassLook { garb, tint, head, right, left });
     // Peasant tints are over its brown cloth (1 keeps it); metal tints are over grey.
     let white = [2.0, 2.2, 2.8];
+    let back = match key {
+        "warrior" => Some(Back::Cape([0.5, 0.06, 0.05])),
+        "paladin" => Some(Back::Cape([0.12, 0.2, 0.55])),
+        "sorcerer" => Some(Back::Cape([0.22, 0.06, 0.3])),
+        "warlock" => Some(Back::Cape([0.06, 0.05, 0.08])),
+        "barbarian" => Some(Back::Fur),
+        "ranger" => Some(Back::Quiver),
+        "thief" => Some(Back::Sack),
+        "ninja" => Some(Back::Scabbard),
+        _ => None,
+    };
+    let look = |garb, tint, head, right, left| Some(ClassLook { garb, tint, head, right, left, back });
     match key {
         "warrior" => look(Garb::Metal, [1.3, 1.32, 1.38], Some(Helm), Some(Model("weapons/Sword.gltf")), Some(Model("weapons/Shield_Round.gltf"))),
         "barbarian" => look(Garb::Peasant, [1.0, 0.75, 0.65], Some(HornedCap), Some(Model("weapons/Axe_Double.gltf")), None),
@@ -250,6 +277,17 @@ mod tests {
             let (file, _) = held_model(kind, name).unwrap();
             assert!(root.join(file).is_file(), "missing {file}");
         }
+    }
+
+    #[test]
+    fn classes_differ_from_behind() {
+        let back = |c| class_look(c).unwrap().back;
+        assert!(matches!(back("warrior"), Some(Back::Cape(_))));
+        assert_ne!(back("warrior"), back("paladin"));
+        assert_eq!(back("ranger"), Some(Back::Quiver));
+        assert_eq!(back("thief"), Some(Back::Sack));
+        assert_eq!(back("ninja"), Some(Back::Scabbard));
+        assert_eq!(back("barbarian"), Some(Back::Fur));
     }
 
     #[test]
