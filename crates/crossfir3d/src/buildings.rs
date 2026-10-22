@@ -75,9 +75,9 @@ const GABLE_Y: f32 = 0.75;
 /// square in front of it, where they step out to.
 const DOORSTEP: f32 = 0.5;
 
-pub const RECIPES: [&str; 115] = [
+pub const RECIPES: [&str; 116] = [
     "cottage", "house", "tavern", "barn", "temple", "tower", "castle", "shop", "well", "fountain", "signpost", "crossroads",
-    "noticeboard", "lamppost", "clock", "lever", "lever_pulled", "ladder_down", "altar", "altar_green", "altar_black",
+    "noticeboard", "lamppost", "clock", "wallclock", "lever", "lever_pulled", "ladder_down", "altar", "altar_green", "altar_black",
     "altar_red", "altar_white", "altar_blue", "brazier", "brazier_unlit", "lantern", "lantern_off",
     "torch", "torch_cyan", "torch_indigo", "torch_vermilion", "tikitorch", "mountain1", "mountain2", "mountain3",
     "mountain4", "mountain5", "grave", "coffin", "lair", "nest", "portal",
@@ -377,6 +377,7 @@ pub fn parts(recipe: &str, w: u32, h: u32) -> Option<Vec<Part>> {
         "noticeboard" => Some(noticeboard()),
         "lamppost" => Some(lamppost()),
         "clock" => Some(clock()),
+        "wallclock" => Some(wall_clock()),
         "lever" => Some(lever(35.0)),
         "lever_pulled" => Some(lever(-35.0)),
         "ladder_down" => Some(ladder_down()),
@@ -632,6 +633,24 @@ fn clock() -> Vec<Part> {
         cube([0.42, 0.04, 0.32], [0.0, 1.2, 0.0], TRIM),
         part(Shape::Wedge([0.42, 0.14, 0.3]), [0.0, 1.22, 0.0], 0.0, [1.0; 3], Some(WOOD)),
         cube([0.04, 0.05, 0.04], [0.0, 1.38, 0.0], BRASS),
+    ]
+}
+
+/// A clock hung on a north wall (its back 0.75 north of its middle, where the wall
+/// is): a round wooden case, a dial with two hands, and a short pendulum box below.
+fn wall_clock() -> Vec<Part> {
+    const DIAL: [f32; 3] = [0.9, 0.85, 0.7];
+    const BRASS: [f32; 3] = [0.85, 0.65, 0.25];
+    let z = -0.62;
+    vec![
+        disc(0.16, 0.06, [0.0, 1.3, z], WOOD),
+        disc(0.13, 0.02, [0.0, 1.3, z + 0.035], DIAL),
+        cube([0.015, 0.09, 0.01], [0.0, 1.34, z + 0.05], INSIDE),
+        cube([0.06, 0.015, 0.01], [0.03, 1.3, z + 0.05], INSIDE),
+        cube([0.14, 0.26, 0.05], [0.0, 1.03, z], WOOD),
+        cube([0.1, 0.2, 0.01], [0.0, 1.03, z + 0.03], INSIDE),
+        cube([0.01, 0.14, 0.01], [0.0, 1.06, z + 0.04], BRASS),
+        disc(0.03, 0.01, [0.0, 0.99, z + 0.045], BRASS),
     ]
 }
 
@@ -2004,7 +2023,10 @@ fn campfire(lit: bool) -> Vec<Part> {
         out.push(part(Shape::Box([0.05, 0.05, 0.36]), [0.0, 0.05, 0.0], yaw, [1.0; 3], Some(WOOD)));
     }
     if lit {
-        out.push(part(Shape::RoundLamp { radius: 0.1, height: 0.14 }, [0.0, 0.14, 0.0], 0.0, [1.0; 3], Some(FLAME)));
+        out.push(part(Shape::RoundLamp { radius: 0.1, height: 0.06 }, [0.0, 0.08, 0.0], 0.0, [1.0; 3], Some(FLAME)));
+        for (x, z, high, color) in [(0.0, 0.0, 0.45, [1.0, 0.45, 0.08]), (-0.07, 0.05, 0.3, [1.0, 0.75, 0.15]), (0.08, -0.04, 0.32, [1.0, 0.35, 0.05]), (0.03, 0.08, 0.22, [1.0, 0.75, 0.15])] {
+            out.push(part(Shape::Fire { radius: 0.08, height: high }, [x, 0.08 + high / 2.0, z], 0.0, [1.0; 3], Some(color)));
+        }
     }
     out
 }
@@ -2273,6 +2295,21 @@ mod tests {
             .filter(|recipe| parts(recipe, 1, 1).is_none() && parts(recipe, 2, 2).is_none())
             .collect();
         assert!(unknown.is_empty(), "drawn as flat pictures: {unknown:?}");
+    }
+
+    #[test]
+    fn a_lit_campfire_has_tongues_of_fire() {
+        let fire = |lit| parts(if lit { "campfire" } else { "campfire_out" }, 1, 1).unwrap().iter().filter(|p| matches!(p.shape, Shape::Fire { .. })).count();
+        assert!(fire(true) >= 3 && fire(false) == 0);
+    }
+
+    #[test]
+    fn a_wall_clock_hangs_flat_on_the_wall_behind_it() {
+        let clock = parts("wallclock", 1, 1).unwrap();
+        // Hung 0.75 out from the wall square's middle, its back reaches the wall.
+        let back = clock.iter().map(|p| p.pos[2]).fold(0.0, f32::min);
+        assert!(back < -0.5, "back {back}");
+        assert!(clock.iter().all(|p| p.pos[1] > 0.8), "off the floor");
     }
 
     #[test]

@@ -1267,7 +1267,7 @@ helmet3 building helmet:0.55,0.5,0.4
 quiver_arrow building quiver
 quiver_bolt building quiver
 card_* building card
-wallclock building clock
+wallclock building wallclock
 fire building campfire
 broken_gravestone building grave
 gravestone2 building grave
