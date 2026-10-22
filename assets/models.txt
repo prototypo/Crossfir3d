@@ -8,6 +8,7 @@
 #   wall <style>        (joined pieces; styles: stone brick plaster wood hedge rock)
 #   flat                (lies on the ground)
 #   card                (keep the picture card)
+#   skeleton <scale> [r,g,b]   (a person's bones, built in code)
 #   statue [r,g,b]      (a half-size stone 3D character on a plinth)
 # One map square is 1 unit. Player pictures are handled in code (races.rs).
 
@@ -715,9 +716,9 @@ bench_F building bench_F
 # person <regular|other> <scale> <skin r,g,b> <hair r,g,b> <clothes r,g,b> [dress r,g,b] [broom]
 # Clothes 0.45,0.4,0.3 (a human's) keep the outfit's own colours: the female peasant.
 charwoman person other 0.95 0.9,0.72,0.6 0.6,0.2,0.1 0.45,0.4,0.3 broom
-orc person regular 1.0 0.65,0.45,0.3 0.15,0.1,0.08 0.4,0.32,0.25
-orc_chief person regular 1.1 0.65,0.45,0.3 0.15,0.1,0.08 0.5,0.5,0.5
-orc_leader person regular 1.1 0.6,0.42,0.28 0.15,0.1,0.08 0.45,0.3,0.25
+orc person regular 1.0 0.65,0.45,0.3 0.15,0.1,0.08 0.3,0.26,0.2 build ogre rags 0.35,0.28,0.2 ears
+orc_chief person regular 1.1 0.65,0.45,0.3 0.15,0.1,0.08 0.5,0.5,0.5 armour build ogre ears
+orc_leader person regular 1.1 0.6,0.42,0.28 0.15,0.1,0.08 0.45,0.3,0.25 armour build ogre ears
 # Knights, angels, giants, djinn, undead and others drawn as people.
 c_knight person regular 1.0 0.94,0.65,0.35 0.28,0.23,0.17 0.23,0.27,0.17 armour
 c_priest person regular 1.0 0.85,0.68,0.55 0.58,0.38,0.14 0.62,0.56,0.53
@@ -920,7 +921,7 @@ green_dragon3 beast beasts/flying/Dragon.gltf 0.701 0.45,0.85,0.45
 red_dragon2 beast beasts/flying/Dragon.gltf 0.637 1,0.5,0.45
 drake beast beasts/flying/Dragon.gltf 0.382 0.5,0.6,1
 bone_drake beast beasts/flying/Dragon.gltf 0.446 0.95,0.92,0.85
-gargoyle monster monsters/Tidebreaker.gltf 0.8 0.75,0.75,0.78
+gargoyle person regular 1.0 0.8,0.85,0.9 0.5,0.5,0.52 0.55,0.55,0.58 build demon rags 0.5,0.5,0.52 horns
 belzebub beast beasts/big/Demon.gltf 0.769 1,0.5,0.45
 jessyb beast beasts/big/Demon.gltf 0.705 1,0.4,0.35
 raas beast beasts/cute/GreenDemon.gltf 0.494
@@ -964,13 +965,13 @@ blob beast beasts/blob/GreenBlob.gltf 0.270 0.2,0.2,0.22
 leech beast beasts/blob/GreenBlob.gltf 0.162 0.4,0.3,0.25
 slug beast beasts/blob/GreenBlob.gltf 0.324 0.6,0.5,0.35
 slug_slime beast beasts/blob/GreenBlob.gltf 0.324 0.6,0.75,0.4
-golem monster monsters/Tidebreaker.gltf 1.0 0.6,0.6,0.62
-golem_red monster monsters/Tidebreaker.gltf 1.0 1,0.5,0.45
-gol monster monsters/Tidebreaker.gltf 1.0 0.3,0.3,0.32
-lokanth monster monsters/Tidebreaker.gltf 1.0 0.5,0.8,0.45
-mudman monster monsters/Tidebreaker.gltf 0.8 0.6,0.45,0.3
-ogre_r monster monsters/Tidebreaker.gltf 1.0 1,0.6,0.55
-smallt_green monster monsters/Tidebreaker.gltf 0.6 0.6,0.9,0.6
+golem person regular 1.4 0.8,0.85,0.9 0.5,0.5,0.52 0.55,0.55,0.58 armour wide 1.4 build golem horns
+golem_red person regular 1.4 1.1,0.55,0.5 0.4,0.25,0.22 0.6,0.35,0.3 armour wide 1.4 build golem horns
+gol person regular 1.4 0.4,0.42,0.45 0.2,0.2,0.22 0.3,0.3,0.32 armour wide 1.4 build golem horns
+lokanth person regular 1.4 0.6,0.9,0.55 0.3,0.4,0.25 0.4,0.55,0.35 armour wide 1.4 build golem horns
+mudman person regular 1.1 0.75,0.6,0.45 0.3,0.22,0.15 0.45,0.35,0.25 wide 1.3 build golem rags 0.3,0.22,0.15
+ogre_r person regular 1.3 1.1,0.6,0.55 0.12,0.1,0.08 0.3,0.26,0.2 wide 1.4 build ogre rags 0.42,0.36,0.26 ears
+smallt_green person regular 0.9 0.5,0.95,0.5 0.12,0.1,0.08 0.3,0.26,0.2 wide 1.2 build troll rags 0.35,0.3,0.25 ears
 
 # Built creatures (buildings.rs): they glide from square to square like the bees.
 snake building snake:0.35,0.55,0.25
@@ -1034,8 +1035,8 @@ sandy flat
 mystic_fist building fist
 firechest model props/Chest_Wood.gltf 0.45 0 0 1.0,0.45,0.35
 
-lich monster monsters/Skeleton_B.gltf 1.05 0.75,0.6,0.95
-wight monster monsters/Skeleton_A.gltf 1.0 0.85,0.9,0.95
+lich skeleton 1.05 0.75,0.6,0.95
+wight skeleton 1.0 0.85,0.9,0.95
 shadow beast beasts/flying/Ghost.gltf 0.355 0.15,0.15,0.18
 stalker beast beasts/flying/Ghost.gltf 0.355 0.85,0.85,0.9
 sphinx beast beasts/animals/Wolf.gltf 0.45 0.95,0.78,0.45
@@ -1048,36 +1049,34 @@ witch_earth person other 1.0 0.85,0.68,0.55 0.3,0.2,0.1 0.5,0.38,0.22 dress 0.5,
 witch_fire person other 1.0 0.85,0.68,0.55 0.8,0.2,0.1 0.85,0.25,0.12 dress 0.85,0.25,0.12
 witch_water person other 1.0 0.85,0.68,0.55 0.2,0.3,0.6 0.25,0.45,0.85 dress 0.25,0.45,0.85
 
-# --- Monsters (monsters/: Quaternius' Bestiary - Dungeon Monsters Kit, Source tier) ---
-#   monster <file> <scale> [r,g,b]   (scale 1 = a person's body scale; heights at scale 1:
-#   Puglin 0.56, Imp 1.0, Skeleton 1.08, Lycan 1.2, Hellwarden 1.36, Tidebreaker 1.56)
-goblin monster monsters/Puglin.gltf 1.1
-goblin_chief monster monsters/Puglin.gltf 1.3
-goblin_leader monster monsters/Puglin.gltf 1.3 0.8,1.0,0.7
-kobold monster monsters/Puglin.gltf 0.9 1.0,0.55,0.4
-h_kobold monster monsters/Puglin.gltf 1.0 1.0,0.55,0.4
-unusual_kobold monster monsters/Puglin.gltf 0.9 0.8,0.6,1.0
-imp monster monsters/Imp.gltf 0.6
-skeleton monster monsters/Skeleton_A.gltf 1.0
-skeleton_chief monster monsters/Skeleton_B.gltf 1.1
-skeleton_leader monster monsters/Skeleton_B.gltf 1.05
-skeletalmage monster monsters/Skeleton_B.gltf 1.0 0.8,0.8,1.0
-gnoll monster monsters/Lycan.gltf 0.95
-gnoll_chief monster monsters/Lycan.gltf 1.05
-gnoll_leader monster monsters/Lycan.gltf 1.05
-troll monster monsters/Tidebreaker.gltf 1.0
-smalltroll monster monsters/Tidebreaker.gltf 0.7
-armourtroll2 monster monsters/Tidebreaker.gltf 1.05
-armourtroll3 monster monsters/Tidebreaker.gltf 1.05
-armourtroll4 monster monsters/Tidebreaker.gltf 1.05
-gaelotroll monster monsters/Tidebreaker.gltf 1.1 0.7,0.9,0.7
-ogre monster monsters/Tidebreaker.gltf 0.9 1.0,0.8,0.65
-ogre_chief monster monsters/Tidebreaker.gltf 1.0 1.0,0.8,0.65
-ogre_leader monster monsters/Tidebreaker.gltf 1.0 1.0,0.8,0.65
-devil monster monsters/Hellwarden.gltf 0.9
-mdemon monster monsters/Hellwarden.gltf 1.0
-demon_lord monster monsters/Hellwarden.gltf 1.2
-big_demon monster monsters/Hellwarden.gltf 1.3
+# --- Monsters: goblins, trolls, demons and the like, from the CC0 beast packs ---
+goblin person regular 0.7 0.6,1.1,0.5 0.12,0.1,0.08 0.3,0.26,0.2 build goblin rags 0.42,0.36,0.26 ears
+goblin_chief person regular 0.8 0.6,1.1,0.5 0.12,0.1,0.08 0.3,0.26,0.2 build goblin rags 0.3,0.22,0.15 ears
+goblin_leader person regular 0.8 0.5,1.0,0.45 0.12,0.1,0.08 0.3,0.26,0.2 build goblin rags 0.3,0.22,0.15 ears
+kobold person regular 0.6 1.1,0.6,0.4 0.12,0.1,0.08 0.3,0.26,0.2 build goblin rags 0.42,0.36,0.26 horns
+h_kobold person regular 0.65 1.1,0.6,0.4 0.12,0.1,0.08 0.3,0.26,0.2 build goblin rags 0.42,0.36,0.26 horns
+unusual_kobold person regular 0.6 0.8,0.6,1.1 0.12,0.1,0.08 0.3,0.26,0.2 build goblin rags 0.42,0.36,0.26 horns
+imp person regular 0.55 1.5,0.4,0.3 0.1,0.05,0.05 0.3,0.26,0.2 head 1.2 build goblin rags 0.25,0.08,0.06 horns
+skeleton skeleton 1.0
+skeleton_chief skeleton 1.1
+skeleton_leader skeleton 1.05
+skeletalmage skeleton 1.0 0.8,0.8,1.0
+gnoll person regular 1.0 0.8,0.6,0.4 0.3,0.2,0.1 0.3,0.26,0.2 build gnoll rags 0.42,0.36,0.26 ears
+gnoll_chief person regular 1.1 0.8,0.6,0.4 0.3,0.2,0.1 0.3,0.26,0.2 armour build gnoll ears
+gnoll_leader person regular 1.1 0.8,0.6,0.4 0.3,0.2,0.1 0.3,0.26,0.2 armour build gnoll ears
+troll person regular 1.35 0.6,0.85,0.6 0.12,0.1,0.08 0.3,0.26,0.2 wide 1.3 build troll rags 0.35,0.3,0.25 ears
+smalltroll person regular 1.0 0.6,0.85,0.6 0.12,0.1,0.08 0.3,0.26,0.2 wide 1.2 build troll rags 0.35,0.3,0.25 ears
+armourtroll2 person regular 1.4 0.6,0.85,0.6 0.12,0.1,0.08 0.3,0.26,0.2 armour wide 1.3 build troll ears
+armourtroll3 person regular 1.4 0.6,0.85,0.6 0.12,0.1,0.08 0.3,0.26,0.2 armour wide 1.3 build troll ears
+armourtroll4 person regular 1.4 0.6,0.85,0.6 0.12,0.1,0.08 0.3,0.26,0.2 armour wide 1.3 build troll ears
+gaelotroll person regular 1.4 0.5,0.9,0.55 0.12,0.1,0.08 0.3,0.26,0.2 wide 1.3 build troll rags 0.35,0.3,0.25 ears
+ogre person regular 1.3 1.0,0.8,0.65 0.12,0.1,0.08 0.3,0.26,0.2 wide 1.4 build ogre rags 0.42,0.36,0.26 ears
+ogre_chief person regular 1.4 1.0,0.8,0.65 0.12,0.1,0.08 0.3,0.26,0.2 armour wide 1.4 build ogre ears
+ogre_leader person regular 1.4 1.0,0.8,0.65 0.12,0.1,0.08 0.3,0.26,0.2 armour wide 1.4 build ogre ears
+devil person regular 1.1 1.5,0.4,0.3 0.1,0.05,0.05 0.3,0.26,0.2 build demon rags 0.25,0.08,0.06 horns
+mdemon person regular 1.2 1.5,0.4,0.3 0.1,0.05,0.05 0.3,0.26,0.2 build demon rags 0.25,0.08,0.06 horns
+demon_lord person regular 1.4 1.5,0.4,0.3 0.1,0.05,0.05 0.3,0.26,0.2 wide 1.2 build demon rags 0.15,0.05,0.05 horns
+big_demon person regular 1.5 1.5,0.4,0.3 0.1,0.05,0.05 0.3,0.26,0.2 wide 1.3 build demon rags 0.15,0.05,0.05 horns
 
 # --- Doors (door/): the Kenney door spans north-south unturned. `_1`, `h` and `1` pictures
 # span east-west (rot 90); `_2`, `v` and `2` span north-south. Opened doors vanish.

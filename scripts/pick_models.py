@@ -25,7 +25,6 @@ VILLAGE = "medieval-village-megakit/glTF"
 NATURE = "stylized-nature-megakit/glTF"
 CASTLE = "kenney-castle-kit/Models/GLB format"
 PROPS = "fantasy-props-megakit/Exports/glTF"
-MONSTERS = "dungeon-monsters-kit-source/Exports/GLB (Godot-Unreal)"
 KAYKIT = "kaykit-dungeon-remastered/Assets/gltf"
 HEX = "kaykit-medieval-hexagon/Assets/gltf"
 
@@ -108,11 +107,6 @@ PICK = [
     ]]),
     ("beasts/big", "ultimate-monsters/License.txt", [f"ultimate-monsters/Big/glTF/{n}.gltf" for n in [
         "Demon", "Monkroose", "Orc_Skull", "Dino",
-    ]]),
-    # Paid (Source tier), Quaternius Asset License: fine in this private repo; the
-    # licence forbids sharing the files themselves.
-    ("monsters", "dungeon-monsters-kit-source/License_Source.txt", [f"{MONSTERS}/{n}.glb" for n in [
-        "Hellwarden", "Imp", "Lycan", "Puglin", "Skeleton_A", "Skeleton_B", "Tidebreaker",
     ]]),
 ]
 

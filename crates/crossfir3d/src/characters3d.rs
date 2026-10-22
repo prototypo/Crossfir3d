@@ -44,11 +44,11 @@ impl Plugin for CharactersPlugin {
             .init_resource::<OwnLook>()
             .init_resource::<Preview>()
             .init_resource::<crate::hat::Leather>()
-            .add_systems(Update, crate::robe::dress_robes)
+            .add_systems(Update, (crate::robe::dress_robes, crate::skeleton::build_skeletons))
             .add_observer(bind_bones)
             .add_systems(Startup, (load_anims, setup_preview))
             .add_systems(Update, (build_graph, animate, animate_beasts, hold_items, wear_armour, wear_helmet, dress_people, gear_up, freeze_statues))
-            .add_systems(PostUpdate, hold_head_size.after(bevy::app::AnimationSystems).before(bevy::transform::TransformSystems::Propagate))
+            .add_systems(PostUpdate, hold_bone_shapes.after(bevy::app::AnimationSystems).before(bevy::transform::TransformSystems::Propagate))
             .add_systems(Update, update_preview.run_if(in_state(AppState::Login)))
             .add_systems(OnEnter(AppState::InGame), set_own_look)
             .add_systems(OnExit(AppState::Login), clear_preview);
@@ -776,6 +776,10 @@ pub struct Outfit {
     pub armour: bool,
     pub wide: f32,
     pub head: f32,
+    /// A creature's body shape, and its horns or pointed ears (of this colour).
+    pub build: Option<crossfir3d::models::Build>,
+    pub horns: bool,
+    pub ears: Option<[f32; 3]>,
 }
 
 /// Adds each Outfit once the body's bones exist. Sizes are for a human (scale 1, about
@@ -791,6 +795,7 @@ fn dress_people(
     parts: Query<(), With<PartOf>>,
     mut meshes: ResMut<Assets<Mesh>>,
     mut materials: ResMut<Assets<StandardMaterial>>,
+    leather: Res<crate::hat::Leather>,
     mut shapes: Local<Option<[Handle<Mesh>; 3]>>,
 ) {
     const STRAW: [f32; 3] = [0.85, 0.7, 0.35];
@@ -806,33 +811,46 @@ fn dress_people(
             ]
         })
         .clone();
-    let mut paint = |[r, g, b]: [f32; 3]| materials.add(StandardMaterial { base_color: Color::srgb(r, g, b), perceptual_roughness: 0.9, ..default() });
+    let paint = |materials: &mut Assets<StandardMaterial>, [r, g, b]: [f32; 3]| materials.add(StandardMaterial { base_color: Color::srgb(r, g, b), perceptual_roughness: 0.9, ..default() });
     for (root, outfit) in &people {
         // The body scenes spawn a little later than the character: try again next frame.
         let Some(hand) = children.iter_descendants(root).find(|e| names.get(*e).is_ok_and(|n| n.as_str() == "hand_r")) else { continue };
         let k = outfit.scale;
         if let Some(colour) = outfit.dress {
             let t = Transform::from_xyz(0.0, 0.31 * k, 0.0).with_scale(Vec3::new(k * outfit.wide, k, k * outfit.wide));
-            commands.entity(root).with_child((Mesh3d(skirt.clone()), MeshMaterial3d(paint(colour)), t));
+            commands.entity(root).with_child((Mesh3d(skirt.clone()), MeshMaterial3d(paint(&mut materials, colour)), t));
         }
         let (wide, head) = (outfit.wide, outfit.head);
+        let mut reshaped: HashMap<&str, BoneShape> = outfit.build.map_or_else(Vec::new, |b| b.bones()).into_iter().map(|(n, s, bend)| (n, BoneShape(Vec3::from_array(s), bend))).collect();
+        let head_shape = reshaped.entry("Head").or_insert(BoneShape(Vec3::ONE, 0.0));
+        head_shape.0 *= head;
         for e in children.iter_descendants(root) {
-            let is_head = names.get(e).is_ok_and(|n| n.as_str() == "Head");
+            let shape = names.get(e).ok().and_then(|n| reshaped.get(n.as_str()));
             if parts.contains(e) && wide != 1.0 {
                 commands.entity(e).queue_silenced(move |mut e: EntityWorldMut| {
                     if let Some(mut t) = e.get_mut::<Transform>() {
                         t.scale *= Vec3::new(wide, 1.0, wide);
                     }
                 });
-            } else if is_head && head != 1.0 {
-                commands.entity(e).try_insert(BigHead(head));
+            } else if let Some(&shape) = shape.filter(|s| s.0 != Vec3::ONE || s.1 != 0.0) {
+                commands.entity(e).try_insert(shape);
             }
+        }
+        let wear = match (outfit.horns, outfit.ears) {
+            (true, _) => Some(Headwear::Horns),
+            (_, Some(c)) => Some(Headwear::Ears(c)),
+            _ => None,
+        };
+        if let Some(wear) = wear
+            && let Some(head) = children.iter_descendants(root).find(|e| names.get(*e).is_ok_and(|n| n.as_str() == "Head"))
+        {
+            put_on_head(&mut commands, head, wear, k / bone_scale(head, &parents, &parts), &leather, &mut meshes, &mut materials, ());
         }
         if outfit.broom {
             let k = k / bone_scale(hand, &parents, &parts);
             let at = |y: f32| Transform::from_xyz(0.0, y * k, 0.0).with_scale(Vec3::splat(k));
-            let handle = (Mesh3d(stick.clone()), MeshMaterial3d(paint(HANDLE)), at(HANDLE_LEN / 2.0 - 0.1));
-            let bristles = (Mesh3d(straw.clone()), MeshMaterial3d(paint(STRAW)), at(HANDLE_LEN - 0.05));
+            let handle = (Mesh3d(stick.clone()), MeshMaterial3d(paint(&mut materials, HANDLE)), at(HANDLE_LEN / 2.0 - 0.1));
+            let bristles = (Mesh3d(straw.clone()), MeshMaterial3d(paint(&mut materials, STRAW)), at(HANDLE_LEN - 0.05));
             commands.entity(hand).queue_silenced(move |mut e: EntityWorldMut| {
                 e.with_child(handle).with_child(bristles);
             });
@@ -841,14 +859,16 @@ fn dress_people(
     }
 }
 
-/// A head bone drawn this many times as big (a child's head is big for its body).
-#[derive(Component)]
-struct BigHead(f32);
+/// A bone drawn at this scale (a child's big head, a troll's big arms) and bent forward
+/// this far (radians, about its own X).
+#[derive(Component, Clone, Copy)]
+struct BoneShape(Vec3, f32);
 
-/// The animations set every bone's scale each frame: set the big heads' again after them.
-fn hold_head_size(mut heads: Query<(&mut Transform, &BigHead)>) {
-    for (mut t, BigHead(k)) in &mut heads {
-        t.scale = Vec3::splat(*k);
+/// The animations set every bone's scale and turn each frame: reshape them again after.
+fn hold_bone_shapes(mut bones: Query<(&mut Transform, &BoneShape)>) {
+    for (mut t, BoneShape(scale, bend)) in &mut bones {
+        t.scale = *scale;
+        t.rotation *= Quat::from_rotation_x(*bend);
     }
 }
 
