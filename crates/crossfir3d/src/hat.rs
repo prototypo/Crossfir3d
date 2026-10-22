@@ -184,8 +184,8 @@ pub fn leather_pixels() -> ((u32, u32, Vec<u8>), (u32, u32, Vec<u8>)) {
 /// The leather pictures, made once.
 #[derive(Resource)]
 pub struct Leather {
-    colour: Handle<Image>,
-    bumps: Handle<Image>,
+    pub(crate) colour: Handle<Image>,
+    pub(crate) bumps: Handle<Image>,
 }
 
 impl FromWorld for Leather {
@@ -247,7 +247,7 @@ fn mask() -> Grid {
 
 /// Rings of `rows + 1` rows: ring `i` at height `y(t)` with half widths `(x, z)(t)` round
 /// `(0, _, z0)`, for t from 0 to 1.
-fn rings(rows: usize, z0: f32, f: impl Fn(f32) -> (f32, f32, f32)) -> Grid {
+pub(crate) fn rings(rows: usize, z0: f32, f: impl Fn(f32) -> (f32, f32, f32)) -> Grid {
     (0..=rows)
         .map(|i| {
             let (y, wide, deep) = f(i as f32 / rows as f32);
