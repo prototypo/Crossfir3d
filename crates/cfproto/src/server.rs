@@ -1,9 +1,11 @@
 //! Server-to-client messages.
 
-use crate::map2::{parse_map2, Map2Item};
-use crate::items::{parse_item2, parse_upditem, Item, ItemChange};
-use crate::spells::{parse_addspell, parse_updspell, Spell};
-use crate::stats::{parse_stats, StatValue};
+mod commands;
+
+use crate::map2::Map2Item;
+use crate::items::{Item, ItemChange};
+use crate::spells::Spell;
+use crate::stats::StatValue;
 
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct CharacterInfo {
@@ -82,148 +84,7 @@ pub fn parse(payload: &[u8]) -> Result<ServerMsg, ParseError> {
         .ok()
         .filter(|c| c.bytes().all(|b| b.is_ascii_graphic()))
         .ok_or_else(|| ParseError("command word is not ASCII".into()))?;
-    let mut r = Reader(data);
-    Ok(match cmd {
-        "version" => {
-            let text = r.text();
-            let mut it = text.splitn(3, ' ');
-            let mut num = || it.next().and_then(|v| v.parse().ok()).ok_or_else(|| err("bad version"));
-            let (cs, sc) = (num()?, num()?);
-            let info = text.splitn(3, ' ').nth(2).unwrap_or("").to_string();
-            ServerMsg::Version { cs, sc, info }
-        }
-        "setup" => {
-            let text = r.text();
-            let words: Vec<&str> = text.split(' ').filter(|w| !w.is_empty()).collect();
-            ServerMsg::Setup(words.chunks(2).map(|c| (c[0].into(), c.get(1).unwrap_or(&"").to_string())).collect())
-        }
-        "failure" => {
-            let text = r.text();
-            let (command, reason) = text.split_once(' ').unwrap_or((&text, ""));
-            ServerMsg::Failure { command: command.into(), reason: reason.into() }
-        }
-        "accountplayers" => {
-            let count = r.u8()?;
-            let mut chars = Vec::new();
-            for _ in 0..count {
-                // The count includes dead characters, which have no record.
-                if r.0.is_empty() {
-                    break;
-                }
-                let mut c = CharacterInfo::default();
-                loop {
-                    let len = r.u8()? as usize;
-                    if len == 0 {
-                        break;
-                    }
-                    let field = r.take(len)?;
-                    let text = || String::from_utf8_lossy(&field[1..]).into_owned();
-                    let short = || field.get(1..3).map(|b| u16::from_be_bytes([b[0], b[1]]));
-                    match field[0] {
-                        ACL_NAME => c.name = text(),
-                        ACL_CLASS => c.class = text(),
-                        ACL_RACE => c.race = text(),
-                        ACL_LEVEL => c.level = short().unwrap_or(0),
-                        ACL_FACE_NUM => c.face = short(),
-                        _ => {}
-                    }
-                }
-                chars.push(c);
-            }
-            ServerMsg::AccountPlayers(chars)
-        }
-        "replyinfo" => {
-            // The kind ends at a space or, for some replies, a newline.
-            let (kind, rest) = match data.iter().position(|&b| b == b' ' || b == b'\n') {
-                Some(i) => (&data[..i], &data[i + 1..]),
-                None => (data, &[][..]),
-            };
-            ServerMsg::ReplyInfo { kind: String::from_utf8_lossy(kind).into_owned(), data: rest.to_vec() }
-        }
-        "addme_success" => ServerMsg::AddmeSuccess,
-        "addme_failed" => ServerMsg::AddmeFailed,
-        "newmap" => ServerMsg::NewMap,
-        "goodbye" => ServerMsg::Goodbye,
-        "map2" => ServerMsg::Map2(parse_map2(data)?),
-        "face2" => {
-            let (num, set, checksum) = (r.u16()?, r.u8()?, r.u32()?);
-            ServerMsg::Face2 { num, set, checksum, name: r.text() }
-        }
-        "image2" => {
-            let (face, set, len) = (r.u32()?, r.u8()?, r.u32()?);
-            ServerMsg::Image2 { face, set, png: r.take(len as usize)?.to_vec() }
-        }
-        "anim" => {
-            let id = r.u16()?;
-            r.u16()?; // flags, unused
-            let mut faces = Vec::new();
-            while !r.0.is_empty() {
-                faces.push(r.u16()?);
-            }
-            ServerMsg::Anim { id, faces }
-        }
-        "smooth" => ServerMsg::Smooth { face: r.u16()?, smooth: r.u16()? },
-        "comc" => ServerMsg::Comc { packet: r.u16()?, time_ms: r.u32()? },
-        "tick" => ServerMsg::Tick(r.u32()?),
-        "item2" => {
-            let (location, items) = parse_item2(data)?;
-            ServerMsg::Item2 { location, items }
-        }
-        "upditem" => {
-            let (tag, changes) = parse_upditem(data)?;
-            ServerMsg::UpdItem { tag, changes }
-        }
-        "delitem" => {
-            let mut tags = Vec::new();
-            while !r.0.is_empty() {
-                tags.push(r.u32()?);
-            }
-            ServerMsg::DelItem(tags)
-        }
-        "delinv" => ServerMsg::DelInv(r.text().trim().parse().map_err(|_| err("bad delinv tag"))?),
-        "player" => {
-            let (tag, weight, face) = (r.u32()?, r.u32()?, r.u32()?);
-            let len = r.u8()? as usize;
-            ServerMsg::Player { tag, weight, face, name: String::from_utf8_lossy(r.take(len)?).into() }
-        }
-        "stats" => {
-            let (updates, err) = parse_stats(data);
-            if let Some(e) = err.filter(|e| first_report(&e.0)) {
-                eprintln!("{}", e.0);
-            }
-            ServerMsg::Stats(updates)
-        }
-        "drawinfo" => ServerMsg::Text { kind: 0, subtype: 0, text: r.text().splitn(2, ' ').nth(1).unwrap_or("").into() },
-        "drawextinfo" => {
-            let text = r.text();
-            let mut parts = text.splitn(4, ' ');
-            let _color = parts.next();
-            let kind = parts.next().and_then(|v| v.parse().ok()).unwrap_or(0);
-            let subtype = parts.next().and_then(|v| v.parse().ok()).unwrap_or(0);
-            ServerMsg::Text { kind, subtype, text: parts.next().unwrap_or("").into() }
-        }
-        "addspell" => ServerMsg::AddSpell(parse_addspell(data)?),
-        "updspell" => {
-            let (tag, mana, grace, damage) = parse_updspell(data)?;
-            ServerMsg::UpdSpell { tag, mana, grace, damage }
-        }
-        "delspell" => ServerMsg::DelSpell(r.u32()?),
-        "sound2" => {
-            let (x, y, dir, volume, kind) = (r.u8()? as i8, r.u8()? as i8, r.u8()?, r.u8()?, r.u8()?);
-            let len = r.u8()? as usize;
-            let action = String::from_utf8_lossy(r.take(len)?).into_owned();
-            let len = r.u8()? as usize;
-            let source = String::from_utf8_lossy(r.take(len)?).into_owned();
-            ServerMsg::Sound { x, y, dir, volume, kind, action, source }
-        }
-        "music" => ServerMsg::Music(r.text().trim().to_string()),
-        "query" => {
-            let text = r.text();
-            let (flags, rest) = text.split_once(' ').unwrap_or((&text, ""));
-            ServerMsg::Query { flags: flags.trim().parse().unwrap_or(0), text: rest.to_string() }
-        }
-        other => ServerMsg::Unknown(other.into()),
-    })
+    commands::dispatch(cmd, data)
 }
 
 fn err(msg: &str) -> ParseError {

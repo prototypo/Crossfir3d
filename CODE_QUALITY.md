@@ -72,7 +72,7 @@ denominator grew.
 - Measured: complexity 128 (threshold 10); length 338 (threshold 50); nesting 10 (threshold 4); arguments 10 (threshold 5)
 - Recommendation: Split into `draw_bindings_list`, `draw_key_capture` and `draw_quick_slots` helpers; most of the depth comes from closures inside closures.
 
-### [ ] 🔴 Q4: complexity, length, nesting — crates/cfproto/src/server.rs:76 `parse`
+### [x] 🔴 Q4: complexity, length, nesting — crates/cfproto/src/server.rs:76 `parse`
 
 - Measured: complexity 110 (threshold 10); length 152 (threshold 50); nesting 6 (threshold 4)
 - Recommendation: Move each server command's body into its own `parse_<command>` function; `parse` keeps only the `match` on the command word.
