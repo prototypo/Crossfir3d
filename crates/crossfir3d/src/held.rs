@@ -98,7 +98,22 @@ pub enum Headwear {
     /// The ranger's hood, worn in place of the hair, in the clothes' colour.
     Hood,
     PointedHat([f32; 3]),
-    Skullcap([f32; 3]),
+    /// A steel helmet with a nose guard.
+    Helm,
+    /// A gold band with a gem.
+    Circlet,
+    /// The priest's tall white mitre.
+    Mitre,
+    /// The sorcerer's tall, stiff, starred hat.
+    TallHat([f32; 3]),
+    /// A soft, wide hat for the road.
+    SlouchHat([f32; 3]),
+    /// A leather cap with horns.
+    HornedCap,
+    /// Goggles pushed up on the forehead.
+    Goggles,
+    /// A hood, and eyes glowing in this colour.
+    GlowEyes([f32; 3]),
     /// Three-cornered, its brim turned up.
     Tricorn([f32; 3]),
     /// A black hood, and a cloth over the lower face.
@@ -132,29 +147,29 @@ pub struct ClassLook {
 /// The look for a class, by arch ("wizard_class") or name ("Wizard"). Unknown: None.
 pub fn class_look(class: &str) -> Option<ClassLook> {
     use Carry::{Model, Potion, Staff};
-    use Headwear::{Bald, Hood, Mask, PointedHat, Skullcap, Tricorn};
+    use Headwear::{Bald, Circlet, GlowEyes, Goggles, Helm, HornedCap, Hood, Mask, Mitre, PointedHat, SlouchHat, TallHat, Tricorn};
     let key = class.to_ascii_lowercase();
     let key = key.strip_suffix("_class").unwrap_or(&key);
     let look = |garb, tint, head, right, left| Some(ClassLook { garb, tint, head, right, left });
     // Peasant tints are over its brown cloth (1 keeps it); metal tints are over grey.
     let white = [2.0, 2.2, 2.8];
     match key {
-        "warrior" => look(Garb::Metal, [1.3, 1.32, 1.38], None, Some(Model("weapons/Sword.gltf")), Some(Model("weapons/Shield_Round.gltf"))),
-        "barbarian" => look(Garb::Peasant, [1.0, 0.75, 0.65], None, Some(Model("weapons/Axe_Double.gltf")), None),
-        "paladin" => look(Garb::Metal, [1.65, 1.68, 1.8], None, Some(Model("weapons/Sword_Golden.gltf")), Some(Model("weapons/Shield_Heater.gltf"))),
+        "warrior" => look(Garb::Metal, [1.3, 1.32, 1.38], Some(Helm), Some(Model("weapons/Sword.gltf")), Some(Model("weapons/Shield_Round.gltf"))),
+        "barbarian" => look(Garb::Peasant, [1.0, 0.75, 0.65], Some(HornedCap), Some(Model("weapons/Axe_Double.gltf")), None),
+        "paladin" => look(Garb::Metal, [1.65, 1.68, 1.8], Some(Circlet), Some(Model("weapons/Sword_Golden.gltf")), Some(Model("weapons/Shield_Heater.gltf"))),
         "ranger" => look(Garb::Ranger, [1.0; 3], Some(Hood), None, Some(Model("weapons/Bow_Wooden.gltf"))),
         "thief" => look(Garb::Peasant, [0.45, 0.42, 0.42], Some(Hood), Some(Model("weapons/Dagger.gltf")), None),
         "ninja" => look(Garb::Peasant, [0.15, 0.15, 0.17], Some(Mask), Some(Model("weapons/Sword_2.gltf")), None),
         "swashbuckler" => look(Garb::Peasant, [1.4, 0.5, 0.65], Some(Tricorn([0.32, 0.2, 0.12])), Some(Model("weapons/Sword.gltf")), None),
         "monk" => look(Garb::Robe, [1.9, 1.4, 0.45], Some(Bald), None, None),
-        "priest" => look(Garb::Peasant, white, Some(Skullcap([0.92, 0.92, 0.88])), Some(Model("weapons/Hammer_Small.gltf")), None),
-        "devotee" => look(Garb::Peasant, white, Some(PointedHat([0.95, 0.95, 0.92])), Some(Staff(Some([1.0, 1.0, 0.95]))), None),
+        "priest" => look(Garb::Peasant, white, Some(Mitre), Some(Model("weapons/Hammer_Small.gltf")), None),
+        "devotee" => look(Garb::Peasant, white, Some(Hood), Some(Staff(Some([1.0, 1.0, 0.95]))), None),
         "wizard" => look(Garb::Peasant, [0.55, 0.75, 2.2], Some(PointedHat([0.45, 0.28, 0.15])), Some(Staff(Some([0.4, 0.6, 1.0]))), None),
-        "evoker" => look(Garb::Peasant, [1.7, 0.75, 0.5], Some(PointedHat([0.7, 0.2, 0.1])), Some(Staff(Some([1.0, 0.4, 0.1]))), None),
-        "sorcerer" => look(Garb::Peasant, [1.0, 0.5, 1.8], Some(PointedHat([0.4, 0.15, 0.5])), Some(Staff(Some([0.8, 0.4, 1.0]))), None),
-        "summoner" => look(Garb::Peasant, [1.7, 1.6, 0.6], Some(PointedHat([0.75, 0.62, 0.15])), Some(Staff(Some([1.0, 0.9, 0.3]))), None),
-        "warlock" => look(Garb::Peasant, [0.55, 0.3, 0.9], Some(Hood), Some(Staff(Some([0.4, 1.0, 0.4]))), None),
-        "alchemist" => look(Garb::Peasant, [1.1, 0.95, 0.75], None, Some(Potion), None),
+        "evoker" => look(Garb::Peasant, [1.7, 0.75, 0.5], Some(Hood), Some(Staff(Some([1.0, 0.4, 0.1]))), None),
+        "sorcerer" => look(Garb::Peasant, [1.0, 0.5, 1.8], Some(TallHat([0.3, 0.1, 0.42])), Some(Staff(Some([0.8, 0.4, 1.0]))), None),
+        "summoner" => look(Garb::Peasant, [1.7, 1.6, 0.6], Some(SlouchHat([0.6, 0.45, 0.15])), Some(Staff(Some([1.0, 0.9, 0.3]))), None),
+        "warlock" => look(Garb::Peasant, [0.55, 0.3, 0.9], Some(GlowEyes([0.4, 1.0, 0.4])), Some(Staff(Some([0.4, 1.0, 0.4]))), None),
+        "alchemist" => look(Garb::Peasant, [1.1, 0.95, 0.75], Some(Goggles), Some(Potion), None),
         _ => None,
     }
 }
