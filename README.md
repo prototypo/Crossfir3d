@@ -22,7 +22,8 @@ The same square of Scorn, on the same server.
 Press **Tab** for a top view, north up, much like the classic clients' map. Arrow keys
 then move north, east, south and west, as they always did, so you can play the way you
 are used to and still see the world in 3D. **Tab** again (or **C**) goes back behind
-your character.
+your character. The mouse wheel, a trackpad pinch, or two-finger scroll zooms the top
+view in and out.
 
 ![The top view of Scorn's square](docs/images/3d-top.jpg)
 
@@ -84,7 +85,7 @@ cargo run --release -p crossfir3d
 
 ## Downloads (Mac and Windows)
 
-Download `Crossfir3d.dmg` (Apple-chip Macs) or `Crossfir3d-windows.zip` from the
+Download `Crossfir3d.dmg` (M-series Macs) or `Crossfir3d-windows.zip` (Windows) from the
 [releases](https://github.com/prototypo/Crossfir3d/releases). Type the server's
 address on the login screen.
 
@@ -94,6 +95,22 @@ They are not signed, so the system warns the first time:
   System Settings > Privacy & Security and click "Open Anyway".
 - **Windows:** unzip the folder and run `crossfir3d.exe`. When SmartScreen stops it,
   click "More info", then "Run anyway". Keep the `assets` and `sounds` folders next to it.
+
+## Linux
+
+There is no download for Linux yet. Build and run it from the source instead. You
+need [Rust](https://rustup.rs) and Bevy's
+[Linux packages](https://github.com/bevyengine/bevy/blob/main/docs/linux_dependencies.md)
+(on Debian or Ubuntu: `sudo apt install g++ pkg-config libx11-dev libasound2-dev libudev-dev libxkbcommon-x11-0`).
+
+```sh
+git clone https://github.com/prototypo/Crossfir3d.git
+cd Crossfir3d
+git clone --depth 1 https://git.code.sf.net/p/crossfire/crossfire-sounds upstream/crossfire-sounds
+cargo run --release -p crossfir3d
+```
+
+## Making the downloads
 
 To make them: `scripts/package.sh` builds the one for the computer it runs on, in
 `dist/`. The Release workflow (`.github/workflows/release.yml`) builds both; run it by
