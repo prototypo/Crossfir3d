@@ -60,7 +60,7 @@ pub fn wall_masks(walls: &HashSet<(i32, i32)>) -> HashMap<(i32, i32), u8> {
 /// old top-down view): in 3D they hang on the wall's open side instead of inside it.
 pub fn hangs_on_walls(face_name: &str) -> bool {
     let base = face_name.split('.').next().unwrap_or(face_name);
-    ["brazier", "firepot", "torch", "lamppost", "candle", "chandelier"].iter().any(|w| base.contains(w))
+    ["brazier", "firepot", "torch", "lamppost", "candle", "chandelier", "wallclock"].iter().any(|w| base.contains(w))
 }
 
 /// The side of the wall square (x, y) open to walk on, as a step (south first, as the
@@ -70,6 +70,12 @@ pub fn open_side(walls: &HashSet<(i32, i32)>, x: i32, y: i32) -> Option<(i32, i3
         return None;
     }
     [(0, 1), (1, 0), (-1, 0), (0, -1)].into_iter().find(|(dx, dy)| !walls.contains(&(x + dx, y + dy)))
+}
+
+/// The turn (radians about the up axis) that makes a thing built facing south face
+/// the open side `(dx, dy)` of its wall.
+pub fn facing((dx, dy): (i32, i32)) -> f32 {
+    (dx as f32).atan2(dy as f32)
 }
 
 #[cfg(test)]
@@ -87,6 +93,16 @@ mod tests {
         assert_eq!(open_side(&boxed, 0, 0), None); // walled in on every side
         assert!(hangs_on_walls("brazier.111") && hangs_on_walls("torch_lit.112") && hangs_on_walls("firepot.113"));
         assert!(!hangs_on_walls("goldcoin.111") && !hangs_on_walls("club.111"));
+        assert!(hangs_on_walls("wallclock.111"));
+    }
+
+    #[test]
+    fn things_on_a_wall_face_its_open_side() {
+        use std::f32::consts::FRAC_PI_2;
+        // Built facing south (+y); turned about the up axis to face the open side.
+        assert!(facing((0, 1)).abs() < 1e-6);
+        assert!((facing((1, 0)) - FRAC_PI_2).abs() < 1e-6);
+        assert!((facing((-1, 0)) + FRAC_PI_2).abs() < 1e-6);
     }
 
     /// Which sides a piece joins after rotation, to check `piece_for` against its mask.

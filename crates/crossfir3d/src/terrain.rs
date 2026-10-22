@@ -18,8 +18,8 @@ pub fn ground_height(face_name: &str) -> f32 {
 /// True for faces that should be drawn as solid blocks.
 pub fn is_wall(face_name: &str) -> bool {
     let base = base_name(face_name);
-    // Spell walls and doors share the word "wall" but are not solid walls.
-    const NOT_WALLS: [&str; 6] = ["fire", "lightning", "bul", "speedb", "cloud", "door"];
+    // Spell walls, doors and wall clocks share the word "wall" but are not solid walls.
+    const NOT_WALLS: [&str; 7] = ["fire", "lightning", "bul", "speedb", "cloud", "door", "clock"];
     base.contains("wall") && !NOT_WALLS.iter().any(|w| base.contains(w))
 }
 
@@ -59,7 +59,7 @@ mod tests {
         for w in ["wall_0.111", "stwall_3.111", "timberwall_A.111", "cwall_marble.111", "white_wall_left.111"] {
             assert!(is_wall(w), "{w}");
         }
-        for n in ["grass.111", "firewall_1.111", "lightningwall.111", "stwall_door_0.111", "bul_wall_0.111"] {
+        for n in ["grass.111", "firewall_1.111", "lightningwall.111", "stwall_door_0.111", "bul_wall_0.111", "wallclock.111"] {
             assert!(!is_wall(n), "{n}");
         }
     }

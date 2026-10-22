@@ -19,7 +19,7 @@ use crossfir3d::buildings::{brick_pixels, doorstep, footprint, parts, wall_parts
 use crossfir3d::models::{all_loaded, Load, ModelMap, Visual};
 use crossfir3d::races::{classify_player_face, clothes_for_class, look_for_race, Body, Look, PlayerFace};
 use crossfir3d::terrain::{ground_height, is_wall};
-use crossfir3d::walls::{hangs_on_walls, open_side, wall_masks};
+use crossfir3d::walls::{facing, hangs_on_walls, open_side, wall_masks};
 
 use crossfir3d::clock::{sun_pose, SunPose, FALLBACK_HOUR};
 use crossfir3d::settings::Quality;
@@ -543,10 +543,13 @@ fn sync_visuals(
         let shade = darkness as f32 / 255.0;
         let tile = Vec3::new(x as f32, h, y as f32);
         // A brazier or torch on a wall square stands against the wall's open side.
-        let tile = match open_side(&wall_squares, x, y).filter(|_| !is_wall(name) && hangs_on_walls(name)) {
+        // It turns to face the room (a clock's dial; torches look the same either way).
+        let hung = open_side(&wall_squares, x, y).filter(|_| !is_wall(name) && hangs_on_walls(name));
+        let tile = match hung {
             Some((dx, dy)) => tile + Vec3::new(dx as f32, 0.0, dy as f32) * 0.75,
             None => tile,
         };
+        let turn = Quat::from_rotation_y(hung.map_or(0.0, facing));
 
         // A creature that stepped one tile: move the old entity instead of making a new one.
         // A 3D character keeps its body when only its picture changes (each turn and step
@@ -716,7 +719,7 @@ fn sync_visuals(
             let span = Span(x + 1 - fw as i32, y + 1 - fh as i32, x, y);
             let files: Vec<String> =
                 parts.iter().filter_map(|p| if let Shape::Model(f) = p.shape { Some(f.to_string()) } else { None }).collect();
-            let parent = commands.spawn((tv, span, Assembled(files), Transform::from_translation(at), Visibility::default())).id();
+            let parent = commands.spawn((tv, span, Assembled(files), Transform::from_translation(at).with_rotation(turn), Visibility::default())).id();
             if glides(layer) {
                 commands.entity(parent).insert(Glide { target: at });
             }
