@@ -138,8 +138,14 @@ build, chosen on the new-character screen), sized and coloured for their race. Y
 character holds the weapon, bow, and shield in use. Everything else is still a
 picture card.
 
-The models are CC0 (Quaternius, Kenney), free tiers, in `assets/models/` with their
-licences. `assets/models.txt` says which picture becomes which model.
+Most of the 3D world is made for this project, in code: buildings, furniture, props,
+item families (swords, rings, potions, ...), hats, capes and other class pieces, the
+people-based monsters and the skeletons (`crates/crossfir3d/src/`, chiefly
+`buildings.rs`). Rarer items are made from their Crossfire picture by
+`experiments/sprite3d/voxel.py` (`assets/models/auto/`), so they keep the picture's
+licence (GPL-2.0-or-later). The rest are CC0 model packs by Quaternius, KayKit and
+Kenney, in `assets/models/` with their licences. `assets/models.txt` says which
+picture becomes which model.
 `assets/models/MISSING.md` lists what the free tiers lack. To change the picked
 models: `scripts/get-models.sh` (download, needs a browser for itch.io), then
 `python3 -I scripts/pick_models.py`.
