@@ -12,20 +12,20 @@ replaces the class's own. The looks are in `crates/crossfir3d/src/held.rs` (`cla
 |---|---|---|---|---|
 | Alchemist | tan | goggles | leather apron | a potion |
 | Barbarian | brown | leather cap with horns | fur cloak | a double axe |
-| Devotee | white | white hood | | a staff, white orb |
-| Evoker | orange | orange hood | | a staff, fire orb |
+| Devotee | white | white hood | | a staff, a sun with gold rays |
+| Evoker | orange | orange hood | | a staff, a flame in a brass cup |
 | Monk | saffron robe, sash, prayer beads | shaved | | |
 | Ninja | black | black hood and face cloth | sheathed sword | a sword |
 | Paladin | bright steel armour | gold circlet with a gem | blue cape | a gold sword, a heater shield |
 | Priest | white | white mitre | gold tabard | a hammer |
 | Ranger | green leathers | green hood | quiver | a bow |
-| Sorcerer | purple | tall starred hat | purple cape | a staff, violet orb |
-| Summoner | yellow | wide travel hat | green tabard | a staff, gold orb |
+| Sorcerer | purple | tall starred hat | purple cape | a staff, a violet crystal |
+| Summoner | yellow | wide travel hat | green tabard | a staff, a gold orb in a brass hoop |
 | Swashbuckler | red | leather tricorn | gold waist sash | a sword |
 | Thief | dark grey, no armour | hood | loot sack | a dagger |
-| Warlock | dark purple | hood, glowing green eyes | black cape | a staff, green orb |
+| Warlock | dark purple | hood, glowing green eyes | black cape | a staff, a green orb between horns |
 | Warrior | steel armour | steel helm with a nose guard | red cape | a sword, a round shield |
-| Wizard | blue | floppy leather pointed hat | | a staff, blue orb |
+| Wizard | blue | floppy leather pointed hat | | a staff, a blue orb in wooden prongs |
 
 Hats, capes and back pieces are built in code (`hat.rs`, `back.rs`, `robe.rs`), not
 model files. Capes, aprons, tabards and the robe are skinned to the outfit's bones, so they move with it.

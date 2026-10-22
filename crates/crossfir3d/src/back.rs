@@ -214,7 +214,7 @@ pub fn cape_weights(grid: &Grid, rest: &Rest) -> Weights {
 }
 
 /// Several meshes as one.
-fn merged(parts: impl IntoIterator<Item = Mesh>) -> Mesh {
+pub(crate) fn merged(parts: impl IntoIterator<Item = Mesh>) -> Mesh {
     let mut parts = parts.into_iter();
     let mut out = parts.next().expect("at least one part");
     for m in parts {
@@ -224,7 +224,7 @@ fn merged(parts: impl IntoIterator<Item = Mesh>) -> Mesh {
 }
 
 /// A rod of `radius` from `a` to `b`.
-fn rod(a: Vec3, b: Vec3, radius: f32) -> Mesh {
+pub(crate) fn rod(a: Vec3, b: Vec3, radius: f32) -> Mesh {
     Cylinder::new(radius, a.distance(b)).mesh().resolution(12).build().rotated_by(Quat::from_rotation_arc(Vec3::Y, (b - a).normalize())).translated_by((a + b) / 2.0)
 }
 
