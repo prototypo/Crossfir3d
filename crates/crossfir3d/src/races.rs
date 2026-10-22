@@ -249,6 +249,31 @@ mod tests {
     }
 
     #[test]
+    fn every_player_picture_is_a_3d_player() {
+        let dir = concat!(env!("CARGO_MANIFEST_DIR"), "/../../upstream/crossfire-arch/player");
+        let Ok(walk) = std::fs::read_dir(dir) else { return }; // no server data checked out
+        let mut stack: Vec<std::path::PathBuf> = walk.flatten().map(|e| e.path()).collect();
+        let mut missed = Vec::new();
+        while let Some(p) = stack.pop() {
+            // A player turned to stone is a statue, not a player (assets/models.txt).
+            if p.ends_with("stoned") {
+                continue;
+            }
+            if p.is_dir() {
+                stack.extend(std::fs::read_dir(&p).unwrap().flatten().map(|e| e.path()));
+            } else if let Some(name) = p.file_name().and_then(|n| n.to_str()).filter(|n| n.ends_with(".111.png")) {
+                let face = format!("{}.111", name.split('.').next().unwrap());
+                if classify_player_face(&face).is_none() {
+                    missed.push(face);
+                }
+            }
+        }
+        missed.sort();
+        missed.dedup();
+        assert!(missed.is_empty(), "would show as 2D pictures: {missed:?}");
+    }
+
+    #[test]
     fn player_faces_classified() {
         assert_eq!(classify_player_face("dwarf_p.151"), Some(PlayerFace::Race("dwarf_player")));
         assert_eq!(classify_player_face("pl_dragon_r.151"), Some(PlayerFace::Race("pl_dragon")));

@@ -392,6 +392,20 @@ bad model x.glb notanumber 0 0
     }
 
     #[test]
+    fn every_model_file_in_the_list_exists() {
+        let root = concat!(env!("CARGO_MANIFEST_DIR"), "/../../assets");
+        let text = std::fs::read_to_string(format!("{root}/models.txt")).unwrap();
+        let missing: Vec<String> = text
+            .lines()
+            .map(|l| l.split('#').next().unwrap_or("").split_whitespace().collect::<Vec<_>>())
+            .filter(|w| matches!(w.get(1), Some(&("model" | "beast" | "monster"))))
+            .filter_map(|w| w.get(2).map(|f| f.to_string()))
+            .filter(|f| !std::path::Path::new(&format!("{root}/models/{f}")).exists())
+            .collect();
+        assert!(missing.is_empty(), "drawn as flat pictures: {missing:?}");
+    }
+
+    #[test]
     fn the_model_list_uses_no_paid_models() {
         let text = std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/../../assets/models.txt")).unwrap();
         assert!(!text.contains("monsters/"), "the paid monster pack may not be shared");
@@ -433,6 +447,23 @@ bad model x.glb notanumber 0 0
         }
         for name in ["skeleton", "skeleton_chief", "lich", "wight", "skeletalmage"] {
             assert!(matches!(m.lookup(name), Visual::Skeleton { .. }), "{name}");
+        }
+    }
+
+    #[test]
+    fn spellcasting_dragons_and_fire_trolls_stay_3d() {
+        let m = ModelMap::parse(&std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/../../assets/models.txt")).unwrap());
+        for (cast, base) in [("dragon_spellcasting", "dragon"), ("elec_dr_spellcasting", "elec_dr"), ("chinese_dr_spellcasting", "chinese_dr")] {
+            assert_eq!(m.lookup(&format!("{cast}.151")), m.lookup(base), "{cast}");
+        }
+        assert!(matches!(m.lookup("fire_troll.111"), Visual::Person { build: Some(Build::Troll), .. }));
+    }
+
+    #[test]
+    fn players_turned_to_stone_are_statues() {
+        let m = ModelMap::parse(&std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/../../assets/models.txt")).unwrap());
+        for race in ["dragon", "dwarf", "elf", "gnome", "half_orc", "halfling", "human", "troll"] {
+            assert!(matches!(m.lookup(&format!("{race}_stoned.111")), Visual::Statue { .. }), "{race}");
         }
     }
 
