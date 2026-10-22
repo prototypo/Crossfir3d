@@ -15,6 +15,7 @@ mod characters_ui;
 mod combat_fx;
 mod graphics;
 mod hat;
+mod robe;
 mod hud;
 mod input;
 mod settings_ui;

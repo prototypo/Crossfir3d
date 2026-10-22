@@ -44,6 +44,7 @@ impl Plugin for CharactersPlugin {
             .init_resource::<OwnLook>()
             .init_resource::<Preview>()
             .init_resource::<crate::hat::Leather>()
+            .add_systems(Update, crate::robe::dress_robes)
             .add_observer(bind_bones)
             .add_systems(Startup, (load_anims, setup_preview))
             .add_systems(Update, (build_graph, animate, animate_beasts, hold_items, wear_armour, wear_helmet, dress_people, gear_up, freeze_statues))
@@ -128,7 +129,7 @@ struct HeldModel;
 
 /// The outfit part of a character (the third of `character_files`).
 #[derive(Component)]
-struct OutfitPart;
+pub(crate) struct OutfitPart;
 
 /// What the own character wears now (see `crossfir3d::held::worn`).
 #[derive(Component, PartialEq)]
@@ -144,10 +145,10 @@ pub fn character_files(body: Body) -> [&'static str; 3] {
 
 pub fn outfit_file(body: Body, garb: Garb) -> &'static str {
     match (body, garb) {
-        (Body::Regular, Garb::Peasant) => "outfits/Male_Peasant.gltf",
+        (Body::Regular, Garb::Peasant | Garb::Robe) => "outfits/Male_Peasant.gltf",
         (Body::Regular, Garb::Ranger) => "outfits/Male_Ranger.gltf",
         (Body::Regular, Garb::Metal) => "outfits/Male_Ranger_Metal.gltf",
-        (Body::Other, Garb::Peasant) => "outfits/Female_Peasant.gltf",
+        (Body::Other, Garb::Peasant | Garb::Robe) => "outfits/Female_Peasant.gltf",
         (Body::Other, Garb::Ranger) => "outfits/Female_Ranger.gltf",
         (Body::Other, Garb::Metal) => "outfits/Female_Ranger_Metal.gltf",
     }
@@ -169,6 +170,10 @@ pub fn spawn_character(
     let inner = Transform::from_scale(Vec3::splat(BODY_SCALE * look.scale));
     let color = |[r, g, b]: [f32; 3]| Color::srgb(r, g, b);
     for (i, (file, tint)) in files.into_iter().zip([t.skin, t.hair, t.clothes]).enumerate() {
+        // No hair: no file.
+        if file.is_empty() {
+            continue;
+        }
         let scene = load(file);
         let e = commands.spawn((WorldAssetRoot(scene), inner, parts, ModelTint(color(tint)), SkinTint(color(t.skin)), PartOf(root), ChildOf(root))).id();
         if i == 2 {
@@ -520,6 +525,9 @@ pub fn class_dressed(look: Look, body: Body, class: Option<ClassLook>, own_colou
         // The hood takes the hair's tint as is: the outfit's tint.
         look.hair = [0, 1, 2].map(|i| look.clothes[i] / human[i]);
     }
+    if class.head == Some(Headwear::Bald) {
+        files[1] = "";
+    }
     (look, files)
 }
 
@@ -582,7 +590,7 @@ fn put_on_head(
     }
     let at = |x: f32, y: f32, z: f32, scale: Vec3| Transform::from_xyz(x * k, y * k, z * k).with_scale(scale * k);
     let shapes: Vec<(Mesh, Transform, [f32; 3])> = match wear {
-        Headwear::Hood | Headwear::PointedHat(_) | Headwear::Tricorn(_) | Headwear::Mask => Vec::new(),
+        Headwear::Hood | Headwear::Bald | Headwear::PointedHat(_) | Headwear::Tricorn(_) | Headwear::Mask => Vec::new(),
         Headwear::Skullcap(c) => vec![(Sphere::new(0.1).into(), at(0.0, 0.17, -0.01, Vec3::new(1.12, 0.6, 1.2)), c)],
     };
     for (mesh, t, color) in shapes {

@@ -8,9 +8,9 @@ use bevy::prelude::*;
 use crossfir3d::held::Headwear;
 
 /// Points of a surface, row by row; each row goes once around (its last point joins its first).
-type Grid = Vec<Vec<Vec3>>;
+pub(crate) type Grid = Vec<Vec<Vec3>>;
 
-const AROUND: usize = 48;
+pub(crate) const AROUND: usize = 48;
 const BRIM_Y: f32 = 0.2;
 
 /// The crown: rings up a centre line that stands straight, then bends back and down.
@@ -72,14 +72,14 @@ fn band() -> Grid {
         .into()
 }
 
-fn ring(j: usize) -> Vec3 {
+pub(crate) fn ring(j: usize) -> Vec3 {
     let a = TAU * j as f32 / AROUND as f32;
     Vec3::new(a.cos(), 0.0, a.sin())
 }
 
 /// One normal per point, pointing out: along the rows times across them.
 /// `closed` grids also wrap from the last row to the first.
-fn normals(grid: &Grid, closed: bool) -> Grid {
+pub(crate) fn normals(grid: &Grid, closed: bool) -> Grid {
     let rows = grid.len();
     let row = |i: isize| -> &Vec<Vec3> {
         if closed {
@@ -102,7 +102,7 @@ fn normals(grid: &Grid, closed: bool) -> Grid {
 }
 
 /// A mesh of the grid with `repeat` texture tiles around and along it.
-fn mesh(grid: &Grid, closed: bool, repeat: Vec2) -> Mesh {
+pub(crate) fn mesh(grid: &Grid, closed: bool, repeat: Vec2) -> Mesh {
     use bevy::asset::RenderAssetUsages;
     use bevy::mesh::{Indices, PrimitiveTopology};
     let normal = normals(grid, closed);

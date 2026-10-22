@@ -55,6 +55,8 @@ pub enum Garb {
     Peasant,
     Ranger,
     Metal,
+    /// Peasant clothes under a long robe and sash (built, not a model file).
+    Robe,
 }
 
 /// The outfit and tint for applied body armour (client types 250-257), or None: the
@@ -101,6 +103,8 @@ pub enum Headwear {
     Tricorn([f32; 3]),
     /// A black hood, and a cloth over the lower face.
     Mask,
+    /// No hair.
+    Bald,
 }
 
 /// What a class carries in a hand when that hand holds nothing else.
@@ -128,7 +132,7 @@ pub struct ClassLook {
 /// The look for a class, by arch ("wizard_class") or name ("Wizard"). Unknown: None.
 pub fn class_look(class: &str) -> Option<ClassLook> {
     use Carry::{Model, Potion, Staff};
-    use Headwear::{Hood, Mask, PointedHat, Skullcap, Tricorn};
+    use Headwear::{Bald, Hood, Mask, PointedHat, Skullcap, Tricorn};
     let key = class.to_ascii_lowercase();
     let key = key.strip_suffix("_class").unwrap_or(&key);
     let look = |garb, tint, head, right, left| Some(ClassLook { garb, tint, head, right, left });
@@ -142,7 +146,7 @@ pub fn class_look(class: &str) -> Option<ClassLook> {
         "thief" => look(Garb::Peasant, [0.45, 0.42, 0.42], Some(Hood), Some(Model("weapons/Dagger.gltf")), None),
         "ninja" => look(Garb::Peasant, [0.15, 0.15, 0.17], Some(Mask), Some(Model("weapons/Sword_2.gltf")), None),
         "swashbuckler" => look(Garb::Peasant, [1.4, 0.5, 0.65], Some(Tricorn([0.32, 0.2, 0.12])), Some(Model("weapons/Sword.gltf")), None),
-        "monk" => look(Garb::Peasant, [1.9, 1.85, 1.8], None, Some(Staff(None)), None),
+        "monk" => look(Garb::Robe, [1.9, 1.4, 0.45], Some(Bald), None, None),
         "priest" => look(Garb::Peasant, white, Some(Skullcap([0.92, 0.92, 0.88])), Some(Model("weapons/Hammer_Small.gltf")), None),
         "devotee" => look(Garb::Peasant, white, Some(PointedHat([0.95, 0.95, 0.92])), Some(Staff(Some([1.0, 1.0, 0.95]))), None),
         "wizard" => look(Garb::Peasant, [0.55, 0.75, 2.2], Some(PointedHat([0.45, 0.28, 0.15])), Some(Staff(Some([0.4, 0.6, 1.0]))), None),
