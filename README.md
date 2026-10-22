@@ -82,6 +82,23 @@ plays sounds and music from there (or from `$CROSSFIR3D_SOUNDS`).
 cargo run --release -p crossfir3d
 ```
 
+## Downloads (Mac and Windows)
+
+Download `Crossfir3d.dmg` (Apple-chip Macs) or `Crossfir3d-windows.zip` from the
+[releases](https://github.com/prototypo/Crossfir3d/releases). Type the server's
+address on the login screen.
+
+They are not signed, so the system warns the first time:
+
+- **Mac:** drag Crossfir3d to Applications and open it. When macOS stops it, open
+  System Settings > Privacy & Security and click "Open Anyway".
+- **Windows:** unzip the folder and run `crossfir3d.exe`. When SmartScreen stops it,
+  click "More info", then "Run anyway". Keep the `assets` and `sounds` folders next to it.
+
+To make them: `scripts/package.sh` builds the one for the computer it runs on, in
+`dist/`. The Release workflow (`.github/workflows/release.yml`) builds both; run it by
+hand from the Actions tab, or push a tag like `v0.1.0` to make a release.
+
 ## Characters
 
 Log in with an account, then pick a character from the list or press "New character"

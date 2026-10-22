@@ -215,14 +215,43 @@ pub fn move_old_folders(home: &Path) {
     }
 }
 
+/// Where the player's own files go (settings, keys, slots, bodies).
+pub fn data_dir() -> PathBuf {
+    folder(std::env::consts::OS, false, |k| std::env::var_os(k))
+}
+
+/// Where downloaded pictures are kept.
+pub fn cache_dir() -> PathBuf {
+    folder(std::env::consts::OS, true, |k| std::env::var_os(k))
+}
+
+/// The game's data (or `cache`) folder on system `os`, from the environment `env`.
+fn folder(os: &str, cache: bool, env: impl Fn(&str) -> Option<std::ffi::OsString>) -> PathBuf {
+    let home = || PathBuf::from(env("HOME").unwrap_or_default());
+    let base = match (os, cache) {
+        ("macos", false) => home().join("Library/Application Support"),
+        ("macos", true) => home().join("Library/Caches"),
+        ("windows", false) => PathBuf::from(env("APPDATA").unwrap_or_default()),
+        ("windows", true) => PathBuf::from(env("LOCALAPPDATA").unwrap_or_default()),
+        (_, false) => home().join(".local/share"),
+        (_, true) => home().join(".cache"),
+    };
+    base.join("Crossfir3d")
+}
+
+/// The bundled folder `name` (assets, sounds) for the program at `exe`: beside it (the
+/// Windows zip), or in the Mac app's Resources; else `dev`, the source checkout.
+pub fn bundled(exe: &Path, name: &str, dev: &Path) -> PathBuf {
+    let Some(dir) = exe.parent() else { return dev.to_path_buf() };
+    [dir.join(name), dir.join("../Resources").join(name)].into_iter().find(|p| p.is_dir()).unwrap_or_else(|| dev.to_path_buf())
+}
+
 /// CROSSFIR3D_SETTINGS overrides it (tests, screenshots).
-/// ponytail: Mac path; the `dirs` crate in M7.
 pub fn default_settings_path() -> PathBuf {
     if let Some(p) = std::env::var_os("CROSSFIR3D_SETTINGS") {
         return PathBuf::from(p);
     }
-    let home = std::env::var_os("HOME").map(PathBuf::from).unwrap_or_default();
-    home.join("Library/Application Support/Crossfir3d/settings.txt")
+    data_dir().join("settings.txt")
 }
 
 pub fn load_settings(path: &Path) -> Settings {
@@ -263,6 +292,39 @@ mod tests {
         // Left on the 2x screen.
         assert_eq!(to_logical((800, 300), 2.0), (400, 150));
         assert_eq!(to_main_screen_physical((-600, 50), 2.0), (-1200, 100));
+    }
+
+    #[test]
+    fn each_system_keeps_its_files_in_its_own_place() {
+        let env = |k: &str| match k {
+            "HOME" => Some("/h".into()),
+            "APPDATA" => Some("C:/A".into()),
+            "LOCALAPPDATA" => Some("C:/L".into()),
+            _ => None,
+        };
+        assert_eq!(folder("macos", false, env), PathBuf::from("/h/Library/Application Support/Crossfir3d"));
+        assert_eq!(folder("macos", true, env), PathBuf::from("/h/Library/Caches/Crossfir3d"));
+        assert_eq!(folder("windows", false, env), PathBuf::from("C:/A/Crossfir3d"));
+        assert_eq!(folder("windows", true, env), PathBuf::from("C:/L/Crossfir3d"));
+        assert_eq!(folder("linux", false, env), PathBuf::from("/h/.local/share/Crossfir3d"));
+        assert_eq!(folder("linux", true, env), PathBuf::from("/h/.cache/Crossfir3d"));
+    }
+
+    #[test]
+    fn bundled_files_are_found_next_to_the_program_or_in_a_mac_app() {
+        let root = std::env::temp_dir().join(format!("c3d-bundle-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&root);
+        let dev = Path::new("/dev/assets");
+        // Windows zip: assets beside the .exe.
+        std::fs::create_dir_all(root.join("win/assets")).unwrap();
+        assert_eq!(bundled(&root.join("win/crossfir3d.exe"), "assets", dev), root.join("win/assets"));
+        // Mac app: Contents/MacOS/crossfir3d and Contents/Resources/assets.
+        std::fs::create_dir_all(root.join("app/Contents/MacOS")).unwrap();
+        std::fs::create_dir_all(root.join("app/Contents/Resources/assets")).unwrap();
+        assert_eq!(bundled(&root.join("app/Contents/MacOS/crossfir3d"), "assets", dev), root.join("app/Contents/MacOS/../Resources/assets"));
+        // A build in target/: the source checkout.
+        assert_eq!(bundled(&root.join("target/crossfir3d"), "assets", dev), dev);
+        let _ = std::fs::remove_dir_all(&root);
     }
 
     #[test]

@@ -1,3 +1,4 @@
+#![cfg_attr(all(windows, not(debug_assertions)), windows_subsystem = "windows")] // no console window
 use bevy::prelude::*;
 use bevy_egui::{EguiPlugin, EguiPrimaryContextPass};
 use cfproto::{ClientMsg, Inventory, MapView, ServerMsg, SpellBook, Stats};
@@ -143,7 +144,7 @@ fn main() {
         .add_plugins(
             DefaultPlugins
                 .set(WindowPlugin { primary_window: Some(graphics::initial_window(&settings.0)), ..default() })
-                .set(AssetPlugin { file_path: world::ASSET_DIR.into(), ..default() }),
+                .set(AssetPlugin { file_path: world::asset_dir(), ..default() }),
         )
         .insert_resource(settings)
         .add_plugins(graphics::GraphicsPlugin)

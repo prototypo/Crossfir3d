@@ -74,10 +74,8 @@ pub fn usable(slot: &Slot, inv: &Inventory, spells: &SpellBook) -> bool {
     }
 }
 
-/// ponytail: Mac path; the `dirs` crate in M7.
 pub fn default_slots_path() -> PathBuf {
-    let home = std::env::var_os("HOME").map(PathBuf::from).unwrap_or_default();
-    home.join("Library/Application Support/Crossfir3d/slots.txt")
+    crate::settings::data_dir().join("slots.txt")
 }
 
 /// Lines: character<TAB>index<TAB>spell|item<TAB>name.
