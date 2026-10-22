@@ -604,7 +604,10 @@ fn sync_visuals(
                 let load = |f: &str| models.scene(&server, f);
                 let at = Transform::from_translation(pos);
                 let e = spawn_character(&mut commands, load, files, &look, at, Visibility::Hidden, (tv, Glide { target: pos }));
-                commands.entity(e).insert(Assembled(files.iter().map(|f| f.to_string()).collect()));
+                commands.entity(e).insert(Assembled(files.iter().filter(|f| !f.is_empty()).map(|f| f.to_string()).collect()));
+                if class.is_some_and(|c| c.garb == Garb::Robe) {
+                    commands.entity(e).insert(crate::robe::Robed);
+                }
                 if own_tile {
                     commands.entity(e).insert(OwnCharacter);
                 } else if let Some(class) = class {
