@@ -32,7 +32,19 @@ jobs:
         with:
           name: crossfir3d-${{ matrix.os }}
           path: dist/*
-      - if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@v2
+
+  # One upload after both builds: a published release is locked, so a second job could
+  # not add its file.
+  release:
+    if: startsWith(github.ref, 'refs/tags/')
+    needs: package
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
         with:
-          files: dist/*
+          merge-multiple: true
+      - uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            Crossfir3d.dmg
+            Crossfir3d-windows.zip
