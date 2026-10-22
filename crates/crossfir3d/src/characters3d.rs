@@ -504,6 +504,10 @@ fn wear_helmet(
     commands.entity(root).try_insert(want);
 }
 
+/// The tint that turns the hood's green cloth into the peasant shirt's brown: the ratio of
+/// their textures' average colours, corrected by hood and shirt colours in screenshots.
+const HOOD_TO_PEASANT: [f32; 3] = [1.58, 1.04, 2.08];
+
 /// The look and files of a character in its class's outfit (the hood in place of the
 /// hair), or as it was with no class. The outfit takes the class's colour, or keeps the
 /// look's own clothes colour when `own_colour` (creatures coloured from their pictures).
@@ -517,15 +521,18 @@ pub fn class_dressed(look: Look, body: Body, class: Option<ClassLook>, own_colou
     if !own_colour {
         look.clothes = [0, 1, 2].map(|i| class.tint[i] * human[i]);
     }
-    if matches!(class.head, Some(Headwear::Hood | Headwear::Mask)) {
+    if matches!(class.head, Some(Headwear::Hood | Headwear::Mask | Headwear::GlowEyes(_))) {
         files[1] = match body {
             Body::Regular => "outfits/Male_Ranger_Head_Hood.gltf",
             Body::Other => "outfits/Female_Ranger_Head_Hood.gltf",
         };
-        // The hood takes the hair's tint as is: the outfit's tint.
-        look.hair = [0, 1, 2].map(|i| look.clothes[i] / human[i]);
+        // The hood takes the hair's tint as is: the outfit's tint, and over peasant clothes
+        // also the change from the hood's green cloth to the peasant's brown.
+        let cloth = if matches!(class.garb, Garb::Peasant | Garb::Robe) { HOOD_TO_PEASANT } else { [1.0; 3] };
+        look.hair = [0, 1, 2].map(|i| look.clothes[i] / human[i] * cloth[i]);
     }
-    if class.head == Some(Headwear::Bald) {
+    // Bald, or the hat covers the whole top of the head.
+    if matches!(class.head, Some(Headwear::Bald | Headwear::Mitre | Headwear::HornedCap)) {
         files[1] = "";
     }
     (look, files)
@@ -585,20 +592,8 @@ fn put_on_head(
     materials: &mut Assets<StandardMaterial>,
     marker: impl Bundle + Clone,
 ) {
-    if crate::hat::put_on(commands, head, wear, k, leather, meshes, materials, marker.clone()) {
-        return;
-    }
-    let at = |x: f32, y: f32, z: f32, scale: Vec3| Transform::from_xyz(x * k, y * k, z * k).with_scale(scale * k);
-    let shapes: Vec<(Mesh, Transform, [f32; 3])> = match wear {
-        Headwear::Hood | Headwear::Bald | Headwear::PointedHat(_) | Headwear::Tricorn(_) | Headwear::Mask => Vec::new(),
-        Headwear::Skullcap(c) => vec![(Sphere::new(0.1).into(), at(0.0, 0.17, -0.01, Vec3::new(1.12, 0.6, 1.2)), c)],
-    };
-    for (mesh, t, color) in shapes {
-        let shape = (Mesh3d(meshes.add(mesh)), MeshMaterial3d(plain(materials, color, false)), t, marker.clone());
-        commands.entity(head).queue_silenced(move |mut e: EntityWorldMut| {
-            e.with_child(shape);
-        });
-    }
+    // Hoods and baldness are outfit and hair files, chosen at spawn: nothing to build.
+    crate::hat::put_on(commands, head, wear, k, leather, meshes, materials, marker);
 }
 
 /// How a hand holds a thing: where its grip sits and how it turns. The hand bone's +Y runs
@@ -620,6 +615,11 @@ fn grip(side: Hand, carry: &Carry) -> (Vec3, Quat) {
         }
         Carry::Model(file) if file.contains("Bow") => out_of_fist(0.35),
         Carry::Model(file) if file.contains("Spear") || file.contains("Scythe") => out_of_fist(-0.9),
+        // This model's handle runs up x = 0.67, off its origin.
+        Carry::Model(file) if file.contains("Axe_Double") => {
+            let (at, turn) = out_of_fist(0.6);
+            (at - turn * Vec3::X * 0.67 * WEAPON_SCALE, turn)
+        }
         Carry::Model(_) => out_of_fist(0.6),
         Carry::Staff(_) | Carry::Potion => out_of_fist(-0.9),
     }
@@ -900,6 +900,19 @@ mod tests {
     use super::*;
 
     #[test]
+    fn a_hood_matches_peasant_clothes() {
+        let devotee = class_look("devotee");
+        let human = look_for_race("human");
+        let (look, _) = class_dressed(human, Body::Regular, devotee, false);
+        let t = tints(&look);
+        for i in 0..3 {
+            assert!((t.hair[i] / t.clothes[i] - HOOD_TO_PEASANT[i]).abs() < 1e-4, "{:?} {:?}", t.hair, t.clothes);
+        }
+        let ranger = class_dressed(human, Body::Regular, class_look("ranger"), false).0;
+        assert_eq!(tints(&ranger).hair, tints(&ranger).clothes, "the ranger's hood is the ranger outfit's own cloth");
+    }
+
+    #[test]
     fn ninjas_wear_the_hood_under_the_mask() {
         let ninja = class_look("ninja");
         let (_, files) = class_dressed(look_for_race("human"), Body::Regular, ninja, false);
@@ -914,6 +927,15 @@ mod tests {
         assert!(at.y > 0.05, "in the fist, past the wrist");
         let staff = grip(Hand::Left, &Carry::Staff(None)).1 * Vec3::Y;
         assert!(staff.y < -0.5, "the staff's top is up the arm: {staff}");
+    }
+
+    #[test]
+    fn the_double_axe_handle_is_in_the_fist() {
+        let (fist, _) = grip(Hand::Right, &Carry::Model("weapons/Sword.gltf"));
+        let (at, turn) = grip(Hand::Right, &Carry::Model("weapons/Axe_Double.gltf"));
+        // The model's handle runs up x = 0.67, not x = 0.
+        let handle = at + turn * Vec3::X * 0.67 * WEAPON_SCALE;
+        assert!(handle.abs_diff_eq(fist, 0.01), "{handle} {fist}");
     }
 
     #[test]

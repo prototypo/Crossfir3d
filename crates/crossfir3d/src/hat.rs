@@ -1,5 +1,6 @@
 //! Built headwear: the soft leather pointed hat (a wavy, drooping brim and a crown whose
-//! tip flops back), the tricorn, and the ninja's face cloth.
+//! tip flops back), the tricorn, the ninja's face cloth, and the other classes' helmets,
+//! hats, circlet, horns and goggles.
 //! Sizes are for a human head bone (+Y up, +Z the face).
 
 use std::f32::consts::TAU;
@@ -45,8 +46,9 @@ fn crown() -> Grid {
     out
 }
 
-/// The brim: a thin, round-edged ring whose outer edge droops in waves.
-fn brim() -> Grid {
+/// The brim: a thin, round-edged ring whose outer edge droops in waves, `droop` times the
+/// pointed hat's, and `lift` of it taken off at the front (to show the eyes).
+fn brim(droop: f32, lift: f32) -> Grid {
     let (inner, outer, thick, rows) = (0.1, 0.26, 0.009, 16);
     (0..rows)
         .map(|i| {
@@ -57,7 +59,8 @@ fn brim() -> Grid {
             (0..AROUND)
                 .map(|j| {
                     let a = TAU * j as f32 / AROUND as f32;
-                    let droop = 0.06 + 0.025 * (3.0 * a + 0.7).sin() + 0.012 * (5.0 * a + 2.0).sin();
+                    let front = a.sin().max(0.0).powi(2);
+                    let droop = droop * (1.0 - lift * front) * (0.06 + 0.025 * (3.0 * a + 0.7).sin() + 0.012 * (5.0 * a + 2.0).sin());
                     Vec3::new(d * a.cos(), BRIM_Y + thick * v.sin() - droop * q, d * a.sin())
                 })
                 .collect()
@@ -242,11 +245,118 @@ fn mask() -> Grid {
         .collect()
 }
 
+/// Rings of `rows + 1` rows: ring `i` at height `y(t)` with half widths `(x, z)(t)` round
+/// `(0, _, z0)`, for t from 0 to 1.
+fn rings(rows: usize, z0: f32, f: impl Fn(f32) -> (f32, f32, f32)) -> Grid {
+    (0..=rows)
+        .map(|i| {
+            let (y, wide, deep) = f(i as f32 / rows as f32);
+            (0..AROUND).map(|j| Vec3::new(0.0, y, z0) + ring(j) * Vec3::new(wide.max(0.002), 0.0, deep.max(0.002))).collect()
+        })
+        .collect()
+}
+
+/// A short band round the head from `low` to `high`.
+fn head_band(low: f32, high: f32, wide: f32, deep: f32) -> Grid {
+    rings(1, -0.01, |t| (low + (high - low) * t, wide, deep))
+}
+
+/// The warrior's helmet: a rounded steel cone over the mail hood, with a brow band.
+fn helm() -> [Grid; 2] {
+    let dome = rings(14, -0.01, |t| {
+        let r = (1.0 - t.powf(1.8)).sqrt();
+        (0.125 + 0.19 * t, 0.135 * r, 0.145 * r)
+    });
+    [dome, head_band(0.112, 0.15, 0.14, 0.15)]
+}
+
+/// The priest's mitre: tall, its front a pointed arch, thin from front to back at the top.
+fn mitre() -> Grid {
+    rings(16, -0.01, |t| (0.155 + 0.285 * t, 0.132 * (1.0 - t * t).powf(0.6), 0.14 * (1.0 - t).powf(1.4)))
+}
+
+/// The sorcerer's hat: a tall, stiff, straight cone leaning a little back.
+fn tall_cone() -> Grid {
+    (0..=16)
+        .map(|i| {
+            let t = i as f32 / 16.0;
+            let at = Vec3::new(0.0, BRIM_Y - 0.005 + 0.42 * t, -0.02 - 0.05 * t);
+            (0..AROUND).map(|j| at + (0.13 * (1.0 - t) + 0.002) * ring(j)).collect()
+        })
+        .collect()
+}
+
+/// A low round crown (the tricorn's, the travel hat's, the horned cap's).
+fn dome(base: f32, radius: f32, height: f32) -> Grid {
+    rings(12, -0.01, |t| {
+        let up = std::f32::consts::FRAC_PI_2 * t;
+        let r = radius * up.cos().powf(0.6);
+        (base + height * up.sin(), r, r * 1.05)
+    })
+}
+
+/// A tube along `path` (centre, radius), rings square to it.
+fn tube(path: &[(Vec3, f32)]) -> Grid {
+    (0..path.len())
+        .map(|i| {
+            let (at, r) = path[i];
+            let along = (path[(i + 1).min(path.len() - 1)].0 - path[i.saturating_sub(1)].0).normalize();
+            let side = Vec3::Z.cross(along).normalize_or(Vec3::X);
+            let up = along.cross(side);
+            (0..AROUND)
+                .map(|j| {
+                    let a = TAU * j as f32 / AROUND as f32;
+                    at + r * (a.cos() * side + a.sin() * up)
+                })
+                .collect()
+        })
+        .collect()
+}
+
+/// A horn from the side of the cap, out and curving up; `side` 1 is the left.
+fn horn(side: f32) -> Grid {
+    let path: Vec<(Vec3, f32)> = (0..=12)
+        .map(|i| {
+            let s = i as f32 / 12.0;
+            (Vec3::new(side * (0.1 + 0.12 * s), 0.2 + 0.02 * s + 0.15 * s * s, -0.01 + 0.03 * s), 0.032 * (1.0 - s) + 0.003)
+        })
+        .collect();
+    tube(&path)
+}
+
+/// A flat five-pointed star facing `out`, its top toward `up`.
+fn star(at: Vec3, out: Vec3, up: Vec3, size: f32) -> Mesh {
+    let turn = Quat::from_mat3(&Mat3::from_cols(up.cross(out).normalize(), up.normalize(), out.normalize()));
+    let mut points = vec![Vec3::ZERO];
+    for k in 0..=10 {
+        let a = std::f32::consts::FRAC_PI_2 + TAU * k as f32 / 10.0;
+        let r = if k % 2 == 0 { size } else { size * 0.45 };
+        points.push(Vec3::new(r * a.cos(), r * a.sin(), 0.0));
+    }
+    let indices: Vec<u32> = (1..11).flat_map(|k| [0, k, k + 1]).collect();
+    let points: Vec<Vec3> = points.iter().map(|p| at + turn * *p).collect();
+    let n = points.len();
+    Mesh::new(bevy::mesh::PrimitiveTopology::TriangleList, bevy::asset::RenderAssetUsages::default())
+        .with_inserted_attribute(Mesh::ATTRIBUTE_POSITION, points)
+        .with_inserted_attribute(Mesh::ATTRIBUTE_NORMAL, vec![out.normalize(); n])
+        .with_inserted_attribute(Mesh::ATTRIBUTE_UV_0, vec![Vec2::ZERO; n])
+        .with_inserted_indices(bevy::mesh::Indices::U32(indices))
+}
+
+/// A small box at `at`, turned by `turn`.
+fn plate(size: Vec3, at: Vec3, turn: Quat) -> Mesh {
+    Cuboid::from_size(size).mesh().build().rotated_by(turn).translated_by(at)
+}
+
 #[derive(Clone, Copy, PartialEq)]
 enum Finish {
     Leather,
     Cloth,
     Brass,
+    Steel,
+    Bone,
+    /// Lit from inside: gems, glass, glowing eyes.
+    Glow,
 }
 
 /// Puts a built hat or mask on a head bone, `k` times the size for a human; `marker` goes on
@@ -267,7 +377,7 @@ pub fn put_on(
     let parts: Vec<(Mesh, [f32; 3], Finish)> = match wear {
         Headwear::PointedHat(c) => vec![
             (mesh(&crown(), false, Vec2::new(3.0, 2.0)), c, Finish::Leather),
-            (mesh(&brim(), true, Vec2::new(5.0, 1.0)), c, Finish::Leather),
+            (mesh(&brim(1.0, 0.7), true, Vec2::new(5.0, 1.0)), c, Finish::Leather),
             (mesh(&band(), false, Vec2::new(6.0, 0.25)), dark(c), Finish::Leather),
         ],
         Headwear::Tricorn(c) => {
@@ -281,6 +391,75 @@ pub fn put_on(
             [(mesh(&crown, false, Vec2::new(3.0, 1.0)), c, Finish::Leather), (mesh(&brim, false, Vec2::new(5.0, 0.5)), c, Finish::Leather)].into_iter().chain(buttons).collect()
         }
         Headwear::Mask => vec![(mesh(&mask(), false, Vec2::new(4.0, 0.3)), [0.05, 0.05, 0.06], Finish::Cloth)],
+        Headwear::Helm => {
+            let [dome, band] = helm();
+            let steel = [0.62, 0.64, 0.68];
+            let mut out = vec![
+                (mesh(&dome, false, Vec2::ONE), steel, Finish::Steel),
+                (mesh(&band, false, Vec2::ONE), dark(steel), Finish::Steel),
+                // The nose guard, down from the band.
+                (plate(Vec3::new(0.024, 0.075, 0.012), Vec3::new(0.0, 0.09, 0.142), Quat::IDENTITY), steel, Finish::Steel),
+            ];
+            for j in (0..AROUND).step_by(AROUND / 8) {
+                let at = Vec3::new(0.0, 0.131, -0.01) + ring(j) * Vec3::new(0.143, 0.0, 0.153);
+                out.push((Sphere::new(0.006).mesh().build().translated_by(at), dark(steel), Finish::Steel));
+            }
+            out
+        }
+        Headwear::Circlet => {
+            let gold = [0.95, 0.75, 0.3];
+            vec![
+                (mesh(&head_band(0.14, 0.16, 0.124, 0.137), false, Vec2::ONE), gold, Finish::Brass),
+                (Sphere::new(0.016).mesh().build().translated_by(Vec3::new(0.0, 0.15, 0.133)), [0.85, 0.92, 1.0], Finish::Glow),
+            ]
+        }
+        Headwear::Mitre => {
+            vec![
+                (mesh(&mitre(), false, Vec2::ONE), [0.95, 0.94, 0.9], Finish::Cloth),
+                (mesh(&head_band(0.15, 0.188, 0.134, 0.142), false, Vec2::ONE), [0.95, 0.75, 0.3], Finish::Brass),
+            ]
+        }
+        Headwear::TallHat(c) => {
+            let cone = tall_cone();
+            let gold = [0.95, 0.8, 0.35];
+            let mut out = vec![
+                (mesh(&cone, false, Vec2::new(3.0, 2.0)), c, Finish::Cloth),
+                (mesh(&brim(0.15, 0.0), true, Vec2::new(5.0, 1.0)), c, Finish::Cloth),
+                (mesh(&band(), false, Vec2::new(6.0, 0.25)), gold, Finish::Brass),
+            ];
+            // Stars scattered up the cone, on its outside.
+            for (j, row) in [(AROUND / 4, 4), (AROUND / 4 + 7, 8), (AROUND / 4 - 6, 10), (AROUND / 4 + 2, 13), (0, 6), (AROUND / 2, 7), (3 * AROUND / 4, 9)] {
+                let (p, up) = (cone[row][j], cone[row + 1][j] - cone[row][j]);
+                let out_dir = ring(j);
+                out.push((star(p + out_dir * 0.003, out_dir, up, 0.018 - 0.0008 * row as f32), gold, Finish::Brass));
+            }
+            out
+        }
+        Headwear::SlouchHat(c) => vec![
+            (mesh(&dome(BRIM_Y - 0.01, 0.13, 0.12), false, Vec2::new(3.0, 1.0)), c, Finish::Leather),
+            (mesh(&brim(0.6, 0.6), true, Vec2::new(5.0, 1.0)), c, Finish::Leather),
+            (mesh(&band(), false, Vec2::new(6.0, 0.25)), dark(c), Finish::Leather),
+        ],
+        Headwear::HornedCap => {
+            let fur = [0.42, 0.3, 0.2];
+            vec![
+                (mesh(&dome(0.12, 0.132, 0.135), false, Vec2::new(3.0, 1.0)), fur, Finish::Leather),
+                (mesh(&head_band(0.11, 0.14, 0.137, 0.146), false, Vec2::new(6.0, 0.3)), dark(fur), Finish::Leather),
+                (mesh(&horn(1.0), false, Vec2::ONE), [0.9, 0.85, 0.7], Finish::Bone),
+                (mesh(&horn(-1.0), false, Vec2::ONE), [0.9, 0.85, 0.7], Finish::Bone),
+            ]
+        }
+        Headwear::Goggles => {
+            let mut out = vec![(mesh(&head_band(0.145, 0.165, 0.124, 0.134), false, Vec2::new(6.0, 0.2)), [0.25, 0.16, 0.1], Finish::Leather)];
+            for x in [-0.036, 0.036] {
+                let front = Quat::from_rotation_x(std::f32::consts::FRAC_PI_2);
+                let at = Vec3::new(x, 0.165, 0.134);
+                out.push((Cylinder::new(0.026, 0.022).mesh().build().rotated_by(front).translated_by(at), [0.8, 0.6, 0.25], Finish::Brass));
+                out.push((Cylinder::new(0.02, 0.003).mesh().build().rotated_by(front).translated_by(at + Vec3::Z * 0.0115), [0.3, 0.6, 0.55], Finish::Glow));
+            }
+            out
+        }
+        Headwear::GlowEyes(c) => [-0.032, 0.032].map(|x| (Sphere::new(0.013).mesh().build().translated_by(Vec3::new(x, 0.122, 0.097)), c, Finish::Glow)).into(),
         _ => return false,
     };
     for (m, [r, g, b], finish) in parts {
@@ -292,9 +471,12 @@ pub fn put_on(
             perceptual_roughness: match finish {
                 Finish::Leather => 0.7,
                 Finish::Cloth => 0.95,
-                Finish::Brass => 0.35,
+                Finish::Brass | Finish::Steel => 0.35,
+                Finish::Bone => 0.5,
+                Finish::Glow => 0.2,
             },
-            metallic: if finish == Finish::Brass { 0.8 } else { 0.0 },
+            metallic: if matches!(finish, Finish::Brass | Finish::Steel) { 0.85 } else { 0.0 },
+            emissive: if finish == Finish::Glow { LinearRgba::from(Color::srgb(r, g, b)) * 6.0 } else { LinearRgba::BLACK },
             reflectance: 0.35,
             // A turned-up brim shows its inside.
             double_sided: true,
@@ -329,9 +511,11 @@ mod tests {
 
     #[test]
     fn the_brim_droops_unevenly() {
-        let b = brim();
+        let b = brim(1.0, 0.7);
         let rim: Vec<f32> = (0..AROUND).map(|j| b.iter().map(|r| r[j].y).fold(f32::MAX, f32::min)).collect();
-        assert!(rim.iter().all(|y| *y < 0.18), "the outer edge hangs below the inner edge");
+        // The back half: the front is lifted off the eyes.
+        assert!(rim[AROUND / 2..].iter().all(|y| *y < 0.18), "the outer edge hangs below the inner edge");
+        assert!(rim[AROUND / 4] > rim[3 * AROUND / 4] + 0.02, "the front hangs less than the back");
         let (lo, hi) = rim.iter().fold((f32::MAX, f32::MIN), |(lo, hi), y| (lo.min(*y), hi.max(*y)));
         assert!(hi - lo > 0.02, "the droop changes around the hat");
     }
@@ -358,13 +542,46 @@ mod tests {
     }
 
     #[test]
+    fn the_helm_covers_the_head_with_a_point() {
+        let [dome, _] = helm();
+        let apex = centre(dome.last().unwrap());
+        assert!(apex.y > 0.3 && dome[0].iter().all(|p| p.y < 0.14));
+        assert!(dome[0][AROUND / 4].z > 0.13, "wide enough to go over the hood");
+    }
+
+    #[test]
+    fn the_mitre_is_tall_and_thin_at_the_top() {
+        let m = mitre();
+        let row = &m[3 * m.len() / 4];
+        let (wide, deep) = (row[0].x - row[AROUND / 2].x, row[AROUND / 4].z - row[3 * AROUND / 4].z);
+        assert!(centre(m.last().unwrap()).y > 0.4);
+        assert!(wide > 2.0 * deep, "an arch from the front, thin from the side: {wide} {deep}");
+    }
+
+    #[test]
+    fn the_tall_hat_stands_straight() {
+        let c = tall_cone();
+        let tip = centre(c.last().unwrap());
+        assert!(tip.y > 0.55 && tip.z > -0.1 && tip.z < 0.0, "up, leaning a little back: {tip}");
+    }
+
+    #[test]
+    fn horns_go_out_and_up() {
+        for side in [1.0, -1.0] {
+            let h = horn(side);
+            let (root, tip) = (centre(&h[0]), centre(h.last().unwrap()));
+            assert!(tip.x * side > root.x * side + 0.08 && tip.y > root.y + 0.08);
+        }
+    }
+
+    #[test]
     fn normals_point_out() {
         let c = crown();
         let n = normals(&c, false);
         for (p, n) in c[2].iter().zip(&n[2]) {
             assert!(n.dot(Vec3::new(p.x, 0.0, p.z + 0.02)) > 0.0, "crown side at {p}");
         }
-        let b = brim();
+        let b = brim(1.0, 0.7);
         let n = normals(&b, true);
         // The highest point of the brim's section faces up.
         let top = (0..b.len()).max_by(|i, k| b[*i][0].y.total_cmp(&b[*k][0].y)).unwrap();
