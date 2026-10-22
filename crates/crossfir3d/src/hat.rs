@@ -414,15 +414,9 @@ pub fn put_on(
             ]
         }
         Headwear::Mitre => {
-            let gold = [0.95, 0.75, 0.3];
-            // The cross lies on the front, which leans back as it rises.
-            let lean = Quat::from_rotation_x(-0.49);
-            let at = Vec3::new(0.0, 0.29, 0.05);
             vec![
                 (mesh(&mitre(), false, Vec2::ONE), [0.95, 0.94, 0.9], Finish::Cloth),
-                (mesh(&head_band(0.15, 0.188, 0.134, 0.142), false, Vec2::ONE), gold, Finish::Brass),
-                (plate(Vec3::new(0.016, 0.09, 0.006), at, lean), gold, Finish::Brass),
-                (plate(Vec3::new(0.06, 0.016, 0.006), at + lean * Vec3::Y * 0.015, lean), gold, Finish::Brass),
+                (mesh(&head_band(0.15, 0.188, 0.134, 0.142), false, Vec2::ONE), [0.95, 0.75, 0.3], Finish::Brass),
             ]
         }
         Headwear::TallHat(c) => {
