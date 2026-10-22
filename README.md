@@ -27,6 +27,8 @@ Log in with an account, then pick a character from the list or press "New charac
 to choose race, class, rolled stats, and where to start (Scorn by default). The server
 (as patched by `scripts/server.sh`) saves new characters too.
 
+Each class has its own look: see [docs/classes.md](docs/classes.md).
+
 ## Playing in 3D
 
 The camera sits over your character's shoulder and turns to stay behind them. Arrow
