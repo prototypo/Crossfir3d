@@ -615,6 +615,11 @@ fn grip(side: Hand, carry: &Carry) -> (Vec3, Quat) {
         }
         Carry::Model(file) if file.contains("Bow") => out_of_fist(0.35),
         Carry::Model(file) if file.contains("Spear") || file.contains("Scythe") => out_of_fist(-0.9),
+        // This model's handle runs up x = 0.67, off its origin.
+        Carry::Model(file) if file.contains("Axe_Double") => {
+            let (at, turn) = out_of_fist(0.6);
+            (at - turn * Vec3::X * 0.67 * WEAPON_SCALE, turn)
+        }
         Carry::Model(_) => out_of_fist(0.6),
         Carry::Staff(_) | Carry::Potion => out_of_fist(-0.9),
     }
@@ -922,6 +927,15 @@ mod tests {
         assert!(at.y > 0.05, "in the fist, past the wrist");
         let staff = grip(Hand::Left, &Carry::Staff(None)).1 * Vec3::Y;
         assert!(staff.y < -0.5, "the staff's top is up the arm: {staff}");
+    }
+
+    #[test]
+    fn the_double_axe_handle_is_in_the_fist() {
+        let (fist, _) = grip(Hand::Right, &Carry::Model("weapons/Sword.gltf"));
+        let (at, turn) = grip(Hand::Right, &Carry::Model("weapons/Axe_Double.gltf"));
+        // The model's handle runs up x = 0.67, not x = 0.
+        let handle = at + turn * Vec3::X * 0.67 * WEAPON_SCALE;
+        assert!(handle.abs_diff_eq(fist, 0.01), "{handle} {fist}");
     }
 
     #[test]
