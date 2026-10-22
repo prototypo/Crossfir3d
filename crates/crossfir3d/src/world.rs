@@ -217,8 +217,10 @@ pub struct MapGen(pub u32);
 #[derive(Resource, Default)]
 struct Doorstep(Option<Vec3>);
 
-/// A thing put together from model files (building, wall, character): its parts are
-/// hidden and its picture stands in until every file has loaded.
+/// A thing put together from model files (building, wall, character): its parts and a
+/// building's picture are hidden until every file has loaded; then the parts show, or
+/// the picture if one failed. Characters and creatures have no picture: the server's
+/// pixel art is never drawn for them.
 #[derive(Component)]
 struct Assembled(Vec<String>);
 
@@ -559,8 +561,8 @@ fn sync_visuals(
             cull_mode: None,
             ..default()
         });
-        // The picture (a block for walls, else a card) stands in while a 3D thing loads,
-        // and stays if it fails: never nothing.
+        // The picture (a block for walls, else a card), hidden while a 3D thing loads,
+        // shows if it fails: never nothing.
         let picture = if wall {
             Transform::from_translation(tile + Vec3::new(0.5, 0.5, 0.5))
         } else {
@@ -570,7 +572,7 @@ fn sync_visuals(
         let stand_in = |commands: &mut Commands, parent: Entity, at: Vec3| {
             let t = Transform { translation: picture.translation - at, ..picture };
             let mesh = if wall { textures.cube.clone() } else { textures.card.clone() };
-            let mut e = commands.spawn((StandIn, Mesh3d(mesh), MeshMaterial3d(material.clone()), t, ChildOf(parent)));
+            let mut e = commands.spawn((StandIn, Mesh3d(mesh), MeshMaterial3d(material.clone()), t, Visibility::Hidden, ChildOf(parent)));
             if !wall {
                 e.insert(Card);
             }
@@ -616,9 +618,12 @@ fn sync_visuals(
                 if let Some(outfit) = outfit {
                     commands.entity(e).insert(outfit);
                 }
-                stand_in(&mut commands, e, pos);
                 continue;
             }
+        }
+        // A player never shows as the server's pixel picture, even when the 3D body fails.
+        if classify_player_face(name).is_some() {
+            continue;
         }
         if glides(layer)
             && let Visual::Beast { file, scale, tint } = models.map.lookup(name)
@@ -629,8 +634,7 @@ fn sync_visuals(
             let scene = models.scene(&server, &file);
             let at = Transform::from_translation(pos);
             let extra = (tv, Glide { target: pos }, Assembled(vec![file.clone()]));
-            let e = spawn_beast(&mut commands, scene, &file, scale, tint, at, extra);
-            stand_in(&mut commands, e, pos);
+            spawn_beast(&mut commands, scene, &file, scale, tint, at, extra);
             continue;
         }
         if glides(layer)
@@ -641,8 +645,7 @@ fn sync_visuals(
             let (file, scale, tint) = (file.clone(), *scale, tint.unwrap_or([1.0; 3]));
             let scene = models.scene(&server, &file);
             let at = Transform::from_translation(pos);
-            let e = spawn_monster(&mut commands, scene, scale, tint, at, Visibility::Hidden, (tv, Glide { target: pos }, Assembled(vec![file])));
-            stand_in(&mut commands, e, pos);
+            spawn_monster(&mut commands, scene, scale, tint, at, Visibility::Hidden, (tv, Glide { target: pos }, Assembled(vec![file])));
             continue;
         }
         // Big pictures are sent at their bottom-right square; models stand in the middle.
@@ -951,8 +954,18 @@ impl Models {
     }
 }
 
+/// What becomes of an assembled thing's part (or its picture) once its files are done:
+/// shown (true), gone (false), or None while they load.
+fn on_load(state: Load, picture: bool) -> Option<bool> {
+    match state {
+        Load::Loading => None,
+        Load::Loaded => Some(!picture),
+        Load::Failed => Some(picture),
+    }
+}
+
 /// Shows an assembled thing once all its files have loaded (its picture goes); if one
-/// fails, its parts go and the picture stays.
+/// fails, its parts go and the picture shows.
 fn reveal_assembled(
     mut commands: Commands,
     server: Res<AssetServer>,
@@ -966,12 +979,12 @@ fn reveal_assembled(
             continue;
         }
         for &c in children {
-            match (state, stand_ins.contains(c)) {
-                (Load::Loaded, true) | (Load::Failed, false) => commands.entity(c).try_despawn(),
-                (Load::Loaded, false) => {
+            match on_load(state, stand_ins.contains(c)) {
+                Some(true) => {
                     commands.entity(c).try_insert(Visibility::Inherited);
                 }
-                _ => {}
+                Some(false) => commands.entity(c).try_despawn(),
+                None => {}
             }
         }
         commands.entity(e).try_remove::<Assembled>();
@@ -1238,6 +1251,15 @@ fn despawn_visuals(mut commands: Commands, q: Query<Entity, With<TileVisual>>) {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn the_picture_shows_only_if_the_model_fails() {
+        assert_eq!(on_load(Load::Loaded, true), Some(false), "a loaded thing's picture goes");
+        assert_eq!(on_load(Load::Loaded, false), Some(true), "and its parts show");
+        assert_eq!(on_load(Load::Failed, true), Some(true), "a failed one's picture shows");
+        assert_eq!(on_load(Load::Failed, false), Some(false), "and its parts go");
+        assert_eq!(on_load(Load::Loading, true), None);
+    }
 
     #[test]
     fn leaving_the_game_forgets_face_pictures() {
