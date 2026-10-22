@@ -448,6 +448,10 @@ fn wear_armour(
     let [r, g, b] = tint;
     commands.entity(old).try_despawn();
     commands.spawn((WorldAssetRoot(scene), t, vis, ModelTint(Color::srgb(r, g, b)), SkinTint(skin.0), PartOf(root), ChildOf(root), OutfitPart));
+    // What was built on the old outfit went with it: build it again on the new one.
+    if let Some(dress) = crate::robe::Dress::of(own_look.class, want.0.is_some()) {
+        commands.entity(root).try_insert(dress);
+    }
     commands.entity(root).try_insert(want);
 }
 

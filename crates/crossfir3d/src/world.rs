@@ -605,8 +605,8 @@ fn sync_visuals(
                 let at = Transform::from_translation(pos);
                 let e = spawn_character(&mut commands, load, files, &look, at, Visibility::Hidden, (tv, Glide { target: pos }));
                 commands.entity(e).insert(Assembled(files.iter().filter(|f| !f.is_empty()).map(|f| f.to_string()).collect()));
-                if let Some(c) = class.filter(|c| c.garb == Garb::Robe || c.back.is_some() || c.over.is_some()) {
-                    commands.entity(e).insert(crate::robe::Dress { robe: c.garb == Garb::Robe, back: c.back, over: c.over });
+                if let Some(dress) = crate::robe::Dress::of(class, outfit.is_some_and(|o| o.armour)) {
+                    commands.entity(e).insert(dress);
                 }
                 if own_tile {
                     commands.entity(e).insert(OwnCharacter);
