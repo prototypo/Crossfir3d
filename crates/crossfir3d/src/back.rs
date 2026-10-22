@@ -214,8 +214,10 @@ pub fn cape_weights(grid: &Grid, rest: &Rest) -> Weights {
 }
 
 /// Several meshes as one.
+/// Tangents are dropped: only some parts have them, and a merge keeps a part's own
+/// attributes even when the others lack them, so they would no longer line up.
 pub(crate) fn merged(parts: impl IntoIterator<Item = Mesh>) -> Mesh {
-    let mut parts = parts.into_iter();
+    let mut parts = parts.into_iter().map(|m| m.with_removed_attribute(Mesh::ATTRIBUTE_TANGENT));
     let mut out = parts.next().expect("at least one part");
     for m in parts {
         out.merge(&m).expect("the parts share attributes");

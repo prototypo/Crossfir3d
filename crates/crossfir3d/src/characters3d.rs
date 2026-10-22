@@ -44,7 +44,7 @@ impl Plugin for CharactersPlugin {
             .init_resource::<OwnLook>()
             .init_resource::<Preview>()
             .init_resource::<crate::hat::Leather>()
-            .add_systems(Update, crate::robe::dress_robes)
+            .add_systems(Update, (crate::robe::dress_robes, crate::skeleton::build_skeletons))
             .add_observer(bind_bones)
             .add_systems(Startup, (load_anims, setup_preview))
             .add_systems(Update, (build_graph, animate, animate_beasts, hold_items, wear_armour, wear_helmet, dress_people, gear_up, freeze_statues))

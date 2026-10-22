@@ -648,6 +648,16 @@ fn sync_visuals(
             spawn_monster(&mut commands, scene, scale, tint, at, Visibility::Hidden, (tv, Glide { target: pos }, Assembled(vec![file])));
             continue;
         }
+        if glides(layer) && let &Visual::Skeleton { scale, tint } = models.map.lookup(name) {
+            let pos = tile + Vec3::new(0.5, 0.0, 0.5);
+            let file = character_files(Body::Regular)[0];
+            let look = Look { scale, ..look_for_race("human") };
+            let load = |f: &str| models.scene(&server, f);
+            let bony = crate::skeleton::Bony(tint.unwrap_or([1.0; 3]));
+            let extra = (tv, Glide { target: pos }, Assembled(vec![file.to_string()]), bony);
+            spawn_character(&mut commands, load, [file, "", ""], &look, Transform::from_translation(pos), Visibility::Hidden, extra);
+            continue;
+        }
         // Big pictures are sent at their bottom-right square; models stand in the middle.
         let (fw, fh) = footprint(size.x as u32, size.y as u32);
         let middle = tile + Vec3::new(1.0 - fw as f32 / 2.0, 0.0, 1.0 - fh as f32 / 2.0);

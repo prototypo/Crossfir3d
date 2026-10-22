@@ -28,6 +28,8 @@ pub enum Visual {
     Person { body: Body, look: Look, dress: Option<[f32; 3]>, broom: bool, armour: bool, wide: f32, head: f32, class: Option<ClassLook> },
     /// A rigged creature model (one file) moved like a person.
     Monster { file: String, scale: f32, tint: Option<[f32; 3]> },
+    /// A walking skeleton: a person's bones, built in code, `scale` times a person's size.
+    Skeleton { scale: f32, tint: Option<[f32; 3]> },
     /// An animal or monster model with its own skeleton and animations (idle, walk).
     Beast { file: String, scale: f32, tint: Option<[f32; 3]> },
     Flat,
@@ -131,6 +133,7 @@ fn parse_visual(words: &[&str]) -> Option<Visual> {
         ["beast", file, scale, ref rest @ ..] => {
             Visual::Beast { file: file.to_string(), scale: scale.parse().ok()?, tint: tint(rest)? }
         }
+        ["skeleton", scale, ref rest @ ..] => Visual::Skeleton { scale: scale.parse().ok()?, tint: tint(rest)? },
         ["statue", ref rest @ ..] => Visual::Statue { tint: tint(rest)? },
         ["building", recipe] => Visual::Building { recipe: recipe.to_string(), sign: None, icon: None },
         ["building", recipe, sign, ref icon @ ..] if icon.len() <= 1 => Visual::Building {
@@ -283,6 +286,30 @@ bad model x.glb notanumber 0 0
             &Visual::Monster { file: "monsters/Puglin.gltf".into(), scale: 0.9, tint: Some([1.0, 0.6, 0.4]) }
         );
         assert!(matches!(m.lookup("skeleton"), Visual::Monster { tint: None, .. }));
+    }
+
+    #[test]
+    fn the_model_list_uses_no_paid_models() {
+        let text = std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/../../assets/models.txt")).unwrap();
+        assert!(!text.contains("monsters/"), "the paid monster pack may not be shared");
+    }
+
+    #[test]
+    fn monsters_once_in_the_paid_pack_are_people_or_skeletons() {
+        let m = ModelMap::parse(&std::fs::read_to_string(concat!(env!("CARGO_MANIFEST_DIR"), "/../../assets/models.txt")).unwrap());
+        for name in ["goblin", "kobold", "troll", "ogre", "golem", "gargoyle", "devil", "big_demon", "imp", "gnoll"] {
+            assert!(matches!(m.lookup(name), Visual::Person { .. }), "{name}: {:?}", m.lookup(name));
+        }
+        for name in ["skeleton", "skeleton_chief", "lich", "wight", "skeletalmage"] {
+            assert!(matches!(m.lookup(name), Visual::Skeleton { .. }), "{name}");
+        }
+    }
+
+    #[test]
+    fn skeleton_parsed() {
+        let m = ModelMap::parse("skeleton skeleton 1.0\nlich skeleton 1.05 0.75,0.6,0.95\n");
+        assert_eq!(m.lookup("skeleton.151"), &Visual::Skeleton { scale: 1.0, tint: None });
+        assert_eq!(m.lookup("lich"), &Visual::Skeleton { scale: 1.05, tint: Some([0.75, 0.6, 0.95]) });
     }
 
     #[test]

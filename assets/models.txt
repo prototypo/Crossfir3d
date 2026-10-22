@@ -8,6 +8,7 @@
 #   wall <style>        (joined pieces; styles: stone brick plaster wood hedge rock)
 #   flat                (lies on the ground)
 #   card                (keep the picture card)
+#   skeleton <scale> [r,g,b]   (a person's bones, built in code)
 #   statue [r,g,b]      (a half-size stone 3D character on a plinth)
 # One map square is 1 unit. Player pictures are handled in code (races.rs).
 
@@ -920,7 +921,7 @@ green_dragon3 beast beasts/flying/Dragon.gltf 0.701 0.45,0.85,0.45
 red_dragon2 beast beasts/flying/Dragon.gltf 0.637 1,0.5,0.45
 drake beast beasts/flying/Dragon.gltf 0.382 0.5,0.6,1
 bone_drake beast beasts/flying/Dragon.gltf 0.446 0.95,0.92,0.85
-gargoyle monster monsters/Tidebreaker.gltf 0.8 0.75,0.75,0.78
+gargoyle person regular 1.0 0.8,0.85,0.9 0.5,0.5,0.52 0.55,0.55,0.58 class barbarian
 belzebub beast beasts/big/Demon.gltf 0.769 1,0.5,0.45
 jessyb beast beasts/big/Demon.gltf 0.705 1,0.4,0.35
 raas beast beasts/cute/GreenDemon.gltf 0.494
@@ -964,13 +965,13 @@ blob beast beasts/blob/GreenBlob.gltf 0.270 0.2,0.2,0.22
 leech beast beasts/blob/GreenBlob.gltf 0.162 0.4,0.3,0.25
 slug beast beasts/blob/GreenBlob.gltf 0.324 0.6,0.5,0.35
 slug_slime beast beasts/blob/GreenBlob.gltf 0.324 0.6,0.75,0.4
-golem monster monsters/Tidebreaker.gltf 1.0 0.6,0.6,0.62
-golem_red monster monsters/Tidebreaker.gltf 1.0 1,0.5,0.45
-gol monster monsters/Tidebreaker.gltf 1.0 0.3,0.3,0.32
-lokanth monster monsters/Tidebreaker.gltf 1.0 0.5,0.8,0.45
-mudman monster monsters/Tidebreaker.gltf 0.8 0.6,0.45,0.3
-ogre_r monster monsters/Tidebreaker.gltf 1.0 1,0.6,0.55
-smallt_green monster monsters/Tidebreaker.gltf 0.6 0.6,0.9,0.6
+golem person regular 1.4 0.8,0.85,0.9 0.5,0.5,0.52 0.55,0.55,0.58 armour wide 1.4
+golem_red person regular 1.4 1.1,0.55,0.5 0.4,0.25,0.22 0.6,0.35,0.3 armour wide 1.4
+gol person regular 1.4 0.4,0.42,0.45 0.2,0.2,0.22 0.3,0.3,0.32 armour wide 1.4
+lokanth person regular 1.4 0.6,0.9,0.55 0.3,0.4,0.25 0.4,0.55,0.35 armour wide 1.4
+mudman person regular 1.1 0.75,0.6,0.45 0.3,0.22,0.15 0.45,0.35,0.25 wide 1.3
+ogre_r person regular 1.3 1.1,0.6,0.55 0.12,0.1,0.08 0.4,0.32,0.22 wide 1.4 head 0.9
+smallt_green person regular 0.9 0.5,0.95,0.5 0.12,0.1,0.08 0.35,0.3,0.25 wide 1.2 head 0.9
 
 # Built creatures (buildings.rs): they glide from square to square like the bees.
 snake building snake:0.35,0.55,0.25
@@ -1034,8 +1035,8 @@ sandy flat
 mystic_fist building fist
 firechest model props/Chest_Wood.gltf 0.45 0 0 1.0,0.45,0.35
 
-lich monster monsters/Skeleton_B.gltf 1.05 0.75,0.6,0.95
-wight monster monsters/Skeleton_A.gltf 1.0 0.85,0.9,0.95
+lich skeleton 1.05 0.75,0.6,0.95
+wight skeleton 1.0 0.85,0.9,0.95
 shadow beast beasts/flying/Ghost.gltf 0.355 0.15,0.15,0.18
 stalker beast beasts/flying/Ghost.gltf 0.355 0.85,0.85,0.9
 sphinx beast beasts/animals/Wolf.gltf 0.45 0.95,0.78,0.45
@@ -1048,36 +1049,34 @@ witch_earth person other 1.0 0.85,0.68,0.55 0.3,0.2,0.1 0.5,0.38,0.22 dress 0.5,
 witch_fire person other 1.0 0.85,0.68,0.55 0.8,0.2,0.1 0.85,0.25,0.12 dress 0.85,0.25,0.12
 witch_water person other 1.0 0.85,0.68,0.55 0.2,0.3,0.6 0.25,0.45,0.85 dress 0.25,0.45,0.85
 
-# --- Monsters (monsters/: Quaternius' Bestiary - Dungeon Monsters Kit, Source tier) ---
-#   monster <file> <scale> [r,g,b]   (scale 1 = a person's body scale; heights at scale 1:
-#   Puglin 0.56, Imp 1.0, Skeleton 1.08, Lycan 1.2, Hellwarden 1.36, Tidebreaker 1.56)
-goblin monster monsters/Puglin.gltf 1.1
-goblin_chief monster monsters/Puglin.gltf 1.3
-goblin_leader monster monsters/Puglin.gltf 1.3 0.8,1.0,0.7
-kobold monster monsters/Puglin.gltf 0.9 1.0,0.55,0.4
-h_kobold monster monsters/Puglin.gltf 1.0 1.0,0.55,0.4
-unusual_kobold monster monsters/Puglin.gltf 0.9 0.8,0.6,1.0
-imp monster monsters/Imp.gltf 0.6
-skeleton monster monsters/Skeleton_A.gltf 1.0
-skeleton_chief monster monsters/Skeleton_B.gltf 1.1
-skeleton_leader monster monsters/Skeleton_B.gltf 1.05
-skeletalmage monster monsters/Skeleton_B.gltf 1.0 0.8,0.8,1.0
-gnoll monster monsters/Lycan.gltf 0.95
-gnoll_chief monster monsters/Lycan.gltf 1.05
-gnoll_leader monster monsters/Lycan.gltf 1.05
-troll monster monsters/Tidebreaker.gltf 1.0
-smalltroll monster monsters/Tidebreaker.gltf 0.7
-armourtroll2 monster monsters/Tidebreaker.gltf 1.05
-armourtroll3 monster monsters/Tidebreaker.gltf 1.05
-armourtroll4 monster monsters/Tidebreaker.gltf 1.05
-gaelotroll monster monsters/Tidebreaker.gltf 1.1 0.7,0.9,0.7
-ogre monster monsters/Tidebreaker.gltf 0.9 1.0,0.8,0.65
-ogre_chief monster monsters/Tidebreaker.gltf 1.0 1.0,0.8,0.65
-ogre_leader monster monsters/Tidebreaker.gltf 1.0 1.0,0.8,0.65
-devil monster monsters/Hellwarden.gltf 0.9
-mdemon monster monsters/Hellwarden.gltf 1.0
-demon_lord monster monsters/Hellwarden.gltf 1.2
-big_demon monster monsters/Hellwarden.gltf 1.3
+# --- Monsters: goblins, trolls, demons and the like, from the CC0 beast packs ---
+goblin person regular 0.7 0.6,1.1,0.5 0.12,0.1,0.08 0.45,0.35,0.25 head 1.2
+goblin_chief person regular 0.8 0.6,1.1,0.5 0.12,0.1,0.08 0.45,0.35,0.25 armour head 1.2
+goblin_leader person regular 0.8 0.5,1.0,0.45 0.12,0.1,0.08 0.45,0.35,0.25 armour head 1.2
+kobold person regular 0.6 1.1,0.6,0.4 0.12,0.1,0.08 0.45,0.35,0.25 head 1.25
+h_kobold person regular 0.65 1.1,0.6,0.4 0.12,0.1,0.08 0.45,0.35,0.25 head 1.25
+unusual_kobold person regular 0.6 0.8,0.6,1.1 0.12,0.1,0.08 0.45,0.35,0.25 head 1.25
+imp person regular 0.55 1.5,0.4,0.3 0.1,0.05,0.05 0.3,0.1,0.08 head 1.3 class barbarian
+skeleton skeleton 1.0
+skeleton_chief skeleton 1.1
+skeleton_leader skeleton 1.05
+skeletalmage skeleton 1.0 0.8,0.8,1.0
+gnoll person regular 1.0 0.8,0.6,0.4 0.3,0.2,0.1 0.45,0.35,0.2 class thief
+gnoll_chief person regular 1.1 0.8,0.6,0.4 0.3,0.2,0.1 0.45,0.35,0.2 armour class thief
+gnoll_leader person regular 1.1 0.8,0.6,0.4 0.3,0.2,0.1 0.45,0.35,0.2 armour class thief
+troll person regular 1.35 0.6,0.85,0.6 0.12,0.1,0.08 0.35,0.3,0.25 wide 1.3 head 0.9
+smalltroll person regular 1.0 0.6,0.85,0.6 0.12,0.1,0.08 0.35,0.3,0.25 wide 1.2 head 0.9
+armourtroll2 person regular 1.4 0.6,0.85,0.6 0.12,0.1,0.08 0.35,0.3,0.25 armour wide 1.3 head 0.9
+armourtroll3 person regular 1.4 0.6,0.85,0.6 0.12,0.1,0.08 0.35,0.3,0.25 armour wide 1.3 head 0.9
+armourtroll4 person regular 1.4 0.6,0.85,0.6 0.12,0.1,0.08 0.35,0.3,0.25 armour wide 1.3 head 0.9
+gaelotroll person regular 1.4 0.5,0.9,0.55 0.12,0.1,0.08 0.35,0.3,0.25 wide 1.3 head 0.9
+ogre person regular 1.3 1.0,0.8,0.65 0.12,0.1,0.08 0.4,0.32,0.22 wide 1.4 head 0.9
+ogre_chief person regular 1.4 1.0,0.8,0.65 0.12,0.1,0.08 0.4,0.32,0.22 armour wide 1.4 head 0.9
+ogre_leader person regular 1.4 1.0,0.8,0.65 0.12,0.1,0.08 0.4,0.32,0.22 armour wide 1.4 head 0.9
+devil person regular 1.1 1.5,0.4,0.3 0.1,0.05,0.05 0.3,0.1,0.08 class barbarian
+mdemon person regular 1.2 1.5,0.4,0.3 0.1,0.05,0.05 0.3,0.1,0.08 class barbarian
+demon_lord person regular 1.4 1.5,0.4,0.3 0.1,0.05,0.05 0.3,0.1,0.08 wide 1.2 class barbarian
+big_demon person regular 1.5 1.5,0.4,0.3 0.1,0.05,0.05 0.3,0.1,0.08 wide 1.3 class barbarian
 
 # --- Doors (door/): the Kenney door spans north-south unturned. `_1`, `h` and `1` pictures
 # span east-west (rot 90); `_2`, `v` and `2` span north-south. Opened doors vanish.
