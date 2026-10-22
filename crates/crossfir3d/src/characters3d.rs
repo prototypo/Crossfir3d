@@ -512,7 +512,7 @@ pub fn class_dressed(look: Look, body: Body, class: Option<ClassLook>, own_colou
     if !own_colour {
         look.clothes = [0, 1, 2].map(|i| class.tint[i] * human[i]);
     }
-    if class.head == Some(Headwear::Hood) {
+    if matches!(class.head, Some(Headwear::Hood | Headwear::Mask)) {
         files[1] = match body {
             Body::Regular => "outfits/Male_Ranger_Head_Hood.gltf",
             Body::Other => "outfits/Female_Ranger_Head_Hood.gltf",
@@ -577,18 +577,13 @@ fn put_on_head(
     materials: &mut Assets<StandardMaterial>,
     marker: impl Bundle + Clone,
 ) {
-    if let Headwear::PointedHat(c) = wear {
-        return crate::hat::put_on(commands, head, c, k, leather, meshes, materials, marker);
+    if crate::hat::put_on(commands, head, wear, k, leather, meshes, materials, marker.clone()) {
+        return;
     }
     let at = |x: f32, y: f32, z: f32, scale: Vec3| Transform::from_xyz(x * k, y * k, z * k).with_scale(scale * k);
     let shapes: Vec<(Mesh, Transform, [f32; 3])> = match wear {
-        Headwear::Hood | Headwear::PointedHat(_) => Vec::new(),
+        Headwear::Hood | Headwear::PointedHat(_) | Headwear::Tricorn(_) | Headwear::Mask => Vec::new(),
         Headwear::Skullcap(c) => vec![(Sphere::new(0.1).into(), at(0.0, 0.17, -0.01, Vec3::new(1.12, 0.6, 1.2)), c)],
-        Headwear::BrimHat(c) => vec![
-            (Cylinder::new(0.2, 0.02).into(), at(0.0, 0.2, 0.0, Vec3::ONE), c),
-            (Cylinder::new(0.1, 0.12).into(), at(0.0, 0.26, 0.0, Vec3::ONE), c),
-        ],
-        Headwear::Mask => vec![(Cuboid::new(0.2, 0.07, 0.2).into(), at(0.0, 0.05, 0.02, Vec3::ONE), [0.1, 0.1, 0.12])],
     };
     for (mesh, t, color) in shapes {
         let shape = (Mesh3d(meshes.add(mesh)), MeshMaterial3d(plain(materials, color, false)), t, marker.clone());
@@ -895,6 +890,13 @@ fn clear_preview(mut commands: Commands, mut preview: ResMut<Preview>, bodies: Q
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn ninjas_wear_the_hood_under_the_mask() {
+        let ninja = class_look("ninja");
+        let (_, files) = class_dressed(look_for_race("human"), Body::Regular, ninja, false);
+        assert_eq!(files[1], "outfits/Male_Ranger_Head_Hood.gltf");
+    }
 
     #[test]
     fn weapons_point_out_of_the_fist() {

@@ -97,8 +97,9 @@ pub enum Headwear {
     Hood,
     PointedHat([f32; 3]),
     Skullcap([f32; 3]),
-    BrimHat([f32; 3]),
-    /// A dark cloth over the lower face.
+    /// Three-cornered, its brim turned up.
+    Tricorn([f32; 3]),
+    /// A black hood, and a cloth over the lower face.
     Mask,
 }
 
@@ -127,20 +128,20 @@ pub struct ClassLook {
 /// The look for a class, by arch ("wizard_class") or name ("Wizard"). Unknown: None.
 pub fn class_look(class: &str) -> Option<ClassLook> {
     use Carry::{Model, Potion, Staff};
-    use Headwear::{BrimHat, Hood, Mask, PointedHat, Skullcap};
+    use Headwear::{Hood, Mask, PointedHat, Skullcap, Tricorn};
     let key = class.to_ascii_lowercase();
     let key = key.strip_suffix("_class").unwrap_or(&key);
     let look = |garb, tint, head, right, left| Some(ClassLook { garb, tint, head, right, left });
     // Peasant tints are over its brown cloth (1 keeps it); metal tints are over grey.
-    let (white, dark) = ([2.0, 2.2, 2.8], [0.3, 0.32, 0.4]);
+    let white = [2.0, 2.2, 2.8];
     match key {
         "warrior" => look(Garb::Metal, [1.3, 1.32, 1.38], None, Some(Model("weapons/Sword.gltf")), Some(Model("weapons/Shield_Round.gltf"))),
         "barbarian" => look(Garb::Peasant, [1.0, 0.75, 0.65], None, Some(Model("weapons/Axe_Double.gltf")), None),
         "paladin" => look(Garb::Metal, [1.65, 1.68, 1.8], None, Some(Model("weapons/Sword_Golden.gltf")), Some(Model("weapons/Shield_Heater.gltf"))),
         "ranger" => look(Garb::Ranger, [1.0; 3], Some(Hood), None, Some(Model("weapons/Bow_Wooden.gltf"))),
-        "thief" => look(Garb::Ranger, [0.35, 0.35, 0.4], Some(Hood), Some(Model("weapons/Dagger.gltf")), None),
-        "ninja" => look(Garb::Peasant, dark, Some(Mask), Some(Model("weapons/Sword_2.gltf")), None),
-        "swashbuckler" => look(Garb::Peasant, [1.4, 0.5, 0.65], Some(BrimHat([0.15, 0.12, 0.1])), Some(Model("weapons/Sword.gltf")), None),
+        "thief" => look(Garb::Peasant, [0.45, 0.42, 0.42], Some(Hood), Some(Model("weapons/Dagger.gltf")), None),
+        "ninja" => look(Garb::Peasant, [0.15, 0.15, 0.17], Some(Mask), Some(Model("weapons/Sword_2.gltf")), None),
+        "swashbuckler" => look(Garb::Peasant, [1.4, 0.5, 0.65], Some(Tricorn([0.32, 0.2, 0.12])), Some(Model("weapons/Sword.gltf")), None),
         "monk" => look(Garb::Peasant, [1.9, 1.85, 1.8], None, Some(Staff(None)), None),
         "priest" => look(Garb::Peasant, white, Some(Skullcap([0.92, 0.92, 0.88])), Some(Model("weapons/Hammer_Small.gltf")), None),
         "devotee" => look(Garb::Peasant, white, Some(PointedHat([0.95, 0.95, 0.92])), Some(Staff(Some([1.0, 1.0, 0.95]))), None),
@@ -240,5 +241,10 @@ mod tests {
         assert_eq!(class_look("paladin").unwrap().garb, Garb::Metal);
         assert_eq!(class_look("ranger").unwrap().left, Some(Carry::Model("weapons/Bow_Wooden.gltf")));
         assert_eq!(class_look("bard"), None);
+    }
+
+    #[test]
+    fn thieves_wear_no_armour() {
+        assert_eq!(class_look("thief").unwrap().garb, Garb::Peasant);
     }
 }
