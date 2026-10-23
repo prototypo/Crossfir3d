@@ -14,26 +14,27 @@ pub enum Hand {
 /// The model for an applied item, or None (armour, tools, crossbows: no model yet).
 pub fn held_model(kind: u16, name: &str) -> Option<(&'static str, Hand)> {
     let name = name.to_ascii_lowercase();
-    let has = |words: &[&str]| words.iter().any(|w| name.contains(w));
-    let right = |file| Some((file, Hand::Right));
-    match kind {
-        // Artifacts: mostly swords.
-        100 => right("weapons/Sword_Golden.gltf"),
-        101 if has(&["dagger", "knife"]) => right("weapons/Dagger.gltf"),
-        101 if has(&["claymore", "great", "two-hand", "bastard"]) => right("weapons/Claymore.gltf"),
-        101 => right("weapons/Sword.gltf"),
-        106 if has(&["battle", "double", "great"]) => right("weapons/Axe_Double.gltf"),
-        106 => right("weapons/Axe.gltf"),
-        // Clubs, hammers, maces, and flails.
-        121 | 126 | 129 | 141 => right("weapons/Hammer_Small.gltf"),
-        136 if has(&["scythe"]) => right("weapons/Scythe.gltf"),
-        136 => right("weapons/Spear.gltf"),
-        150 | 151 => Some(("weapons/Bow_Wooden.gltf", Hand::Left)),
-        260 | 261 if has(&["kite", "high", "tower", "large"]) => Some(("weapons/Shield_Heater.gltf", Hand::Left)),
-        260 | 261 => Some(("weapons/Shield_Round.gltf", Hand::Left)),
-        _ => None,
-    }
+    let row = HELD.iter().find(|r| r.0.contains(&kind) && (r.1.is_empty() || r.1.iter().any(|w| name.contains(w))))?;
+    Some((row.2, row.3))
 }
+
+/// Per model: kinds, words one of which the name must hold (empty: any), file, hand. First match wins.
+static HELD: [(&[u16], &[&str], &str, Hand); 12] = [
+    // Artifacts: mostly swords.
+    (&[100], &[], "weapons/Sword_Golden.gltf", Hand::Right),
+    (&[101], &["dagger", "knife"], "weapons/Dagger.gltf", Hand::Right),
+    (&[101], &["claymore", "great", "two-hand", "bastard"], "weapons/Claymore.gltf", Hand::Right),
+    (&[101], &[], "weapons/Sword.gltf", Hand::Right),
+    (&[106], &["battle", "double", "great"], "weapons/Axe_Double.gltf", Hand::Right),
+    (&[106], &[], "weapons/Axe.gltf", Hand::Right),
+    // Clubs, hammers, maces, and flails.
+    (&[121, 126, 129, 141], &[], "weapons/Hammer_Small.gltf", Hand::Right),
+    (&[136], &["scythe"], "weapons/Scythe.gltf", Hand::Right),
+    (&[136], &[], "weapons/Spear.gltf", Hand::Right),
+    (&[150, 151], &[], "weapons/Bow_Wooden.gltf", Hand::Left),
+    (&[260, 261], &["kite", "high", "tower", "large"], "weapons/Shield_Heater.gltf", Hand::Left),
+    (&[260, 261], &[], "weapons/Shield_Round.gltf", Hand::Left),
+];
 
 /// The models for the applied items among `carried`, at most one per hand.
 pub fn held(carried: &[&Item]) -> Vec<(&'static str, Hand)> {
@@ -346,6 +347,50 @@ mod tests {
         assert_eq!(helmet(&[&item(271, "Crown", true)]), Some([0.95, 0.75, 0.25]));
         assert_eq!(helmet(&[&item(271, "full helmet", true)]), Some([0.6, 0.62, 0.66]));
         assert_eq!(helmet(&[&item(272, "turban", true)]), None);
+    }
+
+    #[test]
+    fn every_held_model_unchanged() {
+        let names = ["dagger", "knife", "claymore", "great", "two-hand", "bastard", "battle", "double", "scythe", "kite", "high", "tower", "large", "DAGGER", "stick"];
+        let (r, l) = (Hand::Right, Hand::Left);
+        let files = [
+            ('G', "weapons/Sword_Golden.gltf", r),
+            ('S', "weapons/Sword.gltf", r),
+            ('D', "weapons/Dagger.gltf", r),
+            ('C', "weapons/Claymore.gltf", r),
+            ('A', "weapons/Axe.gltf", r),
+            ('X', "weapons/Axe_Double.gltf", r),
+            ('H', "weapons/Hammer_Small.gltf", r),
+            ('Y', "weapons/Scythe.gltf", r),
+            ('P', "weapons/Spear.gltf", r),
+            ('B', "weapons/Bow_Wooden.gltf", l),
+            ('E', "weapons/Shield_Heater.gltf", l),
+            ('R', "weapons/Shield_Round.gltf", l),
+        ];
+        let rows = [
+            (100, "GGGGGGGGGGGGGGG"),
+            (101, "DDCCCCSSSSSSSDS"),
+            (106, "AAAXAAXXAAAAAAA"),
+            (121, "HHHHHHHHHHHHHHH"),
+            (126, "HHHHHHHHHHHHHHH"),
+            (129, "HHHHHHHHHHHHHHH"),
+            (136, "PPPPPPPPYPPPPPP"),
+            (141, "HHHHHHHHHHHHHHH"),
+            (150, "BBBBBBBBBBBBBBB"),
+            (151, "BBBBBBBBBBBBBBB"),
+            (260, "RRRRRRRRREEEERR"),
+            (261, "RRRRRRRRREEEERR"),
+            (0, "---------------"),
+            (99, "---------------"),
+            (102, "---------------"),
+            (999, "---------------"),
+        ];
+        for (kind, codes) in rows {
+            for (name, code) in names.into_iter().zip(codes.chars()) {
+                let want = files.iter().find(|f| f.0 == code).map(|f| (f.1, f.2));
+                assert_eq!(held_model(kind, name), want, "{kind} {name}");
+            }
+        }
     }
 
     #[test]

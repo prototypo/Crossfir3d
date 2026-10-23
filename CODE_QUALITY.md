@@ -184,7 +184,7 @@ denominator grew.
 - Measured: complexity 22 (threshold 10); length 66 (threshold 50)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
 
-### [ ] 🔴 Q24: complexity — crates/crossfir3d/src/held.rs:15 `held_model`
+### [x] 🔴 Q24: complexity — crates/crossfir3d/src/held.rs:15 `held_model`
 
 - Measured: complexity 22 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
