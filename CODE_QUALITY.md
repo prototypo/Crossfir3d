@@ -365,7 +365,7 @@ denominator grew.
 - Measured: complexity 15 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
 
-### [ ] 🔴 Q60: complexity, arguments — crates/crossfir3d/src/back.rs:161 `panel`
+### [x] 🔴 Q60: complexity, arguments — crates/crossfir3d/src/back.rs:161 `panel`
 
 - Measured: complexity 13 (threshold 10); arguments 7 (threshold 5)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.

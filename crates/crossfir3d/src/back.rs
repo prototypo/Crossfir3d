@@ -25,19 +25,19 @@ fn back_at(rest: &Rest, points: &[Vec3], x: f32, y: f32) -> f32 {
 
 /// A cape from over the shoulders down to `hem` (a height), with a ragged hem `teeth` deep.
 pub fn cape(rest: &Rest, points: &[Vec3], hem: f32, teeth: f32) -> Grid {
-    panel(rest, points, (rest.neck.y - 0.04, hem), (0.38, 0.46), false, teeth, 0.0)
+    panel(rest, points, PanelShape { high: rest.neck.y - 0.04, hem, spread: (0.38, 0.46), front: false, teeth, loose: 0.0 })
 }
 
 /// A leather apron from the chest to the knees, wrapping a little round the hips.
 pub fn apron(rest: &Rest, points: &[Vec3]) -> Grid {
-    panel(rest, points, (rest.chest.y + 0.08, rest.pelvis.y - 0.38), (0.26, 0.3), true, 0.0, 0.0)
+    panel(rest, points, PanelShape { high: rest.chest.y + 0.08, hem: rest.pelvis.y - 0.38, spread: (0.26, 0.3), front: true, teeth: 0.0, loose: 0.0 })
 }
 
 /// A tabard: a straight panel in front from the collar and one behind from the shoulder
 /// blades, down to the knees.
 pub fn tabard(rest: &Rest, points: &[Vec3]) -> [Grid; 2] {
     let hem = rest.pelvis.y - 0.42;
-    [(true, rest.neck.y - 0.07), (false, rest.left_shoulder.y - 0.06)].map(|(front, high)| panel(rest, points, (high, hem), (0.26, 0.26), front, 0.0, 0.0))
+    [(true, rest.neck.y - 0.07), (false, rest.left_shoulder.y - 0.06)].map(|(front, high)| panel(rest, points, PanelShape { high, hem, spread: (0.26, 0.26), front, teeth: 0.0, loose: 0.0 }))
 }
 
 /// The unit direction `a` radians round the X axis: 0 to the front (+Z), a half turn to the back.
@@ -138,9 +138,9 @@ pub fn tabard_straps(rest: &Rest, points: &[Vec3], [front, back]: &[Grid; 2]) ->
 /// A creature's rags: torn cloth all round from the neck to the thighs, front and back.
 pub fn rags(rest: &Rest, points: &[Vec3]) -> [Grid; 2] {
     // Up to the neck, over the shirt's collar.
-    let span = (rest.neck.y, rest.pelvis.y - 0.3);
+    let (high, hem) = (rest.neck.y, rest.pelvis.y - 0.3);
     // Loose: a hunched creature's chest pulls the cloth in at the waist.
-    [true, false].map(|front| panel(rest, points, span, (0.5, 0.5), front, 0.12, 0.035))
+    [true, false].map(|front| panel(rest, points, PanelShape { high, hem, spread: (0.5, 0.5), front, teeth: 0.12, loose: 0.035 }))
 }
 
 /// A ragged sleeve round a limb bone, from just before `shoulder` toward `elbow`, `long`
@@ -184,51 +184,84 @@ pub fn sleeve(points: &[Vec3], shoulder: Vec3, elbow: Vec3, long: f32) -> Grid {
 /// the outside from the right to the left, back across the inside. `teeth`: a ragged hem
 /// this deep. Rows go from the hem up, so its normals face out.
 /// `loose`: this much further out from the body.
-fn panel(rest: &Rest, points: &[Vec3], (high, hem): (f32, f32), spread: (f32, f32), front: bool, teeth: f32, loose: f32) -> Grid {
-    let rows = 16;
-    let half = AROUND / 2;
-    let side = if front { 1.0 } else { -1.0 };
-    let mut hang = vec![0.0f32; half];
-    let mut grid: Grid = (0..=rows)
-        .map(|i| {
-            // 0 at the top, 1 at the hem.
-            let t = i as f32 / rows as f32;
-            let y = high + (hem - high) * t;
-            let centre = Vec3::new(0.0, y, middle(rest));
-            let spread = spread.0 + (spread.1 - spread.0) * t;
-            let outside: Vec<Vec3> = (0..half)
-                .map(|s| {
-                    // Behind, from the right (-X) round to the left (+X); in front, the other
-                    // way, so the outside always faces out.
-                    let u = s as f32 / (half - 1) as f32;
-                    let u = if front { 1.0 - u } else { u };
-                    let a = PI * (0.5 + spread * (1.0 - 2.0 * u));
-                    let dir = Vec3::new(a.cos(), 0.0, side * a.sin());
-                    // Cloth hangs from the widest part above.
-                    // Not out along the rest pose's sleeves; clear of the buttons and buckle in front.
-                    // Loose cloth is still tight round the neck, so nothing shows inside it.
-                    let clear = if i == 0 && loose > 0.0 { 0.015 } else { (if front { 0.055 } else { 0.04 }) + loose };
-                    hang[s] = hang[s].max(reach(points, centre, dir, 0.1).min(if dir.x.abs() > 0.6 { 0.21 } else { 1.0 }) + clear);
-                    // Folds, deeper toward the hem.
-                    let folds = 0.012 * t * (1.0 - (u * 7.0 * TAU).cos());
-                    let mut p = centre + (hang[s] + 0.05 * t * t + folds) * dir;
-                    // Over the shoulders.
-                    if i == 0 && high > rest.chest.y + 0.1 {
-                        p.y = p.y.max(top(points, p, rest.neck.y - 0.03) + 0.012);
-                    }
-                    // Torn unevenly.
-                    if i == rows {
-                        p.y += teeth * (s * 37 % 11) as f32 / 10.0;
-                    }
-                    p
-                })
-                .collect();
-            let inside = outside.iter().rev().map(|p| *p - (*p - centre).with_y(0.0).normalize() * 0.006);
-            outside.iter().copied().chain(inside).collect()
-        })
-        .collect();
+fn panel(rest: &Rest, points: &[Vec3], shape: PanelShape) -> Grid {
+    let cloth = Cloth { rest, points, shape };
+    let mut hang = vec![0.0f32; AROUND / 2];
+    let mut grid: Grid = (0..=PANEL_ROWS).map(|i| panel_row(&cloth, i, &mut hang)).collect();
     grid.reverse();
     grid
+}
+
+/// What a `panel` hangs on and how it is cut.
+struct PanelShape {
+    high: f32,
+    hem: f32,
+    spread: (f32, f32),
+    front: bool,
+    teeth: f32,
+    loose: f32,
+}
+
+/// A `panel`'s shape with the body it hangs on.
+struct Cloth<'a> {
+    rest: &'a Rest,
+    points: &'a [Vec3],
+    shape: PanelShape,
+}
+
+/// Where a `panel` row is: its index, the centre of its ring and how far round it reaches.
+struct PanelRow {
+    i: usize,
+    t: f32,
+    centre: Vec3,
+    spread: f32,
+}
+
+const PANEL_ROWS: usize = 16;
+
+/// One ring of a `panel`: the outside then the inside, updating how far each column hangs.
+fn panel_row(cloth: &Cloth, i: usize, hang: &mut [f32]) -> Vec<Vec3> {
+    let PanelShape { high, hem, spread, .. } = cloth.shape;
+    // 0 at the top, 1 at the hem.
+    let t = i as f32 / PANEL_ROWS as f32;
+    let y = high + (hem - high) * t;
+    let centre = Vec3::new(0.0, y, middle(cloth.rest));
+    let spread = spread.0 + (spread.1 - spread.0) * t;
+    let row = PanelRow { i, t, centre, spread };
+    let outside: Vec<Vec3> = hang.iter_mut().enumerate().map(|(s, h)| panel_point(cloth, &row, s, h)).collect();
+    let inside = outside.iter().rev().map(|p| *p - (*p - centre).with_y(0.0).normalize() * 0.006);
+    outside.iter().copied().chain(inside).collect()
+}
+
+/// One point on a `panel` row's outside, column `s`, raising its `hang`.
+fn panel_point(cloth: &Cloth, row: &PanelRow, s: usize, hang: &mut f32) -> Vec3 {
+    let Cloth { rest, points, shape: PanelShape { high, front, teeth, loose, .. } } = *cloth;
+    let PanelRow { i, t, centre, spread } = *row;
+    let half = AROUND / 2;
+    let side = if front { 1.0 } else { -1.0 };
+    // Behind, from the right (-X) round to the left (+X); in front, the other
+    // way, so the outside always faces out.
+    let u = s as f32 / (half - 1) as f32;
+    let u = if front { 1.0 - u } else { u };
+    let a = PI * (0.5 + spread * (1.0 - 2.0 * u));
+    let dir = Vec3::new(a.cos(), 0.0, side * a.sin());
+    // Cloth hangs from the widest part above.
+    // Not out along the rest pose's sleeves; clear of the buttons and buckle in front.
+    // Loose cloth is still tight round the neck, so nothing shows inside it.
+    let clear = if i == 0 && loose > 0.0 { 0.015 } else { (if front { 0.055 } else { 0.04 }) + loose };
+    *hang = hang.max(reach(points, centre, dir, 0.1).min(if dir.x.abs() > 0.6 { 0.21 } else { 1.0 }) + clear);
+    // Folds, deeper toward the hem.
+    let folds = 0.012 * t * (1.0 - (u * 7.0 * TAU).cos());
+    let mut p = centre + (*hang + 0.05 * t * t + folds) * dir;
+    // Over the shoulders.
+    if i == 0 && high > rest.chest.y + 0.1 {
+        p.y = p.y.max(top(points, p, rest.neck.y - 0.03) + 0.012);
+    }
+    // Torn unevenly.
+    if i == PANEL_ROWS {
+        p.y += teeth * (s * 37 % 11) as f32 / 10.0;
+    }
+    p
 }
 
 /// A wide band round the waist over the belt, rows from the bottom up.
