@@ -97,7 +97,7 @@ denominator grew.
 - Measured: complexity 52 (threshold 10); length 119 (threshold 50); nesting 6 (threshold 4)
 - Recommendation: Handle each `ServerMsg` variant in its own function; `pump_network` keeps the read loop and the `match`.
 
-### [ ] 🔴 Q9: file size — crates/crossfir3d/src/buildings.rs
+### [x] 🔴 Q9: file size — crates/crossfir3d/src/buildings.rs
 
 - Measured: 2,566 lines (threshold 500)
 - Recommendation: Move the families into submodules: `buildings/village.rs`, `castle.rs`, `items.rs`, `furniture.rs`, `walls.rs`, with the shared `Part` helpers in `buildings/mod.rs`.
