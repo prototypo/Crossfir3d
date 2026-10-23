@@ -211,20 +211,31 @@ pub(super) fn centipede(color: [f32; 3]) -> Vec<Part> {
     out
 }
 
-/// A chess piece about a person high: `piece` is pawn, rook, knight, bishop, queen or king.
-pub(super) fn chess_piece(piece: &str, color: [f32; 3]) -> Vec<Part> {
-    let high = match piece {
+/// How tall a chess piece is, relative to a king.
+fn chess_height(piece: &str) -> f32 {
+    match piece {
         "pawn" => 0.6,
         "rook" => 0.75,
         "knight" | "bishop" => 0.85,
         _ => 1.0,
-    };
+    }
+}
+
+/// A chess piece about a person high: `piece` is pawn, rook, knight, bishop, queen or king.
+pub(super) fn chess_piece(piece: &str, color: [f32; 3]) -> Vec<Part> {
+    let high = chess_height(piece);
     let mut out = vec![
         cylinder(0.24, 0.08, [0.0, 0.04, 0.0], color),
         part(Shape::Frustum { radius: 0.17, height: high * 0.6 }, [0.0, 0.08 + high * 0.3, 0.0], 0.0, [1.0; 3], Some(color)),
         cylinder(0.12, 0.04, [0.0, 0.08 + high * 0.6, 0.0], color),
     ];
-    let top = 0.1 + high * 0.6;
+    out.extend(chess_top(piece, 0.1 + high * 0.6, color));
+    out
+}
+
+/// The crown of a chess piece (the part above the body) at height `top`; a king for any unknown name.
+fn chess_top(piece: &str, top: f32, color: [f32; 3]) -> Vec<Part> {
+    let mut out = Vec::new();
     match piece {
         "pawn" => out.push(part(Shape::Ball(0.1), [0.0, top + 0.08, 0.0], 0.0, [1.0; 3], Some(color))),
         "rook" => {

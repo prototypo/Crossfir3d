@@ -410,7 +410,7 @@ denominator grew.
 - Measured: complexity 14 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
 
-### [ ] 🔴 Q69: complexity — crates/crossfir3d/src/buildings/creatures.rs:215 `chess_piece`
+### [x] 🔴 Q69: complexity — crates/crossfir3d/src/buildings/creatures.rs:215 `chess_piece`
 
 - Measured: complexity 13 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
