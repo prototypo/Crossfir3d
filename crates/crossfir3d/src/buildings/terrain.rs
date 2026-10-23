@@ -116,11 +116,16 @@ pub(super) fn volcano(w: u32, h: u32) -> Vec<Part> {
         let (sin, cos) = a.to_radians().sin_cos();
         out.push(part(Shape::Ball(0.05 * r), [d * cos, end, d * sin], 0.0, [1.0; 3], Some(LAVA)));
     }
+    volcano_plume(&mut out, r);
+    out
+}
+
+/// Pushes the lava jets above the crater and the cloud of smoke over them.
+fn volcano_plume(out: &mut Vec<Part>, r: f32) {
     for (x, z, tilt) in [(-0.3, 0.1, 30.0), (0.32, -0.05, -30.0), (0.05, 0.3, 0.0)] {
         out.push(Part { tilt_deg: tilt, ..part(Shape::Fire { radius: 0.04 * r, height: 0.14 * r }, [x * r, 1.3 * r, z * r], 0.0, [1.0; 3], Some(LAVA)) });
     }
     for (x, y, z, size) in [(0.0, 1.73, 0.0, 0.3), (-0.22, 1.63, 0.1, 0.22), (0.24, 1.68, -0.05, 0.24), (0.05, 1.98, 0.0, 0.25), (-0.15, 1.93, -0.1, 0.2)] {
         out.push(part(Shape::Ball(size * r), [x * r, y * r, z * r], 0.0, [1.0; 3], Some([0.85, 0.8, 0.72])));
     }
-    out
 }

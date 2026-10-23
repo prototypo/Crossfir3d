@@ -576,7 +576,7 @@ denominator grew.
 - Measured: complexity 11 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
 
-### [ ] 🔴 Q102: length — crates/crossfir3d/src/buildings/terrain.rs:74 `volcano`
+### [x] 🔴 Q102: length — crates/crossfir3d/src/buildings/terrain.rs:74 `volcano`
 
 - Measured: length 53 (threshold 50)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
