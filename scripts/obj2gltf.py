@@ -26,8 +26,22 @@ def read_mtl(path):
     return colours
 
 
-def convert(obj_path, out_dir):
-    base = os.path.splitext(os.path.basename(obj_path))[0]
+def read_face(corners_text, verts, index, tris):
+    """Adds one face's new vertices and fan triangles to a material's group."""
+    corners = []
+    for c in corners_text:
+        parts = c.split("/")
+        key = (int(parts[0]) - 1, int(parts[2]) - 1 if len(parts) > 2 and parts[2] else -1)
+        if key not in index:
+            index[key] = len(verts)
+            verts.append(key)
+        corners.append(index[key])
+    for i in range(1, len(corners) - 1):  # fan: faces are convex quads and ngons
+        tris.append((corners[0], corners[i], corners[i + 1]))
+
+
+def read_obj(obj_path):
+    """Parses an OBJ into material colours, positions, normals and per-material groups."""
     folder = os.path.dirname(obj_path)
     colours, pos, nrm = {}, [], []
     groups = {}  # material -> (vertices [(p, n)], index of each vertex, triangles)
@@ -45,43 +59,53 @@ def convert(obj_path, out_dir):
         elif w[0] == "usemtl":
             mat = w[1]
         elif w[0] == "f":
-            verts, index, tris = groups.setdefault(mat, ([], {}, []))
-            corners = []
-            for c in w[1:]:
-                parts = c.split("/")
-                key = (int(parts[0]) - 1, int(parts[2]) - 1 if len(parts) > 2 and parts[2] else -1)
-                if key not in index:
-                    index[key] = len(verts)
-                    verts.append(key)
-                corners.append(index[key])
-            for i in range(1, len(corners) - 1):  # fan: faces are convex quads and ngons
-                tris.append((corners[0], corners[i], corners[i + 1]))
+            read_face(w[1:], *groups.setdefault(mat, ([], {}, [])))
+    return colours, pos, nrm, groups
 
-    blob, views, accessors, prims, materials = bytearray(), [], [], [], []
 
-    def add(data, target, count, kind, comp, extra=None):
-        while len(blob) % 4:
-            blob.append(0)
-        views.append({"buffer": 0, "byteOffset": len(blob), "byteLength": len(data), "target": target})
-        blob.extend(data)
-        acc = {"bufferView": len(views) - 1, "componentType": comp, "count": count, "type": kind}
-        acc.update(extra or {})
-        accessors.append(acc)
-        return len(accessors) - 1
+class Buffer:
+    """The glTF binary blob plus the bufferViews and accessors that slice it."""
 
+    def __init__(self):
+        self.blob, self.views, self.accessors = bytearray(), [], []
+
+    def add(self, data, target, fields):
+        """Appends data as a 4-byte aligned view and accessor; returns the accessor index."""
+        while len(self.blob) % 4:
+            self.blob.append(0)
+        self.views.append({"buffer": 0, "byteOffset": len(self.blob), "byteLength": len(data), "target": target})
+        self.blob.extend(data)
+        self.accessors.append({"bufferView": len(self.views) - 1, **fields})
+        return len(self.accessors) - 1
+
+
+def add_geometry(buf, p, n, tris):
+    """Writes positions, normals and indices to the buffer; returns their accessor indices."""
+    lo = [min(c[i] for c in p) for i in range(3)]
+    hi = [max(c[i] for c in p) for i in range(3)]
+    pa = buf.add(b"".join(struct.pack("<3f", *c) for c in p), 34962, {
+        "componentType": 5126, "count": len(p), "type": "VEC3", "min": lo, "max": hi})
+    na = buf.add(b"".join(struct.pack("<3f", *c) for c in n), 34962, {"componentType": 5126, "count": len(n), "type": "VEC3"})
+    ia = buf.add(b"".join(struct.pack("<3I", *t) for t in tris), 34963, {"componentType": 5125, "count": len(tris) * 3, "type": "SCALAR"})
+    return pa, na, ia
+
+
+def build_primitives(buf, pos, nrm, groups, colours):
+    """Builds one primitive and one material per OBJ material group."""
+    prims, materials = [], []
     for m, (verts, _, tris) in groups.items():
         p = [pos[v] for v, _ in verts]
         n = [nrm[k] if k >= 0 else [0.0, 1.0, 0.0] for _, k in verts]
-        lo = [min(c[i] for c in p) for i in range(3)]
-        hi = [max(c[i] for c in p) for i in range(3)]
-        pa = add(b"".join(struct.pack("<3f", *c) for c in p), 34962, len(p), "VEC3", 5126, {"min": lo, "max": hi})
-        na = add(b"".join(struct.pack("<3f", *c) for c in n), 34962, len(n), "VEC3", 5126)
-        ia = add(b"".join(struct.pack("<3I", *t) for t in tris), 34963, len(tris) * 3, "SCALAR", 5125)
+        pa, na, ia = add_geometry(buf, p, n, tris)
         r, g, b = colours.get(m, [0.8, 0.8, 0.8])
         materials.append({"name": m or "Default", "pbrMetallicRoughness": {
             "baseColorFactor": [r, g, b, 1.0], "metallicFactor": 0.0, "roughnessFactor": 0.6}})
         prims.append({"attributes": {"POSITION": pa, "NORMAL": na}, "indices": ia, "material": len(materials) - 1})
+    return prims, materials
 
+
+def write_gltf(out_dir, base, buf, prims, materials):
+    """Writes the .bin blob and the .gltf JSON that describes it."""
     gltf = {
         "asset": {"version": "2.0", "generator": "Crossfir3d scripts/obj2gltf.py"},
         "scene": 0,
@@ -89,14 +113,23 @@ def convert(obj_path, out_dir):
         "nodes": [{"name": base, "mesh": 0}],
         "meshes": [{"name": base, "primitives": prims}],
         "materials": materials,
-        "accessors": accessors,
-        "bufferViews": views,
-        "buffers": [{"uri": base + ".bin", "byteLength": len(blob)}],
+        "accessors": buf.accessors,
+        "bufferViews": buf.views,
+        "buffers": [{"uri": base + ".bin", "byteLength": len(buf.blob)}],
     }
     with open(os.path.join(out_dir, base + ".bin"), "wb") as f:
-        f.write(blob)
+        f.write(buf.blob)
     with open(os.path.join(out_dir, base + ".gltf"), "w") as f:
         json.dump(gltf, f, indent=1)
+
+
+def convert(obj_path, out_dir):
+    """Converts one OBJ file to a .gltf and .bin in out_dir."""
+    base = os.path.splitext(os.path.basename(obj_path))[0]
+    colours, pos, nrm, groups = read_obj(obj_path)
+    buf = Buffer()
+    prims, materials = build_primitives(buf, pos, nrm, groups, colours)
+    write_gltf(out_dir, base, buf, prims, materials)
 
 
 if __name__ == "__main__":

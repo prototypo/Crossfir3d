@@ -114,7 +114,7 @@ denominator grew.
 - Measured: complexity 22 (threshold 10); length 135 (threshold 50); nesting 5 (threshold 4); arguments 6 (threshold 5)
 - Recommendation: Draw each settings group (window, graphics, sound, log) in its own function, and use one shared overlay frame (see the reusability finding).
 
-### [ ] 🔴 Q10: complexity, length — scripts/obj2gltf.py:29 `convert`
+### [x] 🔴 Q10: complexity, length — scripts/obj2gltf.py:29 `convert`
 
 - Measured: complexity 27 (threshold 10); length 71 (threshold 50)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
