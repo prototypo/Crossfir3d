@@ -4,6 +4,7 @@
 //! all past the fog, which takes the sky's colour so the edge of the view fades into it.
 
 use bevy::light::NotShadowCaster;
+use bevy::ecs::system::SystemParam;
 use bevy::mesh::VertexAttributeValues;
 use bevy::prelude::*;
 
@@ -149,38 +150,53 @@ pub fn spawn_sky(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>, mut m
     commands.insert_resource(SkyMaterials { stars, clouds, dome });
 }
 
-#[allow(clippy::too_many_arguments, clippy::type_complexity)]
-pub fn update_sky(
-    time: Res<Time>,
-    clock: Res<Clock>,
-    view: Res<View>,
-    size: Res<ViewSize>,
-    mats: Res<SkyMaterials>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut clear: ResMut<ClearColor>,
-    camera: Single<(&Transform, &mut DistanceFog), With<CameraRig>>,
-    mut root: Single<&mut Transform, (With<SkyRoot>, Without<CameraRig>)>,
-    sun: Single<(&mut Transform, &mut Visibility), (With<SunDisc>, Without<SkyRoot>, Without<CameraRig>)>,
-    mut clouds: Single<&mut Transform, (With<Clouds>, Without<SunDisc>, Without<SkyRoot>, Without<CameraRig>)>,
-    (indoors, mut sky_shown, ceiling): (
-        Res<crate::world::Indoors>,
-        Single<&mut Visibility, (With<SkyRoot>, Without<SunDisc>, Without<Ceiling>)>,
-        Single<(&mut Transform, &mut Visibility), (With<Ceiling>, Without<SkyRoot>, Without<SunDisc>, Without<Clouds>, Without<CameraRig>)>,
-    ),
-) {
-    let (eye, mut fog) = camera.into_inner();
-    let (pose, dir) = sun_now(&clock);
-    let (colour, stars, cloudy) = sky(pose.elevation.to_degrees(), pose.moon);
-    // Dark places (dungeons, deep indoors) get a dark sky too.
-    let light = darkness(&view, &size) as f32 / 255.0;
-    if let Some(mut dome) = meshes.get_mut(&mats.dome)
+/// Everything `update_sky` reads or moves.
+#[derive(SystemParam)]
+#[allow(clippy::type_complexity)]
+pub struct SkyParams<'w, 's> {
+    time: Res<'w, Time>,
+    clock: Res<'w, Clock>,
+    view: Res<'w, View>,
+    size: Res<'w, ViewSize>,
+    mats: Res<'w, SkyMaterials>,
+    materials: ResMut<'w, Assets<StandardMaterial>>,
+    meshes: ResMut<'w, Assets<Mesh>>,
+    clear: ResMut<'w, ClearColor>,
+    camera: Single<'w, 's, (&'static Transform, &'static mut DistanceFog), With<CameraRig>>,
+    root: Single<'w, 's, &'static mut Transform, (With<SkyRoot>, Without<CameraRig>)>,
+    sun: Single<'w, 's, (&'static mut Transform, &'static mut Visibility), (With<SunDisc>, Without<SkyRoot>, Without<CameraRig>)>,
+    clouds: Single<'w, 's, &'static mut Transform, (With<Clouds>, Without<SunDisc>, Without<SkyRoot>, Without<CameraRig>)>,
+    indoors: Res<'w, crate::world::Indoors>,
+    sky_shown: Single<'w, 's, &'static mut Visibility, (With<SkyRoot>, Without<SunDisc>, Without<Ceiling>)>,
+    ceiling: Single<
+        'w,
+        's,
+        (&'static mut Transform, &'static mut Visibility),
+        (With<Ceiling>, Without<SkyRoot>, Without<SunDisc>, Without<Clouds>, Without<CameraRig>),
+    >,
+}
+
+/// The sky this frame: where the sun is and how bright everything is.
+struct Look {
+    dir: Vec3,
+    elevation_deg: f32,
+    moon: bool,
+    colour: [f32; 3],
+    stars: f32,
+    cloudy: f32,
+    light: f32,
+}
+
+/// Paints the dome's vertex colours from the sky, warmed toward the sun.
+fn paint_dome(meshes: &mut Assets<Mesh>, dome: &Handle<Mesh>, look: &Look) {
+    if let Some(mut dome) = meshes.get_mut(dome)
         && let Some(VertexAttributeValues::Float32x3(points)) = dome.attribute(Mesh::ATTRIBUTE_POSITION)
     {
+        let light = look.light;
         let colours: Vec<[f32; 4]> = points
             .iter()
             .map(|p| {
-                let [r, g, b] = sky_toward(Vec3::from(*p), dir, colour, pose.elevation.to_degrees(), pose.moon);
+                let [r, g, b] = sky_toward(Vec3::from(*p), look.dir, look.colour, look.elevation_deg, look.moon);
                 // The dome colours are linear; the named colours are sRGB.
                 let c = Color::srgb(r * light, g * light, b * light).to_linear();
                 [c.red, c.green, c.blue, 1.0]
@@ -188,29 +204,56 @@ pub fn update_sky(
             .collect();
         dome.insert_attribute(Mesh::ATTRIBUTE_COLOR, colours);
     }
-    let colour = Color::srgb(colour[0] * light, colour[1] * light, colour[2] * light);
-    // Indoors: a stone ceiling over the camera's square, darkness beyond, no sky.
-    let (mut ceiling_t, mut ceiling_shown) = ceiling.into_inner();
-    let inside = indoors.0;
+}
+
+/// Swaps the sky for the stone ceiling over the camera's square when indoors.
+fn show_ceiling(inside: bool, mut sky_shown: Mut<Visibility>, ceiling: (Mut<Transform>, Mut<Visibility>), eye: Vec3) {
+    let (mut ceiling_t, mut ceiling_shown) = ceiling;
     sky_shown.set_if_neq(if inside { Visibility::Hidden } else { Visibility::Inherited });
     ceiling_shown.set_if_neq(if inside { Visibility::Inherited } else { Visibility::Hidden });
-    ceiling_t.translation = Vec3::new(eye.translation.x, CEILING, eye.translation.z);
-    let colour = if inside { Color::srgb(0.02, 0.02, 0.025) } else { colour };
-    clear.0 = colour;
-    fog.color = colour;
-    root.translation = eye.translation;
-    clouds.rotation = Quat::from_rotation_y(time.elapsed_secs() * CLOUD_DRIFT);
-    let (mut sun_t, mut sun_vis) = sun.into_inner();
-    sun_t.translation = dir * RADIUS;
-    sun_vis.set_if_neq(if pose.moon { Visibility::Hidden } else { Visibility::Inherited });
+    ceiling_t.translation = Vec3::new(eye.x, CEILING, eye.z);
+}
+
+/// Puts the sun disc where the clock has it, hidden while the moon is up.
+fn place_sun(sun: (Mut<Transform>, Mut<Visibility>), look: &Look) {
+    let (mut sun_t, mut sun_vis) = sun;
+    sun_t.translation = look.dir * RADIUS;
+    sun_vis.set_if_neq(if look.moon { Visibility::Hidden } else { Visibility::Inherited });
+}
+
+/// Tints the star and cloud materials for the hour.
+fn tint_materials(materials: &mut Assets<StandardMaterial>, mats: &SkyMaterials, look: &Look) {
+    let light = look.light;
     if let Some(mut m) = materials.get_mut(&mats.stars) {
-        m.base_color = Color::srgba(1.0, 1.0, 1.0, stars * light);
+        m.base_color = Color::srgba(1.0, 1.0, 1.0, look.stars * light);
     }
     if let Some(mut m) = materials.get_mut(&mats.clouds) {
         // White by day, greyer as the light fails.
-        let [r, g, b] = mix([0.7, 0.7, 0.75], [1.0, 1.0, 1.0], cloudy);
-        m.base_color = Color::srgba(r * light, g * light, b * light, 0.9 * cloudy);
+        let [r, g, b] = mix([0.7, 0.7, 0.75], [1.0, 1.0, 1.0], look.cloudy);
+        m.base_color = Color::srgba(r * light, g * light, b * light, 0.9 * look.cloudy);
     }
+}
+
+pub fn update_sky(mut p: SkyParams) {
+    let (eye, mut fog) = p.camera.into_inner();
+    let (pose, dir) = sun_now(&p.clock);
+    let elevation_deg = pose.elevation.to_degrees();
+    let (colour, stars, cloudy) = sky(elevation_deg, pose.moon);
+    // Dark places (dungeons, deep indoors) get a dark sky too.
+    let light = darkness(&p.view, &p.size) as f32 / 255.0;
+    let look = Look { dir, elevation_deg, moon: pose.moon, colour, stars, cloudy, light };
+    paint_dome(&mut p.meshes, &p.mats.dome, &look);
+    let colour = Color::srgb(colour[0] * light, colour[1] * light, colour[2] * light);
+    // Indoors: a stone ceiling over the camera's square, darkness beyond, no sky.
+    let inside = p.indoors.0;
+    show_ceiling(inside, p.sky_shown.into_inner(), p.ceiling.into_inner(), eye.translation);
+    let colour = if inside { Color::srgb(0.02, 0.02, 0.025) } else { colour };
+    p.clear.0 = colour;
+    fog.color = colour;
+    p.root.translation = eye.translation;
+    p.clouds.rotation = Quat::from_rotation_y(p.time.elapsed_secs() * CLOUD_DRIFT);
+    place_sun(p.sun.into_inner(), &look);
+    tint_materials(&mut p.materials, &p.mats, &look);
 }
 
 #[cfg(test)]

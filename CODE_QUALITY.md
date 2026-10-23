@@ -144,7 +144,7 @@ denominator grew.
 - Measured: complexity 26 (threshold 10); length 61 (threshold 50); nesting 5 (threshold 4)
 - Recommendation: Move the address parsing, the socket set-up and the handshake into their own functions.
 
-### [ ] 🔴 Q16: length, arguments — crates/crossfir3d/src/sky.rs:153 `update_sky`
+### [x] 🔴 Q16: length, arguments — crates/crossfir3d/src/sky.rs:153 `update_sky`
 
 - Measured: length 62 (threshold 50); arguments 13 (threshold 5)
 - Recommendation: Group its 13 system arguments into a `SystemParam` struct; move the sun, the clouds and the stars into their own functions.
