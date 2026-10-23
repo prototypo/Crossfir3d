@@ -56,20 +56,22 @@ fn paint(c: char) -> Option<[u8; 4]> {
 }
 
 /// 7×7 icons by name (`assets/models.txt`: `building shop JEWELS gem`).
+const ICONS: [(&str, [&str; 7]); 10] = [
+    ("gem", [".......", ".cwccw.", "ccccccc", "uuuuuuu", ".ccccc.", "..ccc..", "...c..."]),
+    ("wand", ["....y..", "...yyy.", "....y..", "...b...", "..b....", ".b.....", "b......"]),
+    ("coin", ["..yyy..", ".yoooy.", "yoyyyoy", "yoyyyoy", "yoyyyoy", ".yoooy.", "..yyy.."]),
+    ("sword", ["......g", ".....g.", "....g..", ".y.g...", "..y....", ".b.y...", "b......"]),
+    ("shield", ["ggggggg", "guuuuug", "guuuuug", "guuuuug", ".guuug.", "..gug..", "...g..."]),
+    ("bow", ["...b...", "..b.w..", ".b..w..", ".b..w..", ".b..w..", "..b.w..", "...b..."]),
+    ("potion", ["..bbb..", "..g.g..", "..g.g..", ".grrrg.", "grrwrrg", "grrrrrg", ".ggggg."]),
+    ("apple", ["...b...", "...bGG.", ".rrbrr.", "rrrrrrr", "rrrrrrr", ".rrrrr.", "..r.r.."]),
+    ("hammer", [".ggggg.", ".ggggg.", "...b...", "...b...", "...b...", "...b...", "...b..."]),
+    ("sack", ["..b.b..", "...b...", "..nnn..", ".nnnnn.", "nnnnnnn", "nnnnnnn", ".nnnnn."]),
+];
+
+/// The rows of the named icon; None for an unknown name.
 fn icon(name: &str) -> Option<[&'static str; 7]> {
-    Some(match name {
-        "gem" => [".......", ".cwccw.", "ccccccc", "uuuuuuu", ".ccccc.", "..ccc..", "...c..."],
-        "wand" => ["....y..", "...yyy.", "....y..", "...b...", "..b....", ".b.....", "b......"],
-        "coin" => ["..yyy..", ".yoooy.", "yoyyyoy", "yoyyyoy", "yoyyyoy", ".yoooy.", "..yyy.."],
-        "sword" => ["......g", ".....g.", "....g..", ".y.g...", "..y....", ".b.y...", "b......"],
-        "shield" => ["ggggggg", "guuuuug", "guuuuug", "guuuuug", ".guuug.", "..gug..", "...g..."],
-        "bow" => ["...b...", "..b.w..", ".b..w..", ".b..w..", ".b..w..", "..b.w..", "...b..."],
-        "potion" => ["..bbb..", "..g.g..", "..g.g..", ".grrrg.", "grrwrrg", "grrrrrg", ".ggggg."],
-        "apple" => ["...b...", "...bGG.", ".rrbrr.", "rrrrrrr", "rrrrrrr", ".rrrrr.", "..r.r.."],
-        "hammer" => [".ggggg.", ".ggggg.", "...b...", "...b...", "...b...", "...b...", "...b..."],
-        "sack" => ["..b.b..", "...b...", "..nnn..", ".nnnnn.", "nnnnnnn", "nnnnnnn", ".nnnnn."],
-        _ => return None,
-    })
+    ICONS.iter().find(|(n, _)| *n == name).map(|(_, rows)| *rows)
 }
 
 /// The text, then the named icon if there is one, as RGBA pixels (see-through round
@@ -143,6 +145,28 @@ mod tests {
                 assert_eq!(r.chars().count(), 7, "{name}: {r}");
                 assert!(r.chars().all(|c| c == '.' || paint(c).is_some()), "{name}: {r}");
             }
+        }
+    }
+
+    #[test]
+    fn icon_rows_by_name() {
+        let want = [
+            ("gem", [".......", ".cwccw.", "ccccccc", "uuuuuuu", ".ccccc.", "..ccc..", "...c..."]),
+            ("wand", ["....y..", "...yyy.", "....y..", "...b...", "..b....", ".b.....", "b......"]),
+            ("coin", ["..yyy..", ".yoooy.", "yoyyyoy", "yoyyyoy", "yoyyyoy", ".yoooy.", "..yyy.."]),
+            ("sword", ["......g", ".....g.", "....g..", ".y.g...", "..y....", ".b.y...", "b......"]),
+            ("shield", ["ggggggg", "guuuuug", "guuuuug", "guuuuug", ".guuug.", "..gug..", "...g..."]),
+            ("bow", ["...b...", "..b.w..", ".b..w..", ".b..w..", ".b..w..", "..b.w..", "...b..."]),
+            ("potion", ["..bbb..", "..g.g..", "..g.g..", ".grrrg.", "grrwrrg", "grrrrrg", ".ggggg."]),
+            ("apple", ["...b...", "...bGG.", ".rrbrr.", "rrrrrrr", "rrrrrrr", ".rrrrr.", "..r.r.."]),
+            ("hammer", [".ggggg.", ".ggggg.", "...b...", "...b...", "...b...", "...b...", "...b..."]),
+            ("sack", ["..b.b..", "...b...", "..nnn..", ".nnnnn.", "nnnnnnn", "nnnnnnn", ".nnnnn."]),
+        ];
+        for (name, rows) in want {
+            assert_eq!(icon(name), Some(rows), "{name}");
+        }
+        for name in ["", "Gem", "x"] {
+            assert_eq!(icon(name), None, "{name:?}");
         }
     }
 
