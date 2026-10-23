@@ -26,7 +26,7 @@ use crossfir3d::clock::{sun_pose, SunPose, FALLBACK_HOUR};
 use crossfir3d::settings::Quality;
 
 use crossfir3d::held::{class_look, ClassLook, Garb};
-use crate::characters3d::{character_files, class_dressed, ClassGear, outfit_file, spawn_beast, spawn_character, spawn_monster, Character, Outfit, OwnCharacter, OwnLook, PartOf, Placement, StatueFigure};
+use crate::characters3d::{BeastLook, character_files, class_dressed, ClassGear, outfit_file, spawn_beast, spawn_character, spawn_monster, Character, Outfit, OwnCharacter, OwnLook, PartOf, Placement, StatueFigure};
 use crate::graphics::CurrentSettings;
 use crate::input::{CameraHeading, CameraView, DoorExit, Facing};
 use crossfir3d::camera::{compass, pull_in, sight_blocked, zoom, PIXELS_PER_LINE};

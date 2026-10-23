@@ -380,7 +380,7 @@ denominator grew.
 - Measured: arguments 7 (threshold 5)
 - Recommendation: This is a Bevy system: group its queries and resources into a `#[derive(SystemParam)]` struct.
 
-### [ ] 🔴 Q63: arguments — crates/crossfir3d/src/characters3d.rs:213 `spawn_beast`
+### [x] 🔴 Q63: arguments — crates/crossfir3d/src/characters3d.rs:213 `spawn_beast`
 
 - Measured: arguments 7 (threshold 5)
 - Recommendation: This is a Bevy system: group its queries and resources into a `#[derive(SystemParam)]` struct.

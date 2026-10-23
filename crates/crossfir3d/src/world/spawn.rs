@@ -100,7 +100,7 @@ pub(super) fn spawn_creature(sq: &Square, draw: &mut Draw) -> bool {
         Visual::Beast { file, scale, tint } if !draw.models.failed.contains(file) => {
             let (file, scale, tint) = (file.clone(), *scale, tint.unwrap_or([1.0; 3]));
             let scene = draw.models.scene(&draw.server, &file);
-            spawn_beast(&mut draw.commands, scene, &file, scale, tint, at, (extra, Assembled(vec![file.clone()])));
+            spawn_beast(&mut draw.commands, BeastLook { scene, file: &file, scale, tint }, at, (extra, Assembled(vec![file.clone()])));
         }
         Visual::Monster { file, scale, tint } if !draw.models.failed.contains(file) => {
             let (file, scale, tint) = (file.clone(), *scale, tint.unwrap_or([1.0; 3]));

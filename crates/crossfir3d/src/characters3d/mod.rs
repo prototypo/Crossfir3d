@@ -216,16 +216,17 @@ pub struct Beast {
     walking: Option<bool>,
 }
 
+/// What a beast looks like: its scene, model file, scale and tint.
+pub struct BeastLook<'a> {
+    pub scene: Handle<WorldAsset>,
+    pub file: &'a str,
+    pub scale: f32,
+    pub tint: [f32; 3],
+}
+
 /// Spawns a beast standing at `at` from its scene: it plays its own idle and walk clips.
-pub fn spawn_beast(
-    commands: &mut Commands,
-    scene: Handle<WorldAsset>,
-    file: &str,
-    scale: f32,
-    [r, g, b]: [f32; 3],
-    at: Transform,
-    extra: impl Bundle,
-) -> Entity {
+pub fn spawn_beast(commands: &mut Commands, look: BeastLook, at: Transform, extra: impl Bundle) -> Entity {
+    let BeastLook { scene, file, scale, tint: [r, g, b] } = look;
     let beast = Beast { file: file.to_string(), walking: None };
     let root = commands.spawn((at, Visibility::default(), Character::default(), beast, extra)).id();
     let inner = Transform::from_scale(Vec3::splat(scale));
