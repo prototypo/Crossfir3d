@@ -189,7 +189,7 @@ denominator grew.
 - Measured: complexity 22 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
 
-### [ ] 🔴 Q25: complexity — crates/crossfir3d/src/input.rs:153 `act_key`
+### [x] 🔴 Q25: complexity — crates/crossfir3d/src/input.rs:153 `act_key`
 
 - Measured: complexity 22 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.

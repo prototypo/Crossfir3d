@@ -193,30 +193,18 @@ impl MoveParams<'_> {
     }
 }
 
+/// The keys that act in the world, with the `KeyName` each one stands for.
+const ACT_KEYS: [(KeyCode, KeyName); 20] = [
+    (KeyCode::KeyA, KeyName::A), (KeyCode::KeyE, KeyName::E), (KeyCode::KeyG, KeyName::G), (KeyCode::KeyD, KeyName::D),
+    (KeyCode::KeyX, KeyName::X), (KeyCode::KeyI, KeyName::I), (KeyCode::KeyL, KeyName::L), (KeyCode::KeyM, KeyName::M),
+    (KeyCode::KeyC, KeyName::C), (KeyCode::KeyT, KeyName::T), (KeyCode::KeyK, KeyName::K), (KeyCode::KeyB, KeyName::B),
+    (KeyCode::Space, KeyName::Space), (KeyCode::Tab, KeyName::Tab), (KeyCode::Escape, KeyName::Escape), (KeyCode::Enter, KeyName::Enter),
+    (KeyCode::Digit1, KeyName::Digit(1)), (KeyCode::Digit2, KeyName::Digit(2)), (KeyCode::Digit3, KeyName::Digit(3)), (KeyCode::Digit4, KeyName::Digit(4)),
+];
+
+/// The `KeyName` of a key; `Other` for keys that do not act.
 fn act_key(key: KeyCode) -> KeyName {
-    match key {
-        KeyCode::KeyA => KeyName::A,
-        KeyCode::KeyE => KeyName::E,
-        KeyCode::KeyG => KeyName::G,
-        KeyCode::KeyD => KeyName::D,
-        KeyCode::KeyX => KeyName::X,
-        KeyCode::KeyI => KeyName::I,
-        KeyCode::KeyL => KeyName::L,
-        KeyCode::KeyM => KeyName::M,
-        KeyCode::KeyC => KeyName::C,
-        KeyCode::KeyT => KeyName::T,
-        KeyCode::KeyK => KeyName::K,
-        KeyCode::KeyB => KeyName::B,
-        KeyCode::Space => KeyName::Space,
-        KeyCode::Tab => KeyName::Tab,
-        KeyCode::Escape => KeyName::Escape,
-        KeyCode::Enter => KeyName::Enter,
-        KeyCode::Digit1 => KeyName::Digit(1),
-        KeyCode::Digit2 => KeyName::Digit(2),
-        KeyCode::Digit3 => KeyName::Digit(3),
-        KeyCode::Digit4 => KeyName::Digit(4),
-        _ => KeyName::Other,
-    }
+    ACT_KEYS.iter().find(|(k, _)| *k == key).map_or(KeyName::Other, |(_, n)| *n)
 }
 
 /// Key names used by bindings (`crossfir3d::keys`), by key position.
@@ -311,6 +299,22 @@ mod tests {
     use bevy::prelude::KeyCode;
     use cfproto::{Inventory, SpellBook};
     use crossfir3d::keys::{Binding, Combo, Mods};
+
+    #[test]
+    fn act_key_maps_every_row() {
+        use crossfir3d::modes::KeyName as N;
+        let rows = [
+            (KeyCode::KeyA, N::A), (KeyCode::KeyE, N::E), (KeyCode::KeyG, N::G), (KeyCode::KeyD, N::D),
+            (KeyCode::KeyX, N::X), (KeyCode::KeyI, N::I), (KeyCode::KeyL, N::L), (KeyCode::KeyM, N::M),
+            (KeyCode::KeyC, N::C), (KeyCode::KeyT, N::T), (KeyCode::KeyK, N::K), (KeyCode::KeyB, N::B),
+            (KeyCode::Space, N::Space), (KeyCode::Tab, N::Tab), (KeyCode::Escape, N::Escape), (KeyCode::Enter, N::Enter),
+            (KeyCode::Digit1, N::Digit(1)), (KeyCode::Digit2, N::Digit(2)), (KeyCode::Digit3, N::Digit(3)), (KeyCode::Digit4, N::Digit(4)),
+            (KeyCode::KeyZ, N::Other), (KeyCode::Digit5, N::Other), (KeyCode::Digit0, N::Other), (KeyCode::F1, N::Other),
+        ];
+        for (k, n) in rows {
+            assert_eq!(super::act_key(k), n, "{k:?}");
+        }
+    }
 
     #[test]
     fn modified_bound_key_is_taken() {
