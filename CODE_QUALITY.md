@@ -536,7 +536,7 @@ denominator grew.
 - Measured: arguments 6 (threshold 5)
 - Recommendation: This is a Bevy system: group its queries and resources into a `#[derive(SystemParam)]` struct.
 
-### [ ] 🔴 Q94: arguments — scripts/obj2gltf.py:62 `add`
+### [x] 🔴 Q94: arguments — scripts/obj2gltf.py:62 `add`
 
 - Measured: arguments 6 (threshold 5)
 - Recommendation: This is a Bevy system: group its queries and resources into a `#[derive(SystemParam)]` struct.
@@ -571,7 +571,7 @@ denominator grew.
 - Measured: complexity 11 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
 
-### [ ] 🔴 Q101: complexity — crates/crossfir3d/tests/live_server.rs:192 `play_as`
+### [x] 🔴 Q101: complexity — crates/crossfir3d/tests/live_server.rs:192 `play_as`
 
 - Measured: complexity 11 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
