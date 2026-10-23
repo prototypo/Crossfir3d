@@ -81,58 +81,85 @@ pub(super) fn animate_beasts(
     }
 }
 
-#[allow(clippy::too_many_arguments)]
+/// The queries and caches `bind_bones` works with.
+#[derive(SystemParam)]
+pub(super) struct BoneParams<'w, 's> {
+    commands: Commands<'w, 's>,
+    parts: Query<'w, 's, &'static PartOf>,
+    previews: Query<'w, 's, (), With<PreviewBody>>,
+    children: Query<'w, 's, &'static Children>,
+    names: Query<'w, 's, &'static Name>,
+    skinned: Query<'w, 's, (&'static Mesh3d, &'static SkinnedMesh)>,
+    meshes: ResMut<'w, Assets<Mesh>>,
+    heads: Local<'s, HashMap<AssetId<Mesh>, Handle<Mesh>>>,
+}
+
+impl BoneParams<'_, '_> {
+    /// Swaps each MI_Superhero skinned mesh under `body` for its head-only copy.
+    fn show_heads_only(&mut self, body: Entity) {
+        for e in self.children.iter_descendants(body) {
+            let Ok((mesh, skin)) = self.skinned.get(e) else { continue };
+            // Mesh parts are named after their material: "<mesh>.MI_Superhero_Male".
+            if !self.names.get(e).is_ok_and(|n| n.as_str().contains("MI_Superhero")) {
+                continue;
+            }
+            let Some(head) = head_mesh(&self.names, &mut self.meshes, &mut self.heads, mesh, skin) else { continue };
+            self.commands.entity(e).try_insert(Mesh3d(head));
+        }
+    }
+
+    /// Puts everything under `body` on the preview render layer.
+    fn put_on_preview_layer(&mut self, body: Entity) {
+        for e in self.children.iter_descendants(body) {
+            self.commands.entity(e).try_insert(RenderLayers::layer(PREVIEW_LAYER));
+        }
+    }
+
+    /// Finds the `Armature` under `body` and tags it and every named bone below it.
+    fn tag_bones(&mut self, body: Entity, root: Entity) {
+        let armature = self.children.iter_descendants(body).find(|e| self.names.get(*e).is_ok_and(|n| n.as_str() == "Armature"));
+        let Some(armature) = armature else { return };
+        let Ok(name) = self.names.get(armature) else { return };
+        let mut stack = vec![(armature, vec![name.clone()])];
+        while let Some((e, path)) = stack.pop() {
+            self.commands.entity(e).try_insert((AnimationTargetId::from_names(path.iter()), AnimatedBy(root)));
+            for &c in self.children.get(e).into_iter().flatten() {
+                if let Ok(n) = self.names.get(c) {
+                    stack.push((c, [path.clone(), vec![n.clone()]].concat()));
+                }
+            }
+        }
+    }
+}
+
+/// The cached head-only copy of a skinned mesh, built on first use.
+fn head_mesh(
+    names: &Query<&Name>,
+    meshes: &mut Assets<Mesh>,
+    heads: &mut HashMap<AssetId<Mesh>, Handle<Mesh>>,
+    mesh: &Mesh3d,
+    skin: &SkinnedMesh,
+) -> Option<Handle<Mesh>> {
+    if let Some(h) = heads.get(&mesh.0.id()) {
+        return Some(h.clone());
+    }
+    let is_head: Vec<bool> = skin.joints.iter().map(|j| names.get(*j).is_ok_and(|n| matches!(n.as_str(), "Head" | "neck_01"))).collect();
+    let h = meshes.add(meshes.get(&mesh.0).and_then(|m| head_only(m, &is_head))?);
+    heads.insert(mesh.0.id(), h.clone());
+    Some(h)
+}
+
 /// Gives every bone of a spawned body part the id the clips use (its name path from
 /// `Armature`), driven by the character's animation player.
-pub(super) fn bind_bones(
-    ready: On<WorldInstanceReady>,
-    mut commands: Commands,
-    parts: Query<&PartOf>,
-    previews: Query<(), With<PreviewBody>>,
-    children: Query<&Children>,
-    names: Query<&Name>,
-    skinned: Query<(&Mesh3d, &SkinnedMesh)>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut heads: Local<HashMap<AssetId<Mesh>, Handle<Mesh>>>,
-) {
-    let Ok(PartOf(root)) = parts.get(ready.entity) else { return };
+pub(super) fn bind_bones(ready: On<WorldInstanceReady>, mut p: BoneParams) {
+    let Ok(PartOf(root)) = p.parts.get(ready.entity) else { return };
+    let root = *root;
     // The free body is a whole body; under an outfit only its head may show.
-    for e in children.iter_descendants(ready.entity) {
-        let Ok((mesh, skin)) = skinned.get(e) else { continue };
-        // Mesh parts are named after their material: "<mesh>.MI_Superhero_Male".
-        if !names.get(e).is_ok_and(|n| n.as_str().contains("MI_Superhero")) {
-            continue;
-        }
-        let head = match heads.get(&mesh.0.id()) {
-            Some(h) => h.clone(),
-            None => {
-                let is_head: Vec<bool> =
-                    skin.joints.iter().map(|j| names.get(*j).is_ok_and(|n| matches!(n.as_str(), "Head" | "neck_01"))).collect();
-                let Some(head) = meshes.get(&mesh.0).and_then(|m| head_only(m, &is_head)) else { continue };
-                let h = meshes.add(head);
-                heads.insert(mesh.0.id(), h.clone());
-                h
-            }
-        };
-        commands.entity(e).try_insert(Mesh3d(head));
+    p.show_heads_only(ready.entity);
+    if p.previews.contains(root) {
+        p.put_on_preview_layer(ready.entity);
     }
-    if previews.contains(*root) {
-        for e in children.iter_descendants(ready.entity) {
-            commands.entity(e).try_insert(RenderLayers::layer(PREVIEW_LAYER));
-        }
-    }
-    let armature = children.iter_descendants(ready.entity).find(|e| names.get(*e).is_ok_and(|n| n.as_str() == "Armature"));
-    let Some(armature) = armature else { return };
-    let Ok(name) = names.get(armature) else { return };
-    let mut stack = vec![(armature, vec![name.clone()])];
-    while let Some((e, path)) = stack.pop() {
-        commands.entity(e).try_insert((AnimationTargetId::from_names(path.iter()), AnimatedBy(*root)));
-        for &c in children.get(e).into_iter().flatten() {
-            if let Ok(n) = names.get(c) {
-                stack.push((c, [path.clone(), vec![n.clone()]].concat()));
-            }
-        }
-    }
+    p.tag_bones(ready.entity, root);
 }
 
 fn head_only(mesh: &Mesh, is_head: &[bool]) -> Option<Mesh> {

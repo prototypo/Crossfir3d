@@ -285,7 +285,7 @@ denominator grew.
 - Measured: 5 identical frame lines × 3 (`egui::Frame` fill, gold stroke, radius, margin), plus the fixed, untitled, unmovable `egui::Window` in two of them
 - Recommendation: Add one `overlay_frame()` in `ui.rs` (keys_ui.rs already has it as `window_frame`) and make the three screens call it.
 
-### [ ] 🔴 Q44: complexity, arguments — crates/crossfir3d/src/characters3d.rs:319 `bind_bones`
+### [x] 🔴 Q44: complexity, arguments — crates/crossfir3d/src/characters3d.rs:319 `bind_bones`
 
 - Measured: complexity 16 (threshold 10); arguments 9 (threshold 5)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
