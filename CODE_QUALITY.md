@@ -139,7 +139,7 @@ denominator grew.
 - Measured: complexity 26 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
 
-### [ ] 🔴 Q15: complexity, length, nesting — crates/crossfir3d/src/net.rs:39 `connect`
+### [x] 🔴 Q15: complexity, length, nesting — crates/crossfir3d/src/net.rs:39 `connect`
 
 - Measured: complexity 26 (threshold 10); length 61 (threshold 50); nesting 5 (threshold 4)
 - Recommendation: Move the address parsing, the socket set-up and the handshake into their own functions.
