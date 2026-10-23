@@ -71,12 +71,17 @@ pub fn parse_item2(data: &[u8]) -> Result<(u32, Vec<Item>), ParseError> {
     let location = r.u32()?;
     let mut items = Vec::new();
     while !r.0.is_empty() {
-        let (tag, flags, weight, face) = (r.u32()?, r.u32()?, r.u32()? as i32, r.u32()?);
-        let (name, plural) = lname(&mut r)?;
-        let (anim, anim_speed, nrof, kind) = (r.u16()?, r.u8()?, r.u32()?, r.u16()?);
-        items.push(Item { tag, location, flags, weight, face, name, plural, anim, anim_speed, nrof, kind });
+        items.push(read_item(&mut r, location)?);
     }
     Ok((location, items))
+}
+
+/// Reads one item2 record into an `Item` at `location`.
+fn read_item(r: &mut Reader, location: u32) -> Result<Item, ParseError> {
+    let (tag, flags, weight, face) = (r.u32()?, r.u32()?, r.u32()? as i32, r.u32()?);
+    let (name, plural) = lname(r)?;
+    let (anim, anim_speed, nrof, kind) = (r.u16()?, r.u8()?, r.u32()?, r.u16()?);
+    Ok(Item { tag, location, flags, weight, face, name, plural, anim, anim_speed, nrof, kind })
 }
 
 /// upditem data: flag byte, tag, then the flagged fields in bit order 0x01..0x80.
@@ -367,6 +372,50 @@ mod tests {
         for d in &cases {
             assert_eq!(parse_upditem(d), old_parse_upditem(d), "input {d:?}");
         }
+    }
+
+    const GOLDEN: (u64, usize, usize) = (5514950501098564957, 2641, 3694);
+
+    /// Next value of a 64-bit linear congruential generator.
+    fn lcg(state: &mut u64) -> u64 {
+        *state = state.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+        *state >> 33
+    }
+
+    /// Input `i`: even = location and 0..3 valid records cut short by 0..3 bytes, odd = random bytes.
+    fn random_input(state: &mut u64, i: usize) -> Vec<u8> {
+        if i % 2 == 1 {
+            let n = lcg(state) % 60;
+            return (0..n).map(|_| lcg(state) as u8).collect();
+        }
+        let mut d = (lcg(state) as u32).to_be_bytes().to_vec();
+        for k in 0..lcg(state) % 4 {
+            let name = format!("n{}\0p{}", "a".repeat((lcg(state) % 5 + k) as usize), lcg(state) % 3);
+            d.extend(item_bytes(lcg(state) as u32, lcg(state) as u32, name.as_bytes(), lcg(state) as u32, lcg(state) as u16));
+        }
+        d.truncate(d.len().saturating_sub((lcg(state) % 4) as usize));
+        d
+    }
+
+    /// FNV-1a 64-bit hash of `{:?}` of every result, plus the Ok count and total items parsed.
+    fn golden_stats(parse: fn(&[u8]) -> Result<(u32, Vec<Item>), ParseError>) -> (u64, usize, usize) {
+        let (mut state, mut hash, mut oks, mut items) = (12345u64, 0xcbf29ce484222325u64, 0, 0);
+        for i in 0..20_000 {
+            let result = parse(&random_input(&mut state, i));
+            if let Ok((_, v)) = &result {
+                oks += 1;
+                items += v.len();
+            }
+            for b in format!("{:?}", result).bytes() {
+                hash = (hash ^ b as u64).wrapping_mul(0x100000001b3);
+            }
+        }
+        (hash, oks, items)
+    }
+
+    #[test]
+    fn parse_item2_golden() {
+        assert_eq!(golden_stats(parse_item2), GOLDEN);
     }
 
     #[test]

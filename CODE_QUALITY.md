@@ -445,7 +445,7 @@ denominator grew.
 - Measured: length 61 (threshold 50)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
 
-### [ ] 🔴 Q76: complexity — crates/cfproto/src/items.rs:69 `parse_item2`
+### [x] 🔴 Q76: complexity — crates/cfproto/src/items.rs:69 `parse_item2`
 
 - Measured: complexity 12 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
