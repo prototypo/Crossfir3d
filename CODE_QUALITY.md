@@ -214,7 +214,7 @@ denominator grew.
 - Measured: complexity 12 (threshold 10); length 57 (threshold 50); arguments 11 (threshold 5)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
 
-### [ ] 🔴 Q30: complexity, nesting — experiments/sprite3d/catalog.py:114 `parse_arch`
+### [x] 🔴 Q30: complexity, nesting — experiments/sprite3d/catalog.py:114 `parse_arch`
 
 - Measured: complexity 22 (threshold 10); nesting 7 (threshold 4)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.

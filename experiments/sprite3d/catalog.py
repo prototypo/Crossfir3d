@@ -111,6 +111,58 @@ def read_lines(path):
         return [line.strip() for line in f]
 
 
+def anim_frames(lines, i):
+    """Frame lines from index i up to the `mina` line; returns (frames, index of that line)."""
+    frames = []
+    while i < len(lines) and lines[i] != "mina":
+        if not lines[i].startswith("facings"):
+            frames.append(lines[i])
+        i += 1
+    return frames, i
+
+
+def parse_face(path, anims):
+    """Add every `animation` block of one .face file to anims."""
+    lines, i = read_lines(path), 0
+    while i < len(lines):
+        if lines[i].startswith("animation "):
+            name = lines[i].split(None, 1)[1]
+            anims[name], i = anim_frames(lines, i + 1)
+        i += 1
+
+
+def arc_line(line, obj, folder, objects):
+    """Handle one .arc line outside anim/msg blocks; returns (obj, in_anim, in_msg)."""
+    if line.startswith("Object "):
+        obj = {"name": line.split(None, 1)[1], "folder": folder, "frames": [], "tail": False}
+        objects.append(obj)
+    elif line == "More":
+        obj = None  # tail parts of a big object repeat its keys
+    elif line == "anim":
+        return obj, True, False
+    elif line == "msg":
+        return obj, False, True
+    elif obj is not None and " " in line:
+        k, v = line.split(None, 1)
+        obj.setdefault(k, v)
+    return obj, False, False
+
+
+def parse_arc(path, folder, objects):
+    """Append every object of one .arc file to objects."""
+    obj, in_anim, in_msg = None, False, False
+    for line in read_lines(path):
+        if in_msg:
+            in_msg = line != "endmsg"
+        elif in_anim:
+            if line == "mina":
+                in_anim = False
+            elif obj and not line.startswith("facings"):
+                obj["frames"].append(line)
+        else:
+            obj, in_anim, in_msg = arc_line(line, obj, folder, objects)
+
+
 def parse_arch():
     """Objects (dicts) and animations (name -> frames) from every .arc and .face file."""
     objects, anims = [], {}
@@ -118,40 +170,9 @@ def parse_arch():
         for fn in files:
             path = os.path.join(dirpath, fn)
             if fn.endswith(".face"):
-                lines, i = read_lines(path), 0
-                while i < len(lines):
-                    if lines[i].startswith("animation "):
-                        name, frames = lines[i].split(None, 1)[1], []
-                        i += 1
-                        while i < len(lines) and lines[i] != "mina":
-                            if not lines[i].startswith("facings"):
-                                frames.append(lines[i])
-                            i += 1
-                        anims[name] = frames
-                    i += 1
+                parse_face(path, anims)
             elif fn.endswith(".arc"):
-                folder = os.path.relpath(dirpath, ARCH)
-                obj, in_anim, in_msg = None, False, False
-                for line in read_lines(path):
-                    if in_msg:
-                        in_msg = line != "endmsg"
-                    elif in_anim:
-                        if line == "mina":
-                            in_anim = False
-                        elif obj and not line.startswith("facings"):
-                            obj["frames"].append(line)
-                    elif line.startswith("Object "):
-                        obj = {"name": line.split(None, 1)[1], "folder": folder, "frames": [], "tail": False}
-                        objects.append(obj)
-                    elif line == "More":
-                        obj = None  # tail parts of a big object repeat its keys
-                    elif line == "anim":
-                        in_anim = True
-                    elif line == "msg":
-                        in_msg = True
-                    elif obj is not None and " " in line:
-                        k, v = line.split(None, 1)
-                        obj.setdefault(k, v)
+                parse_arc(path, os.path.relpath(dirpath, ARCH), objects)
     return objects, anims
 
 
