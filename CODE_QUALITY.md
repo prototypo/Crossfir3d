@@ -405,7 +405,7 @@ denominator grew.
 - Measured: arguments 7 (threshold 5)
 - Recommendation: This is a Bevy system: group its queries and resources into a `#[derive(SystemParam)]` struct.
 
-### [ ] 🔴 Q68: complexity — crates/crossfir3d/tests/live_server.rs:141 `create_chosen_character`
+### [x] 🔴 Q68: complexity — crates/crossfir3d/tests/live_server.rs:141 `create_chosen_character`
 
 - Measured: complexity 14 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
