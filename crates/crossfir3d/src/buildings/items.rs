@@ -44,30 +44,32 @@ pub(super) fn converter(color: [f32; 3]) -> Vec<Part> {
     out
 }
 
+/// The (u, v) spot offsets of a die face showing `n` (anything outside 1..=5 shows six).
+fn die_spots(n: u8) -> &'static [(f32, f32)] {
+    match n {
+        1 => &[(0.0, 0.0)],
+        2 => &[(-1.0, -1.0), (1.0, 1.0)],
+        3 => &[(-1.0, -1.0), (0.0, 0.0), (1.0, 1.0)],
+        4 => &[(-1.0, -1.0), (1.0, 1.0), (-1.0, 1.0), (1.0, -1.0)],
+        5 => &[(-1.0, -1.0), (1.0, 1.0), (-1.0, 1.0), (1.0, -1.0), (0.0, 0.0)],
+        _ => &[(-1.0, -1.0), (1.0, 1.0), (-1.0, 1.0), (1.0, -1.0), (-1.0, 0.0), (1.0, 0.0)],
+    }
+}
+
 /// A die (`pos` its foot, turned `yaw` degrees) with the spots `faces` on its top, south
 /// and east faces.
 pub(super) fn die(pos: [f32; 3], yaw: f32, faces: [u8; 3]) -> Vec<Part> {
     const S: f32 = 0.1;
     const D: f32 = 0.025;
-    let spots = |n: u8| -> &'static [(f32, f32)] {
-        match n {
-            1 => &[(0.0, 0.0)],
-            2 => &[(-1.0, -1.0), (1.0, 1.0)],
-            3 => &[(-1.0, -1.0), (0.0, 0.0), (1.0, 1.0)],
-            4 => &[(-1.0, -1.0), (1.0, 1.0), (-1.0, 1.0), (1.0, -1.0)],
-            5 => &[(-1.0, -1.0), (1.0, 1.0), (-1.0, 1.0), (1.0, -1.0), (0.0, 0.0)],
-            _ => &[(-1.0, -1.0), (1.0, 1.0), (-1.0, 1.0), (1.0, -1.0), (-1.0, 0.0), (1.0, 0.0)],
-        }
-    };
     let dot = [0.08, 0.08, 0.08];
     let mut out = vec![cube([S; 3], [0.0, S / 2.0, 0.0], [0.95, 0.93, 0.88])];
-    for &(u, v) in spots(faces[0]) {
+    for &(u, v) in die_spots(faces[0]) {
         out.push(cube([0.016, 0.006, 0.016], [u * D, S, v * D], dot));
     }
-    for &(u, v) in spots(faces[1]) {
+    for &(u, v) in die_spots(faces[1]) {
         out.push(cube([0.016, 0.016, 0.006], [u * D, S / 2.0 + v * D, S / 2.0], dot));
     }
-    for &(u, v) in spots(faces[2]) {
+    for &(u, v) in die_spots(faces[2]) {
         out.push(cube([0.006, 0.016, 0.016], [S / 2.0, S / 2.0 + v * D, u * D], dot));
     }
     turned(out, yaw).into_iter().map(|p| Part { pos: [p.pos[0] + pos[0], p.pos[1] + pos[1], p.pos[2] + pos[2]], ..p }).collect()

@@ -450,7 +450,7 @@ denominator grew.
 - Measured: complexity 12 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
 
-### [ ] 🔴 Q77: complexity — crates/crossfir3d/src/buildings/items.rs:49 `die`
+### [x] 🔴 Q77: complexity — crates/crossfir3d/src/buildings/items.rs:49 `die`
 
 - Measured: complexity 12 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
