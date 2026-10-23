@@ -400,7 +400,7 @@ denominator grew.
 - Measured: complexity 14 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
 
-### [ ] 🔴 Q67: arguments — crates/crossfir3d/src/main.rs:290 `dev_commands`
+### [x] 🔴 Q67: arguments — crates/crossfir3d/src/main.rs:290 `dev_commands`
 
 - Measured: arguments 7 (threshold 5)
 - Recommendation: This is a Bevy system: group its queries and resources into a `#[derive(SystemParam)]` struct.

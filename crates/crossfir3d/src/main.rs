@@ -1,4 +1,5 @@
 #![cfg_attr(all(windows, not(debug_assertions)), windows_subsystem = "windows")] // no console window
+use bevy::ecs::system::SystemParam;
 use bevy::prelude::*;
 use bevy_egui::{EguiPlugin, EguiPrimaryContextPass};
 use cfproto::{ClientMsg, Inventory, MapView, SpellBook, Stats};
@@ -285,19 +286,20 @@ fn dev_screenshot(
     }
 }
 
-/// Asks the server for the game time once per login.
-/// Developer check: CROSSFIR3D_COMMANDS="cmd1;cmd2" sends these game commands on
-/// entering the game (e.g. a local-server teleport for screenshots).
-/// CROSSFIR3D_SCREEN=keys or =inventory opens that screen.
-fn dev_commands(
-    mut seq: ResMut<NcomSeq>,
-    mut mode: ResMut<KeyMode>,
-    (time, mut last): (Res<Time>, ResMut<LastAction>),
-    mut facing: ResMut<input::Facing>,
-    mut heading: ResMut<input::CameraHeading>,
-    mut view: ResMut<input::CameraView>,
-    session: Option<NonSend<Session>>,
-) {
+/// Resources `dev_commands` reads or changes.
+#[derive(SystemParam)]
+struct DevParams<'w> {
+    seq: ResMut<'w, NcomSeq>,
+    mode: ResMut<'w, KeyMode>,
+    time: Res<'w, Time>,
+    last: ResMut<'w, LastAction>,
+    facing: ResMut<'w, input::Facing>,
+    heading: ResMut<'w, input::CameraHeading>,
+    view: ResMut<'w, input::CameraView>,
+}
+
+/// Opens the screen named by CROSSFIR3D_SCREEN, if any.
+fn open_dev_screen(mode: &mut KeyMode, view: &mut input::CameraView) {
     match std::env::var("CROSSFIR3D_SCREEN").as_deref() {
         Ok("keys") => mode.0 = crossfir3d::modes::Mode::Keys,
         Ok("inventory") => mode.0 = crossfir3d::modes::Mode::Inventory,
@@ -305,12 +307,19 @@ fn dev_commands(
         Ok("top") => view.top = true,
         _ => {}
     }
+}
+
+/// Developer check: CROSSFIR3D_COMMANDS="cmd1;cmd2" sends these game commands on
+/// entering the game (e.g. a local-server teleport for screenshots).
+/// CROSSFIR3D_SCREEN=keys or =inventory opens that screen.
+fn dev_commands(mut p: DevParams, session: Option<NonSend<Session>>) {
+    open_dev_screen(&mut p.mode, &mut p.view);
     let (Ok(cmds), Some(session)) = (std::env::var("CROSSFIR3D_COMMANDS"), session) else { return };
-    last.0 = Some(time.elapsed_secs()); // as if typed: a sign read this way opens its box
+    p.last.0 = Some(p.time.elapsed_secs()); // as if typed: a sign read this way opens its box
     for c in cmds.split(';').map(str::trim).filter(|c| !c.is_empty()) {
-        facing.0 = crossfir3d::slots::dir_number(c).unwrap_or(facing.0);
-        heading.0 = crossfir3d::camera::heading_of(facing.0);
-        session.send([ClientMsg::Ncom { packet: seq.next(), repeat: 0, command: c.into() }]);
+        p.facing.0 = crossfir3d::slots::dir_number(c).unwrap_or(p.facing.0);
+        p.heading.0 = crossfir3d::camera::heading_of(p.facing.0);
+        session.send([ClientMsg::Ncom { packet: p.seq.next(), repeat: 0, command: c.into() }]);
     }
 }
 
@@ -320,6 +329,7 @@ fn ask_skills(session: Option<NonSend<Session>>) {
     }
 }
 
+/// Asks the server for the game time once per login.
 fn ask_time(time: Res<Time>, mut request: ResMut<TimeRequest>, mut seq: ResMut<NcomSeq>, session: Option<NonSend<Session>>) {
     let Some(session) = session else { return };
     session.send([ClientMsg::Ncom { packet: seq.next(), repeat: 0, command: "time".into() }]);
