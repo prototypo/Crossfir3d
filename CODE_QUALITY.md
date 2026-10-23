@@ -149,7 +149,7 @@ denominator grew.
 - Measured: length 62 (threshold 50); arguments 13 (threshold 5)
 - Recommendation: Group its 13 system arguments into a `SystemParam` struct; move the sun, the clouds and the stars into their own functions.
 
-### [ ] 🔴 Q17: complexity, nesting — crates/cfproto/src/stats.rs:73 `apply`
+### [x] 🔴 Q17: complexity, nesting — crates/cfproto/src/stats.rs:73 `apply`
 
 - Measured: complexity 25 (threshold 10); nesting 5 (threshold 4)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.

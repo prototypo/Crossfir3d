@@ -70,41 +70,45 @@ pub fn parse_stats(data: &[u8]) -> (Vec<(u8, StatValue)>, Option<ParseError>) {
 }
 
 impl Stats {
+    /// Applies each (code, value) update to the matching field; unknown codes are ignored.
     pub fn apply(&mut self, updates: &[(u8, StatValue)]) {
         for (code, value) in updates {
             match value {
-                StatValue::Text(t) => match code {
-                    20 => self.range = t.clone(),
-                    21 => self.title = t.clone(),
-                    _ => {}
-                },
-                StatValue::Int(v) => {
-                    let short = *v as i16;
-                    match code {
-                        1 => self.hp = short,
-                        2 => self.max_hp = short,
-                        3 => self.sp = short,
-                        4 => self.max_sp = short,
-                        5 => self.str_ = short,
-                        6 => self.int = short,
-                        7 => self.wis = short,
-                        8 => self.dex = short,
-                        9 => self.con = short,
-                        10 => self.cha = short,
-                        12 => self.level = short,
-                        18 => self.food = short,
-                        22 => self.pow = short,
-                        23 => self.grace = short,
-                        24 => self.max_grace = short,
-                        28 => self.exp = *v,
-                        140..=189 => {
-                            self.skills.insert(*code, *v);
-                        }
-                        _ => {}
-                    }
-                }
+                StatValue::Text(t) => self.apply_text(*code, t),
+                StatValue::Int(v) => self.apply_int(*code, *v),
             }
         }
+    }
+
+    /// Sets the range or title string for text codes 20 and 21.
+    fn apply_text(&mut self, code: u8, t: &str) {
+        match code {
+            20 => self.range = t.to_string(),
+            21 => self.title = t.to_string(),
+            _ => {}
+        }
+    }
+
+    /// Sets a short stat, the 64-bit exp or a skill from a numeric code.
+    fn apply_int(&mut self, code: u8, v: i64) {
+        if let Some(f) = self.short_stat(code) {
+            *f = v as i16;
+        } else if code == 28 {
+            self.exp = v;
+        } else if (140..=189).contains(&code) {
+            self.skills.insert(code, v);
+        }
+    }
+
+    /// The 16-bit field a numeric stat code writes to, if it is one of the short stats.
+    fn short_stat(&mut self, code: u8) -> Option<&mut i16> {
+        const CODES: [u8; 15] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 18, 22, 23, 24];
+        let fields = [
+            &mut self.hp, &mut self.max_hp, &mut self.sp, &mut self.max_sp, &mut self.str_,
+            &mut self.int, &mut self.wis, &mut self.dex, &mut self.con, &mut self.cha,
+            &mut self.level, &mut self.food, &mut self.pow, &mut self.grace, &mut self.max_grace,
+        ];
+        fields.into_iter().zip(CODES).find(|(_, c)| *c == code).map(|(f, _)| f)
     }
 }
 
@@ -171,6 +175,57 @@ mod tests {
     fn stats_short_value_is_error() {
         let (u, err) = parse_stats(&[1, 0]);
         assert!(u.is_empty() && err.is_some());
+    }
+
+    #[test]
+    fn apply_sets_every_field() {
+        use StatValue::{Int, Text};
+        let mut s = Stats::default();
+        s.apply(&[
+            (20, Text("ranged".into())),
+            (21, Text("Fighter".into())),
+            (56, Text("ignored".into())),
+            (1, Int(11)),
+            (2, Int(12)),
+            (3, Int(13)),
+            (4, Int(14)),
+            (5, Int(15)),
+            (6, Int(16)),
+            (7, Int(17)),
+            (8, Int(18)),
+            (9, Int(19)),
+            (10, Int(20)),
+            (12, Int(22)),
+            (18, Int(28)),
+            (22, Int(32)),
+            (23, Int(33)),
+            (24, Int(0x1_0000 + 34)), // truncates to 34
+            (28, Int(5_000_000_000)),
+            (150, Int(777)),
+            (100, Int(99)),
+        ]);
+        let expected = Stats {
+            hp: 11,
+            max_hp: 12,
+            sp: 13,
+            max_sp: 14,
+            str_: 15,
+            int: 16,
+            wis: 17,
+            dex: 18,
+            con: 19,
+            cha: 20,
+            level: 22,
+            food: 28,
+            pow: 32,
+            grace: 33,
+            max_grace: 34,
+            exp: 5_000_000_000,
+            range: "ranged".into(),
+            title: "Fighter".into(),
+            skills: [(150, 777)].into(),
+        };
+        assert_eq!(s, expected);
     }
 
     #[test]
