@@ -109,7 +109,7 @@ denominator grew.
 - Measured: complexity 28 (threshold 10); length 67 (threshold 50)
 - Recommendation: Handle each login message kind in its own function; `on_message` keeps only the `match`.
 
-### [ ] 🔴 Q9: complexity, length, nesting, arguments — crates/crossfir3d/src/settings_ui.rs:27 `settings_screen`
+### [x] 🔴 Q9: complexity, length, nesting, arguments — crates/crossfir3d/src/settings_ui.rs:27 `settings_screen`
 
 - Measured: complexity 22 (threshold 10); length 135 (threshold 50); nesting 5 (threshold 4); arguments 6 (threshold 5)
 - Recommendation: Draw each settings group (window, graphics, sound, log) in its own function, and use one shared overlay frame (see the reusability finding).
