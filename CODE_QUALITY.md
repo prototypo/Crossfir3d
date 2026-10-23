@@ -129,7 +129,7 @@ denominator grew.
 - Measured: complexity 12 (threshold 10); arguments 13 (threshold 5)
 - Recommendation: Group its 13 arguments into a `SystemParam` struct or a small struct, as `hat::HatKit` does for `put_on`.
 
-### [ ] 🔴 Q13: complexity, length, arguments — crates/crossfir3d/src/combat_fx.rs:48 `watch`
+### [x] 🔴 Q13: complexity, length, arguments — crates/crossfir3d/src/combat_fx.rs:48 `watch`
 
 - Measured: complexity 24 (threshold 10); length 66 (threshold 50); arguments 13 (threshold 5)
 - Recommendation: Group its 13 system arguments into a `SystemParam` struct and move each effect (flash, damage number, hit text) into its own function.
