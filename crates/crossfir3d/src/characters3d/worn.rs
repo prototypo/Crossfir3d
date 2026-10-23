@@ -156,37 +156,46 @@ pub(super) fn plain(materials: &mut Assets<StandardMaterial>, [r, g, b]: [f32; 3
     materials.add(StandardMaterial { base_color: color, emissive, perceptual_roughness: 0.8, ..default() })
 }
 
+/// Out of the thumb side of the fist, leaning toward the fingers by `lean` (radians):
+/// with the arm hanging, a positive lean points forward and down, a negative one up.
+fn out_of_fist(fist: Vec3, lean: f32) -> (Vec3, Quat) {
+    (fist, Quat::from_rotation_x(std::f32::consts::FRAC_PI_2 - lean))
+}
+
+/// How a hand holds a model file, by what the file is named.
+fn model_grip(file: &str, palm: f32, fist: Vec3) -> (Vec3, Quat) {
+    if file.contains("Shield") {
+        // Strapped to the back of the forearm, face out, top up the arm.
+        let out = Vec3::X * -palm;
+        (Vec3::new(0.07 * -palm, -0.08, 0.0), Quat::from_mat3(&Mat3::from_cols(Vec3::NEG_Y.cross(out), Vec3::NEG_Y, out)))
+    } else if file.contains("Bow") {
+        out_of_fist(fist, 0.35)
+    } else if file.contains("Spear") || file.contains("Scythe") {
+        out_of_fist(fist, -0.9)
+    } else if file.contains("Axe_Double") {
+        // This model's handle runs up x = 0.67, off its origin.
+        let (at, turn) = out_of_fist(fist, 0.6);
+        (at - turn * Vec3::X * 0.67 * WEAPON_SCALE, turn)
+    } else {
+        out_of_fist(fist, 0.6)
+    }
+}
+
 /// How a hand holds a thing: where its grip sits and how it turns. The hand bone's +Y runs
 /// along the fingers and +Z to the thumb; the palm faces -X on the right hand, +X on the left.
 /// A thing's own +Y is its blade, shaft or top; +Z is a shield's face.
 pub(super) fn grip(side: Hand, carry: &Carry) -> (Vec3, Quat) {
-    use std::f32::consts::FRAC_PI_2;
     let palm = if side == Hand::Right { -1.0 } else { 1.0 };
     // In the curled fingers, a little toward the palm.
     let fist = Vec3::new(0.02 * palm, 0.085, 0.0);
-    // Out of the thumb side of the fist, leaning toward the fingers by `lean` (radians):
-    // with the arm hanging, a positive lean points forward and down, a negative one up.
-    let out_of_fist = |lean: f32| (fist, Quat::from_rotation_x(FRAC_PI_2 - lean));
     match carry {
-        // Strapped to the back of the forearm, face out, top up the arm.
-        Carry::Model(file) if file.contains("Shield") => {
-            let out = Vec3::X * -palm;
-            (Vec3::new(0.07 * -palm, -0.08, 0.0), Quat::from_mat3(&Mat3::from_cols(Vec3::NEG_Y.cross(out), Vec3::NEG_Y, out)))
-        }
-        Carry::Model(file) if file.contains("Bow") => out_of_fist(0.35),
-        Carry::Model(file) if file.contains("Spear") || file.contains("Scythe") => out_of_fist(-0.9),
-        // This model's handle runs up x = 0.67, off its origin.
-        Carry::Model(file) if file.contains("Axe_Double") => {
-            let (at, turn) = out_of_fist(0.6);
-            (at - turn * Vec3::X * 0.67 * WEAPON_SCALE, turn)
-        }
-        Carry::Model(_) => out_of_fist(0.6),
+        Carry::Model(file) => model_grip(file, palm, fist),
         // Tilted out, away from the body, so its top stands clear of a hat's brim.
         Carry::Staff(_) => {
-            let (at, turn) = out_of_fist(-0.9);
+            let (at, turn) = out_of_fist(fist, -0.9);
             (at, Quat::from_rotation_y(-palm * 0.3) * turn)
         }
-        Carry::Potion => out_of_fist(-0.9),
+        Carry::Potion => out_of_fist(fist, -0.9),
     }
 }
 
