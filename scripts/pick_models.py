@@ -257,6 +257,15 @@ GREY = {"Male_Ranger.gltf": "Male_Ranger_Metal.gltf", "Female_Ranger.gltf": "Fem
 GREY_PROFILES = "/System/Library/ColorSync/Profiles"
 
 
+def make_grey(dest: pathlib.Path, uri: str, grey: str):
+    """Makes the grey texture `grey` from the base colour texture `uri` unless it exists."""
+    if not (dest / grey).is_file():
+        # To grey and back to RGB, so the PNG keeps three colour channels.
+        for profile, src in (("Generic Gray Profile.icc", uri), ("sRGB Profile.icc", grey)):
+            subprocess.run(["sips", "-m", f"{GREY_PROFILES}/{profile}", str(dest / src), "--out", str(dest / grey)],
+                           check=True, capture_output=True)
+
+
 def grey_copies(dest: pathlib.Path):
     """Writes each GREY copy next to its outfit, with its base colour texture in grey."""
     for name, copy in GREY.items():
@@ -267,11 +276,7 @@ def grey_copies(dest: pathlib.Path):
             uri = im["uri"]
             if uri.startswith("T_Ranger") and uri.endswith("_BaseColor.png"):
                 grey = uri.replace("_BaseColor", "_Metal_BaseColor")
-                if not (dest / grey).is_file():
-                    # To grey and back to RGB, so the PNG keeps three colour channels.
-                    for profile, src in (("Generic Gray Profile.icc", uri), ("sRGB Profile.icc", grey)):
-                        subprocess.run(["sips", "-m", f"{GREY_PROFILES}/{profile}", str(dest / src), "--out", str(dest / grey)],
-                                       check=True, capture_output=True)
+                make_grey(dest, uri, grey)
                 im["uri"] = grey
         (dest / copy).write_text(json.dumps(g))
 

@@ -430,7 +430,7 @@ denominator grew.
 - Measured: complexity 13 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
 
-### [ ] 🔴 Q73: nesting — scripts/pick_models.py:240 `grey_copies`
+### [x] 🔴 Q73: nesting — scripts/pick_models.py:240 `grey_copies`
 
 - Measured: nesting 5 (threshold 4)
 - Recommendation: Return early or extract the innermost block into a helper to cut the nesting.
