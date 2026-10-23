@@ -6,6 +6,7 @@ use super::*;
 #[derive(Component)]
 pub(super) struct FacingArrow;
 
+/// Spawns the arrow that shows which way the player faces.
 pub(super) fn spawn_arrow(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>, mut materials: ResMut<Assets<StandardMaterial>>) {
     // Points north (-Z) before rotation, just in front of the player's square centre.
     let mesh = meshes.add(Triangle3d::new(

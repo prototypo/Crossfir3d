@@ -257,6 +257,7 @@ def grey_copies(dest: pathlib.Path):
 
 
 def main():
+    """Rebuilds each picked folder from its models and licence, shrinks the textures and prints sizes."""
     total = 0
     for folder, licence, files in PICK:
         dest = OUT / folder

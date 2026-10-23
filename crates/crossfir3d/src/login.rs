@@ -48,6 +48,7 @@ pub struct LoginFlow {
 }
 
 impl LoginFlow {
+    /// Starts the login flow and returns the setup messages to send first.
     pub fn start(creds: Creds) -> (Self, Vec<ClientMsg>) {
         let setup = [
             ("mapsize", "25x25"),
@@ -74,6 +75,7 @@ impl LoginFlow {
         (flow, vec![ClientMsg::Version, ClientMsg::Setup(setup.to_vec())])
     }
 
+    /// Moves the login flow on for a server message and returns what to send back.
     pub fn on_message(&mut self, msg: &ServerMsg) -> Vec<ClientMsg> {
         match (&self.state, msg) {
             (_, ServerMsg::Failure { command, reason }) => self.on_failure(command, reason),

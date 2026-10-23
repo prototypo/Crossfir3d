@@ -136,6 +136,7 @@ impl Inventory {
         }
     }
 
+    /// Applies a server item update to the held item with that tag.
     pub fn apply_upd(&mut self, tag: u32, changes: &[ItemChange]) {
         let Some(item) = self.items.get_mut(&tag) else { return };
         for change in changes {

@@ -35,6 +35,7 @@ pub struct Messages {
 }
 
 impl Messages {
+    /// Files a server message into the box, popups or log by its kind and cause.
     pub fn push(&mut self, kind: u8, subtype: u8, text: &str, now: f32, last_action: Option<f32>) {
         let caused = last_action.is_some_and(|t| now - t <= CAUSE_WINDOW_SECS);
         self.died |= (kind, subtype) == (19, 5);

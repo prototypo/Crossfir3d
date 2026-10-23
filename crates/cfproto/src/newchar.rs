@@ -148,6 +148,7 @@ pub fn parse_skill_info(data: &[u8]) -> HashMap<u8, String> {
     text.lines().filter_map(skill).collect()
 }
 
+/// Reads the stat limits (points, min and max) from the newcharinfo lines.
 pub fn parse_newcharinfo(data: &[u8]) -> StatLimits {
     let mut limits = StatLimits::default();
     let mut r = Reader(data);

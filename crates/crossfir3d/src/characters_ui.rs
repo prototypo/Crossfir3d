@@ -165,6 +165,7 @@ fn character_buttons(ui: &mut egui::Ui, session: &mut Session, chars: &[Characte
     (out, ui.button("Back").clicked())
 }
 
+/// Draws the new character screen and acts on its create and back buttons.
 fn new_character(ctx: &egui::Context, screen: egui::Rect, session: &mut Session, body: &mut Body, picture: egui::TextureId) {
     let mut create = false;
     let mut back = false;

@@ -20,6 +20,7 @@ pub struct Spell {
     pub message: String,
 }
 
+/// Parses an addspell packet into the list of spells the server sends.
 pub fn parse_addspell(data: &[u8]) -> Result<Vec<Spell>, ParseError> {
     let mut r = Reader(data);
     let mut out = Vec::new();

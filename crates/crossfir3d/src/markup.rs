@@ -13,6 +13,7 @@ pub struct Span {
     pub color: Option<[u8; 3]>,
 }
 
+/// Turns a colour name or #rrggbb into RGB.
 fn colour(name: &str) -> Option<[u8; 3]> {
     if let Some(hex) = name.strip_prefix('#').filter(|h| h.len() == 6) {
         let v = u32::from_str_radix(hex, 16).ok()?;

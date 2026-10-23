@@ -22,6 +22,7 @@ pub enum TileOp {
 
 const COORD_OFFSET: i16 = 15;
 
+/// Parses a map2 packet into scrolls and tiles with their layer ops.
 pub fn parse_map2(data: &[u8]) -> Result<Vec<Map2Item>, ParseError> {
     let short = || ParseError("map2 packet too short".into());
     let mut items = Vec::new();

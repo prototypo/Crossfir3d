@@ -153,6 +153,7 @@ struct Style {
     chimney: bool,
 }
 
+/// Looks up the wall, window, door and roof pieces for a building recipe name.
 fn style(recipe: &str) -> Option<Style> {
     let plaster = Style {
         wall: "buildings/Wall_Plaster_Straight.gltf",

@@ -136,6 +136,7 @@ pub struct HudState {
     pub tall_log: bool,
 }
 
+/// Builds the Bevy app with its plugins, resources and systems, then runs it.
 fn main() {
     if let Some(home) = std::env::var_os("HOME") {
         crossfir3d::settings::move_old_folders(std::path::Path::new(&home));
@@ -243,6 +244,7 @@ pub fn end_session(world: &mut World, status: String) {
     world.resource_mut::<NextState<AppState>>().set(AppState::Login);
 }
 
+/// Handles every pending network event, ending the session on a disconnect.
 fn pump_network(world: &mut World) {
     while let Some(event) = server_msgs::next_event(world) {
         let msg = match event {

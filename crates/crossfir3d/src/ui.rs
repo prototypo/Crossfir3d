@@ -211,6 +211,7 @@ impl Default for LoginForm {
     }
 }
 
+/// Draws the login window and starts the connection.
 pub fn login_screen(
     mut contexts: EguiContexts,
     mut form: ResMut<LoginForm>,
@@ -269,6 +270,7 @@ fn queue_connect(commands: &mut Commands, server: String, creds: Creds) {
     });
 }
 
+/// Opens the connection and starts the login flow, or shows why it failed.
 fn connect(world: &mut World, server: &str, creds: Creds) {
     match crossfir3d::net::connect(server) {
         Ok(net) => {

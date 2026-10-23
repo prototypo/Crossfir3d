@@ -297,6 +297,7 @@ fn other(kind: &str, c: [f32; 3]) -> Option<Vec<Part>> {
     })
 }
 
+/// Builds the parts for an item of this kind (weapon, ranged, jewel or other).
 pub(super) fn item(kind: &str, c: [f32; 3]) -> Vec<Part> {
     let parts = weapon(kind, c)
         .or_else(|| ranged(kind, c))

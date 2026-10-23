@@ -63,6 +63,7 @@ pub enum Build {
 }
 
 impl Build {
+    /// Reads a build name from models.txt.
     fn parse(word: &str) -> Option<Build> {
         Some(match word {
             "goblin" => Build::Goblin,
@@ -137,6 +138,7 @@ pub struct ModelMap {
 }
 
 impl ModelMap {
+    /// Reads models.txt into exact and prefix picture-to-model rules.
     pub fn parse(text: &str) -> ModelMap {
         let mut map = ModelMap::default();
         for line in text.lines() {

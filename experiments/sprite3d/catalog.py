@@ -329,6 +329,7 @@ def catalog():
 
 
 def main(samples):
+    """Writes catalog.tsv and CATALOG.md from the grouped pictures, plus sample sheets when asked."""
     rows = catalog()
     with open(os.path.join(HERE, "catalog.tsv"), "w") as f:
         f.write("picture\tfile\tsize\tobjects\tgroup\treason\n")

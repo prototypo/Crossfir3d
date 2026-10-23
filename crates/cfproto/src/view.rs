@@ -28,6 +28,7 @@ impl MapView {
         Self::default()
     }
 
+    /// Applies decoded map2 items to the view: scrolls the cells and updates tiles.
     pub fn apply(&mut self, items: &[Map2Item]) {
         for item in items {
             match item {

@@ -126,6 +126,7 @@ fn village_wall(straight: &'static str, post: &'static str, mask: u8) -> Vec<Par
     out
 }
 
+/// Picks the stone wall piece and turn that fit the neighbours in the mask.
 fn stone_wall(mask: u8) -> Part {
     let (piece, yaw) = piece_for(mask);
     // piece_for's unturned pieces: Straight and End run north-south, Corner joins

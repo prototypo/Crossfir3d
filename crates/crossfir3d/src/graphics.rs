@@ -75,6 +75,7 @@ fn look(s: &Settings) -> Settings {
     Settings { window: None, music: true, ..s.clone() }.normalized()
 }
 
+/// Applies changed settings to the window and the cameras.
 #[allow(clippy::too_many_arguments)]
 fn apply_settings(
     mut commands: Commands,
@@ -150,6 +151,7 @@ fn keep_window_on_screen(
     };
 }
 
+/// Saves the windowed position and size into the settings when the window moves.
 fn remember_window(
     mut moved: MessageReader<WindowMoved>,
     mut resized: MessageReader<WindowResized>,

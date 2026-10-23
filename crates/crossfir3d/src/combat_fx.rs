@@ -61,6 +61,7 @@ pub struct WatchParams<'w, 's> {
     materials: ResMut<'w, Assets<StandardMaterial>>,
 }
 
+/// Watches HP and attacks each frame to start the flash, floating numbers and tints.
 pub fn watch(mut w: WatchParams, mut fx: ResMut<CombatFx>, mut last_hp: Local<Option<i16>>, mut tinted: Local<Tinted>) {
     let now = w.time.elapsed_secs();
     let Ok(me) = w.own.single().map(|t| t.translation) else { return };
@@ -133,6 +134,7 @@ fn restore_tints(tinted: &mut Tinted, materials: &mut Assets<StandardMaterial>, 
     });
 }
 
+/// Draws the damage flash and the floating hit numbers over the world.
 pub fn draw(
     mut contexts: EguiContexts,
     time: Res<Time>,

@@ -62,6 +62,7 @@ pub struct Settings {
 pub const LOG_FONT_SIZES: (f32, f32) = (8.0, 32.0);
 
 impl Default for Settings {
+    /// The settings a new install starts with.
     fn default() -> Self {
         Settings {
             fullscreen: false,
@@ -106,6 +107,7 @@ impl Settings {
         }
     }
 
+    /// Writes the settings as the key=value text saved to disk.
     pub fn to_text(&self) -> String {
         let mut out = format!("fullscreen={}\n", self.fullscreen);
         if let Some(w) = self.window {

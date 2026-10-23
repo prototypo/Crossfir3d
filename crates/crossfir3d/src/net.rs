@@ -93,6 +93,7 @@ fn write_loop(mut writer: TcpStream, out_rx: Receiver<ClientMsg>) {
     }
 }
 
+/// Opens the server connection and starts its reader and writer threads.
 pub fn connect(addr: &str) -> io::Result<Net> {
     let stream = open_stream(addr)?;
     stream.set_nodelay(true)?;

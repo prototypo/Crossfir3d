@@ -21,6 +21,7 @@ def read_json(path):
 
 
 def main(paths):
+    """Prints the counts, extensions and animation names of each file, skipping unreadable ones."""
     for path in paths:
         try:
             g = read_json(path)

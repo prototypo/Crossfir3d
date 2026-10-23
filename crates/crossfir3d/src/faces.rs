@@ -45,6 +45,7 @@ impl FaceStore {
         }
     }
 
+    /// Stores a picture the server sent and saves it to the face cache.
     pub fn on_image2(&mut self, face: u32, png: Vec<u8>) {
         let Ok(num) = u16::try_from(face) else { return };
         if let Some((name, checksum)) = self.names.get(&num) {

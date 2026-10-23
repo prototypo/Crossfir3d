@@ -25,6 +25,7 @@ pub(crate) fn sun_now(clock: &Clock) -> (SunPose, Vec3) {
     (pose, dir)
 }
 
+/// Sets the sun's direction, colour and strength for the hour, or torchlight indoors.
 pub(super) fn lighting(
     view: Res<View>,
     size: Res<ViewSize>,

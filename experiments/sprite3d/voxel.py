@@ -49,6 +49,7 @@ def grid(rgba, mode):
 
 
 def mesh(rgba, mode):
+    """Turns a sprite into coloured voxel-box faces (positions, normals, colours, indices), standing on the ground."""
     filled, zmax = grid(rgba, mode)
     h, w, _ = filled.shape
     lin = (rgba[..., :3] / 255.0) ** 2.2  # glTF vertex colours are linear
@@ -84,6 +85,7 @@ def mesh(rgba, mode):
 
 
 def write_glb(path, positions, normals, colours, idx):
+    """Saves the mesh arrays as a single binary .glb file."""
     blobs = [positions.astype("<f4").tobytes(), normals.astype("<f4").tobytes(), colours.astype("<f4").tobytes(), idx.astype("<u4").tobytes()]
     views, offset = [], 0
     for b in blobs:
@@ -117,6 +119,7 @@ def write_glb(path, positions, normals, colours, idx):
 
 def demo():
     # A 2x1 opaque strip, extruded: 1 box of 2x1x4 voxels -> 2*(2*1 + 2*4 + 1*4) = 28 faces.
+    """Self-test (`voxel.py test`): checks the face count, ground level and inflate depth."""
     rgba = np.zeros((3, 4, 4), np.uint8)
     rgba[1, 1:3] = 255
     p, _, _, idx = mesh(rgba, "extrude")

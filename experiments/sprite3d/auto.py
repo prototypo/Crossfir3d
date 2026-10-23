@@ -35,6 +35,7 @@ def things():
 
 
 def main():
+    """Builds the inflated models, runs one Hunyuan batch for the rest and scales each result like its picture card."""
     for d in ("hunyuan", "inflate", "raw"):
         os.makedirs(os.path.join(OUT, d), exist_ok=True)
     todo = things()

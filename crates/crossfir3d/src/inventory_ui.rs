@@ -53,6 +53,7 @@ pub struct InvSel {
     pub container: Option<u32>,
 }
 
+/// Writes an item's name with its applied, open, unpaid and locked marks.
 fn item_text(item: &Item) -> String {
     let mut s = if item.nrof > 1 { format!("{} {}", item.nrof, item.plural) } else { item.name.clone() };
     if item.applied() {
@@ -281,6 +282,7 @@ fn draw_window(ctx: &egui::Context, lists: &Lists, icons: &Icons, sel: &InvSel, 
         .flatten()
 }
 
+/// Runs the inventory screen: moves the cursor, sends item commands and draws the window.
 pub fn inventory_screen(mut p: InventoryParams) -> Result {
     if p.mode.0 != Mode::Inventory {
         return Ok(());

@@ -51,6 +51,7 @@ pub fn load_fonts(mut contexts: EguiContexts, mut done: Local<bool>) -> Result {
     Ok(())
 }
 
+/// Turns marked-up text into a coloured, styled egui text job.
 fn styled(text: &str, size: f32, base: egui::Color32, strong: egui::Color32) -> egui::text::LayoutJob {
     let mut job = egui::text::LayoutJob::default();
     for span in crossfir3d::markup::spans(text) {
@@ -175,6 +176,7 @@ fn draw_log(ctx: &egui::Context, msgs: &Messages, tall: bool, size: f32, fill: e
     });
 }
 
+/// Draws the bars, slots, messages and log of the in-game HUD.
 pub fn hud(mut contexts: EguiContexts, mut p: HudParams) -> Result {
     let ctx = contexts.ctx_mut()?;
     p.msgs.0.expire(p.time.elapsed_secs());

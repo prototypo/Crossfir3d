@@ -290,7 +290,7 @@ denominator grew.
 - Measured: complexity 16 (threshold 10); arguments 9 (threshold 5)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
 
-### [ ] 🔴 Q45: comment quality — 27 of the flagged functions have no comment saying what they do
+### [x] 🔴 Q45: comment quality — 27 of the flagged functions have no comment saying what they do
 
 - Measured: Missing on, among others: `characters_screen`, `on_message`, `item`, `connect`, `apply` (stats.rs), `hud`, `spawn_part`, `parse_map2`, `watch`, `act_key`, `settings_screen`. Overall 275 of 364 functions longer than 10 lines have a comment (75.5%, estimated)
 - Recommendation: Add one `///` line above each saying WHAT it does ("Draws the settings overlay"), not how.

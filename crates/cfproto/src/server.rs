@@ -75,6 +75,7 @@ fn first_report(text: &str) -> bool {
     new
 }
 
+/// Splits a server payload into its command word and data, then dispatches it.
 pub fn parse(payload: &[u8]) -> Result<ServerMsg, ParseError> {
     let (cmd, data) = match payload.iter().position(|&b| b == b' ') {
         Some(i) => (&payload[..i], &payload[i + 1..]),

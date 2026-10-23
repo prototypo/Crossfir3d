@@ -36,6 +36,7 @@ pub struct NewChar {
 }
 
 impl Default for NewChar {
+    /// Starts a new character with no race or class and the minimum stats.
     fn default() -> Self {
         let limits = StatLimits::default();
         NewChar {
@@ -197,6 +198,7 @@ impl NewChar {
         low.map(|i| format!("{} would be below 1 with this race and class.", STAT_NAMES[i]))
     }
 
+    /// Builds the create-player message, or None while the form has a problem.
     pub fn create_msg(&self, password: &str) -> Option<ClientMsg> {
         if self.problem().is_some() {
             return None;

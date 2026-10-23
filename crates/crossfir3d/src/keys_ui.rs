@@ -235,6 +235,7 @@ struct Out {
 type Look = (egui::Color32, egui::Color32, Option<String>);
 type CapSpec = (Cap, f32, &'static str, &'static str);
 
+/// Runs the key bindings screen: picks a key, shows its binding and applies edits.
 pub fn keys_screen(mut p: KeysScreenParams) -> Result {
     learn_labels(&mut p.typed, &mut p.sel);
     if p.mode.0 != Mode::Keys {
@@ -684,6 +685,7 @@ fn modal_answer(ctx: &egui::Context, question: String) -> Option<bool> {
     answer
 }
 
+/// Draws the colour key for bound keys, modifiers and game keys.
 fn legend(ui: &mut egui::Ui) {
     let names = if MAC { ["shift", "control", "option", "command"] } else { ["Shift", "Ctrl", "Alt", "Win"] };
     ui.horizontal(|ui| {

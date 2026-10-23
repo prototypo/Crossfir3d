@@ -132,6 +132,7 @@ pub(super) fn wear_helmet(mut commands: Commands, wearer: Wearer, skeleton: Skel
     }
     commands.entity(root).try_insert(want);
 }
+/// Puts a class's starting hat and hand items on a character once its bones exist.
 pub(super) fn gear_up(mut commands: Commands, server: Res<AssetServer>, geared: Query<(Entity, &ClassGear)>, skeleton: Skeleton, mut stock: Stock) {
     for (root, ClassGear(class, scale)) in &geared {
         // The body scenes spawn a little later than the character: try again next frame.

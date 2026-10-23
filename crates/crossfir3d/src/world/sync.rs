@@ -5,6 +5,7 @@ use super::*;
 /// What should be on screen, keyed by (world x, world y, layer): face, darkness, join.
 type Wanted = HashMap<(i32, i32, u8), (u16, u8, u8)>;
 
+/// Lists the picture to show on each square from the view.
 fn wanted(view: &View, faces: &Faces, textures: &Textures) -> Wanted {
     let mut out = Wanted::new();
     for ((vx, vy), cell) in view.0.cells() {
@@ -294,6 +295,7 @@ fn place(sq: &Square, draw: &mut Draw, own: &OwnLook) {
     spawn_plain(sq, draw, material);
 }
 
+/// Brings the drawn squares in line with the view, reusing or despawning old ones.
 pub(super) fn sync_visuals(mut draw: Draw, input: Inputs, mut existing: Existing, mut solid: ResMut<Solid>, mut seen_gen: Local<u32>) {
     if !input.view.is_changed() && !draw.textures.is_changed() {
         return;

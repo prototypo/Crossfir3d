@@ -102,6 +102,7 @@ fn pulled_distance(p: &Follow, rig: &CameraRig, pitch: f32, want: f32, side: f32
     if p.cam.top { want } else { pull_in(want, blocked) }
 }
 
+/// Moves the camera to follow the player: zoom, turn, pitch, distance and fog.
 pub(super) fn follow_player(mut p: Follow, rig: Single<(&mut Transform, &mut CameraRig, &mut DistanceFog)>) {
     let (mut t, mut rig, mut fog) = rig.into_inner();
     zoom_rig(&mut p, &mut rig);

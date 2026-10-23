@@ -80,6 +80,7 @@ pub fn asset_dir() -> String {
 pub struct WorldPlugin;
 
 impl Plugin for WorldPlugin {
+    /// Registers the world resources and the systems that run while in the game.
     fn build(&self, app: &mut App) {
         app.insert_resource(ClearColor(FOG_COLOR))
             // 4x the M1 value: shadows were almost black (owner, M3 lighting test).
@@ -157,6 +158,7 @@ struct Models {
 }
 
 impl Models {
+    /// Loads models.txt, keeping compared pictures as cards.
     fn load() -> Models {
         let path = format!("{}/models.txt", asset_dir());
         let text = std::fs::read_to_string(&path).unwrap_or_else(|e| {
@@ -326,6 +328,7 @@ pub(crate) fn tiled((w, h, px): (u32, u32, Vec<u8>), sampler: ImageSamplerDescri
     image
 }
 
+/// Creates the shared meshes and textures and spawns the camera rig.
 fn setup(
     mut commands: Commands,
     mut meshes: ResMut<Assets<Mesh>>,

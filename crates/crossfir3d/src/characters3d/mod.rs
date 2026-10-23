@@ -40,6 +40,7 @@ const WEAPON_SCALE: f32 = 0.18;
 pub struct CharactersPlugin;
 
 impl Plugin for CharactersPlugin {
+    /// Registers the character resources, observers and systems.
     fn build(&self, app: &mut App) {
         app.init_resource::<PlayerAnimEvents>()
             .init_resource::<OwnLook>()
@@ -234,6 +235,7 @@ fn load_anims(mut commands: Commands, server: Res<AssetServer>) {
     commands.insert_resource(Anims { gltf: server.load(ANIMS_FILE), graph: None });
 }
 
+/// Builds the shared animation graph once the clips have loaded.
 fn build_graph(mut anims: ResMut<Anims>, gltfs: Res<Assets<Gltf>>, mut graphs: ResMut<Assets<AnimationGraph>>, mut warned: Local<bool>) {
     if anims.graph.is_some() {
         return;
@@ -322,6 +324,7 @@ fn facing_rotation(facing: u8) -> Quat {
     Quat::from_rotation_y(std::f32::consts::PI - clockwise)
 }
 
+/// Chooses and plays each character's animation from its movement and events.
 #[allow(clippy::type_complexity)]
 fn animate(
     mut commands: Commands,
@@ -375,6 +378,7 @@ fn set_own_look(mut own: ResMut<OwnLook>, session: Option<NonSend<Session>>) {
     *own = OwnLook { look: look_for_race(&race), body: load_body(&default_body_path(), name), class: class_look(&class) };
 }
 
+/// Creates the camera and light that draw the character preview into its image.
 fn setup_preview(mut commands: Commands, mut images: ResMut<Assets<Image>>, mut preview: ResMut<Preview>) {
     let mut image = Image::new_target_texture(PREVIEW_PX, PREVIEW_PX, TextureFormat::Rgba8UnormSrgb, None);
     image.asset_usage = RenderAssetUsages::default();

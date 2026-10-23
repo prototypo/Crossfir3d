@@ -14,6 +14,7 @@ import sys
 
 
 def read_mtl(path):
+    """Returns material name -> diffuse colour from an .mtl file, empty if there is none."""
     colours, name = {}, None
     if not os.path.exists(path):
         return colours

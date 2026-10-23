@@ -77,6 +77,7 @@ pub struct SkyMaterials {
     dome: Handle<Mesh>,
 }
 
+/// Makes an unlit sky material, blended or opaque, seen from inside.
 fn sky_material(colour: Color, blend: bool) -> StandardMaterial {
     StandardMaterial {
         base_color: colour,
@@ -89,6 +90,7 @@ fn sky_material(colour: Color, blend: bool) -> StandardMaterial {
     }
 }
 
+/// Spawns the sky dome, stars, clouds, sun and indoor ceiling.
 pub fn spawn_sky(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>, mut materials: ResMut<Assets<StandardMaterial>>) {
     let ball = meshes.add(Sphere::new(1.0).mesh().ico(2).expect("constant subdivisions are within the limit"));
     let stars = materials.add(sky_material(Color::WHITE, true));
@@ -234,6 +236,7 @@ fn tint_materials(materials: &mut Assets<StandardMaterial>, mats: &SkyMaterials,
     }
 }
 
+/// Paints the sky, fog and sun for the time of day, or a dark ceiling indoors.
 pub fn update_sky(mut p: SkyParams) {
     let (eye, mut fog) = p.camera.into_inner();
     let (pose, dir) = sun_now(&p.clock);
