@@ -85,24 +85,40 @@ pub fn parse_upditem(data: &[u8]) -> Result<(u32, Vec<ItemChange>), ParseError> 
     let (flags, tag) = (r.u8()?, r.u32()?);
     let mut changes = Vec::new();
     for bit in 0..8 {
-        if flags & (1 << bit) == 0 {
-            continue;
+        if flags & (1 << bit) != 0 {
+            changes.push(upd_field(&mut r, bit)?);
         }
-        changes.push(match bit {
-            0 => ItemChange::Location(r.u32()?),
-            1 => ItemChange::Flags(r.u32()?),
-            2 => ItemChange::Weight(r.u32()? as i32),
-            3 => ItemChange::Face(r.u32()?),
-            4 => {
-                let (one, many) = lname(&mut r)?;
-                ItemChange::Name(one, many)
-            }
-            5 => ItemChange::Anim(r.u16()?),
-            6 => ItemChange::AnimSpeed(r.u8()?),
-            _ => ItemChange::Nrof(r.u32()?),
-        });
     }
     Ok((tag, changes))
+}
+
+/// Reads the upditem field for flag bit `bit` (0..8) by its width.
+fn upd_field(r: &mut Reader, bit: u8) -> Result<ItemChange, ParseError> {
+    match bit {
+        4 => lname(r).map(|(one, many)| ItemChange::Name(one, many)),
+        5 | 6 => upd_narrow(r, bit),
+        _ => upd_word(r, bit),
+    }
+}
+
+/// Reads the four-byte upditem fields (bits 0, 1, 2, 3 and 7).
+fn upd_word(r: &mut Reader, bit: u8) -> Result<ItemChange, ParseError> {
+    let v = r.u32()?;
+    Ok(match bit {
+        0 => ItemChange::Location(v),
+        1 => ItemChange::Flags(v),
+        2 => ItemChange::Weight(v as i32),
+        3 => ItemChange::Face(v),
+        _ => ItemChange::Nrof(v),
+    })
+}
+
+/// Reads the short upditem fields (bit 5 anim, bit 6 anim speed).
+fn upd_narrow(r: &mut Reader, bit: u8) -> Result<ItemChange, ParseError> {
+    Ok(match bit {
+        5 => ItemChange::Anim(r.u16()?),
+        _ => ItemChange::AnimSpeed(r.u8()?),
+    })
 }
 
 #[derive(Default)]
@@ -268,6 +284,88 @@ mod tests {
         d.extend_from_slice(b"bag\0bags.");
         let (_, changes) = parse_upditem(&d).unwrap();
         assert_eq!(changes, vec![ItemChange::Location(3), ItemChange::Name("bag".into(), "bags.".into())]);
+    }
+
+    /// Frozen copy of the original `parse_upditem`, kept to prove the refactor is equivalent.
+    fn old_parse_upditem(data: &[u8]) -> Result<(u32, Vec<ItemChange>), ParseError> {
+        let mut r = Reader(data);
+        let (flags, tag) = (r.u8()?, r.u32()?);
+        let mut changes = Vec::new();
+        for bit in 0..8 {
+            if flags & (1 << bit) == 0 {
+                continue;
+            }
+            changes.push(match bit {
+                0 => ItemChange::Location(r.u32()?),
+                1 => ItemChange::Flags(r.u32()?),
+                2 => ItemChange::Weight(r.u32()? as i32),
+                3 => ItemChange::Face(r.u32()?),
+                4 => {
+                    let (one, many) = lname(&mut r)?;
+                    ItemChange::Name(one, many)
+                }
+                5 => ItemChange::Anim(r.u16()?),
+                6 => ItemChange::AnimSpeed(r.u8()?),
+                _ => ItemChange::Nrof(r.u32()?),
+            });
+        }
+        Ok((tag, changes))
+    }
+
+    /// An lname field: length byte, then a name with an optional plural and sometimes a non-UTF8 byte.
+    fn upd_lname(next: &mut impl FnMut() -> u32) -> Vec<u8> {
+        let mut name: Vec<u8> = (0..next() % 8).map(|_| b'a' + (next() % 26) as u8).collect();
+        if next() % 2 == 0 {
+            name.push(0);
+            name.extend((0..next() % 8).map(|_| b'a' + (next() % 26) as u8));
+        }
+        if next() % 4 == 0 {
+            name.push(0xFF);
+        }
+        name.insert(0, name.len() as u8);
+        name
+    }
+
+    /// A well-formed upditem packet for `flags`, with random field bytes and names.
+    fn upd_packet(flags: u8, next: &mut impl FnMut() -> u32) -> Vec<u8> {
+        let mut d = vec![flags];
+        d.extend((0..4).map(|_| next() as u8));
+        for bit in 0..8 {
+            match bit {
+                _ if flags & (1 << bit) == 0 => {}
+                4 => d.extend(upd_lname(next)),
+                _ => d.extend((0..[4, 4, 4, 4, 0, 2, 1, 4][bit]).map(|_| next() as u8)),
+            }
+        }
+        d
+    }
+
+    #[test]
+    fn parse_upditem_matches_old() {
+        let mut seed = 0x2545_F491_4F6C_DD1Du64;
+        let mut next = move || {
+            seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+            (seed >> 33) as u32
+        };
+        let mut cases: Vec<Vec<u8>> = vec![
+            vec![0x82, 0, 0, 0, 9, 0, 0, 8, 0, 0, 0, 0, 4],
+            vec![0x11, 0, 0, 0, 9, 0, 0, 0, 3, 9, b'b', b'a', b'g', 0, b'b', b'a', b'g', b's', b'.'],
+        ];
+        for _ in 0..8000 {
+            let n = next() % 40;
+            cases.push((0..n).map(|_| next() as u8).collect());
+        }
+        for i in 0..12000u32 {
+            let flags = if i < 256 { i as u8 } else { next() as u8 };
+            let mut d = upd_packet(flags, &mut next);
+            if i % 3 == 0 {
+                d.truncate(next() as usize % (d.len() + 1));
+            }
+            cases.push(d);
+        }
+        for d in &cases {
+            assert_eq!(parse_upditem(d), old_parse_upditem(d), "input {d:?}");
+        }
     }
 
     #[test]

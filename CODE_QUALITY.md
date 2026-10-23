@@ -224,7 +224,7 @@ denominator grew.
 - Measured: 1,075 lines (threshold 500)
 - Recommendation: Move the dressing systems (`dress_people`, `wear_helmet`, `put_on_head`) into a `characters3d/dress.rs` submodule.
 
-### [ ] 🔴 Q32: complexity — crates/cfproto/src/items.rs:83 `parse_upditem`
+### [x] 🔴 Q32: complexity — crates/cfproto/src/items.rs:83 `parse_upditem`
 
 - Measured: complexity 21 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
