@@ -92,7 +92,7 @@ denominator grew.
 - Measured: complexity 53 (threshold 10); length 156 (threshold 50); nesting 6 (threshold 4)
 - Recommendation: Split into the race/class pickers, the stats panel and the start-place picker.
 
-### [ ] 🔴 Q8: complexity, length, nesting — crates/crossfir3d/src/main.rs:245 `pump_network`
+### [x] 🔴 Q8: complexity, length, nesting — crates/crossfir3d/src/main.rs:245 `pump_network`
 
 - Measured: complexity 52 (threshold 10); length 119 (threshold 50); nesting 6 (threshold 4)
 - Recommendation: Handle each `ServerMsg` variant in its own function; `pump_network` keeps the read loop and the `match`.

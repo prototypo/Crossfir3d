@@ -1,10 +1,10 @@
 #![cfg_attr(all(windows, not(debug_assertions)), windows_subsystem = "windows")] // no console window
 use bevy::prelude::*;
 use bevy_egui::{EguiPlugin, EguiPrimaryContextPass};
-use cfproto::{ClientMsg, Inventory, MapView, ServerMsg, SpellBook, Stats};
+use cfproto::{ClientMsg, Inventory, MapView, SpellBook, Stats};
 use crossfir3d::faces::FaceStore;
-use crossfir3d::login::{LoginFlow, LoginState};
-use crossfir3d::clock::{is_time_reply, is_time_reply_line, parse_time_reply, GameClock};
+use crossfir3d::login::LoginFlow;
+use crossfir3d::clock::GameClock;
 use crossfir3d::messages::Messages;
 use crossfir3d::modes::Mode;
 use crossfir3d::slots::{default_slots_path, load_slots, QuickSlots};
@@ -22,6 +22,7 @@ mod robe;
 mod hud;
 mod input;
 mod settings_ui;
+mod server_msgs;
 mod sky;
 mod inventory_ui;
 mod keys_ui;
@@ -243,122 +244,14 @@ pub fn end_session(world: &mut World, status: String) {
 }
 
 fn pump_network(world: &mut World) {
-    loop {
-        let event = {
-            let Some(session) = world.get_non_send::<Session>() else { return };
-            match session.net.rx.try_recv() {
-                Ok(e) => e,
-                Err(std::sync::mpsc::TryRecvError::Empty) => return,
-                Err(std::sync::mpsc::TryRecvError::Disconnected) => NetEvent::Disconnected("connection closed".into()),
-            }
-        };
+    while let Some(event) = server_msgs::next_event(world) {
         let msg = match event {
             NetEvent::Msg(m) => m,
             NetEvent::Disconnected(reason) => return end_session(world, format!("Disconnected: {reason}")),
         };
-
-        // On a permadeath server the character list comes back after death.
-        let in_game = *world.resource::<State<AppState>>().get() == AppState::InGame;
-        let died = world.resource::<Msgs>().0.died;
-        if let (true, Some(reason)) = (in_game, crossfir3d::messages::in_game_reset(&msg, died)) {
-            world.resource_mut::<Status>().0 = reason.to_string();
-            world.resource_mut::<NextState<AppState>>().set(AppState::Login);
-            reset_play_state(world);
-        }
-        let mut session = world.non_send_mut::<Session>();
-        let out = session.login.on_message(&msg);
-        session.send(out);
-        let playing = match session.login.state() {
-            LoginState::Failed(reason) => {
-                let reason = reason.clone();
-                return end_session(world, reason);
-            }
-            LoginState::Playing => true,
-            _ => false,
-        };
-
-        match msg {
-            ServerMsg::Setup(opts) => {
-                if let Some((_, v)) = opts.iter().find(|(k, _)| k == "mapsize") {
-                    if let Some((w, h)) = v.split_once('x').and_then(|(w, h)| Some((w.parse().ok()?, h.parse().ok()?))) {
-                        world.insert_resource(ViewSize(w, h));
-                    }
-                }
-            }
-            ServerMsg::Face2 { num, checksum, name, .. } => {
-                let ask = world.resource_mut::<Faces>().0.on_face2(num, checksum, &name);
-                world.non_send::<Session>().send(ask);
-            }
-            ServerMsg::Image2 { face, png, .. } => world.resource_mut::<Faces>().0.on_image2(face, png),
-            ServerMsg::Anim { id, faces } => world.resource_mut::<Faces>().0.on_anim(id, faces),
-            ServerMsg::Map2(items) => {
-                world.resource_mut::<View>().0.apply(&items);
-                if playing && *world.resource::<State<AppState>>().get() == AppState::Login {
-                    world.resource_mut::<NextState<AppState>>().set(AppState::InGame);
-                }
-            }
-            ServerMsg::NewMap => {
-                world.resource_mut::<View>().0.clear();
-                world.resource_mut::<input::DoorExit>().new_map = true;
-                world.resource_mut::<world::MapGen>().0 += 1;
-                // A new map after dying is the respawn.
-                world.resource_mut::<characters3d::PlayerAnimEvents>().0.push(crossfir3d::anim::AnimEvent::Revived);
-            }
-            ServerMsg::Comc { packet, time_ms } => world.insert_resource(LastComc { time_ms, packet }),
-            ServerMsg::Tick(t) => world.resource_mut::<Clock>().0.on_tick(t),
-            // Every line of the reply to our own `time` request is for the clock, not the player.
-            ServerMsg::Text { text, .. } if time_reply_expected(world, &text) => {
-                if crossfir3d::clock::ends_time_reply(&text) {
-                    // A DM's timing lines follow the season at once: hide them for 2 s more.
-                    let now = world.resource::<Time>().elapsed_secs();
-                    let rest = text.starts_with("Time of Year: ").then_some(now - 8.0);
-                    world.resource_mut::<TimeRequest>().0 = rest;
-                }
-                if is_time_reply(&text) {
-                    match parse_time_reply(&text) {
-                        Some((hour, minute)) => {
-                            world.resource_mut::<Clock>().0.sync(hour, minute);
-                            info!("game clock synced: hour {hour}, minute {minute}");
-                        }
-                        None => warn!("could not read the time: {text}"),
-                    }
-                }
-            }
-            ServerMsg::Text { kind, subtype, text } => {
-                info!("server: {text}");
-                let (now, last) = (world.resource::<Time>().elapsed_secs(), world.resource::<LastAction>().0);
-                world.resource_mut::<Msgs>().0.push(kind, subtype, &text, now, last);
-                if kind == combat_fx::MSG_ATTACK {
-                    world.resource_mut::<combat_fx::CombatFx>().attacks.push(subtype);
-                }
-                if let Some(ev) = crossfir3d::anim::event_for_message(kind, subtype) {
-                    world.resource_mut::<characters3d::PlayerAnimEvents>().0.push(ev);
-                }
-            }
-            ServerMsg::Query { text, .. } => {
-                world.resource_mut::<PendingQuery>().0 = true;
-                let now = world.resource::<Time>().elapsed_secs();
-                world.resource_mut::<Msgs>().0.push(0, 0, &format!("Server asks: {text} (answer with Enter)"), now, None);
-            }
-            ServerMsg::Stats(updates) => world.resource_mut::<PlayerStats>().0.apply(&updates),
-            ServerMsg::Player { tag, .. } => world.resource_mut::<Inv>().0.player = tag,
-            ServerMsg::Item2 { location, items } => world.resource_mut::<Inv>().0.apply_item2(location, items),
-            ServerMsg::UpdItem { tag, changes } => world.resource_mut::<Inv>().0.apply_upd(tag, &changes),
-            ServerMsg::DelItem(tags) => world.resource_mut::<Inv>().0.delete(&tags),
-            ServerMsg::DelInv(tag) => world.resource_mut::<Inv>().0.delete_inside(tag),
-            ServerMsg::AddSpell(spells) => world.resource_mut::<Spells>().0.add(spells),
-            ServerMsg::UpdSpell { tag, mana, grace, damage } => world.resource_mut::<Spells>().0.update(tag, mana, grace, damage),
-            ServerMsg::DelSpell(tag) => world.resource_mut::<Spells>().0.remove(tag),
-            ServerMsg::ReplyInfo { kind, data } if kind == "skill_info" => {
-                world.insert_resource(SkillNames(cfproto::parse_skill_info(&data)))
-            }
-            ServerMsg::Sound { action, volume, x, y, .. } => {
-                world.resource_mut::<audio::AudioQueue>().sounds.push((action, volume, x, y))
-            }
-            ServerMsg::Music(name) => world.resource_mut::<audio::AudioQueue>().music = Some(name),
-            ServerMsg::Unknown(name) => debug!("ignored server command {name}"),
-            _ => {}
-        }
+        server_msgs::permadeath_reset(world, &msg);
+        let Some(playing) = server_msgs::advance_login(world, &msg) else { return };
+        server_msgs::dispatch(world, msg, playing);
     }
 }
 
@@ -388,12 +281,6 @@ fn dev_screenshot(
     } else if t > at + 2.0 {
         exit.write(AppExit::Success);
     }
-}
-
-/// A reply line to our own `time` request (within 10 s) is for the clock, not the player.
-fn time_reply_expected(world: &World, text: &str) -> bool {
-    let now = world.resource::<Time>().elapsed_secs();
-    world.resource::<TimeRequest>().0.is_some_and(|t| now - t <= 10.0) && is_time_reply_line(text)
 }
 
 /// Asks the server for the game time once per login.
