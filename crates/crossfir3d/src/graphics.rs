@@ -265,6 +265,8 @@ pub struct SceneImage(pub Handle<Image>);
 fn scene_target() -> Image {
     let mut image = Image::new_target_texture(1, 1, TextureFormat::Rgba8Unorm, Some(TextureFormat::Rgba8UnormSrgb));
     image.data = None;
+    // Redrawn every frame: nothing to keep. A copy would need COPY_SRC, and without it wgpu quits.
+    image.copy_on_resize = false;
     image
 }
 
@@ -320,6 +322,13 @@ mod tests {
         assert!(fills_a_screen(place(1512, 982), &[(1512.0, 982.0)]));
         assert!(fills_a_screen(place(2560, 1440), &[(1512.0, 982.0), (2560.0, 1440.0)]));
         assert!(!fills_a_screen(place(1200, 800), &[(1512.0, 982.0)]));
+    }
+
+    #[test]
+    fn scene_image_is_not_copied_on_resize() {
+        // Its texture has no COPY_SRC: a GPU copy on resize is a validation error that quits.
+        let image = scene_target();
+        assert!(!image.copy_on_resize);
     }
 
     #[test]
