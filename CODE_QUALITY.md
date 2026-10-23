@@ -541,7 +541,7 @@ denominator grew.
 - Measured: arguments 6 (threshold 5)
 - Recommendation: This is a Bevy system: group its queries and resources into a `#[derive(SystemParam)]` struct.
 
-### [ ] 🔴 Q95: length — crates/crossfir3d/src/races.rs:93 `classify_player_face`
+### [x] 🔴 Q95: length — crates/crossfir3d/src/races.rs:93 `classify_player_face`
 
 - Measured: length 59 (threshold 50)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
