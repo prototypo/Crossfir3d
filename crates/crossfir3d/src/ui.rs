@@ -214,42 +214,51 @@ impl Default for LoginForm {
     }
 }
 
+/// The login form fields, the status line and the Settings window flag.
+#[derive(SystemParam)]
+pub struct LoginState<'w> {
+    form: ResMut<'w, LoginForm>,
+    status: Res<'w, Status>,
+    settings_open: ResMut<'w, crate::settings_ui::SettingsOpen>,
+}
+
+/// Draws the login fields and buttons; returns whether Connect was clicked.
+fn login_form(ui: &mut egui::Ui, form: &mut LoginForm, status: &Status, settings_open: &mut crate::settings_ui::SettingsOpen) -> bool {
+    egui::Grid::new("login").num_columns(2).show(ui, |ui| {
+        ui.label("Server");
+        ui.text_edit_singleline(&mut form.server);
+        ui.end_row();
+        ui.label("Account");
+        ui.text_edit_singleline(&mut form.account);
+        ui.end_row();
+        ui.label("Password");
+        ui.add(egui::TextEdit::singleline(&mut form.password).password(true));
+        ui.end_row();
+    });
+    ui.checkbox(&mut form.new_account, "New account");
+    let mut connect = false;
+    ui.horizontal(|ui| {
+        connect = ui.button("Connect").clicked();
+        if ui.button("Settings").clicked() {
+            settings_open.0 = true;
+        }
+    });
+    if !status.0.is_empty() {
+        ui.label(&status.0);
+    }
+    connect
+}
+
 /// Draws the login window and starts the connection.
-pub fn login_screen(
-    mut contexts: EguiContexts,
-    mut form: ResMut<LoginForm>,
-    status: Res<Status>,
-    mut settings_open: ResMut<crate::settings_ui::SettingsOpen>,
-    mut commands: Commands,
-    session: Option<NonSend<Session>>,
-) -> Result {
+pub fn login_screen(mut contexts: EguiContexts, mut st: LoginState, mut commands: Commands, session: Option<NonSend<Session>>) -> Result {
+    let LoginState { form, status, settings_open } = &mut st;
     // Connected: the character screens show instead.
     if settings_open.0 || session.is_some() {
         return Ok(());
     }
     let mut connect = false;
     egui::Window::new("Crossfir3d").collapsible(false).resizable(false).show(contexts.ctx_mut()?, |ui| {
-        egui::Grid::new("login").num_columns(2).show(ui, |ui| {
-            ui.label("Server");
-            ui.text_edit_singleline(&mut form.server);
-            ui.end_row();
-            ui.label("Account");
-            ui.text_edit_singleline(&mut form.account);
-            ui.end_row();
-            ui.label("Password");
-            ui.add(egui::TextEdit::singleline(&mut form.password).password(true));
-            ui.end_row();
-        });
-        ui.checkbox(&mut form.new_account, "New account");
-        ui.horizontal(|ui| {
-            connect = ui.button("Connect").clicked();
-            if ui.button("Settings").clicked() {
-                settings_open.0 = true;
-            }
-        });
-        if !status.0.is_empty() {
-            ui.label(&status.0);
-        }
+        connect = login_form(ui, form, status, settings_open);
     });
     if connect {
         let creds = Creds {
