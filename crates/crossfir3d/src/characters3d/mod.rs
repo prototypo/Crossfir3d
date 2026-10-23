@@ -323,6 +323,11 @@ impl Stock<'_> {
     fn hat_kit<'a, 'w, 's>(&'a mut self, commands: &'a mut Commands<'w, 's>) -> crate::hat::HatKit<'a, 'w, 's> {
         crate::hat::HatKit { commands, leather: &self.leather, meshes: &mut self.meshes, materials: &mut self.materials }
     }
+
+    /// The tools for putting a thing in a hand, spawning with `commands`.
+    fn hand_kit<'a, 'w, 's>(&'a mut self, commands: &'a mut Commands<'w, 's>, server: &'a AssetServer) -> worn::HandKit<'a, 'w, 's> {
+        worn::HandKit { commands, server, meshes: &mut self.meshes, materials: &mut self.materials }
+    }
 }
 
 /// Facing 1 = north .. 8 = northwest, clockwise. The model looks along +Z unturned.

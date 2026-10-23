@@ -18,7 +18,7 @@ fn hold_class_items(commands: &mut Commands, holder: &Holder, empty: impl Iterat
     for (side, bone) in empty {
         if let Some(carry) = if side == Hand::Right { class.right } else { class.left } {
             let k = holder.own_look.look.scale / bone_scale(bone, &skeleton.parents, &skeleton.parts);
-            put_in_hand(commands, bone, side, carry, k, &holder.server, &mut stock.meshes, &mut stock.materials);
+            put_in_hand(stock.hand_kit(commands, &holder.server), bone, side, carry, k);
         }
     }
 }
@@ -40,7 +40,7 @@ pub(super) fn hold_items(mut commands: Commands, holder: Holder, skeleton: Skele
     }
     for (file, hand) in &want {
         let (side, hand) = (*hand, if *hand == Hand::Right { right } else { left });
-        put_in_hand(&mut commands, hand, side, Carry::Model(file), 1.0 / bone_scale(hand, &skeleton.parents, &skeleton.parts), &holder.server, &mut stock.meshes, &mut stock.materials);
+        put_in_hand(stock.hand_kit(&mut commands, &holder.server), hand, side, Carry::Model(file), 1.0 / bone_scale(hand, &skeleton.parents, &skeleton.parts));
     }
     // A hand holding nothing holds what the class carries.
     let empty = [(Hand::Right, right), (Hand::Left, left)].into_iter().filter(|(side, _)| !want.iter().any(|(_, h)| h == side));
@@ -142,7 +142,7 @@ pub(super) fn gear_up(mut commands: Commands, server: Res<AssetServer>, geared: 
         }
         for (carry, side, bone) in [(class.right, Hand::Right, right), (class.left, Hand::Left, left)] {
             if let Some(carry) = carry {
-                put_in_hand(&mut commands, bone, side, carry, scale / bone_scale(bone, &skeleton.parents, &skeleton.parts), &server, &mut stock.meshes, &mut stock.materials);
+                put_in_hand(stock.hand_kit(&mut commands, &server), bone, side, carry, scale / bone_scale(bone, &skeleton.parents, &skeleton.parts));
             }
         }
         commands.entity(root).remove::<ClassGear>();
@@ -190,19 +190,18 @@ pub(super) fn grip(side: Hand, carry: &Carry) -> (Vec3, Quat) {
     }
 }
 
+/// The tools `put_in_hand` spawns with.
+pub(super) struct HandKit<'a, 'w, 's> {
+    pub commands: &'a mut Commands<'w, 's>,
+    pub server: &'a AssetServer,
+    pub meshes: &'a mut Assets<Mesh>,
+    pub materials: &'a mut Assets<StandardMaterial>,
+}
+
 /// Puts a carried thing in a hand bone: a model file, or a built staff or potion.
 /// `k` is the bone's scale for a human.
-#[allow(clippy::too_many_arguments)]
-pub(super) fn put_in_hand(
-    commands: &mut Commands,
-    hand: Entity,
-    side: Hand,
-    carry: Carry,
-    k: f32,
-    server: &AssetServer,
-    meshes: &mut Assets<Mesh>,
-    materials: &mut Assets<StandardMaterial>,
-) {
+pub(super) fn put_in_hand(kit: HandKit, hand: Entity, side: Hand, carry: Carry, k: f32) {
+    let HandKit { commands, server, meshes, materials } = kit;
     let (at_fist, turn) = grip(side, &carry);
     // `along`: how far along the thing's own +Y from the grip.
     let at = |along: f32| Transform::from_translation((at_fist + turn * Vec3::Y * along) * k).with_rotation(turn).with_scale(Vec3::splat(k));
