@@ -40,6 +40,83 @@ pub fn tabard(rest: &Rest, points: &[Vec3]) -> [Grid; 2] {
     [(true, rest.neck.y - 0.07), (false, rest.left_shoulder.y - 0.06)].map(|(front, high)| panel(rest, points, (high, hem), (0.26, 0.26), front, 0.0, 0.0))
 }
 
+/// The unit direction `a` radians round the X axis: 0 to the front (+Z), a half turn to the back.
+fn out(a: f32) -> Vec3 {
+    Vec3::new(0.0, a.sin(), a.cos())
+}
+
+/// How far out the clothes are at each of the 25 angle steps round `axis` (the head and neck left out); 0 where none.
+fn cloth_profile(points: &[Vec3], axis: Vec3, x: f32, neck_y: f32) -> Vec<f32> {
+    let steps = 24;
+    (0..=steps)
+        .map(|k| {
+            let dir = out(PI * k as f32 / steps as f32);
+            points
+                .iter()
+                .filter(|p| (p.x - x).abs() < 0.03 && p.y < neck_y - 0.03)
+                .map(|p| (*p - axis).with_x(0.0))
+                .filter(|v| v.normalize_or_zero().dot(dir) > 0.966)
+                .map(|v| v.length())
+                .fold(0.0, f32::max)
+        })
+        .collect()
+}
+
+/// Fills the zero gaps in a profile by linear interpolation, copying the nearest value at the ends (0.15 if all are empty).
+fn fill_gaps(far: &mut [f32]) {
+    let known: Vec<usize> = (0..far.len()).filter(|&k| far[k] > 0.0).collect();
+    for k in 0..far.len() {
+        if far[k] == 0.0 {
+            let before = known.iter().rev().find(|&&i| i < k);
+            let after = known.iter().find(|&&i| i > k);
+            far[k] = match (before, after) {
+                (Some(&i), Some(&j)) => far[i] + (far[j] - far[i]) * (k - i) as f32 / (j - i) as f32,
+                (Some(&i), None) | (None, Some(&i)) => far[i],
+                (None, None) => 0.15,
+            };
+        }
+    }
+}
+
+/// The profile's value at angle `a`, interpolated between steps.
+fn profile_at(far: &[f32], a: f32) -> f32 {
+    let steps = far.len() - 1;
+    let k = (a / PI * steps as f32).clamp(0.0, steps as f32);
+    let (i, f) = (k.floor() as usize, k.fract());
+    far[i] + (far[(i + 1).min(steps)] - far[i]) * f
+}
+
+/// The strap's 25 points from `a` over the cloth to `b`, round `axis`.
+fn strap_path(far: &[f32], axis: Vec3, a: Vec3, b: Vec3) -> Vec<Vec3> {
+    let angle = |p: Vec3| (p.y - axis.y).atan2(p.z - axis.z);
+    let (from, to) = (angle(a), angle(b));
+    let ends = [(a - axis).with_x(0.0).length(), (b - axis).with_x(0.0).length()];
+    (0..=24)
+        .map(|k| {
+            let t = k as f32 / 24.0;
+            let a = from + (to - from) * t;
+            // Just above the cloth, out to the panels at the ends.
+            let lie = profile_at(far, a) + 0.006;
+            let end = if t < 0.5 { ends[0] } else { ends[1] };
+            let r = lie + (end - lie) * smooth(1.0 - t.min(1.0 - t) / 0.15);
+            axis + r * out(a)
+        })
+        .collect()
+}
+
+/// A thin cuboid along each segment of the path.
+fn strap_segments(path: &[Vec3]) -> Vec<Mesh> {
+    path.windows(2)
+        .map(|w| {
+            let along = w[1] - w[0];
+            let length = along.length() + 0.004;
+            let along = along.normalize();
+            let turn = Quat::from_mat3(&Mat3::from_cols(Vec3::X, along, Vec3::X.cross(along)));
+            Cuboid::new(0.024, length, 0.003).mesh().build().rotated_by(turn).translated_by((w[0] + w[1]) / 2.0)
+        })
+        .collect()
+}
+
 /// Thin flat straps over the shoulders, joining the tabard's front and back at their top
 /// corners, just above the clothes.
 pub fn tabard_straps(rest: &Rest, points: &[Vec3], [front, back]: &[Grid; 2]) -> Mesh {
@@ -51,61 +128,10 @@ pub fn tabard_straps(rest: &Rest, points: &[Vec3], [front, back]: &[Grid; 2]) ->
         // 0 to the front, a half turn to the back.
         let x = (a.x + b.x) / 2.0 - a.x.signum() * 0.015;
         let axis = Vec3::new(x, rest.chest.y + 0.02, middle(rest) - 0.01);
-        let angle = |p: Vec3| (p.y - axis.y).atan2(p.z - axis.z);
-        let out = |a: f32| Vec3::new(0.0, a.sin(), a.cos());
-        // How far out the clothes are at each angle (the head and neck left out), gaps filled in.
-        let steps = 24;
-        let mut far: Vec<f32> = (0..=steps)
-            .map(|k| {
-                let dir = out(PI * k as f32 / steps as f32);
-                points
-                    .iter()
-                    .filter(|p| (p.x - x).abs() < 0.03 && p.y < rest.neck.y - 0.03)
-                    .map(|p| (*p - axis).with_x(0.0))
-                    .filter(|v| v.normalize_or_zero().dot(dir) > 0.966)
-                    .map(|v| v.length())
-                    .fold(0.0, f32::max)
-            })
-            .collect();
-        let known: Vec<usize> = (0..=steps).filter(|&k| far[k] > 0.0).collect();
-        for k in 0..=steps {
-            if far[k] == 0.0 {
-                let before = known.iter().rev().find(|&&i| i < k);
-                let after = known.iter().find(|&&i| i > k);
-                far[k] = match (before, after) {
-                    (Some(&i), Some(&j)) => far[i] + (far[j] - far[i]) * (k - i) as f32 / (j - i) as f32,
-                    (Some(&i), None) | (None, Some(&i)) => far[i],
-                    (None, None) => 0.15,
-                };
-            }
-        }
-        let at = |a: f32| {
-            let k = (a / PI * steps as f32).clamp(0.0, steps as f32);
-            let (i, f) = (k.floor() as usize, k.fract());
-            far[i] + (far[(i + 1).min(steps)] - far[i]) * f
-        };
-        let (from, to) = (angle(a), angle(b));
-        let ends = [(a - axis).with_x(0.0).length(), (b - axis).with_x(0.0).length()];
-        let path: Vec<Vec3> = (0..=24)
-            .map(|k| {
-                let t = k as f32 / 24.0;
-                let a = from + (to - from) * t;
-                // Just above the cloth, out to the panels at the ends.
-                let lie = at(a) + 0.006;
-                let end = if t < 0.5 { ends[0] } else { ends[1] };
-                let r = lie + (end - lie) * smooth(1.0 - t.min(1.0 - t) / 0.15);
-                axis + r * out(a)
-            })
-            .collect();
-        path.windows(2)
-            .map(|w| {
-                let along = w[1] - w[0];
-                let length = along.length() + 0.004;
-                let along = along.normalize();
-                let turn = Quat::from_mat3(&Mat3::from_cols(Vec3::X, along, Vec3::X.cross(along)));
-                Cuboid::new(0.024, length, 0.003).mesh().build().rotated_by(turn).translated_by((w[0] + w[1]) / 2.0)
-            })
-            .collect::<Vec<_>>()
+        // How far out the clothes are at each angle, gaps filled in.
+        let mut far = cloth_profile(points, axis, x, rest.neck.y);
+        fill_gaps(&mut far);
+        strap_segments(&strap_path(&far, axis, a, b))
     }))
 }
 
@@ -489,5 +515,16 @@ mod tests {
                 .unwrap();
             assert!(highest.x < -0.05 && highest.y > rest().left_shoulder.y + 0.05, "{highest}");
         }
+    }
+
+    #[test]
+    fn gaps_in_the_profile_are_filled() {
+        let mut far = [0.0, 0.2, 0.0, 0.0, 0.5, 0.0];
+        fill_gaps(&mut far);
+        assert!((far[2] - 0.3).abs() < 1e-6 && (far[3] - 0.4).abs() < 1e-6);
+        assert!(far[0] == 0.2 && far[5] == 0.5, "the ends copy their nearest");
+        let mut none = [0.0; 4];
+        fill_gaps(&mut none);
+        assert_eq!(none, [0.15; 4]);
     }
 }

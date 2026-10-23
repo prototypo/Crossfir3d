@@ -179,7 +179,7 @@ denominator grew.
 - Measured: complexity 15 (threshold 10); arguments 12 (threshold 5)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
 
-### [ ] 🔴 Q23: complexity, length — crates/crossfir3d/src/back.rs:45 `tabard_straps`
+### [x] 🔴 Q23: complexity, length — crates/crossfir3d/src/back.rs:45 `tabard_straps`
 
 - Measured: complexity 22 (threshold 10); length 66 (threshold 50)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
