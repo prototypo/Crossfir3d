@@ -138,57 +138,78 @@ pub(super) fn swap_models(
     }
 }
 
+/// What `tint_model` reads and writes: the tint and part queries and the image and material stores.
+#[derive(SystemParam)]
+pub(super) struct TintParams<'w, 's> {
+    tints: Query<'w, 's, (&'static ModelTint, Option<&'static SkinTint>, Has<Recolour>)>,
+    images: ResMut<'w, Assets<Image>>,
+    part_of: Query<'w, 's, &'static PartOf>,
+    statues: Query<'w, 's, (), With<StatueFigure>>,
+    names: Query<'w, 's, &'static Name>,
+    children: Query<'w, 's, &'static Children>,
+    meshes: Query<'w, 's, &'static MeshMaterial3d<StandardMaterial>>,
+    materials: ResMut<'w, Assets<StandardMaterial>>,
+}
+
+/// The tint for one mesh: the skin tint on a skin mesh, else the model's tint.
+fn mesh_tint(skin: Option<&SkinTint>, model: Color, is_skin: bool) -> LinearRgba {
+    match skin {
+        Some(SkinTint(s)) if is_skin => s.to_linear(),
+        _ => model.to_linear(),
+    }
+}
+
+/// The greyed copy of a texture (made once per source image).
+fn grey_texture(tex: &Handle<Image>, greys: &mut HashMap<AssetId<Image>, Handle<Image>>, images: &mut Assets<Image>) -> Handle<Image> {
+    let grey = greys.entry(tex.id()).or_insert_with(|| {
+        let grey = images.get(tex).map(grey_image);
+        grey.map_or(tex.clone(), |g| images.add(g))
+    });
+    grey.clone()
+}
+
+/// Turns a material into plain stone of the given tint, with no picture on it.
+fn stone_material(copy: &mut StandardMaterial, tint: LinearRgba) {
+    // Darker than the tint: the plinth's own marble colour darkens it too.
+    copy.base_color = LinearRgba::new(tint.red * STONE_SHADE, tint.green * STONE_SHADE, tint.blue * STONE_SHADE, 1.0).into();
+    copy.base_color_texture = None;
+    // Outfits can be shiny or metallic; stone is neither (it mirrored the sky).
+    copy.metallic = 0.0;
+    copy.metallic_roughness_texture = None;
+    copy.perceptual_roughness = 0.9;
+    copy.reflectance = 0.2;
+    copy.emissive = LinearRgba::BLACK;
+    copy.emissive_texture = None;
+}
+
 /// Multiplies a spawned model's materials by its tint (each instance gets its own copy).
 /// ponytail: one material copy per instance; share copies per (material, tint) if draw calls hurt.
 pub(super) fn tint_model(
     ready: On<WorldInstanceReady>,
     mut commands: Commands,
-    tints: Query<(&ModelTint, Option<&SkinTint>, Has<Recolour>)>,
-    mut images: ResMut<Assets<Image>>,
     mut greys: Local<HashMap<AssetId<Image>, Handle<Image>>>,
-    part_of: Query<&PartOf>,
-    statues: Query<(), With<StatueFigure>>,
-    names: Query<&Name>,
-    children: Query<&Children>,
-    meshes: Query<&MeshMaterial3d<StandardMaterial>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
+    mut p: TintParams,
 ) {
-    let Ok((ModelTint(tint), skin, recolour)) = tints.get(ready.entity) else { return };
+    let Ok((ModelTint(tint), skin, recolour)) = p.tints.get(ready.entity) else { return };
     if *tint == Color::WHITE && skin.is_none() {
         return;
     }
     // A statue's figure is plain stone: its tint, with no picture on it.
-    let stone = part_of.get(ready.entity).is_ok_and(|p| statues.contains(p.0));
-    for d in children.iter_descendants(ready.entity) {
-        let Ok(m) = meshes.get(d) else { continue };
-        let is_skin = names.get(d).is_ok_and(|n| n.as_str().contains("MI_Regular"));
-        let tint = match skin {
-            Some(SkinTint(s)) if is_skin => s.to_linear(),
-            _ => tint.to_linear(),
-        };
-        let Some(mut copy) = materials.get(&m.0).cloned() else { continue };
+    let stone = p.part_of.get(ready.entity).is_ok_and(|q| p.statues.contains(q.0));
+    for d in p.children.iter_descendants(ready.entity) {
+        let Ok(m) = p.meshes.get(d) else { continue };
+        let is_skin = p.names.get(d).is_ok_and(|n| n.as_str().contains("MI_Regular"));
+        let tint = mesh_tint(skin, *tint, is_skin);
+        let Some(mut copy) = p.materials.get(&m.0).cloned() else { continue };
         let c = copy.base_color.to_linear();
         copy.base_color = LinearRgba::new(c.red * tint.red, c.green * tint.green, c.blue * tint.blue, c.alpha).into();
         if recolour && let Some(tex) = copy.base_color_texture.clone() {
-            let grey = greys.entry(tex.id()).or_insert_with(|| {
-                let grey = images.get(&tex).map(grey_image);
-                grey.map_or(tex.clone(), |g| images.add(g))
-            });
-            copy.base_color_texture = Some(grey.clone());
+            copy.base_color_texture = Some(grey_texture(&tex, &mut greys, &mut p.images));
         }
         if stone {
-            // Darker than the tint: the plinth's own marble colour darkens it too.
-            copy.base_color = LinearRgba::new(tint.red * STONE_SHADE, tint.green * STONE_SHADE, tint.blue * STONE_SHADE, 1.0).into();
-            copy.base_color_texture = None;
-            // Outfits can be shiny or metallic; stone is neither (it mirrored the sky).
-            copy.metallic = 0.0;
-            copy.metallic_roughness_texture = None;
-            copy.perceptual_roughness = 0.9;
-            copy.reflectance = 0.2;
-            copy.emissive = LinearRgba::BLACK;
-            copy.emissive_texture = None;
+            stone_material(&mut copy, tint);
         }
-        commands.entity(d).try_insert(MeshMaterial3d(materials.add(copy)));
+        commands.entity(d).try_insert(MeshMaterial3d(p.materials.add(copy)));
     }
 }
 
