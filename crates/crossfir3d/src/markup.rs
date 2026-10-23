@@ -13,27 +13,35 @@ pub struct Span {
     pub color: Option<[u8; 3]>,
 }
 
+const COLOURS: [(&str, [u8; 3]); 13] = [
+    ("black", [0, 0, 0]),
+    ("white", [255, 255, 255]),
+    ("red", [255, 0, 0]),
+    ("orange", [255, 165, 0]),
+    ("yellow", [255, 255, 0]),
+    ("green", [0, 160, 0]),
+    ("blue", [0, 0, 255]),
+    ("navy", [0, 0, 128]),
+    ("purple", [128, 0, 128]),
+    ("gray", [128, 128, 128]),
+    ("grey", [128, 128, 128]),
+    ("brown", [139, 69, 19]),
+    ("gold", [255, 215, 0]),
+];
+
+/// Parses `#rrggbb`; None if the hex digits are bad.
+fn hex_colour(hex: &str) -> Option<[u8; 3]> {
+    let v = u32::from_str_radix(hex, 16).ok()?;
+    Some([(v >> 16) as u8, (v >> 8) as u8, v as u8])
+}
+
 /// Turns a colour name or #rrggbb into RGB.
 fn colour(name: &str) -> Option<[u8; 3]> {
     if let Some(hex) = name.strip_prefix('#').filter(|h| h.len() == 6) {
-        let v = u32::from_str_radix(hex, 16).ok()?;
-        return Some([(v >> 16) as u8, (v >> 8) as u8, v as u8]);
+        return hex_colour(hex);
     }
-    Some(match name.to_ascii_lowercase().as_str() {
-        "black" => [0, 0, 0],
-        "white" => [255, 255, 255],
-        "red" => [255, 0, 0],
-        "orange" => [255, 165, 0],
-        "yellow" => [255, 255, 0],
-        "green" => [0, 160, 0],
-        "blue" => [0, 0, 255],
-        "navy" => [0, 0, 128],
-        "purple" => [128, 0, 128],
-        "gray" | "grey" => [128, 128, 128],
-        "brown" => [139, 69, 19],
-        "gold" => [255, 215, 0],
-        _ => return None,
-    })
+    let lower = name.to_ascii_lowercase();
+    COLOURS.iter().find(|(n, _)| *n == lower).map(|(_, c)| *c)
 }
 
 /// Applies one tag to the style; false if it is not a style tag (then it is text).
@@ -98,6 +106,28 @@ mod tests {
 
     fn s(text: &str) -> Span {
         Span { text: text.into(), ..Default::default() }
+    }
+
+    #[test]
+    fn every_colour_unchanged() {
+        let names = [
+            ("black", [0, 0, 0]), ("white", [255, 255, 255]), ("red", [255, 0, 0]),
+            ("orange", [255, 165, 0]), ("yellow", [255, 255, 0]), ("green", [0, 160, 0]),
+            ("blue", [0, 0, 255]), ("navy", [0, 0, 128]), ("purple", [128, 0, 128]),
+            ("gray", [128, 128, 128]), ("grey", [128, 128, 128]), ("brown", [139, 69, 19]),
+            ("gold", [255, 215, 0]),
+        ];
+        for (n, rgb) in names {
+            let mixed = format!("{}{}", n[..1].to_uppercase(), &n[1..]);
+            for name in [n.to_string(), n.to_uppercase(), mixed] {
+                assert_eq!(colour(&name), Some(rgb), "{name}");
+            }
+        }
+        assert_eq!(colour("#ff5500"), Some([255, 85, 0]));
+        assert_eq!(colour("#FF5500"), Some([255, 85, 0]));
+        for bad in ["#ff55", "#gggggg", "ff5500", "", "chartreuse"] {
+            assert_eq!(colour(bad), None, "{bad}");
+        }
     }
 
     #[test]
