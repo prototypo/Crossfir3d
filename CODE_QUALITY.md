@@ -295,7 +295,7 @@ denominator grew.
 - Measured: Missing on, among others: `characters_screen`, `on_message`, `item`, `connect`, `apply` (stats.rs), `hud`, `spawn_part`, `parse_map2`, `watch`, `act_key`, `settings_screen`. Overall 275 of 364 functions longer than 10 lines have a comment (75.5%, estimated)
 - Recommendation: Add one `///` line above each saying WHAT it does ("Draws the settings overlay"), not how.
 
-### [ ] 🔴 Q46: complexity — crates/cfproto/src/spells.rs:23 `parse_addspell`
+### [x] 🔴 Q46: complexity — crates/cfproto/src/spells.rs:23 `parse_addspell`
 
 - Measured: complexity 17 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
