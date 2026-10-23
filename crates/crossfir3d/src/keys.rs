@@ -142,27 +142,36 @@ pub fn skill_command(name: &str) -> String {
     format!("use_skill {name}")
 }
 
+/// Each key the game uses by itself, with its job.
+const GAME_KEYS: &[(&str, &str)] = &[
+    ("Up", "move"),
+    ("Down", "move"),
+    ("Left", "move"),
+    ("Right", "move"),
+    ("A", "apply"),
+    ("E", "apply"),
+    ("G", "get"),
+    ("I", "inventory"),
+    ("B", "what is below"),
+    ("L", "log"),
+    ("M", "mute"),
+    ("C", "camera behind"),
+    ("T", "face nearest"),
+    ("F", "look at face"),
+    ("Space", "fire"),
+    ("Tab", "top view"),
+    ("1", "quick slot"),
+    ("2", "quick slot"),
+    ("3", "quick slot"),
+    ("4", "quick slot"),
+];
+
 /// The game's own job for a key pressed alone (a binding may replace it, after asking).
 pub fn game_key(combo: &Combo) -> Option<&'static str> {
     if !combo.mods.none() {
         return None;
     }
-    Some(match combo.key.as_str() {
-        "Up" | "Down" | "Left" | "Right" => "move",
-        "A" | "E" => "apply",
-        "G" => "get",
-        "I" => "inventory",
-        "B" => "what is below",
-        "L" => "log",
-        "M" => "mute",
-        "C" => "camera behind",
-        "T" => "face nearest",
-        "F" => "look at face",
-        "Space" => "fire",
-        "Tab" => "top view",
-        "1" | "2" | "3" | "4" => "quick slot",
-        _ => return None,
-    })
+    GAME_KEYS.iter().find(|(k, _)| *k == combo.key).map(|(_, job)| *job)
 }
 
 /// Why a combination can never be bound: the way back out, or the system's own keys.
@@ -399,6 +408,43 @@ mod tests {
         assert_eq!(game_key(&Combo { mods: Mods::default(), key: "D".into() }), None);
         assert_eq!(game_key(&Combo { mods: Mods::default(), key: "B".into() }), Some("what is below"));
         assert_eq!(game_key(&Combo { mods: Mods::default(), key: "Up".into() }), Some("move"));
+    }
+
+    #[test]
+    fn game_key_every_key() {
+        let job = |k: &str| game_key(&combo(Mods::default(), k));
+        for k in ["Up", "Down", "Left", "Right"] {
+            assert_eq!(job(k), Some("move"));
+        }
+        for k in ["1", "2", "3", "4"] {
+            assert_eq!(job(k), Some("quick slot"));
+        }
+        let rows = [
+            ("A", "apply"),
+            ("E", "apply"),
+            ("G", "get"),
+            ("I", "inventory"),
+            ("B", "what is below"),
+            ("L", "log"),
+            ("M", "mute"),
+            ("C", "camera behind"),
+            ("T", "face nearest"),
+            ("F", "look at face"),
+            ("Space", "fire"),
+            ("Tab", "top view"),
+        ];
+        for (k, want) in rows {
+            assert_eq!(job(k), Some(want));
+        }
+        for k in ["D", "K", "Escape", "5", "g"] {
+            assert_eq!(job(k), None);
+        }
+        let shift = Mods { shift: true, ..Default::default() };
+        let cmd = Mods { cmd: true, ..Default::default() };
+        let ctrl = Mods { ctrl: true, ..Default::default() };
+        assert_eq!(game_key(&combo(shift, "G")), None);
+        assert_eq!(game_key(&combo(cmd, "Up")), None);
+        assert_eq!(game_key(&combo(ctrl, "1")), None);
     }
 
     #[test]

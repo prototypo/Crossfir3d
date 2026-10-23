@@ -320,7 +320,7 @@ denominator grew.
 - Measured: arguments 8 (threshold 5)
 - Recommendation: This is a Bevy system: group its queries and resources into a `#[derive(SystemParam)]` struct.
 
-### [ ] 🔴 Q51: complexity — crates/crossfir3d/src/keys.rs:146 `game_key`
+### [x] 🔴 Q51: complexity — crates/crossfir3d/src/keys.rs:146 `game_key`
 
 - Measured: complexity 16 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
