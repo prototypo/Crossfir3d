@@ -440,7 +440,7 @@ denominator grew.
 - Measured: nesting 5 (threshold 4)
 - Recommendation: Return early or extract the innermost block into a helper to cut the nesting.
 
-### [ ] 🔴 Q75: length — crates/crossfir3d/src/main.rs:139 `main`
+### [x] 🔴 Q75: length — crates/crossfir3d/src/main.rs:139 `main`
 
 - Measured: length 61 (threshold 50)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.

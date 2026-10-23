@@ -143,7 +143,18 @@ fn main() {
         crossfir3d::settings::move_old_folders(std::path::Path::new(&home));
     }
     let settings = graphics::startup_settings();
-    App::new()
+    let mut app = App::new();
+    engine_setup(&mut app, settings);
+    base_resources(&mut app);
+    hud_and_combat(&mut app);
+    plugins_and_input(&mut app);
+    login_screens(&mut app);
+    app.run();
+}
+
+/// Window, asset, graphics and egui set-up.
+fn engine_setup(app: &mut App, settings: graphics::CurrentSettings) -> &mut App {
+    app
         .add_plugins(
             DefaultPlugins
                 .set(WindowPlugin { primary_window: Some(graphics::initial_window(&settings.0)), ..default() })
@@ -154,6 +165,11 @@ fn main() {
         .add_plugins(EguiPlugin::default())
         // egui goes on the window camera (graphics.rs), not the 3D camera that draws into an image.
         .insert_resource(bevy_egui::EguiGlobalSettings { auto_create_primary_context: false, ..default() })
+}
+
+/// The game state and the shared per-session resources.
+fn base_resources(app: &mut App) -> &mut App {
+    app
         .init_state::<AppState>()
         .init_resource::<Status>()
         .init_resource::<NcomSeq>()
@@ -165,6 +181,11 @@ fn main() {
         .init_resource::<PendingQuery>()
         .init_resource::<Clock>()
         .init_resource::<TimeRequest>()
+}
+
+/// In-game HUD resources and screens, and combat effects.
+fn hud_and_combat(app: &mut App) -> &mut App {
+    app
         .add_systems(OnEnter(AppState::InGame), (ask_time, ask_skills, dev_commands))
         .init_resource::<HudState>()
         .init_resource::<PlayerStats>()
@@ -182,6 +203,11 @@ fn main() {
         .add_systems(EguiPrimaryContextPass, (hud::hud, inventory_ui::inventory_screen, keys_ui::keys_screen, combat_fx::draw).chain().run_if(in_state(AppState::InGame)))
         .init_resource::<combat_fx::CombatFx>()
         .add_systems(Update, combat_fx::watch.run_if(in_state(AppState::InGame)))
+}
+
+/// The world, character and audio plugins, network pump and in-game input systems.
+fn plugins_and_input(app: &mut App) -> &mut App {
+    app
         .add_plugins(world::WorldPlugin)
         .add_plugins(characters3d::CharactersPlugin)
         .add_plugins(audio::AudioPlugin)
@@ -190,6 +216,11 @@ fn main() {
         .add_systems(Update, (input::send_moves, input::world_keys, ui::capture_bind_key, input::watch_ground).chain().run_if(in_state(AppState::InGame)))
         .add_systems(Update, dev_screenshot)
         .add_systems(OnEnter(AppState::InGame), load_character_keys)
+}
+
+/// Settings, login and character screens and the command line.
+fn login_screens(app: &mut App) -> &mut App {
+    app
         .init_resource::<settings_ui::SettingsOpen>()
         .add_systems(
             EguiPrimaryContextPass,
@@ -197,7 +228,6 @@ fn main() {
         )
         .add_systems(EguiPrimaryContextPass, (hud::load_fonts, settings_ui::settings_screen).chain())
         .add_systems(EguiPrimaryContextPass, ui::command_line.run_if(in_state(AppState::InGame)))
-        .run();
 }
 
 /// Starts a session after a successful connect.
