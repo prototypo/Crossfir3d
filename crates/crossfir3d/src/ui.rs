@@ -12,6 +12,19 @@ use crossfir3d::keys::{shadowed, bind_question, parse_typed, save_bindings, defa
 use crate::input::{held_mods, key_name, key_taken};
 use crate::{KeyBindings, KeyMode, LastAction, Msgs, NcomSeq, PendingQuery, Session, Status};
 
+/// The gold of overlay borders and headings.
+pub const GOLD: egui::Color32 = egui::Color32::from_rgb(0xc9, 0xa2, 0x4a);
+
+/// A full-screen overlay window: no title bar, fixed in place, dark with a gold border.
+pub fn overlay_window(id: &str, screen: egui::Rect, margin: f32) -> egui::Window<'static> {
+    let frame = egui::Frame::new()
+        .fill(egui::Color32::from_rgba_unmultiplied(20, 22, 30, 238))
+        .stroke(egui::Stroke::new(2.0, GOLD))
+        .corner_radius(8.0)
+        .inner_margin(margin);
+    egui::Window::new(id.to_owned()).title_bar(false).resizable(false).movable(false).fixed_rect(screen).frame(frame)
+}
+
 /// A typed `bind` waiting for its key, or a yes/no question waiting for its answer.
 #[derive(Resource, Default)]
 pub struct PendingBind(pub Option<BindStep>);

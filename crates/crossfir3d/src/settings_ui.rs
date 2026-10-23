@@ -7,9 +7,8 @@ use crossfir3d::modes::Mode;
 use crossfir3d::settings::{AntiAlias, FrameRate, Quality, Settings, LOG_FONT_SIZES};
 
 use crate::graphics::CurrentSettings;
+use crate::ui::{overlay_window, GOLD};
 use crate::{AppState, KeyMode};
-
-const GOLD: egui::Color32 = egui::Color32::from_rgb(0xc9, 0xa2, 0x4a);
 
 /// Settings opened from the login form (in game, `KeyMode::Settings` is used).
 #[derive(Resource, Default)]
@@ -57,19 +56,9 @@ pub fn settings_screen(mut p: SettingsParams) -> Result {
 
 /// Shows the full-screen settings window with its title, the scrolling grid and the buttons; returns whether Close was clicked.
 fn settings_window(ctx: &egui::Context, s: &mut Settings) -> bool {
-    let frame = egui::Frame::new()
-        .fill(egui::Color32::from_rgba_unmultiplied(20, 22, 30, 238))
-        .stroke(egui::Stroke::new(2.0, GOLD))
-        .corner_radius(8.0)
-        .inner_margin(20.0);
     let screen = ctx.content_rect().shrink(24.0);
     let mut close = false;
-    egui::Window::new("settings")
-        .title_bar(false)
-        .resizable(false)
-        .movable(false)
-        .fixed_rect(screen)
-        .frame(frame)
+    overlay_window("settings", screen, 20.0)
         .show(ctx, |ui| {
             ui.set_min_size(screen.size() - egui::vec2(40.0, 40.0));
             ui.spacing_mut().slider_width = 260.0;

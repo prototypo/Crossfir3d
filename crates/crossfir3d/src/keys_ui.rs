@@ -13,10 +13,10 @@ use crossfir3d::keys::{
 use crossfir3d::modes::Mode;
 
 use crate::input::{held_mods, key_name};
+use crate::ui::{overlay_window, GOLD};
 use crate::{known_skills, KeyBindings, KeyMode, PlayerStats, Session, SkillNames, Spells};
 
 const MAC: bool = cfg!(target_os = "macos");
-const GOLD: egui::Color32 = egui::Color32::from_rgb(0xc9, 0xa2, 0x4a);
 const YELLOW: egui::Color32 = egui::Color32::from_rgb(0xe8, 0xc8, 0x40);
 const BRIGHT: egui::Color32 = egui::Color32::from_rgb(0xff, 0xf2, 0x7a);
 const KEY: egui::Color32 = egui::Color32::from_rgb(0x3a, 0x3f, 0x4b);
@@ -258,12 +258,7 @@ pub fn keys_screen(mut p: KeysScreenParams) -> Result {
         pic: build_picture(&p.sel, &p.bindings.0.list, &known),
         buttons,
     };
-    egui::Window::new("key bindings")
-        .title_bar(false)
-        .resizable(false)
-        .movable(false)
-        .fixed_rect(screen)
-        .frame(window_frame())
+    overlay_window("key bindings", screen, 16.0)
         .show(ctx, |ui| draw_screen(ui, &view, &mut out, screen.size()));
 
     let pressed = out.pressed;
@@ -326,15 +321,6 @@ fn build_picture<'a>(sel: &KeysSel, list: &'a [Binding], known: &Known) -> Pictu
     let lit = sel.action.as_ref().map(|a| bindings_of(list, a, &known.spells, &known.skills)).unwrap_or_default();
     let picked_mods = sel.picked.as_ref().map_or(sel.mods, |c| c.mods);
     Picture { on_key, mods_used, lit, picked_mods }
-}
-
-/// The look of the screen's window: dark, with a gold border.
-fn window_frame() -> egui::Frame {
-    egui::Frame::new()
-        .fill(egui::Color32::from_rgba_unmultiplied(20, 22, 30, 238))
-        .stroke(egui::Stroke::new(2.0, GOLD))
-        .corner_radius(8.0)
-        .inner_margin(16.0)
 }
 
 /// Draws the help line, the legend, the keyboard and the lists.

@@ -7,6 +7,7 @@ use cfproto::{ClientMsg, Inventory, Item, Spell, Stats};
 use crossfir3d::modes::Mode;
 use crossfir3d::slots::{default_slots_path, save_slots, Slot};
 
+use crate::ui::{overlay_window, GOLD};
 use crate::{Inv, KeyMode, LastAction, PlayerStats, Session, Slots, Spells};
 
 /// Height of the item and spell pictures in the lists.
@@ -16,8 +17,6 @@ const ICON: f32 = 22.0;
 fn icon_size(px: Vec2) -> egui::Vec2 {
     egui::vec2(ICON * px.x / px.y.max(1.0), ICON)
 }
-
-const GOLD: egui::Color32 = egui::Color32::from_rgb(0xc9, 0xa2, 0x4a);
 
 /// Carried items, each open container followed by its contents one level deeper:
 /// (depth, tag).
@@ -270,18 +269,8 @@ fn draw_columns(cols: &mut [egui::Ui], lists: &Lists, icons: &Icons, sel: &InvSe
 
 /// The inventory window; the (column, row) clicked, if any.
 fn draw_window(ctx: &egui::Context, lists: &Lists, icons: &Icons, sel: &InvSel, stats: &Stats) -> Option<(usize, usize)> {
-    let frame = egui::Frame::new()
-        .fill(egui::Color32::from_rgba_unmultiplied(20, 22, 30, 238))
-        .stroke(egui::Stroke::new(2.0, GOLD))
-        .corner_radius(8.0)
-        .inner_margin(16.0);
     let screen = ctx.content_rect().shrink(24.0);
-    egui::Window::new("inventory")
-        .title_bar(false)
-        .resizable(false)
-        .movable(false)
-        .fixed_rect(screen)
-        .frame(frame)
+    overlay_window("inventory", screen, 16.0)
         .show(ctx, |ui| {
             ui.set_min_size(screen.size() - egui::vec2(32.0, 32.0));
             ui.label(egui::RichText::new("I or Esc: close · arrows: select · E apply · D drop · G get · X examine · 1-4 quick slot").small());

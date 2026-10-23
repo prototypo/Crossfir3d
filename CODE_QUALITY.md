@@ -280,7 +280,7 @@ denominator grew.
 - Measured: complexity 19 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
 
-### [ ] 🔴 Q43: reusability — the overlay window frame is copied in 3 places: crates/crossfir3d/src/settings_ui.rs:49, crates/crossfir3d/src/inventory_ui.rs:272, crates/crossfir3d/src/keys_ui.rs:333
+### [x] 🔴 Q43: reusability — the overlay window frame is copied in 3 places: crates/crossfir3d/src/settings_ui.rs:49, crates/crossfir3d/src/inventory_ui.rs:272, crates/crossfir3d/src/keys_ui.rs:333
 
 - Measured: 5 identical frame lines × 3 (`egui::Frame` fill, gold stroke, radius, margin), plus the fixed, untitled, unmovable `egui::Window` in two of them
 - Recommendation: Add one `overlay_frame()` in `ui.rs` (keys_ui.rs already has it as `window_frame`) and make the three screens call it.
