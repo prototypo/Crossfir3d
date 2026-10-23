@@ -161,20 +161,29 @@ pub fn classify_player_face(face_name: &str) -> Option<PlayerFace> {
         .or_else(|| find(&CLASS_FACES).map(PlayerFace::Class))
 }
 
+/// The clothes colour of each class arch; classes may share a colour.
+const CLASS_CLOTHES: [(&str, [f32; 3]); 16] = [
+    ("warrior_class", [0.5, 0.35, 0.25]),
+    ("barbarian_class", [0.5, 0.35, 0.25]),
+    ("paladin_class", [0.8, 0.8, 0.85]),
+    ("wizard_class", [0.25, 0.3, 0.6]),
+    ("evoker_class", [0.25, 0.3, 0.6]),
+    ("sorcerer_class", [0.25, 0.3, 0.6]),
+    ("devotee_class", [0.85, 0.82, 0.7]),
+    ("priest_class", [0.85, 0.82, 0.7]),
+    ("monk_class", [0.85, 0.82, 0.7]),
+    ("summoner_class", [0.7, 0.6, 0.2]),
+    ("alchemist_class", [0.7, 0.6, 0.2]),
+    ("warlock_class", [0.35, 0.15, 0.4]),
+    ("thief_class", [0.15, 0.15, 0.18]),
+    ("ninja_class", [0.15, 0.15, 0.18]),
+    ("ranger_class", [0.25, 0.45, 0.25]),
+    ("swashbuckler_class", [0.6, 0.2, 0.2]),
+];
+
 /// A clothes colour per class, so other players look different by class.
 pub fn clothes_for_class(class_arch: &str) -> [f32; 3] {
-    match class_arch {
-        "warrior_class" | "barbarian_class" => [0.5, 0.35, 0.25],
-        "paladin_class" => [0.8, 0.8, 0.85],
-        "wizard_class" | "evoker_class" | "sorcerer_class" => [0.25, 0.3, 0.6],
-        "devotee_class" | "priest_class" | "monk_class" => [0.85, 0.82, 0.7],
-        "summoner_class" | "alchemist_class" => [0.7, 0.6, 0.2],
-        "warlock_class" => [0.35, 0.15, 0.4],
-        "thief_class" | "ninja_class" => [0.15, 0.15, 0.18],
-        "ranger_class" => [0.25, 0.45, 0.25],
-        "swashbuckler_class" => [0.6, 0.2, 0.2],
-        _ => [0.45, 0.4, 0.3],
-    }
+    CLASS_CLOTHES.iter().find(|(c, _)| *c == class_arch).map_or(CLOTH, |(_, c)| *c)
 }
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -361,6 +370,26 @@ mod tests {
     fn classes_have_distinct_clothes() {
         assert_ne!(clothes_for_class("wizard_class"), clothes_for_class("warrior_class"));
         let _ = clothes_for_class("unknown_class");
+    }
+
+    #[test]
+    fn every_class_has_its_clothes() {
+        let rows: [(&str, [f32; 3]); 16] = [
+            ("warrior", [0.5, 0.35, 0.25]), ("barbarian", [0.5, 0.35, 0.25]),
+            ("paladin", [0.8, 0.8, 0.85]),
+            ("wizard", [0.25, 0.3, 0.6]), ("evoker", [0.25, 0.3, 0.6]), ("sorcerer", [0.25, 0.3, 0.6]),
+            ("devotee", [0.85, 0.82, 0.7]), ("priest", [0.85, 0.82, 0.7]), ("monk", [0.85, 0.82, 0.7]),
+            ("summoner", [0.7, 0.6, 0.2]), ("alchemist", [0.7, 0.6, 0.2]),
+            ("warlock", [0.35, 0.15, 0.4]),
+            ("thief", [0.15, 0.15, 0.18]), ("ninja", [0.15, 0.15, 0.18]),
+            ("ranger", [0.25, 0.45, 0.25]),
+            ("swashbuckler", [0.6, 0.2, 0.2]),
+        ];
+        for (name, colour) in rows {
+            assert_eq!(clothes_for_class(&format!("{name}_class")), colour, "{name}");
+        }
+        assert_eq!(clothes_for_class(""), [0.45, 0.4, 0.3]);
+        assert_eq!(clothes_for_class("x_class"), [0.45, 0.4, 0.3]);
     }
 
     #[test]
