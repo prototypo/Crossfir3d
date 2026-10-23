@@ -48,18 +48,24 @@ pub(super) fn hold_items(mut commands: Commands, holder: Holder, skeleton: Skele
     commands.entity(root).try_insert(Holding(want));
 }
 
+/// What `wear_armour` reads about the own character's look.
+#[derive(SystemParam)]
+pub(super) struct Outfitter<'w> {
+    inv: Res<'w, Inv>,
+    own_look: Res<'w, OwnLook>,
+    server: Res<'w, AssetServer>,
+}
+
 /// Dresses the own character in the outfit for its applied body armour: the outfit part
 /// is swapped for the other file and tint (its bones bind again when it spawns).
 pub(super) fn wear_armour(
     mut commands: Commands,
-    inv: Res<Inv>,
-    own_look: Res<OwnLook>,
-    server: Res<AssetServer>,
+    outfitter: Outfitter,
     own: Query<(Entity, Option<&Wearing>), With<OwnCharacter>>,
     outfits: Query<(Entity, &ChildOf, &Transform, &Visibility, &SkinTint), With<OutfitPart>>,
 ) {
     let Ok((root, wearing)) = own.single() else { return };
-    let want = Wearing(worn(&inv.0.carried()));
+    let want = Wearing(worn(&outfitter.inv.0.carried()));
     // A new character starts in its own clothes: nothing to swap.
     if wearing.map_or(want.0.is_none(), |w| *w == want) {
         if wearing.is_none() {
@@ -68,15 +74,15 @@ pub(super) fn wear_armour(
         return;
     }
     let Some((old, _, &t, &vis, skin)) = outfits.iter().find(|o| o.1.parent() == root) else { return };
-    let class = own_look.class.map(|c| (c.garb, c.tint));
-    let (garb, tint) = want.0.or(class).unwrap_or((Garb::Peasant, tints(&own_look.look).clothes));
-    let file = outfit_file(own_look.body, garb);
-    let scene = server.load(GltfAssetLabel::Scene(0).from_asset(format!("models/{file}")));
+    let class = outfitter.own_look.class.map(|c| (c.garb, c.tint));
+    let (garb, tint) = want.0.or(class).unwrap_or((Garb::Peasant, tints(&outfitter.own_look.look).clothes));
+    let file = outfit_file(outfitter.own_look.body, garb);
+    let scene = outfitter.server.load(GltfAssetLabel::Scene(0).from_asset(format!("models/{file}")));
     let [r, g, b] = tint;
     commands.entity(old).try_despawn();
     commands.spawn((WorldAssetRoot(scene), t, vis, ModelTint(Color::srgb(r, g, b)), SkinTint(skin.0), PartOf(root), ChildOf(root), OutfitPart));
     // What was built on the old outfit went with it: build it again on the new one.
-    if let Some(dress) = crate::robe::Dress::of(own_look.class, want.0.is_some()) {
+    if let Some(dress) = crate::robe::Dress::of(outfitter.own_look.class, want.0.is_some()) {
         commands.entity(root).try_insert(dress);
     }
     commands.entity(root).try_insert(want);

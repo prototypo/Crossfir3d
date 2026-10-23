@@ -466,7 +466,7 @@ denominator grew.
 - Recommendation: This is a Bevy system: group its queries and resources into a `#[derive(SystemParam)]` struct.
 - Blocked: `arc` is a geometry helper with 6 clear, all-varying inputs at 6 call sites; a struct would make every call harder to read without making anything safer.
 
-### [ ] 🔴 Q80: arguments — crates/crossfir3d/src/characters3d.rs:426 `wear_armour`
+### [x] 🔴 Q80: arguments — crates/crossfir3d/src/characters3d.rs:426 `wear_armour`
 
 - Measured: arguments 6 (threshold 5)
 - Recommendation: This is a Bevy system: group its queries and resources into a `#[derive(SystemParam)]` struct.
