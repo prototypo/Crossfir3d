@@ -3,6 +3,7 @@
 
 use std::collections::HashMap;
 
+use bevy::ecs::system::SystemParam;
 use bevy::prelude::*;
 
 use crate::back::{merged, rod};
@@ -166,49 +167,80 @@ fn skull(b: &Body, out: &mut Parts) {
 #[derive(Component)]
 pub struct Bony(pub [f32; 3]);
 
-/// Hides each `Bony` body's skin and puts the bones on its bones.
-#[allow(clippy::too_many_arguments)]
-pub fn build_skeletons(
-    mut commands: Commands,
-    bony: Query<(Entity, &Bony, &GlobalTransform)>,
-    children: Query<&Children>,
-    names: Query<&Name>,
-    globals: Query<&GlobalTransform>,
-    skin: Query<(), With<Mesh3d>>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-) {
-    for (root, Bony([r, g, b]), at) in &bony {
-        let mut ids: HashMap<&str, Entity> = HashMap::new();
-        for e in children.iter_descendants(root) {
-            if let Ok(n) = names.get(e) {
-                ids.insert(n.as_str(), e);
-            }
+/// The queries and assets `build_skeletons` works with.
+#[derive(SystemParam)]
+pub struct SkeletonParams<'w, 's> {
+    commands: Commands<'w, 's>,
+    bony: Query<'w, 's, (Entity, &'static Bony, &'static GlobalTransform)>,
+    children: Query<'w, 's, &'static Children>,
+    names: Query<'w, 's, &'static Name>,
+    globals: Query<'w, 's, &'static GlobalTransform>,
+    skin: Query<'w, 's, (), With<Mesh3d>>,
+    meshes: ResMut<'w, Assets<Mesh>>,
+    materials: ResMut<'w, Assets<StandardMaterial>>,
+}
+
+/// The named bones under `root`, and where each one is.
+fn bone_ids_and_joints<'a>(
+    root: Entity,
+    children: &Query<&Children>,
+    names: &'a Query<&Name>,
+    globals: &Query<&GlobalTransform>,
+) -> (HashMap<&'a str, Entity>, HashMap<&'a str, Vec3>) {
+    let mut ids: HashMap<&str, Entity> = HashMap::new();
+    for e in children.iter_descendants(root) {
+        if let Ok(n) = names.get(e) {
+            ids.insert(n.as_str(), e);
         }
-        let joints: HashMap<&str, Vec3> = ids.iter().filter_map(|(n, e)| Some((*n, globals.get(*e).ok()?.translation()))).collect();
-        let body: Vec<Entity> = children.iter_descendants(root).filter(|e| skin.contains(*e)).collect();
-        // The body scene spawns a little after the character, and its bones are placed a
-        // frame later still: try again next frame.
-        let placed = |n: &str| joints.get(n).is_some_and(|p| p.y > at.translation().y + 0.3);
-        if body.is_empty() || !placed("Head") || !joints.contains_key("pinky_04_leaf_r") {
+    }
+    let joints = ids.iter().filter_map(|(n, e)| Some((*n, globals.get(*e).ok()?.translation()))).collect();
+    (ids, joints)
+}
+
+/// Whether the body's skin and bones are all in place at `at_y`.
+fn placed(body: &[Entity], joints: &HashMap<&str, Vec3>, at_y: f32) -> bool {
+    // The body scene spawns a little after the character, and its bones are placed a
+    // frame later still: try again next frame.
+    let placed = |n: &str| joints.get(n).is_some_and(|p| p.y > at_y + 0.3);
+    !(body.is_empty() || !placed("Head") || !joints.contains_key("pinky_04_leaf_r"))
+}
+
+/// The bone and hole materials for a body tinted `[r, g, b]`.
+fn bone_materials(materials: &mut Assets<StandardMaterial>, [r, g, b]: [f32; 3]) -> (Handle<StandardMaterial>, Handle<StandardMaterial>) {
+    let bone = materials.add(StandardMaterial { base_color: Color::srgb(BONE[0] * r, BONE[1] * g, BONE[2] * b), perceptual_roughness: 0.55, ..default() });
+    let hole = materials.add(StandardMaterial { base_color: Color::srgb(HOLE[0], HOLE[1], HOLE[2]), perceptual_roughness: 1.0, ..default() });
+    (bone, hole)
+}
+
+/// Queues one bone piece as a child of the bone `e`, in the bone's own space.
+fn spawn_piece(commands: &mut Commands, meshes: &mut Assets<Mesh>, (e, g): (Entity, &GlobalTransform), mesh: Mesh, material: Handle<StandardMaterial>) {
+    // Into the bone's own space, so the piece moves with it.
+    let local = Transform::from_matrix(Mat4::from(g.affine().inverse()));
+    let part = (Mesh3d(meshes.add(mesh.transformed_by(local))), MeshMaterial3d(material), ChildOf(e));
+    commands.queue_silenced(move |world: &mut World| {
+        world.spawn(part);
+    });
+}
+
+/// Hides each `Bony` body's skin and puts the bones on its bones.
+pub fn build_skeletons(mut p: SkeletonParams) {
+    for (root, Bony(tint), at) in &p.bony {
+        let (ids, joints) = bone_ids_and_joints(root, &p.children, &p.names, &p.globals);
+        let body: Vec<Entity> = p.children.iter_descendants(root).filter(|e| p.skin.contains(*e)).collect();
+        if !placed(&body, &joints, at.translation().y) {
             continue;
         }
         for e in body {
-            commands.entity(e).insert(Visibility::Hidden);
+            p.commands.entity(e).insert(Visibility::Hidden);
         }
         let turn = at.compute_transform().rotation;
-        let bone = materials.add(StandardMaterial { base_color: Color::srgb(BONE[0] * r, BONE[1] * g, BONE[2] * b), perceptual_roughness: 0.55, ..default() });
-        let hole = materials.add(StandardMaterial { base_color: Color::srgb(HOLE[0], HOLE[1], HOLE[2]), perceptual_roughness: 1.0, ..default() });
+        let (bone, hole) = bone_materials(&mut p.materials, *tint);
         for (name, mesh, dark) in bones(&joints, turn * Vec3::Y, turn * Vec3::Z) {
-            let (Some(&e), Ok(g)) = (ids.get(name), globals.get(ids[name])) else { continue };
-            // Into the bone's own space, so the piece moves with it.
-            let local = Transform::from_matrix(Mat4::from(g.affine().inverse()));
-            let part = (Mesh3d(meshes.add(mesh.transformed_by(local))), MeshMaterial3d(if dark { hole.clone() } else { bone.clone() }), ChildOf(e));
-            commands.queue_silenced(move |world: &mut World| {
-                world.spawn(part);
-            });
+            let Some(&e) = ids.get(name) else { continue };
+            let Ok(g) = p.globals.get(e) else { continue };
+            spawn_piece(&mut p.commands, &mut p.meshes, (e, g), mesh, if dark { hole.clone() } else { bone.clone() });
         }
-        commands.entity(root).remove::<Bony>();
+        p.commands.entity(root).remove::<Bony>();
     }
 }
 

@@ -325,7 +325,7 @@ denominator grew.
 - Measured: complexity 16 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
 
-### [ ] 🔴 Q52: complexity, arguments — crates/crossfir3d/src/skeleton.rs:138 `build_skeletons`
+### [x] 🔴 Q52: complexity, arguments — crates/crossfir3d/src/skeleton.rs:138 `build_skeletons`
 
 - Measured: complexity 16 (threshold 10); arguments 8 (threshold 5)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
