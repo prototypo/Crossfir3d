@@ -556,7 +556,7 @@ denominator grew.
 - Measured: complexity 11 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
 
-### [ ] 🔴 Q98: complexity — crates/crossfir3d/src/clock.rs:17 `parse_time_reply`
+### [x] 🔴 Q98: complexity — crates/crossfir3d/src/clock.rs:17 `parse_time_reply`
 
 - Measured: complexity 11 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.

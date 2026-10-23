@@ -24,14 +24,19 @@ pub fn parse_time_reply(text: &str) -> Option<(u8, u8)> {
     if !(1..=59).contains(&minute) || !(1..=14).contains(&hour) {
         return None;
     }
-    let half = if rest.starts_with("pm") {
-        14
-    } else if rest.starts_with("am") {
-        0
-    } else {
-        return None;
-    };
+    let half = half_day(rest)?;
     Some((hour % 14 + half, minute - 1))
+}
+
+/// The hour offset for the "pm" (14) or "am" (0) at the start of `rest`.
+fn half_day(rest: &str) -> Option<u8> {
+    if rest.starts_with("pm") {
+        Some(14)
+    } else if rest.starts_with("am") {
+        Some(0)
+    } else {
+        None
+    }
 }
 
 pub fn is_time_reply(text: &str) -> bool {
@@ -148,6 +153,20 @@ mod tests {
         assert_eq!(parse_time_reply("It is late."), None);
         assert_eq!(parse_time_reply("It is 99 minutes past 3 o'clock pm"), None);
         assert_eq!(parse_time_reply("It is 5 minutes past 15 o'clock am"), None);
+    }
+
+    #[test]
+    fn parse_time_reply_edges() {
+        assert_eq!(parse_time_reply("It is 1 minute past 12 o'clock am, on x"), Some((12, 0)));
+        assert_eq!(parse_time_reply("It is 59 minutes past 14 o'clock pm, on x"), Some((14, 58)));
+        assert_eq!(parse_time_reply("It is 0 minutes past 3 o'clock pm, on x"), None);
+        assert_eq!(parse_time_reply("It is 60 minutes past 3 o'clock pm, on x"), None);
+        assert_eq!(parse_time_reply("It is 5 minutes past 0 o'clock pm, on x"), None);
+        assert_eq!(parse_time_reply("It is 5 minutes past 15 o'clock pm, on x"), None);
+        assert_eq!(parse_time_reply("It is 5 minutes past 3 o'clock xm, on x"), None);
+        assert_eq!(parse_time_reply("It is 5 minutes 3 o'clock pm, on x"), None);
+        assert_eq!(parse_time_reply("5 minutes past 3 o'clock pm, on x"), None);
+        assert_eq!(parse_time_reply(""), None);
     }
 
     #[test]
