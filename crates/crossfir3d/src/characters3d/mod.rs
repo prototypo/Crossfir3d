@@ -342,47 +342,69 @@ fn facing_rotation(facing: u8) -> Quat {
     Quat::from_rotation_y(std::f32::consts::PI - clockwise)
 }
 
+/// What `animate` reads: the clock, the clips, the player's facing and their animation events.
+#[derive(SystemParam)]
+struct AnimInputs<'w> {
+    time: Res<'w, Time>,
+    anims: Res<'w, Anims>,
+    facing: Res<'w, Facing>,
+    events: ResMut<'w, PlayerAnimEvents>,
+}
+
+/// Tells the character's state machine when it starts or stops moving.
+fn note_moving(c: &mut Character, moving: bool, now: f32) {
+    if moving != c.moving {
+        c.moving = moving;
+        c.state.on_event(if moving { AnimEvent::StepStarted } else { AnimEvent::StepEnded }, now);
+    }
+}
+
+/// Feeds the player's events to their character and turns it to the facing.
+fn turn_own(c: &mut Character, t: &mut Transform, events: &[AnimEvent], facing: u8, now: f32) {
+    for ev in events {
+        c.state.on_event(*ev, now);
+    }
+    t.rotation = facing_rotation(facing);
+}
+
+/// Starts the character's current clip when it differs from the one playing.
+fn start_current(c: &mut Character, player: &mut AnimationPlayer, nodes: &[AnimationNodeIndex], now: f32) {
+    let anim = c.state.current(now);
+    if c.playing != Some(anim) {
+        c.playing = Some(anim);
+        player.stop_all();
+        let index = ALL.iter().position(|a| *a == anim).unwrap_or(0);
+        // `nodes` has one node per entry of `ALL` (see `build_graph`), so `index` is in range.
+        let active = player.play(nodes[index]);
+        if looping(anim) {
+            active.repeat();
+        }
+    }
+}
+
 /// Chooses and plays each character's animation from its movement and events.
 #[allow(clippy::type_complexity)]
 fn animate(
     mut commands: Commands,
-    time: Res<Time>,
-    anims: Res<Anims>,
-    facing: Res<Facing>,
-    mut events: ResMut<PlayerAnimEvents>,
+    mut inputs: AnimInputs,
     mut q: Query<(Entity, &mut Character, &mut AnimationPlayer, &mut Transform, Option<&Glide>, Has<AnimationGraphHandle>, Has<OwnCharacter>)>,
 ) {
-    let Some((graph, nodes)) = &anims.graph else { return };
-    let now = time.elapsed_secs();
-    let own_events = std::mem::take(&mut events.0);
+    let Some((graph, nodes)) = &inputs.anims.graph else { return };
+    let now = inputs.time.elapsed_secs();
+    let own_events = std::mem::take(&mut inputs.events.0);
     for (e, mut c, mut player, mut t, glide, has_graph, own) in &mut q {
         if !has_graph {
             commands.entity(e).try_insert(AnimationGraphHandle(graph.clone()));
         }
         let step = glide.map_or(Vec3::ZERO, |g| g.target - t.translation);
         let moving = step.length() > 0.02;
-        if moving != c.moving {
-            c.moving = moving;
-            c.state.on_event(if moving { AnimEvent::StepStarted } else { AnimEvent::StepEnded }, now);
-        }
+        note_moving(&mut c, moving, now);
         if own {
-            for ev in &own_events {
-                c.state.on_event(*ev, now);
-            }
-            t.rotation = facing_rotation(facing.0);
+            turn_own(&mut c, &mut t, &own_events, inputs.facing.0, now);
         } else if moving {
             t.rotation = Quat::from_rotation_y(step.x.atan2(step.z));
         }
-        let anim = c.state.current(now);
-        if c.playing != Some(anim) {
-            c.playing = Some(anim);
-            player.stop_all();
-            let index = ALL.iter().position(|a| *a == anim).unwrap_or(0);
-            let active = player.play(nodes[index]);
-            if looping(anim) {
-                active.repeat();
-            }
-        }
+        start_current(&mut c, &mut player, nodes, now);
     }
 }
 
