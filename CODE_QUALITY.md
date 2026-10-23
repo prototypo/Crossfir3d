@@ -360,7 +360,7 @@ denominator grew.
 - Measured: complexity 15 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
 
-### [ ] 🔴 Q59: complexity — experiments/sprite3d/auto.py:37 `main`
+### [x] 🔴 Q59: complexity — experiments/sprite3d/auto.py:37 `main`
 
 - Measured: complexity 15 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.

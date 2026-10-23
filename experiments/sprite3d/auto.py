@@ -34,17 +34,22 @@ def things():
     return dict(sorted(pick.items()))
 
 
-def main():
-    """Builds the inflated models, runs one Hunyuan batch for the rest and scales each result like its picture card."""
+def make_folders():
+    """Makes the hunyuan, inflate and raw folders."""
     for d in ("hunyuan", "inflate", "raw"):
         os.makedirs(os.path.join(OUT, d), exist_ok=True)
-    todo = things()
-    log = open(os.path.join(OUT, "auto.log"), "a")
-    started = time.time()
+
+
+def inflate_missing(todo):
+    """Builds the inflated model of every thing that has none yet."""
     for thing, pic in todo.items():
         out = os.path.join(OUT, "inflate", thing + ".glb")
         if not os.path.exists(out):
             subprocess.run([sys.executable, "-I", f"{HERE}/voxel.py", "inflate", os.path.join(ARCH, pic), out])
+
+
+def write_batch(todo):
+    """Lists the things still to make, writes batch.txt and returns (jobs, its path)."""
     # One batch for the AI, so its models load once.
     jobs = [(t, p) for t, p in todo.items() if not os.path.exists(os.path.join(OUT, "hunyuan", t + ".glb"))]
     print(f"{len(todo)} things, {len(jobs)} still to make", flush=True)
@@ -52,6 +57,11 @@ def main():
     with open(batch, "w") as f:
         f.writelines(f"{os.path.join(ARCH, p)} {os.path.join(OUT, 'raw', t + '.glb')}\n" for t, p in jobs if
                      not os.path.exists(os.path.join(OUT, "raw", t + ".glb")))
+    return jobs, batch
+
+
+def run_ai(jobs, batch, log, started):
+    """Runs the Hunyuan batch, copies its output to the log and prints progress."""
     ai = subprocess.Popen([PY, f"{HERE}/ai3d.py", "--engine", "hunyuan", "--cleanup", "--faces", FACES, "--batch", batch],
                           stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
     done = 0
@@ -64,13 +74,33 @@ def main():
         rate = (time.time() - started) / done
         print(f"{done}/{len(jobs)}  {line.split('/')[-1].strip()}  ~{rate * (len(jobs) - done) / 3600:.1f} h left", flush=True)
     ai.wait()
-    # Scale each raw model like its picture card.
+
+
+def normalize_raw(jobs):
+    """Scales each raw model like its picture card."""
     for t, p in jobs:
         raw, out = os.path.join(OUT, "raw", t + ".glb"), os.path.join(OUT, "hunyuan", t + ".glb")
         if os.path.exists(raw) and not os.path.exists(out):
             subprocess.run([PY, f"{HERE}/normalize.py", raw, os.path.join(ARCH, p), out])
+
+
+def summary(todo, started):
+    """Prints how many AI models exist and the hours taken."""
     made = sum(os.path.exists(os.path.join(OUT, "hunyuan", t + ".glb")) for t in todo)
     print(f"done: {made}/{len(todo)} AI models, {(time.time() - started) / 3600:.1f} h", flush=True)
+
+
+def main():
+    """Builds the inflated models, runs one Hunyuan batch for the rest and scales each result like its picture card."""
+    make_folders()
+    todo = things()
+    log = open(os.path.join(OUT, "auto.log"), "a")
+    started = time.time()
+    inflate_missing(todo)
+    jobs, batch = write_batch(todo)
+    run_ai(jobs, batch, log, started)
+    normalize_raw(jobs)
+    summary(todo, started)
 
 
 if __name__ == "__main__":
