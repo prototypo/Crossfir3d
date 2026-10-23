@@ -79,7 +79,7 @@ denominator grew.
 - Measured: 1,617 lines (threshold 500)
 - Recommendation: Move each family of spawn helpers (`spawn_part`, the ground, the creatures, the arrows) into a `world/` submodule, as `buildings/` now is.
 
-### [ ] 🔴 Q3: complexity — crates/crossfir3d/src/buildings/castle.rs:7 `castle`
+### [x] 🔴 Q3: complexity — crates/crossfir3d/src/buildings/castle.rs:7 `castle`
 
 - Measured: complexity 31 (threshold 10)
 - Recommendation: Split the castle into one function per piece (walls, towers, gate, keep), as the other building families already are.

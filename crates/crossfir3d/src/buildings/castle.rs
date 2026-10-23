@@ -12,25 +12,8 @@ pub(super) fn castle(w: u32, h: u32) -> Vec<Part> {
     let mut out = Vec::new();
     for j in 0..h {
         for i in 0..w {
-            let mut mask = 0;
-            if j == 0 || j == h - 1 {
-                mask |= if i > 0 { W } else { 0 } | if i < w - 1 { E } else { 0 };
-            }
-            if i == 0 || i == w - 1 {
-                mask |= if j > 0 { N } else { 0 } | if j < h - 1 { S } else { 0 };
-            }
             let pos = [-fw / 2.0 + i as f32 + 0.5, 0.0, -fh / 2.0 + j as f32 + 0.5];
-            // Two wide: the south corners get only half a wall from the north, and the
-            // gate goes between them.
-            if w == 2 && j == h - 1 {
-                if mask & N != 0 {
-                    let half = [pos[0], 0.0, pos[2] - 0.25];
-                    out.push(part(Shape::Model("kaykit/wall.gltf"), half, 90.0, [0.125, 0.3, 0.25], None));
-                }
-            } else if mask != 0 {
-                let style = if j == h - 1 && i == w / 2 && mask == E | W { "gate" } else { "stone" };
-                out.extend(wall_parts(style, mask).into_iter().map(|p| Part { pos, ..p }));
-            }
+            out.extend(square_walls(i, j, w, h, pos));
             if (i == 0 || i == w - 1) && (j == 0 || j == h - 1) {
                 out.extend(tower(pos, 0.3, 0.45));
             }
@@ -39,12 +22,46 @@ pub(super) fn castle(w: u32, h: u32) -> Vec<Part> {
     if w == 2 {
         out.extend(wall_parts("gate", E | W).into_iter().map(|p| Part { pos: [0.0, 0.0, fh / 2.0 - 0.5], ..p }));
     }
+    add_portcullises(&mut out);
+    out
+}
+
+/// Which sides of square (i, j) have wall running along them, as a mask of N, E, S and W.
+fn edge_mask(i: u32, j: u32, w: u32, h: u32) -> u8 {
+    let mut mask = 0;
+    if j == 0 || j == h - 1 {
+        mask |= if i > 0 { W } else { 0 } | if i < w - 1 { E } else { 0 };
+    }
+    if i == 0 || i == w - 1 {
+        mask |= if j > 0 { N } else { 0 } | if j < h - 1 { S } else { 0 };
+    }
+    mask
+}
+
+/// The wall parts for square (i, j), placed at `pos`: stone, or the gate in the middle of the south side.
+fn square_walls(i: u32, j: u32, w: u32, h: u32, pos: [f32; 3]) -> Vec<Part> {
+    let mask = edge_mask(i, j, w, h);
+    // Two wide: the south corners get only half a wall from the north, and the
+    // gate goes between them.
+    if w == 2 && j == h - 1 {
+        let half = [pos[0], 0.0, pos[2] - 0.25];
+        let wall = part(Shape::Model("kaykit/wall.gltf"), half, 90.0, [0.125, 0.3, 0.25], None);
+        return if mask & N != 0 { vec![wall] } else { vec![] };
+    }
+    if mask == 0 {
+        return vec![];
+    }
+    let style = if j == h - 1 && i == w / 2 && mask == E | W { "gate" } else { "stone" };
+    wall_parts(style, mask).into_iter().map(|p| Part { pos, ..p }).collect()
+}
+
+/// Adds an iron portcullis to every doorway already in `out`.
+fn add_portcullises(out: &mut Vec<Part>) {
     let gates: Vec<[f32; 3]> =
         out.iter().filter(|p| matches!(p.shape, Shape::Model(f) if f.contains("doorway"))).map(|p| p.pos).collect();
     for [x, _, z] in gates {
         out.extend(portcullis().into_iter().map(|p| Part { pos: [p.pos[0] + x, p.pos[1], p.pos[2] + z], ..p }));
     }
-    out
 }
 
 /// An iron grid filling a doorway that runs east-west, in the middle of the wall.
