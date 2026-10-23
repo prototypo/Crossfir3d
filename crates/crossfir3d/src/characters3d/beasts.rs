@@ -9,41 +9,60 @@ const WALK_CLIPS: [&str; 5] = ["Walk", "Fast_Flying", "Flying", "Gallop", "Run"]
 /// A beast file's graph of its idle and walk clips, once its glTF has loaded.
 type BeastClips = (Handle<AnimationGraph>, AnimationNodeIndex, AnimationNodeIndex);
 
+/// A beast file's glTF handle and, once loaded, its clips.
+type BeastFile = (Handle<Gltf>, Option<BeastClips>);
+
+/// The asset stores and per-file cache that turn a beast's glTF into its clips.
+#[derive(SystemParam)]
+pub(super) struct BeastFiles<'w, 's> {
+    server: Res<'w, AssetServer>,
+    gltfs: Res<'w, Assets<Gltf>>,
+    graphs: ResMut<'w, Assets<AnimationGraph>>,
+    files: Local<'s, HashMap<String, BeastFile>>,
+}
+
+impl BeastFiles<'_, '_> {
+    /// The clips graph for a beast file, loading the file and building the graph once it is ready.
+    fn clips(&mut self, file: &str) -> Option<BeastClips> {
+        let (gltf, clips) = self.files.entry(file.to_string()).or_insert_with(|| (self.server.load(format!("models/{file}")), None));
+        if clips.is_none()
+            && let Some(g) = self.gltfs.get(gltf.id())
+        {
+            let (idle, walk) = find_clips(g)?;
+            let (graph, nodes) = AnimationGraph::from_clips([idle, walk]);
+            *clips = Some((self.graphs.add(graph), nodes[0], nodes[1]));
+        }
+        clips.clone()
+    }
+}
+
+/// A glTF's idle and walk clips; None if it has no idle.
+fn find_clips(g: &Gltf) -> Option<(Handle<AnimationClip>, Handle<AnimationClip>)> {
+    // "Armature|Walk" and "TRex_Walk" both count as "Walk".
+    let is = |name: &str, w: &str| {
+        let name = name.rsplit('|').next().unwrap_or(name);
+        name == w || name.strip_suffix(w).is_some_and(|rest| rest.ends_with('_'))
+    };
+    let find = |wanted: &[&str]| {
+        wanted.iter().find_map(|w| g.named_animations.iter().find(|(n, _)| is(n, w)).map(|(_, c)| c.clone()))
+    };
+    // Some animals only stand: they move in their idle clip.
+    let idle = find(&IDLE_CLIPS)?;
+    let walk = find(&WALK_CLIPS).unwrap_or_else(|| idle.clone());
+    Some((idle, walk))
+}
+
 /// Plays each beast's idle or walk clip on its own animation player, and turns it to
 /// face the way it moves.
-#[allow(clippy::type_complexity, clippy::too_many_arguments)]
 pub(super) fn animate_beasts(
     mut commands: Commands,
-    server: Res<AssetServer>,
-    gltfs: Res<Assets<Gltf>>,
-    mut graphs: ResMut<Assets<AnimationGraph>>,
-    mut files: Local<HashMap<String, (Handle<Gltf>, Option<BeastClips>)>>,
+    mut files: BeastFiles,
     mut beasts: Query<(Entity, &mut Beast, &mut Transform, Option<&Glide>)>,
     children: Query<&Children>,
     mut players: Query<(Entity, &mut AnimationPlayer, Has<AnimationGraphHandle>)>,
 ) {
     for (root, mut beast, mut t, glide) in &mut beasts {
-        let (gltf, clips) = files
-            .entry(beast.file.clone())
-            .or_insert_with(|| (server.load(format!("models/{}", beast.file)), None));
-        if clips.is_none()
-            && let Some(g) = gltfs.get(gltf.id())
-        {
-            // "Armature|Walk" and "TRex_Walk" both count as "Walk".
-            let is = |name: &str, w: &str| {
-                let name = name.rsplit('|').next().unwrap_or(name);
-                name == w || name.strip_suffix(w).is_some_and(|rest| rest.ends_with('_'))
-            };
-            let find = |wanted: &[&str]| {
-                wanted.iter().find_map(|w| g.named_animations.iter().find(|(n, _)| is(n, w)).map(|(_, c)| c.clone()))
-            };
-            // Some animals only stand: they move in their idle clip.
-            let Some(idle) = find(&IDLE_CLIPS) else { continue };
-            let walk = find(&WALK_CLIPS).unwrap_or_else(|| idle.clone());
-            let (graph, nodes) = AnimationGraph::from_clips([idle, walk]);
-            *clips = Some((graphs.add(graph), nodes[0], nodes[1]));
-        }
-        let Some((graph, idle, walk)) = clips.clone() else { continue };
+        let Some((graph, idle, walk)) = files.clips(&beast.file) else { continue };
         let Some(found) = children.iter_descendants(root).find(|e| players.contains(*e)) else { continue };
         let Ok((player_e, mut player, has_graph)) = players.get_mut(found) else { continue };
         if !has_graph {
