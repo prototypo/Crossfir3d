@@ -174,26 +174,33 @@ pub fn game_key(combo: &Combo) -> Option<&'static str> {
     GAME_KEYS.iter().find(|(k, _)| *k == combo.key).map(|(_, job)| *job)
 }
 
-/// Why a combination can never be bound: the way back out, or the system's own keys.
-pub fn reserved(combo: &Combo, mac: bool) -> Option<&'static str> {
-    let m = combo.mods;
-    let key = combo.key.as_str();
-    if m.none() {
-        match key {
-            "Escape" => return Some("Escape closes screens"),
-            "K" => return Some("K opens this screen"),
-            "Enter" => return Some("Enter opens the command box"),
-            _ => {}
-        }
-    }
-    let only = |want: Mods| m == want;
+/// Plain keys the game itself uses, with why they can't be bound.
+const GAME_RESERVED: [(&str, &str); 3] =
+    [("Escape", "Escape closes screens"), ("K", "K opens this screen"), ("Enter", "Enter opens the command box")];
+
+/// Why an unmodified key is the game's own, if it is.
+fn game_reserved(key: &str) -> Option<&'static str> {
+    GAME_RESERVED.iter().find(|(k, _)| *k == key).map(|(_, why)| *why)
+}
+
+/// Why a key with these modifiers belongs to the system: Cmd+key on macOS, Alt+key elsewhere.
+fn system_reserved(mods: Mods, key: &str, mac: bool) -> Option<&'static str> {
     let cmd = Mods { cmd: true, ..Default::default() };
     let alt = Mods { alt: true, ..Default::default() };
     match mac {
-        true if only(cmd) && matches!(key, "Q" | "W" | "H" | "M" | "Tab" | "Space") => Some("used by macOS"),
-        false if only(alt) && matches!(key, "F4" | "Tab") => Some("used by the system"),
+        true if mods == cmd && matches!(key, "Q" | "W" | "H" | "M" | "Tab" | "Space") => Some("used by macOS"),
+        false if mods == alt && matches!(key, "F4" | "Tab") => Some("used by the system"),
         _ => None,
     }
+}
+
+/// Why a combination can never be bound: the way back out, or the system's own keys.
+pub fn reserved(combo: &Combo, mac: bool) -> Option<&'static str> {
+    let key = combo.key.as_str();
+    if let (true, Some(why)) = (combo.mods.none(), game_reserved(key)) {
+        return Some(why);
+    }
+    system_reserved(combo.mods, key, mac)
 }
 
 /// Before binding `command` to `combo`: Err(reason) if it can never be bound,
@@ -457,6 +464,52 @@ mod tests {
         assert!(reserved(&cmd("Q"), true).is_some());
         assert!(reserved(&cmd("Q"), false).is_none());
         assert!(reserved(&Combo { mods: Mods { alt: true, ..Default::default() }, key: "F4".into() }, false).is_some());
+    }
+
+    #[test]
+    fn reserved_table() {
+        let m = |shift, alt, cmd| Mods { shift, alt, cmd, ..Default::default() };
+        let (none, cmd, alt, cmd_shift) = (m(false, false, false), m(false, false, true), m(false, true, false), m(true, false, true));
+        let esc = Some("Escape closes screens");
+        let k = Some("K opens this screen");
+        let enter = Some("Enter opens the command box");
+        let mac = Some("used by macOS");
+        let sys = Some("used by the system");
+        // (mods, key, expected on mac, expected elsewhere)
+        let rows = [
+            (none, "Escape", esc, esc),
+            (none, "K", k, k),
+            (none, "Enter", enter, enter),
+            (none, "Q", None, None),
+            (none, "Tab", None, None),
+            (none, "F4", None, None),
+            (none, "A", None, None),
+            (cmd, "Escape", None, None),
+            (cmd, "K", None, None),
+            (cmd, "Enter", None, None),
+            (cmd, "Q", mac, None),
+            (cmd, "W", mac, None),
+            (cmd, "H", mac, None),
+            (cmd, "M", mac, None),
+            (cmd, "Tab", mac, None),
+            (cmd, "Space", mac, None),
+            (cmd, "F4", None, None),
+            (cmd, "A", None, None),
+            (alt, "F4", None, sys),
+            (alt, "Tab", None, sys),
+            (alt, "Q", None, None),
+            (alt, "F5", None, None),
+            (alt, "Up", None, None),
+            (cmd_shift, "Q", None, None),
+            (cmd_shift, "Tab", None, None),
+            (cmd_shift, "F4", None, None),
+            (cmd_shift, "K", None, None),
+        ];
+        for (mods, key, on_mac, elsewhere) in rows {
+            let c = Combo { mods, key: key.into() };
+            assert_eq!(reserved(&c, true), on_mac, "{mods:?} {key} mac");
+            assert_eq!(reserved(&c, false), elsewhere, "{mods:?} {key} other");
+        }
     }
 
     #[test]
