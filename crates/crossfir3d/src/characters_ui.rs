@@ -3,7 +3,7 @@
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts, EguiTextureHandle};
 use crossfir3d::login::{still_connecting, LoginState};
-use crossfir3d::newchar::{stat_code, STAT_NAMES};
+use crossfir3d::newchar::{stat_code, NewChar, STAT_NAMES};
 use crossfir3d::races::{default_body_path, save_body, Body};
 
 use crate::characters3d::Preview;
@@ -121,9 +121,9 @@ pub fn characters_screen(
 }
 
 fn new_character(ctx: &egui::Context, screen: egui::Rect, session: &mut Session, body: &mut Body, picture: egui::TextureId) {
-    let mut out = Vec::new();
+    let mut create = false;
     let mut back = false;
-    let session_pending = session.login.create_pending();
+    let pending = session.login.create_pending();
     let n = &mut session.login.newchar;
     egui::Window::new("new character")
         .title_bar(false)
@@ -136,123 +136,172 @@ fn new_character(ctx: &egui::Context, screen: egui::Rect, session: &mut Session,
             heading(ui, "NEW CHARACTER");
             ui.add_space(8.0);
             ui.columns(3, |cols| {
-                // Column 1: race and class lists.
-                heading(&mut cols[0], "Race");
-                egui::ScrollArea::vertical().id_salt("races").max_height(220.0).show(&mut cols[0], |ui| {
-                    for r in n.races.clone() {
-                        let name = n.infos.get(&r).map_or(r.clone(), |i| i.name.clone());
-                        if ui.selectable_label(n.race.as_deref() == Some(&r), name).clicked() {
-                            n.race = Some(r);
-                            n.refresh_choices();
-                        }
-                    }
-                });
-                heading(&mut cols[0], "Class");
-                egui::ScrollArea::vertical().id_salt("classes").max_height(220.0).show(&mut cols[0], |ui| {
-                    for c in n.classes.clone() {
-                        let name = n.infos.get(&c).map_or(c.clone(), |i| i.name.clone());
-                        if ui.selectable_label(n.class.as_deref() == Some(&c), name).clicked() {
-                            n.class = Some(c);
-                            n.refresh_choices();
-                        }
-                    }
-                });
-
-                // Column 2: descriptions, stat changes, choices, where to start.
-                egui::ScrollArea::vertical().id_salt("about").show(&mut cols[1], |ui| {
-                    for arch in [n.race.clone(), n.class.clone()].into_iter().flatten() {
-                        let Some(info) = n.infos.get(&arch) else { continue };
-                        heading(ui, &info.name);
-                        ui.label(&info.message);
-                        let changes: Vec<String> = (0..7)
-                            .filter_map(|i| {
-                                let v: i16 = info.stats.iter().filter(|(c, _)| *c == stat_code(i)).map(|(_, v)| *v).sum();
-                                (v != 0).then(|| format!("{} {:+}", STAT_NAMES[i], v))
-                            })
-                            .collect();
-                        if !changes.is_empty() {
-                            ui.label(egui::RichText::new(changes.join("  ")).italics());
-                        }
-                        ui.add_space(8.0);
-                    }
-                    for choice in n.offered_choices().into_iter().cloned().collect::<Vec<_>>() {
-                        let chosen = n.choices.entry(choice.key.clone()).or_default();
-                        let shown = choice.options.iter().find(|(a, _)| a == chosen).map_or("", |(_, name)| name.as_str()).to_string();
-                        egui::ComboBox::from_label(&choice.description).selected_text(shown).show_ui(ui, |ui| {
-                            for (arch, name) in &choice.options {
-                                ui.selectable_value(chosen, arch.clone(), name);
-                            }
-                        });
-                    }
-                    ui.add_space(8.0);
-                    heading(ui, "Where to start");
-                    for m in n.maps.clone() {
-                        ui.radio_value(&mut n.map, Some(m.arch.clone()), &m.name);
-                    }
-                    if let Some(m) = n.maps.iter().find(|m| Some(&m.arch) == n.map.as_ref()) {
-                        ui.label(egui::RichText::new(&m.description).small());
-                    }
-                });
-
-                // Column 3: stats, name, create.
-                let ui = &mut cols[2];
-                heading(ui, "Stats");
-                egui::Grid::new("stats").num_columns(4).show(ui, |ui| {
-                    let finals = n.final_stats();
-                    for i in 0..7 {
-                        ui.label(STAT_NAMES[i]);
-                        ui.horizontal(|ui| {
-                            if ui.small_button("−").clicked() {
-                                n.adjust(i, -1);
-                            }
-                            ui.label(n.stats[i].to_string());
-                            if ui.small_button("+").clicked() {
-                                n.adjust(i, 1);
-                            }
-                        });
-                        ui.label("=");
-                        let f = egui::RichText::new(finals[i].to_string()).strong();
-                        ui.label(if finals[i] < 1 { f.color(egui::Color32::LIGHT_RED) } else { f });
-                        ui.end_row();
-                    }
-                });
-                ui.label(format!("Points {} / {}", n.used(), n.limits.points));
-                if ui.button("Roll the dice").clicked() {
-                    n.roll(seed());
-                }
-                ui.add_space(12.0);
-                ui.horizontal(|ui| {
-                    ui.label("Name");
-                    ui.text_edit_singleline(&mut n.name);
-                });
-                ui.label(egui::RichText::new("Characters are saved once they have some experience.").small().italics());
-                ui.add_space(8.0);
-                // The server does not know a body type; the client keeps it per character.
-                ui.horizontal(|ui| {
-                    ui.label("Body");
-                    ui.radio_value(body, Body::Regular, "Broad");
-                    ui.radio_value(body, Body::Other, "Slim");
-                });
-                ui.image((picture, egui::vec2(200.0, 200.0)));
-                if let Some(e) = &n.error {
-                    ui.colored_label(egui::Color32::LIGHT_RED, e);
-                }
-                let problem = n.problem();
-                if let Some(p) = &problem {
-                    ui.label(egui::RichText::new(p).small());
-                }
-                ui.horizontal(|ui| {
-                    let waiting = session_pending;
-                    if ui.add_enabled(problem.is_none() && !waiting, egui::Button::new("Create")).clicked() {
-                        out.push(());
-                    }
-                    back = ui.add_enabled(!waiting, egui::Button::new("Back")).clicked();
-                    if waiting {
-                        ui.label("Creating...");
-                    }
-                });
+                race_class_column(&mut cols[0], n);
+                about_column(&mut cols[1], n);
+                (create, back) = stats_column(&mut cols[2], n, body, picture, pending);
             });
         });
+    dev_autofill(n);
+    if create {
+        let name = session.login.newchar.name.clone();
+        if let Err(e) = save_body(&default_body_path(), &name, *body) {
+            warn!("could not save the body choice: {e}");
+        }
+        let msgs = session.login.create();
+        session.send(msgs);
+    }
+    if back {
+        session.login.back_to_list();
+    }
+}
+
+/// One scrolling list of archetype names; returns the one clicked this frame.
+fn pick_list(ui: &mut egui::Ui, salt: &str, items: &[String], n: &NewChar, selected: Option<&str>) -> Option<String> {
+    let mut clicked = None;
+    egui::ScrollArea::vertical().id_salt(salt).max_height(220.0).show(ui, |ui| {
+        for r in items {
+            let name = n.infos.get(r).map_or(r.clone(), |i| i.name.clone());
+            if ui.selectable_label(selected == Some(r), name).clicked() {
+                clicked = Some(r.clone());
+            }
+        }
+    });
+    clicked
+}
+
+/// Column 1: race and class lists.
+fn race_class_column(ui: &mut egui::Ui, n: &mut NewChar) {
+    heading(ui, "Race");
+    if let Some(r) = pick_list(ui, "races", &n.races, n, n.race.as_deref()) {
+        n.race = Some(r);
+        n.refresh_choices();
+    }
+    heading(ui, "Class");
+    if let Some(c) = pick_list(ui, "classes", &n.classes, n, n.class.as_deref()) {
+        n.class = Some(c);
+        n.refresh_choices();
+    }
+}
+
+/// The summed stat changes of a race or class, like "Str +1  Dex -2".
+fn stat_changes(info: &cfproto::ArchInfo) -> String {
+    (0..7)
+        .filter_map(|i| {
+            let v: i16 = info.stats.iter().filter(|(c, _)| *c == stat_code(i)).map(|(_, v)| *v).sum();
+            (v != 0).then(|| format!("{} {:+}", STAT_NAMES[i], v))
+        })
+        .collect::<Vec<_>>()
+        .join("  ")
+}
+
+/// One combo box per choice the chosen race and class offer.
+fn choice_boxes(ui: &mut egui::Ui, n: &mut NewChar) {
+    for choice in n.offered_choices().into_iter().cloned().collect::<Vec<_>>() {
+        let chosen = n.choices.entry(choice.key.clone()).or_default();
+        let shown = choice.options.iter().find(|(a, _)| a == chosen).map_or("", |(_, name)| name.as_str()).to_string();
+        egui::ComboBox::from_label(&choice.description).selected_text(shown).show_ui(ui, |ui| {
+            for (arch, name) in &choice.options {
+                ui.selectable_value(chosen, arch.clone(), name);
+            }
+        });
+    }
+}
+
+/// The "Where to start" radio list and the chosen map's description.
+fn start_picker(ui: &mut egui::Ui, n: &mut NewChar) {
+    heading(ui, "Where to start");
+    for m in n.maps.clone() {
+        ui.radio_value(&mut n.map, Some(m.arch.clone()), &m.name);
+    }
+    if let Some(m) = n.maps.iter().find(|m| Some(&m.arch) == n.map.as_ref()) {
+        ui.label(egui::RichText::new(&m.description).small());
+    }
+}
+
+/// Column 2: descriptions, stat changes, choices, where to start.
+fn about_column(ui: &mut egui::Ui, n: &mut NewChar) {
+    egui::ScrollArea::vertical().id_salt("about").show(ui, |ui| {
+        for arch in [n.race.clone(), n.class.clone()].into_iter().flatten() {
+            let Some(info) = n.infos.get(&arch) else { continue };
+            heading(ui, &info.name);
+            ui.label(&info.message);
+            let changes = stat_changes(info);
+            if !changes.is_empty() {
+                ui.label(egui::RichText::new(changes).italics());
+            }
+            ui.add_space(8.0);
+        }
+        choice_boxes(ui, n);
+        ui.add_space(8.0);
+        start_picker(ui, n);
+    });
+}
+
+/// The stats grid: one row per stat with minus/plus buttons and the final value.
+fn stats_grid(ui: &mut egui::Ui, n: &mut NewChar) {
+    egui::Grid::new("stats").num_columns(4).show(ui, |ui| {
+        let finals = n.final_stats();
+        for i in 0..7 {
+            ui.label(STAT_NAMES[i]);
+            ui.horizontal(|ui| {
+                if ui.small_button("−").clicked() {
+                    n.adjust(i, -1);
+                }
+                ui.label(n.stats[i].to_string());
+                if ui.small_button("+").clicked() {
+                    n.adjust(i, 1);
+                }
+            });
+            ui.label("=");
+            let f = egui::RichText::new(finals[i].to_string()).strong();
+            ui.label(if finals[i] < 1 { f.color(egui::Color32::LIGHT_RED) } else { f });
+            ui.end_row();
+        }
+    });
+}
+
+/// Column 3: stats, name, body, Create and Back; returns (create, back) clicked.
+fn stats_column(ui: &mut egui::Ui, n: &mut NewChar, body: &mut Body, picture: egui::TextureId, pending: bool) -> (bool, bool) {
+    heading(ui, "Stats");
+    stats_grid(ui, n);
+    ui.label(format!("Points {} / {}", n.used(), n.limits.points));
+    if ui.button("Roll the dice").clicked() {
+        n.roll(seed());
+    }
+    ui.add_space(12.0);
+    ui.horizontal(|ui| {
+        ui.label("Name");
+        ui.text_edit_singleline(&mut n.name);
+    });
+    ui.label(egui::RichText::new("Characters are saved once they have some experience.").small().italics());
+    ui.add_space(8.0);
+    // The server does not know a body type; the client keeps it per character.
+    ui.horizontal(|ui| {
+        ui.label("Body");
+        ui.radio_value(body, Body::Regular, "Broad");
+        ui.radio_value(body, Body::Other, "Slim");
+    });
+    ui.image((picture, egui::vec2(200.0, 200.0)));
+    if let Some(e) = &n.error {
+        ui.colored_label(egui::Color32::LIGHT_RED, e);
+    }
+    let problem = n.problem();
+    if let Some(p) = &problem {
+        ui.label(egui::RichText::new(p).small());
+    }
+    let (mut create, mut back) = (false, false);
+    ui.horizontal(|ui| {
+        create = ui.add_enabled(problem.is_none() && !pending, egui::Button::new("Create")).clicked();
+        back = ui.add_enabled(!pending, egui::Button::new("Back")).clicked();
+        if pending {
+            ui.label("Creating...");
+        }
+    });
+    (create, back)
+}
+
+/// Dev screenshots (CROSSFIR3D_SCREEN=newchar[:race]): roll stats and pick the race.
+fn dev_autofill(n: &mut NewChar) {
     let dev = std::env::var("CROSSFIR3D_SCREEN").ok().filter(|v| v.starts_with("newchar"));
     if dev.is_some() && n.used() == n.limits.min as u16 * 7 && !n.races.is_empty() {
         n.roll(seed());
@@ -263,16 +312,5 @@ fn new_character(ctx: &egui::Context, screen: egui::Rect, session: &mut Session,
     {
         n.race = Some(race.to_string());
         n.refresh_choices();
-    }
-    if !out.is_empty() {
-        let name = session.login.newchar.name.clone();
-        if let Err(e) = save_body(&default_body_path(), &name, *body) {
-            warn!("could not save the body choice: {e}");
-        }
-        let msgs = session.login.create();
-        session.send(msgs);
-    }
-    if back {
-        session.login.back_to_list();
     }
 }

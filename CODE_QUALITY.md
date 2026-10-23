@@ -87,7 +87,7 @@ denominator grew.
 - Measured: complexity 57 (threshold 10); length 67 (threshold 50)
 - Recommendation: Give each visual kind (model, building, wall, person, beast, monster, skeleton, statue) its own small parser called from one `match`.
 
-### [ ] 🔴 Q7: complexity, length, nesting — crates/crossfir3d/src/characters_ui.rs:123 `new_character`
+### [x] 🔴 Q7: complexity, length, nesting — crates/crossfir3d/src/characters_ui.rs:123 `new_character`
 
 - Measured: complexity 53 (threshold 10); length 156 (threshold 50); nesting 6 (threshold 4)
 - Recommendation: Split into the race/class pickers, the stats panel and the start-place picker.
