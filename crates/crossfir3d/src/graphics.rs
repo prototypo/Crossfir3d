@@ -208,7 +208,8 @@ fn remember_window(
 
 /// A window as big as one of the screens (logical points): full screen, not a place.
 fn fills_a_screen(place: WindowPlace, screens: &[(f32, f32)]) -> bool {
-    screens.iter().any(|&(w, h)| place.width as f32 >= w - 1.0 && place.height as f32 >= h - 40.0)
+    // As wide as a screen, not wider: a big window on a big screen is wider than the small one.
+    screens.iter().any(|&(w, h)| (place.width as f32 - w).abs() <= 1.0 && place.height as f32 >= h - 40.0)
 }
 
 /// Saves at most once a second (window moves send many changes).
@@ -322,6 +323,8 @@ mod tests {
         assert!(fills_a_screen(place(1512, 982), &[(1512.0, 982.0)]));
         assert!(fills_a_screen(place(2560, 1440), &[(1512.0, 982.0), (2560.0, 1440.0)]));
         assert!(!fills_a_screen(place(1200, 800), &[(1512.0, 982.0)]));
+        // Dragged bigger than the laptop screen, on the big screen: a place.
+        assert!(!fills_a_screen(place(1700, 1000), &[(1512.0, 982.0), (2560.0, 1440.0)]));
     }
 
     #[test]
