@@ -184,71 +184,146 @@ fn rgb(word: &str) -> Option<[f32; 3]> {
 }
 
 fn parse_visual(words: &[&str]) -> Option<Visual> {
+    match *words {
+        ["model", ref rest @ ..] => parse_model(rest),
+        ["person", ref rest @ ..] => parse_person(rest),
+        ["monster" | "beast", ..] => parse_creature(words),
+        ["building", ref rest @ ..] => parse_building(rest),
+        _ => parse_plain(words),
+    }
+}
+
+/// `file scale rot dy [r,g,b]`.
+fn parse_model(words: &[&str]) -> Option<Visual> {
+    let [file, scale, rot, dy, rest @ ..] = words else { return None };
+    Some(Visual::Model {
+        file: file.to_string(),
+        scale: scale.parse().ok()?,
+        rot_deg: rot.parse().ok()?,
+        dy: dy.parse().ok()?,
+        tint: tint(rest)?,
+    })
+}
+
+/// `monster file scale [tint]` or `beast file scale [tint]`.
+fn parse_creature(words: &[&str]) -> Option<Visual> {
     Some(match *words {
-        ["model", file, scale, rot, dy, ref rest @ ..] => Visual::Model {
-            file: file.to_string(),
-            scale: scale.parse().ok()?,
-            rot_deg: rot.parse().ok()?,
-            dy: dy.parse().ok()?,
-            tint: tint(rest)?,
-        },
-        ["person", body, scale, skin, hair, clothes, ref rest @ ..] => {
-            let (mut dress, mut broom, mut armour, mut wide, mut head, mut class) = (None, false, false, 1.0, 1.0, None);
-            let (mut build, mut rags, mut horns, mut ears) = (None, None, false, false);
-            let mut words = rest.iter();
-            while let Some(&w) = words.next() {
-                match w {
-                    "dress" => dress = Some(rgb(words.next()?)?),
-                    "broom" => broom = true,
-                    "armour" => armour = true,
-                    "wide" => wide = words.next()?.parse().ok()?,
-                    "head" => head = words.next()?.parse().ok()?,
-                    "class" => class = Some(class_look(words.next()?)?),
-                    "build" => build = Some(Build::parse(words.next()?)?),
-                    "rags" => rags = Some(rgb(words.next()?)?),
-                    "horns" => horns = true,
-                    "ears" => ears = true,
-                    _ => return None,
-                }
-            }
-            Visual::Person {
-                body: match body {
-                    "regular" => Body::Regular,
-                    "other" => Body::Other,
-                    _ => return None,
-                },
-                look: Look { scale: scale.parse().ok()?, skin: rgb(skin)?, hair: rgb(hair)?, clothes: rgb(clothes)? },
-                dress,
-                broom,
-                armour,
-                wide,
-                head,
-                class,
-                build,
-                rags,
-                horns,
-                ears,
-            }
-        }
         ["monster", file, scale, ref rest @ ..] => {
             Visual::Monster { file: file.to_string(), scale: scale.parse().ok()?, tint: tint(rest)? }
         }
         ["beast", file, scale, ref rest @ ..] => {
             Visual::Beast { file: file.to_string(), scale: scale.parse().ok()?, tint: tint(rest)? }
         }
+        _ => return None,
+    })
+}
+
+/// The visuals with few or no words: skeleton, statue, wall, flat, card.
+fn parse_plain(words: &[&str]) -> Option<Visual> {
+    Some(match *words {
         ["skeleton", scale, ref rest @ ..] => Visual::Skeleton { scale: scale.parse().ok()?, tint: tint(rest)? },
         ["statue", ref rest @ ..] => Visual::Statue { tint: tint(rest)? },
-        ["building", recipe] => Visual::Building { recipe: recipe.to_string(), sign: None, icon: None },
-        ["building", recipe, sign, ref icon @ ..] if icon.len() <= 1 => Visual::Building {
-            recipe: recipe.to_string(),
-            sign: Some(sign.replace('_', " ")),
-            icon: icon.first().map(|i| i.to_string()),
-        },
         ["wall", style] => Visual::Wall { style: style.to_string() },
         ["flat"] => Visual::Flat,
         ["card"] => Visual::Card,
         _ => return None,
     })
+}
+
+/// `recipe [sign [icon]]`; `_` in the sign becomes a space.
+fn parse_building(words: &[&str]) -> Option<Visual> {
+    Some(match *words {
+        [recipe] => Visual::Building { recipe: recipe.to_string(), sign: None, icon: None },
+        [recipe, sign, ref icon @ ..] if icon.len() <= 1 => Visual::Building {
+            recipe: recipe.to_string(),
+            sign: Some(sign.replace('_', " ")),
+            icon: icon.first().map(|i| i.to_string()),
+        },
+        _ => return None,
+    })
+}
+
+/// A person's body word: `regular` or `other`.
+fn parse_body(word: &str) -> Option<Body> {
+    match word {
+        "regular" => Some(Body::Regular),
+        "other" => Some(Body::Other),
+        _ => None,
+    }
+}
+
+/// `body scale skin hair clothes` then option words, each applied to the default person.
+fn parse_person(words: &[&str]) -> Option<Visual> {
+    let [body, scale, skin, hair, clothes, rest @ ..] = words else { return None };
+    let mut person = Visual::Person {
+        body: parse_body(body)?,
+        look: Look { scale: scale.parse().ok()?, skin: rgb(skin)?, hair: rgb(hair)?, clothes: rgb(clothes)? },
+        dress: None,
+        broom: false,
+        armour: false,
+        wide: 1.0,
+        head: 1.0,
+        class: None,
+        build: None,
+        rags: None,
+        horns: false,
+        ears: false,
+    };
+    let mut rest = rest.iter();
+    while let Some(&w) = rest.next() {
+        if !person_flag(&mut person, w) {
+            person_value(&mut person, w, rest.next()?)?;
+        }
+    }
+    Some(person)
+}
+
+/// Sets the on/off option `w` on a person; false if `w` is not one.
+fn person_flag(person: &mut Visual, w: &str) -> bool {
+    let Visual::Person { broom, armour, horns, ears, .. } = person else { return false };
+    match w {
+        "broom" => *broom = true,
+        "armour" => *armour = true,
+        "horns" => *horns = true,
+        "ears" => *ears = true,
+        _ => return false,
+    }
+    true
+}
+
+/// Sets the option `w` that takes the word `v` on a person; None if `w` or `v` is bad.
+fn person_value(person: &mut Visual, w: &str, v: &str) -> Option<()> {
+    match w {
+        "wide" | "head" => person_size(person, w, v),
+        "dress" | "rags" => person_colour(person, w, v),
+        "class" | "build" => person_kind(person, w, v),
+        _ => None,
+    }
+}
+
+/// `wide` or `head`: a number.
+fn person_size(person: &mut Visual, w: &str, v: &str) -> Option<()> {
+    let Visual::Person { wide, head, .. } = person else { return None };
+    *if w == "wide" { wide } else { head } = v.parse().ok()?;
+    Some(())
+}
+
+/// `dress` or `rags`: an `r,g,b` word.
+fn person_colour(person: &mut Visual, w: &str, v: &str) -> Option<()> {
+    let Visual::Person { dress, rags, .. } = person else { return None };
+    *if w == "dress" { dress } else { rags } = Some(rgb(v)?);
+    Some(())
+}
+
+/// `class` or `build`: a name.
+fn person_kind(person: &mut Visual, w: &str, v: &str) -> Option<()> {
+    let Visual::Person { class, build, .. } = person else { return None };
+    if w == "class" {
+        *class = Some(class_look(v)?);
+    } else {
+        *build = Some(Build::parse(v)?);
+    }
+    Some(())
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

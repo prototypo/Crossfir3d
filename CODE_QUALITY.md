@@ -82,7 +82,7 @@ denominator grew.
 - Measured: complexity 61 (threshold 10); length 168 (threshold 50); arguments 12 (threshold 5)
 - Recommendation: Draw each of the three columns with one `item_column` function; move the key handling into its own function.
 
-### [ ] 🔴 Q6: complexity, length — crates/crossfir3d/src/models.rs:186 `parse_visual`
+### [x] 🔴 Q6: complexity, length — crates/crossfir3d/src/models.rs:186 `parse_visual`
 
 - Measured: complexity 57 (threshold 10); length 67 (threshold 50)
 - Recommendation: Give each visual kind (model, building, wall, person, beast, monster, skeleton, statue) its own small parser called from one `match`.
