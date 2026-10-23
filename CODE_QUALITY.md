@@ -169,7 +169,7 @@ denominator grew.
 - Measured: complexity 25 (threshold 10); length 106 (threshold 50); arguments 8 (threshold 5)
 - Recommendation: Move each `Shape` arm with more than a few lines (lamps, mist, models, signs) into its own function.
 
-### [ ] 🔴 Q21: complexity, length, nesting — crates/cfproto/src/map2.rs:25 `parse_map2`
+### [x] 🔴 Q21: complexity, length, nesting — crates/cfproto/src/map2.rs:25 `parse_map2`
 
 - Measured: complexity 24 (threshold 10); length 51 (threshold 50); nesting 7 (threshold 4)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
