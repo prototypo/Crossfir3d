@@ -158,7 +158,12 @@ fn engine_setup(app: &mut App, settings: graphics::CurrentSettings) -> &mut App 
         .add_plugins(
             DefaultPlugins
                 .set(WindowPlugin { primary_window: Some(graphics::initial_window(&settings.0)), ..default() })
-                .set(AssetPlugin { file_path: world::asset_dir(), ..default() }),
+                .set(AssetPlugin { file_path: world::asset_dir(), ..default() })
+                // Known, harmless: extra glTF attributes, no bindless on Metal, commands dropped at quit.
+                .set(bevy::log::LogPlugin {
+                    filter: "wgpu=error,naga=warn,bevy_gltf::loader=error,bevy_egui::render=error,bevy_ecs::world::command_queue=error".into(),
+                    ..default()
+                }),
         )
         .insert_resource(settings)
         .add_plugins(graphics::GraphicsPlugin)
