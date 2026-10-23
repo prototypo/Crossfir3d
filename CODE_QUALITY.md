@@ -566,7 +566,7 @@ denominator grew.
 - Measured: complexity 11 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
 
-### [ ] 🔴 Q100: complexity — crates/crossfir3d/src/signs.rs:75 `sign_pixels`
+### [x] 🔴 Q100: complexity — crates/crossfir3d/src/signs.rs:75 `sign_pixels`
 
 - Measured: complexity 11 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.

@@ -74,6 +74,34 @@ fn icon(name: &str) -> Option<[&'static str; 7]> {
     ICONS.iter().find(|(n, _)| *n == name).map(|(_, rows)| *rows)
 }
 
+/// Paints the icon's rows, if any, `icon_x` pixels in and one down.
+fn draw_icon(px: &mut [u8], w: usize, icon_x: usize, icon: Option<[&str; 7]>) {
+    for (row, line) in icon.iter().flatten().enumerate() {
+        for (col, c) in line.chars().enumerate() {
+            if let Some(rgba) = paint(c) {
+                let at = ((1 + row) * w + icon_x + col) * 4;
+                px[at..at + 4].copy_from_slice(&rgba);
+            }
+        }
+    }
+}
+
+/// Inks each letter of `chars` in its 6-pixel cell; non-letters stay blank.
+fn draw_text(px: &mut [u8], w: usize, chars: &[char]) {
+    for (i, c) in chars.iter().enumerate() {
+        let Some(glyph) = c.is_ascii_uppercase().then(|| GLYPHS[(*c as u8 - b'A') as usize]) else { continue };
+        for (row, bits) in glyph.iter().enumerate() {
+            for col in 0..5 {
+                if bits & (0x10 >> col) != 0 {
+                    let (x, y) = (1 + i * 6 + col, 1 + row);
+                    let at = (y * w + x) * 4;
+                    px[at..at + 4].copy_from_slice(&INK);
+                }
+            }
+        }
+    }
+}
+
 /// The text, then the named icon if there is one, as RGBA pixels (see-through round
 /// them, one pixel of margin): (width, height, bytes).
 pub fn sign_pixels(text: &str, icon_name: Option<&str>) -> (u32, u32, Vec<u8>) {
@@ -84,26 +112,8 @@ pub fn sign_pixels(text: &str, icon_name: Option<&str>) -> (u32, u32, Vec<u8>) {
     let w = if icon.is_some() { icon_x + 8 } else { chars.len() * 6 + 1 } as u32;
     let h = 9;
     let mut px = vec![0u8; (w * h * 4) as usize];
-    for (row, line) in icon.iter().flatten().enumerate() {
-        for (col, c) in line.chars().enumerate() {
-            if let Some(rgba) = paint(c) {
-                let at = ((1 + row) * w as usize + icon_x + col) * 4;
-                px[at..at + 4].copy_from_slice(&rgba);
-            }
-        }
-    }
-    for (i, c) in chars.iter().enumerate() {
-        let Some(glyph) = c.is_ascii_uppercase().then(|| GLYPHS[(*c as u8 - b'A') as usize]) else { continue };
-        for (row, bits) in glyph.iter().enumerate() {
-            for col in 0..5 {
-                if bits & (0x10 >> col) != 0 {
-                    let (x, y) = (1 + i * 6 + col, 1 + row);
-                    let at = (y * w as usize + x) * 4;
-                    px[at..at + 4].copy_from_slice(&INK);
-                }
-            }
-        }
-    }
+    draw_icon(&mut px, w as usize, icon_x, icon);
+    draw_text(&mut px, w as usize, &chars);
     (w, h, px)
 }
 
