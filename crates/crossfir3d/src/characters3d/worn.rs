@@ -242,76 +242,110 @@ pub(super) fn put_in_hand(kit: HandKit, hand: Entity, side: Hand, carry: Carry, 
     }
 }
 
+use crate::back::{merged, rod};
+use std::f32::consts::{FRAC_PI_2, TAU};
+
+type Top = Vec<(Mesh, [f32; 3], bool)>;
+const WOOD: [f32; 3] = [0.45, 0.3, 0.18];
+const BRASS: [f32; 3] = [0.8, 0.6, 0.25];
+
+/// A sphere of radius `r` centred `y` up the staff.
+fn orb(r: f32, y: f32) -> Mesh {
+    Sphere::new(r).mesh().uv(24, 16).translated_by(Vec3::Y * y)
+}
+
+/// Three of `make`, a third of a turn apart round the staff.
+fn three(make: &dyn Fn(Vec3) -> Mesh) -> Mesh {
+    merged((0..3).map(|i| make(Vec3::new((TAU * i as f32 / 3.0).cos(), 0.0, (TAU * i as f32 / 3.0).sin()))))
+}
+
 /// The top of a staff, from its end (at the origin) up +Y: (mesh, colour, glows?).
-pub(super) fn staff_top(top: crossfir3d::held::StaffTop) -> Vec<(Mesh, [f32; 3], bool)> {
-    use crate::back::{merged, rod};
+pub(super) fn staff_top(top: crossfir3d::held::StaffTop) -> Top {
     use crossfir3d::held::StaffTop;
-    use std::f32::consts::{FRAC_PI_2, TAU};
-    let wood = [0.45, 0.3, 0.18];
-    let brass = [0.8, 0.6, 0.25];
-    let orb = |r: f32, y: f32| Sphere::new(r).mesh().uv(24, 16).translated_by(Vec3::Y * y);
-    // Three of `make`, a third of a turn apart round the staff.
-    let three = |make: &dyn Fn(Vec3) -> Mesh| merged((0..3).map(|i| make(Vec3::new((TAU * i as f32 / 3.0).cos(), 0.0, (TAU * i as f32 / 3.0).sin()))));
     match top {
         StaffTop::Plain => Vec::new(),
-        StaffTop::Cradle(c) => vec![
-            (three(&|out| {
-                let (a, b, tip) = (out * 0.012, out * 0.05 + Vec3::Y * 0.06, out * 0.022 + Vec3::Y * 0.13);
-                merged([rod(a, b, 0.008), rod(b, tip, 0.006), Sphere::new(0.008).mesh().build().translated_by(b)])
-            }), wood, false),
-            (orb(0.042, 0.085), c, true),
-        ],
-        StaffTop::Flame(c) => {
-            // A teardrop, round below and pointed above, twisting a little.
-            let flame = crate::hat::rings(16, 0.0, |t| {
-                let r = 0.045 * (std::f32::consts::PI * t.max(0.02)).sin().powf(0.5) * (1.0 - t).powf(0.6);
-                (0.03 + 0.15 * t, r, r)
-            });
-            vec![
-                (Cylinder::new(0.034, 0.035).mesh().build().translated_by(Vec3::Y * 0.0175), brass, false),
-                (crate::hat::mesh(&flame, false, Vec2::ONE), c, true),
-            ]
-        }
-        StaffTop::Crystal(c) => vec![
-            (three(&|out| rod(out * 0.012, out * 0.03 + Vec3::Y * 0.05, 0.006)), brass, false),
-            (
-                merged([
-                    Cone::new(0.032, 0.12).mesh().resolution(6).build().translated_by(Vec3::Y * 0.12),
-                    Cone::new(0.032, 0.05).mesh().resolution(6).build().rotated_by(Quat::from_rotation_x(std::f32::consts::PI)).translated_by(Vec3::Y * 0.035),
-                ]),
-                c,
-                true,
-            ),
-        ],
-        StaffTop::Hoop(c) => vec![
-            (rod(Vec3::ZERO, Vec3::Y * 0.03, 0.012), brass, false),
-            (Torus::new(0.055, 0.065).mesh().build().rotated_by(Quat::from_rotation_x(FRAC_PI_2)).translated_by(Vec3::Y * 0.09), brass, false),
-            (orb(0.03, 0.09), c, true),
-        ],
-        StaffTop::Horns(c) => {
-            let horn = |side: f32| {
-                let path: Vec<(Vec3, f32)> = (0..=10)
-                    .map(|i| {
-                        let t = i as f32 / 10.0;
-                        (Vec3::new(side * (0.015 + 0.06 * t - 0.03 * t * t * t), 0.16 * t, 0.0), 0.014 * (1.0 - t) + 0.002)
-                    })
-                    .collect();
-                crate::hat::mesh(&crate::hat::tube(&path), false, Vec2::ONE)
-            };
-            vec![(merged([horn(1.0), horn(-1.0)]), [0.2, 0.15, 0.12], false), (orb(0.03, 0.07), c, true)]
-        }
-        StaffTop::Sun(c) => {
-            // Rays out from the orb every way, so it is a star from any side.
-            let rays = merged((0..14).map(|i| {
-                // Spread evenly over a ball (a golden-angle spiral).
-                let y = 1.0 - 2.0 * (i as f32 + 0.5) / 14.0;
-                let a = i as f32 * 2.4;
-                let out = Vec3::new((1.0 - y * y).sqrt() * a.cos(), y, (1.0 - y * y).sqrt() * a.sin());
-                Cone::new(0.012, 0.05).mesh().resolution(8).build().rotated_by(Quat::from_rotation_arc(Vec3::Y, out)).translated_by(Vec3::Y * 0.09 + out * 0.055)
-            }));
-            vec![(merged([rays, rod(Vec3::ZERO, Vec3::Y * 0.06, 0.012)]), [0.95, 0.75, 0.3], false), (orb(0.035, 0.09), c, true)]
-        }
+        StaffTop::Cradle(c) => cradle_top(c),
+        StaffTop::Flame(c) => flame_top(c),
+        StaffTop::Crystal(c) => crystal_top(c),
+        StaffTop::Hoop(c) => hoop_top(c),
+        StaffTop::Horns(c) => horns_top(c),
+        StaffTop::Sun(c) => sun_top(c),
     }
+}
+
+/// Three curled wooden prongs round a glowing orb.
+fn cradle_top(c: [f32; 3]) -> Top {
+    vec![
+        (three(&|out| {
+            let (a, b, tip) = (out * 0.012, out * 0.05 + Vec3::Y * 0.06, out * 0.022 + Vec3::Y * 0.13);
+            merged([rod(a, b, 0.008), rod(b, tip, 0.006), Sphere::new(0.008).mesh().build().translated_by(b)])
+        }), WOOD, false),
+        (orb(0.042, 0.085), c, true),
+    ]
+}
+
+/// A brass cup holding a glowing flame.
+fn flame_top(c: [f32; 3]) -> Top {
+    // A teardrop, round below and pointed above, twisting a little.
+    let flame = crate::hat::rings(16, 0.0, |t| {
+        let r = 0.045 * (std::f32::consts::PI * t.max(0.02)).sin().powf(0.5) * (1.0 - t).powf(0.6);
+        (0.03 + 0.15 * t, r, r)
+    });
+    vec![
+        (Cylinder::new(0.034, 0.035).mesh().build().translated_by(Vec3::Y * 0.0175), BRASS, false),
+        (crate::hat::mesh(&flame, false, Vec2::ONE), c, true),
+    ]
+}
+
+/// Three brass claws holding a glowing double-pointed crystal.
+fn crystal_top(c: [f32; 3]) -> Top {
+    vec![
+        (three(&|out| rod(out * 0.012, out * 0.03 + Vec3::Y * 0.05, 0.006)), BRASS, false),
+        (
+            merged([
+                Cone::new(0.032, 0.12).mesh().resolution(6).build().translated_by(Vec3::Y * 0.12),
+                Cone::new(0.032, 0.05).mesh().resolution(6).build().rotated_by(Quat::from_rotation_x(std::f32::consts::PI)).translated_by(Vec3::Y * 0.035),
+            ]),
+            c,
+            true,
+        ),
+    ]
+}
+
+/// A brass ring with a glowing orb in it.
+fn hoop_top(c: [f32; 3]) -> Top {
+    vec![
+        (rod(Vec3::ZERO, Vec3::Y * 0.03, 0.012), BRASS, false),
+        (Torus::new(0.055, 0.065).mesh().build().rotated_by(Quat::from_rotation_x(FRAC_PI_2)).translated_by(Vec3::Y * 0.09), BRASS, false),
+        (orb(0.03, 0.09), c, true),
+    ]
+}
+
+/// A pair of curved horns round a glowing orb.
+fn horns_top(c: [f32; 3]) -> Top {
+    let horn = |side: f32| {
+        let path: Vec<(Vec3, f32)> = (0..=10)
+            .map(|i| {
+                let t = i as f32 / 10.0;
+                (Vec3::new(side * (0.015 + 0.06 * t - 0.03 * t * t * t), 0.16 * t, 0.0), 0.014 * (1.0 - t) + 0.002)
+            })
+            .collect();
+        crate::hat::mesh(&crate::hat::tube(&path), false, Vec2::ONE)
+    };
+    vec![(merged([horn(1.0), horn(-1.0)]), [0.2, 0.15, 0.12], false), (orb(0.03, 0.07), c, true)]
+}
+
+/// A glowing orb ringed with golden rays.
+fn sun_top(c: [f32; 3]) -> Top {
+    // Rays out from the orb every way, so it is a star from any side.
+    let rays = merged((0..14).map(|i| {
+        // Spread evenly over a ball (a golden-angle spiral).
+        let y = 1.0 - 2.0 * (i as f32 + 0.5) / 14.0;
+        let a = i as f32 * 2.4;
+        let out = Vec3::new((1.0 - y * y).sqrt() * a.cos(), y, (1.0 - y * y).sqrt() * a.sin());
+        Cone::new(0.012, 0.05).mesh().resolution(8).build().rotated_by(Quat::from_rotation_arc(Vec3::Y, out)).translated_by(Vec3::Y * 0.09 + out * 0.055)
+    }));
+    vec![(merged([rays, rod(Vec3::ZERO, Vec3::Y * 0.06, 0.012)]), [0.95, 0.75, 0.3], false), (orb(0.035, 0.09), c, true)]
 }
 
 /// A bone's own scale inside its body part (the armature may be scaled).
