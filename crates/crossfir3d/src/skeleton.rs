@@ -21,40 +21,65 @@ fn long(a: Vec3, b: Vec3, r: f32) -> Mesh {
     merged([rod(a, b, r), ball(a, r * 1.6, Vec3::ONE, Quat::IDENTITY), ball(b, r * 1.6, Vec3::ONE, Quat::IDENTITY)])
 }
 
+/// What every part of the body is built from: the joints, the body's own axes and the size.
+struct Body<'a> {
+    j: &'a HashMap<&'a str, Vec3>,
+    up: Vec3,
+    front: Vec3,
+    side: Vec3,
+    frame: Quat,
+    s: f32,
+}
+
+type Parts = Vec<(&'static str, Mesh, bool)>;
+
 /// The bones, in the same space as the joints `j` (by bone name), `up` and `front` the
 /// body's own: (the bone each part moves with, its mesh, dark?).
-pub fn bones(j: &HashMap<&str, Vec3>, up: Vec3, front: Vec3) -> Vec<(&'static str, Mesh, bool)> {
+pub fn bones(j: &HashMap<&str, Vec3>, up: Vec3, front: Vec3) -> Parts {
     let side = up.cross(front).normalize();
     let frame = Quat::from_mat3(&Mat3::from_cols(side, up, front));
     // Sizes are for a person; bigger or smaller people scale them.
     let s = j["pelvis"].distance(j["neck_01"]) / 0.55;
-    let mut out: Vec<(&'static str, Mesh, bool)> = Vec::new();
-
-    // Limbs, hands and feet, each piece on the bone it starts from.
+    let b = Body { j, up, front, side, frame, s };
+    let mut out: Parts = Vec::new();
     for side_name in ["l", "r"] {
-        let at = |n: &str| j[format!("{n}_{side_name}").as_str()];
-        let name = |n: &str| -> &'static str { Box::leak(format!("{n}_{side_name}").into_boxed_str()) };
-        for (a, b, r) in [
-            ("clavicle", "upperarm", 0.012),
-            ("upperarm", "lowerarm", 0.02),
-            ("lowerarm", "hand", 0.016),
-            ("thigh", "calf", 0.026),
-            ("calf", "foot", 0.02),
-            ("foot", "ball", 0.016),
-            ("ball", "ball_leaf", 0.012),
-        ] {
-            out.push((name(a), long(at(a), at(b), r * s), false));
-        }
-        for f in ["thumb", "index", "middle", "ring", "pinky"] {
-            let joint = |n: &str| at(&format!("{f}_{n}"));
-            out.push((name("hand"), long(at("hand"), joint("01"), 0.006 * s), false));
-            for (a, b) in [("01", "02"), ("02", "03"), ("03", "04_leaf")] {
-                out.push((name(&format!("{f}_{a}")), long(joint(a), joint(b), 0.0055 * s), false));
-            }
+        limbs(&b, side_name, &mut out);
+    }
+    spine(&b, &mut out);
+    ribs(&b, &mut out);
+    pelvis(&b, &mut out);
+    skull(&b, &mut out);
+    out
+}
+
+/// Limbs, hands and feet of one side, each piece on the bone it starts from.
+fn limbs(b: &Body, side_name: &str, out: &mut Parts) {
+    let (j, s) = (b.j, b.s);
+    let at = |n: &str| j[format!("{n}_{side_name}").as_str()];
+    let name = |n: &str| -> &'static str { Box::leak(format!("{n}_{side_name}").into_boxed_str()) };
+    for (a, b, r) in [
+        ("clavicle", "upperarm", 0.012),
+        ("upperarm", "lowerarm", 0.02),
+        ("lowerarm", "hand", 0.016),
+        ("thigh", "calf", 0.026),
+        ("calf", "foot", 0.02),
+        ("foot", "ball", 0.016),
+        ("ball", "ball_leaf", 0.012),
+    ] {
+        out.push((name(a), long(at(a), at(b), r * s), false));
+    }
+    for f in ["thumb", "index", "middle", "ring", "pinky"] {
+        let joint = |n: &str| at(&format!("{f}_{n}"));
+        out.push((name("hand"), long(at("hand"), joint("01"), 0.006 * s), false));
+        for (a, b) in [("01", "02"), ("02", "03"), ("03", "04_leaf")] {
+            out.push((name(&format!("{f}_{a}")), long(joint(a), joint(b), 0.0055 * s), false));
         }
     }
+}
 
-    // The spine: a rod with a disc for each bone in it.
+/// The spine: a rod with a disc for each bone in it.
+fn spine(b: &Body, out: &mut Parts) {
+    let (j, s) = (b.j, b.s);
     for (a, b) in [("pelvis", "spine_01"), ("spine_01", "spine_02"), ("spine_02", "spine_03"), ("spine_03", "neck_01"), ("neck_01", "Head")] {
         let (pa, pb) = (j[a], j[b]);
         let along = (pb - pa).normalize();
@@ -65,8 +90,11 @@ pub fn bones(j: &HashMap<&str, Vec3>, up: Vec3, front: Vec3) -> Vec<(&'static st
         let key: &'static str = match a { "pelvis" => "pelvis", "spine_01" => "spine_01", "spine_02" => "spine_02", "spine_03" => "spine_03", _ => "neck_01" };
         out.push((key, merged(std::iter::once(rod(pa, pb, 0.011 * s)).chain(discs)), false));
     }
+}
 
-    // The ribs: curved from the spine round each side to the breastbone, sloping down.
+/// The ribs: curved from the spine round each side to the breastbone, sloping down.
+fn ribs(b: &Body, out: &mut Parts) {
+    let Body { j, up, front, side, s, .. } = *b;
     let (low, high) = (j["spine_02"], j["spine_03"] + up * 0.08 * s);
     let mut ribs = Vec::new();
     let count = 6;
@@ -90,8 +118,11 @@ pub fn bones(j: &HashMap<&str, Vec3>, up: Vec3, front: Vec3) -> Vec<(&'static st
     let front_of = |p: Vec3| p + front * 0.07 * s + front * 0.08 * s * 0.74 - up * 0.03 * s;
     ribs.push(long(front_of(high), front_of(low.lerp(high, 0.3)), 0.012 * s));
     out.push(("spine_03", merged(ribs), false));
+}
 
-    // The pelvis: a ring round the hips, wide flat wings each side, the sacrum behind.
+/// The pelvis: a ring round the hips, wide flat wings each side, the sacrum behind.
+fn pelvis(b: &Body, out: &mut Parts) {
+    let Body { j, up, front, side, frame, s } = *b;
     let hips = j["pelvis"];
     let mut pelvis = vec![
         Torus::new(0.055 * s, 0.075 * s).mesh().build().scaled_by(Vec3::new(1.2, 1.0, 0.9)).rotated_by(frame).translated_by(hips - up * 0.02 * s + front * 0.01 * s),
@@ -102,8 +133,11 @@ pub fn bones(j: &HashMap<&str, Vec3>, up: Vec3, front: Vec3) -> Vec<(&'static st
         pelvis.push(ball(hips + side * sign * 0.075 * s + up * 0.045 * s + front * 0.01 * s, 0.05 * s, Vec3::new(0.9, 1.0, 0.25), wing));
     }
     out.push(("pelvis", merged(pelvis), false));
+}
 
-    // The skull: a round crown, a narrower face, the jaw and teeth; dark eye and nose holes.
+/// The skull: a round crown, a narrower face, the jaw and teeth; dark eye and nose holes.
+fn skull(b: &Body, out: &mut Parts) {
+    let Body { j, up, front, side, frame, s } = *b;
     let head = j["Head"] + up * 0.12 * s;
     out.push((
         "Head",
@@ -126,7 +160,6 @@ pub fn bones(j: &HashMap<&str, Vec3>, up: Vec3, front: Vec3) -> Vec<(&'static st
         ]),
         true,
     ));
-    out
 }
 
 /// A body to build bones on (in this tint) once its own bones exist.
