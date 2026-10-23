@@ -132,29 +132,16 @@ pub(super) fn wear_helmet(mut commands: Commands, wearer: Wearer, skeleton: Skel
     }
     commands.entity(root).try_insert(want);
 }
-#[allow(clippy::too_many_arguments)]
-pub(super) fn gear_up(
-    mut commands: Commands,
-    server: Res<AssetServer>,
-    geared: Query<(Entity, &ClassGear)>,
-    children: Query<&Children>,
-    names: Query<&Name>,
-    parents: Query<(&ChildOf, &Transform)>,
-    parts: Query<(), With<PartOf>>,
-    leather: Res<crate::hat::Leather>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-) {
+pub(super) fn gear_up(mut commands: Commands, server: Res<AssetServer>, geared: Query<(Entity, &ClassGear)>, skeleton: Skeleton, mut stock: Stock) {
     for (root, ClassGear(class, scale)) in &geared {
-        let bone = |name: &str| children.iter_descendants(root).find(|e| names.get(*e).is_ok_and(|n| n.as_str() == name));
         // The body scenes spawn a little later than the character: try again next frame.
-        let (Some(head), Some(right), Some(left)) = (bone("Head"), bone("hand_r"), bone("hand_l")) else { continue };
+        let (Some(head), Some(right), Some(left)) = (skeleton.find(root, "Head"), skeleton.find(root, "hand_r"), skeleton.find(root, "hand_l")) else { continue };
         if let Some(wear) = class.head {
-            put_on_head(&mut commands, head, wear, scale / bone_scale(head, &parents, &parts), &leather, &mut meshes, &mut materials, ());
+            put_on_head(&mut commands, head, wear, scale / bone_scale(head, &skeleton.parents, &skeleton.parts), &stock.leather, &mut stock.meshes, &mut stock.materials, ());
         }
         for (carry, side, bone) in [(class.right, Hand::Right, right), (class.left, Hand::Left, left)] {
             if let Some(carry) = carry {
-                put_in_hand(&mut commands, bone, side, carry, scale / bone_scale(bone, &parents, &parts), &server, &mut meshes, &mut materials);
+                put_in_hand(&mut commands, bone, side, carry, scale / bone_scale(bone, &skeleton.parents, &skeleton.parts), &server, &mut stock.meshes, &mut stock.materials);
             }
         }
         commands.entity(root).remove::<ClassGear>();
