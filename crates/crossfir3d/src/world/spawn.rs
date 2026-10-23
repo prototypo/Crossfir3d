@@ -105,7 +105,7 @@ pub(super) fn spawn_creature(sq: &Square, draw: &mut Draw) -> bool {
         Visual::Monster { file, scale, tint } if !draw.models.failed.contains(file) => {
             let (file, scale, tint) = (file.clone(), *scale, tint.unwrap_or([1.0; 3]));
             let scene = draw.models.scene(&draw.server, &file);
-            spawn_monster(&mut draw.commands, scene, scale, tint, at, Visibility::Hidden, (extra, Assembled(vec![file])));
+            spawn_monster(&mut draw.commands, scene, scale, tint, Placement { at, parts: Visibility::Hidden, extra: (extra, Assembled(vec![file])) });
         }
         &Visual::Skeleton { scale, tint } => {
             let file = character_files(Body::Regular)[0];

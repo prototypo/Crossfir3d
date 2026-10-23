@@ -191,17 +191,16 @@ pub fn spawn_character(
     root
 }
 
-/// Spawns a rigged creature (one file, the people's skeleton) standing at `at`; it is
+/// Spawns a rigged creature (one file, the people's skeleton) at `place`; it is
 /// animated like a person. `scale` 1 draws it at a person's body scale.
 pub fn spawn_monster(
     commands: &mut Commands,
     scene: Handle<WorldAsset>,
     scale: f32,
     tint: [f32; 3],
-    at: Transform,
-    parts: Visibility,
-    extra: impl Bundle,
+    place: Placement<impl Bundle>,
 ) -> Entity {
+    let Placement { at, parts, extra } = place;
     let root = commands.spawn((at, Visibility::default(), Character::default(), AnimationPlayer::default(), extra)).id();
     let inner = Transform::from_scale(Vec3::splat(BODY_SCALE * scale));
     let [r, g, b] = tint;
