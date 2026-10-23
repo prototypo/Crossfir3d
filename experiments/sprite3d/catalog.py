@@ -214,15 +214,20 @@ def pictures():
     return out
 
 
+def file_faces(path, out):
+    """Add the `face` / `animation` names set in one map file to `out`."""
+    with open(path, errors="ignore") as f:
+        for line in f:
+            if line.startswith(("face ", "animation ")):
+                out.add(line.split()[1].split(".")[0] if len(line.split()) > 1 else "")
+
+
 def map_faces():
     """Picture and animation names that maps set on their objects (`face` / `animation`)."""
     out = set()
     for dirpath, _, files in os.walk(MAPS):
         for fn in files:
-            with open(os.path.join(dirpath, fn), errors="ignore") as f:
-                for line in f:
-                    if line.startswith(("face ", "animation ")):
-                        out.add(line.split()[1].split(".")[0] if len(line.split()) > 1 else "")
+            file_faces(os.path.join(dirpath, fn), out)
     return out
 
 

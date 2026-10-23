@@ -435,7 +435,7 @@ denominator grew.
 - Measured: nesting 5 (threshold 4)
 - Recommendation: Return early or extract the innermost block into a helper to cut the nesting.
 
-### [ ] 🔴 Q74: nesting — experiments/sprite3d/catalog.py:196 `map_faces`
+### [x] 🔴 Q74: nesting — experiments/sprite3d/catalog.py:196 `map_faces`
 
 - Measured: nesting 5 (threshold 4)
 - Recommendation: Return early or extract the innermost block into a helper to cut the nesting.
