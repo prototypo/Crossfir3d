@@ -104,7 +104,7 @@ denominator grew.
 - Measured: complexity 17 (threshold 10); length 66 (threshold 50); arguments 14 (threshold 5)
 - Recommendation: Group the queries and resources into a `SystemParam` struct.
 
-### [ ] 🔴 Q8: complexity, length — crates/crossfir3d/src/login.rs:77 `on_message`
+### [x] 🔴 Q8: complexity, length — crates/crossfir3d/src/login.rs:77 `on_message`
 
 - Measured: complexity 28 (threshold 10); length 67 (threshold 50)
 - Recommendation: Handle each login message kind in its own function; `on_message` keeps only the `match`.

@@ -76,70 +76,89 @@ impl LoginFlow {
 
     pub fn on_message(&mut self, msg: &ServerMsg) -> Vec<ClientMsg> {
         match (&self.state, msg) {
-            (LoginState::Creating, ServerMsg::Failure { command, reason }) if command == "createplayer" => {
-                self.newchar.error = Some(reason.clone());
-                self.create_pending = false;
-                vec![]
-            }
-            // A late answer to a repeated Create after the game started: not a failure.
-            (LoginState::Playing, ServerMsg::Failure { command, .. }) if command == "createplayer" => vec![],
-            // Developer login with `:new` on a later run: the account is there, so log in.
-            (LoginState::Account, ServerMsg::Failure { command, reason })
-                if command == "accountnew" && reason.contains("already exists") && self.creds.quick_character.is_some() =>
-            {
-                self.creds.new_account = false;
-                vec![ClientMsg::AccountLogin { name: self.creds.account.clone(), password: self.creds.password.clone() }]
-            }
-            // Play refused (the character is still in the game after a crash, ...): back
-            // to the list with the reason, not out of the session.
-            (LoginState::Playing, ServerMsg::Failure { command, reason }) if command == "accountplay" => {
-                self.playing.clear();
-                self.state = LoginState::Characters;
-                self.notice = Some(reason.clone());
-                vec![]
-            }
-            (_, ServerMsg::Failure { reason, .. }) => {
-                self.state = LoginState::Failed(reason.clone());
-                vec![]
-            }
-            (LoginState::Handshake, ServerMsg::Setup(_)) => {
-                self.state = LoginState::Account;
-                let (name, password) = (self.creds.account.clone(), self.creds.password.clone());
-                if self.creds.new_account {
-                    vec![ClientMsg::AccountNew { name, password }]
-                } else {
-                    vec![ClientMsg::AccountLogin { name, password }]
-                }
-            }
-            (LoginState::Account | LoginState::Playing, ServerMsg::AccountPlayers(chars)) => {
-                self.characters = chars.clone();
-                self.selected = None;
-                self.state = LoginState::Characters;
-                match self.creds.quick_character.clone() {
-                    Some(q) if self.playing.is_empty() && chars.iter().any(|c| c.name == q) => self.play(&q),
-                    Some(q) if self.playing.is_empty() => {
-                        self.newchar.name = q;
-                        self.start_creating()
-                    }
-                    _ => vec![],
-                }
-            }
+            (_, ServerMsg::Failure { command, reason }) => self.on_failure(command, reason),
+            (LoginState::Handshake, ServerMsg::Setup(_)) => self.on_setup(),
+            (LoginState::Account | LoginState::Playing, ServerMsg::AccountPlayers(chars)) => self.on_players(chars),
             (LoginState::Creating, ServerMsg::AddmeSuccess | ServerMsg::Map2(_)) => {
                 self.state = LoginState::Playing;
                 self.create_pending = false;
                 vec![]
             }
-            (LoginState::Creating, ServerMsg::ReplyInfo { kind, data }) => {
-                let mut out = self.newchar.on_reply(kind, data);
-                let quick = self.creds.quick_character.is_some();
-                if quick && kind == "class_list" && self.newchar.race.is_some() {
-                    self.newchar.stats = [12; 7];
-                    out.extend(self.create());
-                }
-                out
+            (LoginState::Creating, ServerMsg::ReplyInfo { kind, data }) => self.on_reply(kind, data),
+            _ => vec![],
+        }
+    }
+
+    /// A server Failure: some are recoverable in the current state, the rest end the login.
+    fn on_failure(&mut self, command: &str, reason: &str) -> Vec<ClientMsg> {
+        match &self.state {
+            LoginState::Creating if command == "createplayer" => {
+                self.newchar.error = Some(reason.to_string());
+                self.create_pending = false;
+                vec![]
+            }
+            // A late answer to a repeated Create after the game started: not a failure.
+            LoginState::Playing if command == "createplayer" => vec![],
+            // Developer login with `:new` on a later run: the account is there, so log in.
+            LoginState::Account if self.account_exists(command, reason) => {
+                self.creds.new_account = false;
+                vec![ClientMsg::AccountLogin { name: self.creds.account.clone(), password: self.creds.password.clone() }]
+            }
+            // Play refused (the character is still in the game after a crash, ...): back
+            // to the list with the reason, not out of the session.
+            LoginState::Playing if command == "accountplay" => {
+                self.playing.clear();
+                self.state = LoginState::Characters;
+                self.notice = Some(reason.to_string());
+                vec![]
+            }
+            _ => {
+                self.state = LoginState::Failed(reason.to_string());
+                vec![]
+            }
+        }
+    }
+
+    /// A developer login's account creation was refused because the account is already there.
+    fn account_exists(&self, command: &str, reason: &str) -> bool {
+        command == "accountnew" && reason.contains("already exists") && self.creds.quick_character.is_some()
+    }
+
+    /// The server accepted the setup: log in to the account, or create it.
+    fn on_setup(&mut self) -> Vec<ClientMsg> {
+        self.state = LoginState::Account;
+        let (name, password) = (self.creds.account.clone(), self.creds.password.clone());
+        if self.creds.new_account {
+            vec![ClientMsg::AccountNew { name, password }]
+        } else {
+            vec![ClientMsg::AccountLogin { name, password }]
+        }
+    }
+
+    /// The account's character list arrived: show it, or quick-play or quick-create for a developer login.
+    fn on_players(&mut self, chars: &[CharacterInfo]) -> Vec<ClientMsg> {
+        self.characters = chars.to_vec();
+        self.selected = None;
+        self.state = LoginState::Characters;
+        match self.creds.quick_character.clone() {
+            Some(q) if self.playing.is_empty() && chars.iter().any(|c| c.name == q) => self.play(&q),
+            Some(q) if self.playing.is_empty() => {
+                self.newchar.name = q;
+                self.start_creating()
             }
             _ => vec![],
         }
+    }
+
+    /// An answer to a new-character request: feed the form, and finish a quick create once the lists are in.
+    fn on_reply(&mut self, kind: &str, data: &[u8]) -> Vec<ClientMsg> {
+        let mut out = self.newchar.on_reply(kind, data);
+        let quick = self.creds.quick_character.is_some();
+        if quick && kind == "class_list" && self.newchar.race.is_some() {
+            self.newchar.stats = [12; 7];
+            out.extend(self.create());
+        }
+        out
     }
 
     pub fn characters(&self) -> &[CharacterInfo] {
