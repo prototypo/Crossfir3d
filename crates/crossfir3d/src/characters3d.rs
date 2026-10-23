@@ -376,49 +376,49 @@ fn head_only(mesh: &Mesh, is_head: &[bool]) -> Option<Mesh> {
     Some(head)
 }
 
+/// What `hold_items` reads about the own character.
+#[derive(SystemParam)]
+struct Holder<'w, 's> {
+    inv: Res<'w, Inv>,
+    own_look: Res<'w, OwnLook>,
+    own: Query<'w, 's, (Entity, Option<&'static Holding>), With<OwnCharacter>>,
+    held_models: Query<'w, 's, Entity, With<HeldModel>>,
+    server: Res<'w, AssetServer>,
+}
+
+/// Puts what the class carries in each of the `empty` hands (side and bone).
+fn hold_class_items(commands: &mut Commands, holder: &Holder, empty: impl Iterator<Item = (Hand, Entity)>, skeleton: &Skeleton, stock: &mut Stock) {
+    let Some(class) = holder.own_look.class else { return };
+    for (side, bone) in empty {
+        if let Some(carry) = if side == Hand::Right { class.right } else { class.left } {
+            let k = holder.own_look.look.scale / bone_scale(bone, &skeleton.parents, &skeleton.parts);
+            put_in_hand(commands, bone, side, carry, k, &holder.server, &mut stock.meshes, &mut stock.materials);
+        }
+    }
+}
+
 /// Puts the applied weapon and shield (see `crossfir3d::held`) in the own character's
 /// hands, on the hand bones, so they follow the animations.
-#[allow(clippy::too_many_arguments)]
-fn hold_items(
-    mut commands: Commands,
-    inv: Res<Inv>,
-    own_look: Res<OwnLook>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-    server: Res<AssetServer>,
-    own: Query<(Entity, Option<&Holding>), With<OwnCharacter>>,
-    children: Query<&Children>,
-    names: Query<&Name>,
-    parents: Query<(&ChildOf, &Transform)>,
-    parts: Query<(), With<PartOf>>,
-    held_models: Query<Entity, With<HeldModel>>,
-) {
-    let Ok((root, holding)) = own.single() else { return };
-    let want = held(&inv.0.carried());
+fn hold_items(mut commands: Commands, holder: Holder, skeleton: Skeleton, mut stock: Stock) {
+    let Ok((root, holding)) = holder.own.single() else { return };
+    let want = held(&holder.inv.0.carried());
     if holding.is_some_and(|h| h.0 == want) {
         return;
     }
-    let bone = |name: &str| children.iter_descendants(root).find(|e| names.get(*e).is_ok_and(|n| n.as_str() == name));
     // The body scenes spawn a little later than the character: try again next frame.
-    let (Some(right), Some(left)) = (bone("hand_r"), bone("hand_l")) else { return };
+    let (Some(right), Some(left)) = (skeleton.find(root, "hand_r"), skeleton.find(root, "hand_l")) else { return };
     // The character may be despawned (and remade) this frame: every command here is
     // skipped quietly if its entity is gone.
-    for e in children.iter_descendants(root).filter(|e| held_models.contains(*e)) {
+    for e in skeleton.children.iter_descendants(root).filter(|e| holder.held_models.contains(*e)) {
         commands.entity(e).try_despawn();
     }
     for (file, hand) in &want {
         let (side, hand) = (*hand, if *hand == Hand::Right { right } else { left });
-        put_in_hand(&mut commands, hand, side, Carry::Model(file), 1.0 / bone_scale(hand, &parents, &parts), &server, &mut meshes, &mut materials);
+        put_in_hand(&mut commands, hand, side, Carry::Model(file), 1.0 / bone_scale(hand, &skeleton.parents, &skeleton.parts), &holder.server, &mut stock.meshes, &mut stock.materials);
     }
     // A hand holding nothing holds what the class carries.
-    if let Some(class) = own_look.class {
-        for (carry, side, bone) in [(class.right, Hand::Right, right), (class.left, Hand::Left, left)] {
-            if let Some(carry) = carry.filter(|_| !want.iter().any(|(_, h)| *h == side)) {
-                let k = own_look.look.scale / bone_scale(bone, &parents, &parts);
-                put_in_hand(&mut commands, bone, side, carry, k, &server, &mut meshes, &mut materials);
-            }
-        }
-    }
+    let empty = [(Hand::Right, right), (Hand::Left, left)].into_iter().filter(|(side, _)| !want.iter().any(|(_, h)| h == side));
+    hold_class_items(&mut commands, &holder, empty, &skeleton, &mut stock);
     commands.entity(root).try_insert(Holding(want));
 }
 

@@ -174,7 +174,7 @@ denominator grew.
 - Measured: complexity 24 (threshold 10); length 51 (threshold 50); nesting 7 (threshold 4)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
 
-### [ ] 🔴 Q22: complexity, arguments — crates/crossfir3d/src/characters3d.rs:381 `hold_items`
+### [x] 🔴 Q22: complexity, arguments — crates/crossfir3d/src/characters3d.rs:381 `hold_items`
 
 - Measured: complexity 15 (threshold 10); arguments 12 (threshold 5)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
