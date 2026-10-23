@@ -77,7 +77,7 @@ denominator grew.
 - Measured: complexity 110 (threshold 10); length 152 (threshold 50); nesting 6 (threshold 4)
 - Recommendation: Move each server command's body into its own `parse_<command>` function; `parse` keeps only the `match` on the command word.
 
-### [ ] 🔴 Q5: complexity, length, arguments — crates/crossfir3d/src/inventory_ui.rs:74 `inventory_screen`
+### [x] 🔴 Q5: complexity, length, arguments — crates/crossfir3d/src/inventory_ui.rs:74 `inventory_screen`
 
 - Measured: complexity 61 (threshold 10); length 168 (threshold 50); arguments 12 (threshold 5)
 - Recommendation: Draw each of the three columns with one `item_column` function; move the key handling into its own function.
