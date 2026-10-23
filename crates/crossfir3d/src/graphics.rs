@@ -279,26 +279,32 @@ fn setup_scaled_view(mut commands: Commands, mut images: ResMut<Assets<Image>>) 
     ));
 }
 
+/// The scene image handle and the image assets it lives in.
+#[derive(SystemParam)]
+struct SceneTarget<'w> {
+    scene: Res<'w, SceneImage>,
+    images: ResMut<'w, Assets<Image>>,
+}
+
 /// Points the 3D camera at the scene image and keeps the image at window size x scale.
 fn fit_scene_image(
     mut commands: Commands,
-    scene: Res<SceneImage>,
+    mut target: SceneTarget,
     settings: Res<CurrentSettings>,
     window: Single<&Window, With<PrimaryWindow>>,
     cameras: Query<(Entity, Option<&RenderTarget>), With<Camera3d>>,
-    mut images: ResMut<Assets<Image>>,
 ) {
-    for (cam, target) in &cameras {
-        if !matches!(target, Some(RenderTarget::Image(_))) {
-            commands.entity(cam).insert((RenderTarget::Image(scene.0.clone().into()), Camera { order: 0, ..default() }));
+    for (cam, current) in &cameras {
+        if !matches!(current, Some(RenderTarget::Image(_))) {
+            commands.entity(cam).insert((RenderTarget::Image(target.scene.0.clone().into()), Camera { order: 0, ..default() }));
         }
     }
     let scale = settings.0.clone().normalized().render_scale;
     let size = window.physical_size().as_vec2() * scale;
     let want = Extent3d { width: (size.x as u32).max(1), height: (size.y as u32).max(1), depth_or_array_layers: 1 };
-    let Some(image) = images.get(&scene.0) else { return };
+    let Some(image) = target.images.get(&target.scene.0) else { return };
     if image.texture_descriptor.size != want {
-        if let Some(mut image) = images.get_mut(&scene.0) {
+        if let Some(mut image) = target.images.get_mut(&target.scene.0) {
             image.resize(want);
         }
     }

@@ -481,7 +481,7 @@ denominator grew.
 - Measured: arguments 6 (threshold 5)
 - Recommendation: This is a Bevy system: group its queries and resources into a `#[derive(SystemParam)]` struct.
 
-### [ ] 🔴 Q83: arguments — crates/crossfir3d/src/graphics.rs:260 `fit_scene_image`
+### [x] 🔴 Q83: arguments — crates/crossfir3d/src/graphics.rs:260 `fit_scene_image`
 
 - Measured: arguments 6 (threshold 5)
 - Recommendation: This is a Bevy system: group its queries and resources into a `#[derive(SystemParam)]` struct.
