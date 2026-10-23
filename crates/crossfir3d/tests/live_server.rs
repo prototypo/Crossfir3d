@@ -72,40 +72,57 @@ fn wait_for<T>(net: &Net, flow: &mut LoginFlow, what: &str, mut check: impl FnMu
     panic!("timed out waiting for {what}");
 }
 
-#[test]
-#[ignore]
-fn pick_up_and_drop() {
+/// Logs in as a new account with a quick character and returns the connection and login flow.
+fn quick_login(prefix: &str) -> (Net, LoginFlow) {
     let net = connect("localhost:13327").expect("is the server running? scripts/server.sh run");
     let stamp = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_millis() % 1_000_000;
-    let name = format!("drop{stamp}");
+    let name = format!("{prefix}{stamp}");
     let creds = Creds { account: name.clone(), password: "testpw".into(), new_account: true, quick_character: Some(name) };
-    let (mut flow, first) = LoginFlow::start(creds);
+    let (flow, first) = LoginFlow::start(creds);
     for m in first {
         net.tx.send(m).unwrap();
     }
-    let player = wait_for(&net, &mut flow, "player", |m| match m {
-        ServerMsg::Player { tag, .. } => Some(*tag),
+    (net, flow)
+}
+
+/// Waits until item `tag` is listed at `location`.
+fn wait_item_at(net: &Net, flow: &mut LoginFlow, what: &str, location: u32, tag: u32) {
+    wait_for(net, flow, what, |m| match m {
+        ServerMsg::Item2 { location: l, items } if *l == location => items.iter().any(|i| i.tag == tag).then_some(()),
         _ => None,
     });
-    // A starting item that is neither locked nor worn.
-    let (tag, nrof) = wait_for(&net, &mut flow, "a droppable item", |m| match m {
+}
+
+/// Waits for the player's tag.
+fn wait_player(net: &Net, flow: &mut LoginFlow) -> u32 {
+    wait_for(net, flow, "player", |m| match m {
+        ServerMsg::Player { tag, .. } => Some(*tag),
+        _ => None,
+    })
+}
+
+/// Waits for a starting item in the player's inventory that is neither locked nor worn; returns (tag, nrof).
+fn wait_droppable(net: &Net, flow: &mut LoginFlow, player: u32) -> (u32, u32) {
+    wait_for(net, flow, "a droppable item", |m| match m {
         ServerMsg::Item2 { location, items } if *location == player => {
             items.iter().find(|i| !i.locked() && !i.applied()).map(|i| (i.tag, i.nrof))
         }
         _ => None,
-    });
+    })
+}
+
+#[test]
+#[ignore]
+fn pick_up_and_drop() {
+    let (net, mut flow) = quick_login("drop");
+    let player = wait_player(&net, &mut flow);
+    let (tag, nrof) = wait_droppable(&net, &mut flow, player);
 
     net.tx.send(ClientMsg::Move { to: 0, tag, count: nrof }).unwrap();
-    wait_for(&net, &mut flow, "the dropped item on the ground", |m| match m {
-        ServerMsg::Item2 { location: 0, items } => items.iter().any(|i| i.tag == tag).then_some(()),
-        _ => None,
-    });
+    wait_item_at(&net, &mut flow, "the dropped item on the ground", 0, tag);
 
     net.tx.send(ClientMsg::Move { to: player, tag, count: nrof }).unwrap();
-    wait_for(&net, &mut flow, "the item back in the inventory", |m| match m {
-        ServerMsg::Item2 { location, items } if *location == player => items.iter().any(|i| i.tag == tag).then_some(()),
-        _ => None,
-    });
+    wait_item_at(&net, &mut flow, "the item back in the inventory", player, tag);
 }
 
 #[test]

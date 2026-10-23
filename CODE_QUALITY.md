@@ -234,7 +234,7 @@ denominator grew.
 - Measured: complexity 21 (threshold 10); length 105 (threshold 50)
 - Recommendation: Build each limb with one shared helper; the arms and legs repeat the same pattern.
 
-### [ ] 🔴 Q34: complexity — crates/crossfir3d/tests/live_server.rs:77 `pick_up_and_drop`
+### [x] 🔴 Q34: complexity — crates/crossfir3d/tests/live_server.rs:77 `pick_up_and_drop`
 
 - Measured: complexity 21 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
