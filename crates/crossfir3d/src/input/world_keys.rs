@@ -13,7 +13,7 @@ use crossfir3d::camera::{heading_of, nearest_dir, CREATURE_LAYERS};
 use crossfir3d::keys::{Binding, Combo, Mods};
 use crossfir3d::messages::{ground_box, ground_things};
 use crossfir3d::modes::{act, bindings_active, Act, KeyName, Mode};
-use crossfir3d::slots::{dir_number, fire_commands, slot_commands};
+use crossfir3d::slots::{dir_number, fire_commands, slot_commands, Kit};
 
 /// Everything `world_keys` reads or changes in a frame.
 #[derive(SystemParam)]
@@ -58,6 +58,11 @@ pub fn world_keys(mut p: WorldKeyParams, session: Option<NonSend<Session>>) {
 }
 
 impl WorldKeyParams<'_> {
+    /// The player's carried items, spells, facing and range, as slots and bindings read them.
+    fn kit(&self) -> Kit<'_> {
+        Kit { inv: &self.inv.0, spells: &self.spells.0, facing: self.facing.0, range: &self.stats.0.range }
+    }
+
     /// One key press: a binding if one matches, else the key's own action.
     fn press(&mut self, session: &Session, code: KeyCode, mods: Mods) {
         if let Some(b) = self.bound(code, mods) {
@@ -95,7 +100,7 @@ impl WorldKeyParams<'_> {
         }
         self.last.0 = Some(self.time.elapsed_secs());
         let skills = known_skills(&self.stats.0, &self.skill_names);
-        for c in binding_commands(b, &self.inv.0, &self.spells.0, &skills, self.facing.0, &self.stats.0.range) {
+        for c in binding_commands(b, &self.kit(), &skills) {
             self.anim.0.extend(event_for_command(&c));
             session.send([ClientMsg::Ncom { packet: self.seq.next(), repeat: 0, command: c }]);
         }
@@ -143,7 +148,7 @@ impl WorldKeyParams<'_> {
             Act::Get => self.send(session, "get"),
             Act::Slot(i) => {
                 let Some(slot) = &self.slots.0 .0[i] else { return };
-                for c in slot_commands(slot, &self.inv.0, &self.spells.0, self.facing.0, &self.stats.0.range) {
+                for c in slot_commands(slot, &self.kit()) {
                     self.send(session, &c);
                 }
             }

@@ -2,13 +2,13 @@
 
 use bevy::ecs::system::SystemParam;
 use bevy::prelude::*;
-use cfproto::{ClientMsg, Inventory, SpellBook};
+use cfproto::ClientMsg;
 
 use crossfir3d::camera::{compass, heading_of, screen_dir, Heading};
 use crossfir3d::modes::{KeyName, Mode};
 use crossfir3d::messages::{ground_box, ground_things, new_square, object_tags, standing_on};
 use crossfir3d::keys::{action_of, skill_command, Action, Binding, Combo, Mods};
-use crossfir3d::slots::{dir_number, slot_commands, Slot};
+use crossfir3d::slots::{dir_number, slot_commands, Kit, Slot};
 
 use crate::ui::PendingBind;
 use crate::{Inv, KeyBindings, KeyMode, LastComc, Msgs, NcomSeq, Session};
@@ -251,10 +251,10 @@ pub fn held_mods(keys: &ButtonInput<KeyCode>) -> Mods {
 
 /// The ncom commands a binding sends: a known spell is cast in the facing direction
 /// (as a quick slot does), a known skill is used, anything else goes as typed.
-pub fn binding_commands(b: &Binding, inv: &Inventory, spells: &SpellBook, skills: &[String], facing: u8, range: &str) -> Vec<String> {
-    let names: Vec<String> = spells.all().iter().map(|s| s.name.clone()).collect();
+pub fn binding_commands(b: &Binding, kit: &Kit, skills: &[String]) -> Vec<String> {
+    let names: Vec<String> = kit.spells.all().iter().map(|s| s.name.clone()).collect();
     match action_of(&b.command, &names, skills) {
-        Action::Spell(n) => slot_commands(&Slot::Spell(n), inv, spells, facing, range),
+        Action::Spell(n) => slot_commands(&Slot::Spell(n), kit),
         Action::Skill(n) => vec![skill_command(&n)],
         Action::Command(c) => c.split(';').map(str::trim).filter(|c| !c.is_empty()).map(String::from).collect(),
     }
@@ -298,6 +298,7 @@ mod tests {
     use super::{binding_commands, key_code, key_name, may_send, wants_step};
     use bevy::prelude::KeyCode;
     use cfproto::{Inventory, SpellBook};
+    use crossfir3d::slots::Kit;
     use crossfir3d::keys::{Binding, Combo, Mods};
 
     #[test]
@@ -342,13 +343,13 @@ mod tests {
     fn binding_beats_game_key() {
         let bind = |command: &str| Binding { all: false, combo: Combo { mods: Mods::default(), key: "G".into() }, edit: false, command: command.into() };
         let (inv, spells) = (Inventory::default(), SpellBook::default());
-        assert_eq!(binding_commands(&bind("say hi"), &inv, &spells, &[], 1, ""), ["say hi"]);
+        assert_eq!(binding_commands(&bind("say hi"), &Kit { inv: &inv, spells: &spells, facing: 1, range: "" }, &[]), ["say hi"]);
         assert_eq!(
-            binding_commands(&bind("use_skill sense curse; use_skill sense magic;"), &inv, &spells, &[], 1, ""),
+            binding_commands(&bind("use_skill sense curse; use_skill sense magic;"), &Kit { inv: &inv, spells: &spells, facing: 1, range: "" }, &[]),
             ["use_skill sense curse", "use_skill sense magic"]
         );
         let skills = ["praying".to_string()];
-        assert_eq!(binding_commands(&bind("use_skill Praying"), &inv, &spells, &skills, 1, ""), ["use_skill praying"]);
+        assert_eq!(binding_commands(&bind("use_skill Praying"), &Kit { inv: &inv, spells: &spells, facing: 1, range: "" }, &skills), ["use_skill praying"]);
     }
 
     #[test]

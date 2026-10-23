@@ -26,10 +26,19 @@ pub enum Slot {
 #[derive(Clone, Debug, Default, PartialEq)]
 pub struct QuickSlots(pub [Option<Slot>; 4]);
 
-/// ncom command strings that use the slot, facing direction `facing`. Empty if the
+/// The player's state a slot or binding needs: what is carried, known spells, facing and range.
+pub struct Kit<'a> {
+    pub inv: &'a Inventory,
+    pub spells: &'a SpellBook,
+    pub facing: u8,
+    pub range: &'a str,
+}
+
+/// ncom command strings that use the slot, facing direction `kit.facing`. Empty if the
 /// character no longer has the spell or item.
 /// `range` is the server's "Range: ..." stat: which item or spell `fire` will use.
-pub fn slot_commands(slot: &Slot, inv: &Inventory, spells: &SpellBook, facing: u8, range: &str) -> Vec<String> {
+pub fn slot_commands(slot: &Slot, kit: &Kit) -> Vec<String> {
+    let Kit { inv, spells, facing, range } = *kit;
     match slot {
         Slot::Spell(name) => match spells.by_name(name) {
             Some(spell) => [vec![format!("cast {}", spell.tag)], fire(facing)].concat(),
@@ -185,15 +194,15 @@ mod tests {
     #[test]
     fn spell_slot_casts_then_fires() {
         let (inv, book) = world();
-        assert_eq!(slot_commands(&Slot::Spell("small fireball".into()), &inv, &book, 3, ""), ["cast 77", "fire 3", "fire_stop"]);
+        assert_eq!(slot_commands(&Slot::Spell("small fireball".into()), &Kit { inv: &inv, spells: &book, facing: 3, range: "" }), ["cast 77", "fire 3", "fire_stop"]);
     }
 
     #[test]
     fn wand_slot_applies_once_then_fires() {
         let (inv, book) = world();
-        assert_eq!(slot_commands(&Slot::Item("wand of fire".into()), &inv, &book, 5, ""), ["apply 10", "fire 5", "fire_stop"]);
+        assert_eq!(slot_commands(&Slot::Item("wand of fire".into()), &Kit { inv: &inv, spells: &book, facing: 5, range: "" }), ["apply 10", "fire 5", "fire_stop"]);
         let ready = "Range: bow (arrow)";
-        assert_eq!(slot_commands(&Slot::Item("bow".into()), &inv, &book, 5, ready), ["fire 5", "fire_stop"]); // already applied
+        assert_eq!(slot_commands(&Slot::Item("bow".into()), &Kit { inv: &inv, spells: &book, facing: 5, range: ready }), ["fire 5", "fire_stop"]); // already applied
     }
 
     #[test]
@@ -201,20 +210,20 @@ mod tests {
         // The last cast spell is in range: re-ready the bow (unapply, apply) before firing.
         let (inv, book) = world();
         let range = "Range: spell (small fireball)";
-        assert_eq!(slot_commands(&Slot::Item("bow".into()), &inv, &book, 5, range), ["apply 11", "apply 11", "fire 5", "fire_stop"]);
+        assert_eq!(slot_commands(&Slot::Item("bow".into()), &Kit { inv: &inv, spells: &book, facing: 5, range }), ["apply 11", "apply 11", "fire 5", "fire_stop"]);
     }
 
     #[test]
     fn potion_slot_applies() {
         let (inv, book) = world();
-        assert_eq!(slot_commands(&Slot::Item("potion of healing".into()), &inv, &book, 1, ""), ["apply 12"]);
+        assert_eq!(slot_commands(&Slot::Item("potion of healing".into()), &Kit { inv: &inv, spells: &book, facing: 1, range: "" }), ["apply 12"]);
     }
 
     #[test]
     fn missing_item_sends_nothing() {
         let (inv, book) = world();
         let gone = Slot::Item("scroll of light".into());
-        assert!(slot_commands(&gone, &inv, &book, 1, "").is_empty());
+        assert!(slot_commands(&gone, &Kit { inv: &inv, spells: &book, facing: 1, range: "" }).is_empty());
         assert!(!usable(&gone, &inv, &book));
         assert!(usable(&Slot::Spell("small fireball".into()), &inv, &book));
     }
