@@ -90,13 +90,8 @@ fn sky_material(colour: Color, blend: bool) -> StandardMaterial {
     }
 }
 
-/// Spawns the sky dome, stars, clouds, sun and indoor ceiling.
-pub fn spawn_sky(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>, mut materials: ResMut<Assets<StandardMaterial>>) {
-    let ball = meshes.add(Sphere::new(1.0).mesh().ico(2).expect("constant subdivisions are within the limit"));
-    let stars = materials.add(sky_material(Color::WHITE, true));
-    let clouds = materials.add(sky_material(Color::WHITE, true));
-    let sun = materials.add(sky_material(Color::srgb(1.0, 0.95, 0.7), false));
-    let root = commands.spawn((SkyRoot, Transform::default(), Visibility::default())).id();
+/// Spawns the hidden indoor ceiling plane.
+fn spawn_ceiling(commands: &mut Commands, meshes: &mut Assets<Mesh>, materials: &mut Assets<StandardMaterial>) {
     // Seen from below only: from above (the top view) it is not drawn.
     commands.spawn((
         Ceiling,
@@ -106,6 +101,10 @@ pub fn spawn_sky(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>, mut m
         NotShadowCaster,
         Visibility::Hidden,
     ));
+}
+
+/// Spawns the sky dome under `root` and returns its mesh.
+fn spawn_dome(commands: &mut Commands, meshes: &mut Assets<Mesh>, materials: &mut Assets<StandardMaterial>, root: Entity) -> Handle<Mesh> {
     let dome = meshes.add(Sphere::new(1.0).mesh().ico(4).expect("constant subdivisions are within the limit"));
     commands.spawn((
         Mesh3d(dome.clone()),
@@ -114,6 +113,11 @@ pub fn spawn_sky(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>, mut m
         NotShadowCaster,
         ChildOf(root),
     ));
+    dome
+}
+
+/// Spawns the star balls under `root`.
+fn spawn_stars(commands: &mut Commands, ball: &Handle<Mesh>, stars: &Handle<StandardMaterial>, root: Entity) {
     // Stars spread evenly over the sky (a Fibonacci spiral), above the rooftops.
     for i in 0..STARS {
         let y = 0.1 + 0.9 * (i as f32 + 0.5) / STARS as f32;
@@ -128,6 +132,10 @@ pub fn spawn_sky(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>, mut m
             ChildOf(root),
         ));
     }
+}
+
+/// Spawns the ring of drifting clouds under `root`.
+fn spawn_clouds(commands: &mut Commands, ball: &Handle<Mesh>, clouds: &Handle<StandardMaterial>, root: Entity) {
     // Clouds: a few flattened puffs each, low in the sky so the shoulder view sees them.
     let ring = commands.spawn((Clouds, Transform::default(), Visibility::default(), ChildOf(root))).id();
     let puffs = [(Vec3::new(-6.0, 0.0, 0.0), 6.0), (Vec3::new(0.0, 1.5, 0.0), 8.0), (Vec3::new(6.0, 0.0, 1.0), 6.0), (Vec3::new(2.0, -0.5, -3.0), 5.0)];
@@ -148,6 +156,19 @@ pub fn spawn_sky(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>, mut m
             ));
         }
     }
+}
+
+/// Spawns the sky dome, stars, clouds, sun and indoor ceiling.
+pub fn spawn_sky(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>, mut materials: ResMut<Assets<StandardMaterial>>) {
+    let ball = meshes.add(Sphere::new(1.0).mesh().ico(2).expect("constant subdivisions are within the limit"));
+    let stars = materials.add(sky_material(Color::WHITE, true));
+    let clouds = materials.add(sky_material(Color::WHITE, true));
+    let sun = materials.add(sky_material(Color::srgb(1.0, 0.95, 0.7), false));
+    let root = commands.spawn((SkyRoot, Transform::default(), Visibility::default())).id();
+    spawn_ceiling(&mut commands, &mut meshes, &mut materials);
+    let dome = spawn_dome(&mut commands, &mut meshes, &mut materials, root);
+    spawn_stars(&mut commands, &ball, &stars, root);
+    spawn_clouds(&mut commands, &ball, &clouds, root);
     commands.spawn((SunDisc, Mesh3d(ball), MeshMaterial3d(sun), Transform::from_scale(Vec3::splat(6.0)), NotShadowCaster, ChildOf(root)));
     commands.insert_resource(SkyMaterials { stars, clouds, dome });
 }

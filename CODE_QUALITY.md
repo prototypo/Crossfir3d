@@ -506,7 +506,7 @@ denominator grew.
 - Measured: complexity 12 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
 
-### [ ] 🔴 Q88: length — crates/crossfir3d/src/sky.rs:91 `spawn_sky`
+### [x] 🔴 Q88: length — crates/crossfir3d/src/sky.rs:91 `spawn_sky`
 
 - Measured: length 60 (threshold 50)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
