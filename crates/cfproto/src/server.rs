@@ -107,10 +107,10 @@ impl<'a> Reader<'a> {
         Ok(self.take(1)?[0])
     }
     pub(crate) fn u16(&mut self) -> Result<u16, ParseError> {
-        Ok(u16::from_be_bytes(self.take(2)?.try_into().unwrap()))
+        Ok(u16::from_be_bytes(self.take(2)?.try_into().map_err(|_| err("packet too short"))?))
     }
     pub(crate) fn u32(&mut self) -> Result<u32, ParseError> {
-        Ok(u32::from_be_bytes(self.take(4)?.try_into().unwrap()))
+        Ok(u32::from_be_bytes(self.take(4)?.try_into().map_err(|_| err("packet too short"))?))
     }
     /// The rest of the data as text.
     pub(crate) fn text(&mut self) -> String {

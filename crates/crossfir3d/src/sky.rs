@@ -90,7 +90,7 @@ fn sky_material(colour: Color, blend: bool) -> StandardMaterial {
 }
 
 pub fn spawn_sky(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>, mut materials: ResMut<Assets<StandardMaterial>>) {
-    let ball = meshes.add(Sphere::new(1.0).mesh().ico(2).unwrap());
+    let ball = meshes.add(Sphere::new(1.0).mesh().ico(2).expect("constant subdivisions are within the limit"));
     let stars = materials.add(sky_material(Color::WHITE, true));
     let clouds = materials.add(sky_material(Color::WHITE, true));
     let sun = materials.add(sky_material(Color::srgb(1.0, 0.95, 0.7), false));
@@ -104,7 +104,7 @@ pub fn spawn_sky(mut commands: Commands, mut meshes: ResMut<Assets<Mesh>>, mut m
         NotShadowCaster,
         Visibility::Hidden,
     ));
-    let dome = meshes.add(Sphere::new(1.0).mesh().ico(4).unwrap());
+    let dome = meshes.add(Sphere::new(1.0).mesh().ico(4).expect("constant subdivisions are within the limit"));
     commands.spawn((
         Mesh3d(dome.clone()),
         MeshMaterial3d(materials.add(sky_material(Color::WHITE, false))),

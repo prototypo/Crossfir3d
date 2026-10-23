@@ -131,7 +131,7 @@ fn mod_on(m: Mods, i: usize) -> bool {
 
 fn toggle(m: &mut Mods, i: usize) {
     let f = [&mut m.shift, &mut m.ctrl, &mut m.alt, &mut m.cmd];
-    let flag = f.into_iter().nth(i).unwrap();
+    let flag = f.into_iter().nth(i).expect("i is a modifier column, 0..4");
     *flag = !*flag;
 }
 

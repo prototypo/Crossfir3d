@@ -42,7 +42,7 @@ fn pointed_hat(c: [f32; 3]) -> Vec<Part> {
 fn tricorn_hat(c: [f32; 3]) -> Vec<Part> {
     let [crown, brim] = tricorn();
     // Brass buttons on the two front sides, near the top edge.
-    let top = brim.last().unwrap();
+    let top = brim.last().expect("a tricorn brim always has rings");
     let buttons = [AROUND / 4 + AROUND / 6, AROUND / 4 - AROUND / 6].map(|j| {
         let at = top[j] - Vec3::Y * 0.015 + ring(j) * 0.004;
         (Sphere::new(0.009).mesh().build().translated_by(at), [0.85, 0.65, 0.25], Finish::Brass)

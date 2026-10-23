@@ -81,7 +81,7 @@ fn slot(skin: &SkinnedMesh, names: &Query<&Name>, name: &str) -> Option<usize> {
 fn outfit_points(parts: &[Entity], skinned: &Query<(&Mesh3d, &SkinnedMesh, &ChildOf)>, names: &Query<&Name>, meshes: &Assets<Mesh>) -> (Vec<Vec3>, Vec<Vec3>) {
     let (mut points, mut arm_points) = (Vec::new(), Vec::new());
     for &e in parts {
-        let (mesh, ..) = skinned.get(e).unwrap();
+        let Ok((mesh, ..)) = skinned.get(e) else { continue };
         let arms = names.get(e).is_ok_and(|n| n.as_str().contains("Arms"));
         if let Some(VertexAttributeValues::Float32x3(p)) = meshes.get(&mesh.0).and_then(|m| m.attribute(Mesh::ATTRIBUTE_POSITION)) {
             (if arms { &mut arm_points } else { &mut points }).extend(p.iter().map(|v| Vec3::from_array(*v)));
@@ -231,7 +231,7 @@ pub fn dress_robes(p: DressParams) {
         let Some(outfit) = children.get(root).into_iter().flatten().copied().find(|c| outfits.contains(*c)) else { continue };
         let parts: Vec<_> = children.iter_descendants(outfit).filter(|e| skinned.contains(*e)).collect();
         let Some(&first) = parts.first() else { continue };
-        let (_, skin, parent) = skinned.get(first).unwrap();
+        let Ok((_, skin, parent)) = skinned.get(first) else { continue };
         let Some(poses) = poses.get(&skin.inverse_bindposes) else { continue };
         let points = outfit_points(&parts, &skinned, &names, &meshes);
         let Some(mut fit) = Fit::new(skin, &names, poses, &leather, points) else {

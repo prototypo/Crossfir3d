@@ -240,7 +240,7 @@ fn find_orphan(sq: &Square, orphans: &[Entity], existing: &Existing<'_, '_>, mod
 
 /// Moves an old entity to this square and points its glide at the new spot.
 fn retarget(sq: &Square, e: Entity, existing: &mut Existing<'_, '_>, models: &Models) {
-    let (_, mut tv, glide, character) = existing.get_mut(e).unwrap();
+    let Ok((_, mut tv, glide, character)) = existing.get_mut(e) else { return };
     (tv.x, tv.y, tv.darkness, tv.face) = (sq.x, sq.y, sq.darkness, sq.face);
     if let Some(mut g) = glide {
         // 3D characters and built creatures (bees) stand in the middle of the square.

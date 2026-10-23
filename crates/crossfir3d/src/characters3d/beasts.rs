@@ -104,7 +104,8 @@ pub(super) fn bind_bones(
     }
     let armature = children.iter_descendants(ready.entity).find(|e| names.get(*e).is_ok_and(|n| n.as_str() == "Armature"));
     let Some(armature) = armature else { return };
-    let mut stack = vec![(armature, vec![names.get(armature).unwrap().clone()])];
+    let Ok(name) = names.get(armature) else { return };
+    let mut stack = vec![(armature, vec![name.clone()])];
     while let Some((e, path)) = stack.pop() {
         commands.entity(e).try_insert((AnimationTargetId::from_names(path.iter()), AnimatedBy(*root)));
         for &c in children.get(e).into_iter().flatten() {

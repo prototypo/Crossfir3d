@@ -255,7 +255,7 @@ denominator grew.
 - Measured: arguments 10 (threshold 5)
 - Recommendation: This is a Bevy system: group its queries and resources into a `#[derive(SystemParam)]` struct.
 
-### [ ] 🔴 Q38: error handling — `unwrap()` on game queries: crates/crossfir3d/src/characters3d.rs:358, crates/crossfir3d/src/robe/dress.rs:84, crates/crossfir3d/src/robe/dress.rs:234, crates/crossfir3d/src/world.rs:679
+### [x] 🔴 Q38: error handling — `unwrap()` on game queries: crates/crossfir3d/src/characters3d.rs:358, crates/crossfir3d/src/robe/dress.rs:84, crates/crossfir3d/src/robe/dress.rs:234, crates/crossfir3d/src/world.rs:679
 
 - Measured: 4 query `get(...).unwrap()` calls that can panic if an entity loses a component; 16 more `unwrap`/`expect` calls guard invariants (fixed-size byte slices, built-in meshes, constant styles). 20 in all, outside tests: 1.0 per 1,000 lines
 - Recommendation: Replace the 4 query unwraps with `let Ok(..) = ... else { continue/return }`. Give the remaining bare `unwrap()`s an `expect("why it cannot fail")` (server.rs:110, 113; sky.rs:92, 106; keys_ui.rs:134; hat/wear.rs:45).
