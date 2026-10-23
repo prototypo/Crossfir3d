@@ -16,6 +16,7 @@ Generated: 2026-10-23 by quality-report v0.4.1 (second run, after Q1–Q13 of th
   - function_metrics.py (quality-report)
 - Tools missing: none. Rust nesting depth and comment presence come from a brace and comment scan of each function (estimated).
 - Findings: 102 open
+- Branch decision: quality-improvements
 - Scope notes: Rust `mod tests` blocks are left out of the function counts but kept in file sizes. The integration tests in `crates/crossfir3d/tests/` are counted. The Python files have not changed since the first run, so their numbers are carried over from it.
 
 ## Metrics
@@ -68,7 +69,7 @@ denominator grew.
 
 ## Findings (worst first)
 
-### [ ] 🔴 Q1: complexity — crates/crossfir3d/src/held.rs:198 `class_look`
+### [x] 🔴 Q1: complexity — crates/crossfir3d/src/held.rs:198 `class_look`
 
 - Measured: complexity 33 (threshold 10)
 - Recommendation: Move the back and over `match`es into their own `class_back` and `class_over` functions; the rest is one row per class, so its complexity is data, not logic.
