@@ -190,33 +190,42 @@ def unpack_glb(src: pathlib.Path, dest: pathlib.Path, g: dict, data: bytes):
     (dest / f"{src.stem}.gltf").write_text(json.dumps(g))
 
 
-def copy_model(src: pathlib.Path, dest: pathlib.Path):
-    """Copies a model and the files it names; fixes broken names in a .gltf copy.
-    A .glb keeps its JSON as is, so its outside files keep their relative paths,
-    unless it holds its images: then it becomes a .gltf (see `unpack_glb`)."""
-    if src.suffix.lower() == ".glb":
-        data = src.read_bytes()
-        length = struct.unpack_from("<I", data, 12)[0]
-        g = json.loads(data[20:20 + length])
-        if any("bufferView" in im for im in g.get("images", [])):
-            unpack_glb(src, dest, g, data)
-            return
-        if src.name in NODE:
-            g["nodes"][0].update(NODE[src.name])
-            js = json.dumps(g).encode()
-            js += b" " * (-len(js) % 4)
-            rest = data[20 + length:]
-            (dest / src.name).write_bytes(data[:4] + struct.pack("<III", 2, 20 + len(js) + len(rest), len(js))
-                                          + data[16:20] + js + rest)
-        else:
-            shutil.copy2(src, dest / src.name)
-        for item in g.get("buffers", []) + g.get("images", []):
-            uri = item.get("uri")
-            if uri and not uri.startswith("data:"):
-                (dest / uri).parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(src.parent / uri, dest / uri)
+def write_glb_with_node(src: pathlib.Path, dest: pathlib.Path, g: dict, data: bytes, length: int):
+    """Writes a .glb with the NODE change put into its JSON chunk."""
+    g["nodes"][0].update(NODE[src.name])
+    js = json.dumps(g).encode()
+    js += b" " * (-len(js) % 4)
+    rest = data[20 + length:]
+    (dest / src.name).write_bytes(data[:4] + struct.pack("<III", 2, 20 + len(js) + len(rest), len(js))
+                                  + data[16:20] + js + rest)
+
+
+def copy_glb_files(src: pathlib.Path, dest: pathlib.Path, g: dict):
+    """Copies the outside files a .glb names, keeping their relative paths."""
+    for item in g.get("buffers", []) + g.get("images", []):
+        uri = item.get("uri")
+        if uri and not uri.startswith("data:"):
+            (dest / uri).parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(src.parent / uri, dest / uri)
+
+
+def copy_glb(src: pathlib.Path, dest: pathlib.Path):
+    """Copies a .glb (unpacked to a .gltf if it holds its images) and its outside files."""
+    data = src.read_bytes()
+    length = struct.unpack_from("<I", data, 12)[0]
+    g = json.loads(data[20:20 + length])
+    if any("bufferView" in im for im in g.get("images", [])):
+        unpack_glb(src, dest, g, data)
         return
-    g = json.loads(src.read_text())
+    if src.name in NODE:
+        write_glb_with_node(src, dest, g, data, length)
+    else:
+        shutil.copy2(src, dest / src.name)
+    copy_glb_files(src, dest, g)
+
+
+def fix_gltf_uris(src: pathlib.Path, dest: pathlib.Path, g: dict):
+    """Copies the files a .gltf names next to it and points its uris at the copies."""
     for item in g.get("buffers", []) + g.get("images", []):
         uri = item.get("uri")
         if uri and not uri.startswith("data:"):
@@ -224,6 +233,17 @@ def copy_model(src: pathlib.Path, dest: pathlib.Path):
             f = find(src.parent, uri)
             shutil.copy2(f, dest / f.name)
             item["uri"] = f.name
+
+
+def copy_model(src: pathlib.Path, dest: pathlib.Path):
+    """Copies a model and the files it names; fixes broken names in a .gltf copy.
+    A .glb keeps its JSON as is, so its outside files keep their relative paths,
+    unless it holds its images: then it becomes a .gltf (see `unpack_glb`)."""
+    if src.suffix.lower() == ".glb":
+        copy_glb(src, dest)
+        return
+    g = json.loads(src.read_text())
+    fix_gltf_uris(src, dest, g)
     if src.name in NODE:
         g["nodes"][0].update(NODE[src.name])
     if src.name in UV_MOVE:

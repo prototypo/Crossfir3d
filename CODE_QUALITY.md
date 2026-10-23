@@ -425,7 +425,7 @@ denominator grew.
 - Measured: complexity 13 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
 
-### [ ] 🔴 Q72: complexity — scripts/pick_models.py:193 `copy_model`
+### [x] 🔴 Q72: complexity — scripts/pick_models.py:193 `copy_model`
 
 - Measured: complexity 13 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
