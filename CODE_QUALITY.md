@@ -335,7 +335,7 @@ denominator grew.
 - Measured: 768 lines (threshold 500)
 - Recommendation: Move the keyboard drawing into `keys_ui/keyboard.rs` and the lists into `keys_ui/lists.rs`.
 
-### [ ] 🔴 Q54: complexity, nesting — crates/cfproto/src/view.rs:31 `apply`
+### [x] 🔴 Q54: complexity, nesting — crates/cfproto/src/view.rs:31 `apply`
 
 - Measured: complexity 12 (threshold 10); nesting 6 (threshold 4)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
