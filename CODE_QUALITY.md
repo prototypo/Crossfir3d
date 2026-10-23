@@ -94,7 +94,7 @@ denominator grew.
 - Measured: complexity 29 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
 
-### [ ] 🔴 Q6: complexity, length, nesting, arguments — crates/crossfir3d/src/characters3d.rs:790 `dress_people`
+### [x] 🔴 Q6: complexity, length, nesting, arguments — crates/crossfir3d/src/characters3d.rs:790 `dress_people`
 
 - Measured: complexity 28 (threshold 10); length 72 (threshold 50); nesting 5 (threshold 4); arguments 10 (threshold 5)
 - Recommendation: Group its 10 system arguments into a `SystemParam` struct and move each clothing step (body, hair, hat, held items) into its own function, as `dress_robes` now is.
