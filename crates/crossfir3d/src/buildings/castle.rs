@@ -86,15 +86,16 @@ pub(super) fn tower(pos: [f32; 3], wide: f32, high: f32) -> Vec<Part> {
     out
 }
 
+const THICK: f32 = 0.15;
+const HIGH: f32 = 0.2;
+const SINK: f32 = 0.02;
+const OUT: f32 = 0.005;
+
 /// Water filling the square, with a low brick bank on each side that has no moat next
 /// to it, and a brick post on each inside corner so bends close up. No two faces lie
 /// in one place (they would flicker): banks sink a little, reach a hair past the
 /// water's edge, and the east and west ones stop at the north and south ones.
 pub(super) fn moat(mask: u8) -> Vec<Part> {
-    const THICK: f32 = 0.15;
-    const HIGH: f32 = 0.2;
-    const SINK: f32 = 0.02;
-    const OUT: f32 = 0.005;
     let open = |side| mask & side != 0;
     let (edge, y) = (0.5 - THICK / 2.0 + OUT, HIGH / 2.0 - SINK);
     let mut out = vec![part(Shape::Water([1.0, 0.04, 1.0]), [0.0, 0.02, 0.0], 0.0, [1.0; 3], None)];
@@ -109,7 +110,15 @@ pub(super) fn moat(mask: u8) -> Vec<Part> {
             out.push(part(Shape::Bricks([THICK, HIGH, 1.0 - n - s]), [dx * edge, y, (n - s) / 2.0], 0.0, [1.0; 3], None));
         }
     }
+    out.extend(moat_posts(mask, y));
+    out
+}
+
+/// A brick post on each inside corner of the moat, where two neighbouring sides both have moat.
+fn moat_posts(mask: u8, y: f32) -> Vec<Part> {
+    let open = |side| mask & side != 0;
     let post = 0.5 - THICK / 2.0;
+    let mut out = Vec::new();
     for (a, b, x, z) in [(N, E, 1.0, -1.0), (E, S, 1.0, 1.0), (S, W, -1.0, 1.0), (W, N, -1.0, -1.0)] {
         if open(a) && open(b) {
             out.push(part(Shape::Bricks([THICK, HIGH, THICK]), [x * post, y, z * post], 0.0, [1.0; 3], None));

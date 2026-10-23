@@ -551,7 +551,7 @@ denominator grew.
 - Measured: 579 lines (threshold 500)
 - Recommendation: Move the model-list tests into `models/tests.rs`; the code itself is under the limit.
 
-### [ ] 🔴 Q97: complexity — crates/crossfir3d/src/buildings/castle.rs:76 `moat`
+### [x] 🔴 Q97: complexity — crates/crossfir3d/src/buildings/castle.rs:76 `moat`
 
 - Measured: complexity 11 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
