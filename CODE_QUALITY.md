@@ -124,7 +124,7 @@ denominator grew.
 - Measured: complexity 26 (threshold 10); length 71 (threshold 50)
 - Recommendation: Split the item `match` into family tables (weapons, armour, jewels, potions), like `buildings::parts`.
 
-### [ ] 🔴 Q12: complexity, arguments — crates/crossfir3d/src/characters3d.rs:469 `wear_helmet`
+### [x] 🔴 Q12: complexity, arguments — crates/crossfir3d/src/characters3d.rs:469 `wear_helmet`
 
 - Measured: complexity 12 (threshold 10); arguments 13 (threshold 5)
 - Recommendation: Group its 13 arguments into a `SystemParam` struct or a small struct, as `hat::HatKit` does for `put_on`.
