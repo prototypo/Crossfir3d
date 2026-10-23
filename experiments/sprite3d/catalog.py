@@ -111,6 +111,58 @@ def read_lines(path):
         return [line.strip() for line in f]
 
 
+def anim_frames(lines, i):
+    """Frame lines from index i up to the `mina` line; returns (frames, index of that line)."""
+    frames = []
+    while i < len(lines) and lines[i] != "mina":
+        if not lines[i].startswith("facings"):
+            frames.append(lines[i])
+        i += 1
+    return frames, i
+
+
+def parse_face(path, anims):
+    """Add every `animation` block of one .face file to anims."""
+    lines, i = read_lines(path), 0
+    while i < len(lines):
+        if lines[i].startswith("animation "):
+            name = lines[i].split(None, 1)[1]
+            anims[name], i = anim_frames(lines, i + 1)
+        i += 1
+
+
+def arc_line(line, obj, folder, objects):
+    """Handle one .arc line outside anim/msg blocks; returns (obj, in_anim, in_msg)."""
+    if line.startswith("Object "):
+        obj = {"name": line.split(None, 1)[1], "folder": folder, "frames": [], "tail": False}
+        objects.append(obj)
+    elif line == "More":
+        obj = None  # tail parts of a big object repeat its keys
+    elif line == "anim":
+        return obj, True, False
+    elif line == "msg":
+        return obj, False, True
+    elif obj is not None and " " in line:
+        k, v = line.split(None, 1)
+        obj.setdefault(k, v)
+    return obj, False, False
+
+
+def parse_arc(path, folder, objects):
+    """Append every object of one .arc file to objects."""
+    obj, in_anim, in_msg = None, False, False
+    for line in read_lines(path):
+        if in_msg:
+            in_msg = line != "endmsg"
+        elif in_anim:
+            if line == "mina":
+                in_anim = False
+            elif obj and not line.startswith("facings"):
+                obj["frames"].append(line)
+        else:
+            obj, in_anim, in_msg = arc_line(line, obj, folder, objects)
+
+
 def parse_arch():
     """Objects (dicts) and animations (name -> frames) from every .arc and .face file."""
     objects, anims = [], {}
@@ -118,40 +170,9 @@ def parse_arch():
         for fn in files:
             path = os.path.join(dirpath, fn)
             if fn.endswith(".face"):
-                lines, i = read_lines(path), 0
-                while i < len(lines):
-                    if lines[i].startswith("animation "):
-                        name, frames = lines[i].split(None, 1)[1], []
-                        i += 1
-                        while i < len(lines) and lines[i] != "mina":
-                            if not lines[i].startswith("facings"):
-                                frames.append(lines[i])
-                            i += 1
-                        anims[name] = frames
-                    i += 1
+                parse_face(path, anims)
             elif fn.endswith(".arc"):
-                folder = os.path.relpath(dirpath, ARCH)
-                obj, in_anim, in_msg = None, False, False
-                for line in read_lines(path):
-                    if in_msg:
-                        in_msg = line != "endmsg"
-                    elif in_anim:
-                        if line == "mina":
-                            in_anim = False
-                        elif obj and not line.startswith("facings"):
-                            obj["frames"].append(line)
-                    elif line.startswith("Object "):
-                        obj = {"name": line.split(None, 1)[1], "folder": folder, "frames": [], "tail": False}
-                        objects.append(obj)
-                    elif line == "More":
-                        obj = None  # tail parts of a big object repeat its keys
-                    elif line == "anim":
-                        in_anim = True
-                    elif line == "msg":
-                        in_msg = True
-                    elif obj is not None and " " in line:
-                        k, v = line.split(None, 1)
-                        obj.setdefault(k, v)
+                parse_arc(path, os.path.relpath(dirpath, ARCH), objects)
     return objects, anims
 
 
@@ -193,21 +214,25 @@ def pictures():
     return out
 
 
+def file_faces(path, out):
+    """Add the `face` / `animation` names set in one map file to `out`."""
+    with open(path, errors="ignore") as f:
+        for line in f:
+            if line.startswith(("face ", "animation ")):
+                out.add(line.split()[1].split(".")[0] if len(line.split()) > 1 else "")
+
+
 def map_faces():
     """Picture and animation names that maps set on their objects (`face` / `animation`)."""
     out = set()
     for dirpath, _, files in os.walk(MAPS):
         for fn in files:
-            with open(os.path.join(dirpath, fn), errors="ignore") as f:
-                for line in f:
-                    if line.startswith(("face ", "animation ")):
-                        out.add(line.split()[1].split(".")[0] if len(line.split()) > 1 else "")
+            file_faces(os.path.join(dirpath, fn), out)
     return out
 
 
-def classify(face, users, maps, size, folder):
-    """(group, reason) for one picture. `users` are the objects that show it; `folder`
-    is where the picture is (used when no object shows it)."""
+def rule_existing(face, users, maps, size, folder):
+    """Pictures that already have a 3D look: models.txt, walls, player bodies."""
     kind = lookup(maps, face)
     if kind != "card":
         return "existing", f"models.txt: {kind}"
@@ -215,23 +240,49 @@ def classify(face, users, maps, size, folder):
         return "existing", "drawn as wall blocks"
     if any(u["folder"].startswith("player") for u in users):
         return "existing", "player character (3D bodies)"
+    return None
+
+
+def rule_icon_or_generator(face, users, maps, size, folder):
+    """Spell icons are skipped; monster generators are modelled from scratch."""
     if face.startswith(("spell_", "skill_", "prayer_")):
         return "skip", "a spell or skill icon"
     # A monster that multiplies (centipede, slime) is a generator too, but a creature.
     if any(u.get("generator") == "1" and u.get("monster") != "1" for u in users):
         return "scratch", "a monster generator (a building or object)"
-    if folder.split(os.sep)[0] in FOLDER_FIRST:
-        group, why = FOLDER_FIRST[folder.split(os.sep)[0]]
-        return group, f"folder {folder.split(os.sep)[0]}/: {why}"
+    return None
+
+
+def rule_folder_first(face, users, maps, size, folder):
+    """Folders whose group is fixed before any object flag is looked at."""
+    top = folder.split(os.sep)[0]
+    if top in FOLDER_FIRST:
+        group, why = FOLDER_FIRST[top]
+        return group, f"folder {top}/: {why}"
+    return None
+
+
+def rule_flags(face, users, maps, size, folder):
+    """Creatures (alive or monster) are rigged; floors are flat."""
     if any(u.get("monster") == "1" or u.get("alive") == "1" for u in users):
         return "rigged", "alive: a creature"
     if any(u.get("is_floor") == "1" for u in users):
         return "flat", "is_floor"
+    return None
+
+
+def rule_type(face, users, maps, size, folder):
+    """The group of the commonest object type that BY_TYPE lists."""
     types = Counter(int(u.get("type", 0)) for u in users)
     for group, wanted, why in BY_TYPE:
         hit = next((t for t, _ in types.most_common() if t in wanted), None)
         if hit is not None:
             return group, f"type {NAME[hit]}: {why}"
+    return None
+
+
+def rule_fallback(face, users, maps, size, folder):
+    """Invisible objects, big pictures, then the picture's folder."""
     if users and all(u.get("invisible") == "1" for u in users):
         return "skip", "invisible"
     if size[0] > 32 or size[1] > 32:
@@ -240,6 +291,19 @@ def classify(face, users, maps, size, folder):
     for group, folders in BY_FOLDER.items():
         if top in folders:
             return group, f"folder {top}/" + ("" if users else " (no object uses it)")
+    return None
+
+
+RULES = (rule_existing, rule_icon_or_generator, rule_folder_first, rule_flags, rule_type, rule_fallback)
+
+
+def classify(face, users, maps, size, folder):
+    """(group, reason) for one picture. `users` are the objects that show it; `folder`
+    is where the picture is (used when no object shows it)."""
+    for rule in RULES:
+        found = rule(face, users, maps, size, folder)
+        if found:
+            return found
     return "review", "no rule fits"
 
 
@@ -270,6 +334,7 @@ def catalog():
 
 
 def main(samples):
+    """Writes catalog.tsv and CATALOG.md from the grouped pictures, plus sample sheets when asked."""
     rows = catalog()
     with open(os.path.join(HERE, "catalog.tsv"), "w") as f:
         f.write("picture\tfile\tsize\tobjects\tgroup\treason\n")

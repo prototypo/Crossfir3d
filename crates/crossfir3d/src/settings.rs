@@ -62,6 +62,7 @@ pub struct Settings {
 pub const LOG_FONT_SIZES: (f32, f32) = (8.0, 32.0);
 
 impl Default for Settings {
+    /// The settings a new install starts with.
     fn default() -> Self {
         Settings {
             fullscreen: false,
@@ -106,6 +107,7 @@ impl Settings {
         }
     }
 
+    /// Writes the settings as the key=value text saved to disk.
     pub fn to_text(&self) -> String {
         let mut out = format!("fullscreen={}\n", self.fullscreen);
         if let Some(w) = self.window {
@@ -129,32 +131,33 @@ impl Settings {
         for line in text.lines() {
             let Some((key, value)) = line.split_once('=') else { continue };
             let value = value.trim();
-            match key.trim() {
-                "fullscreen" => s.fullscreen = value.parse().unwrap_or(s.fullscreen),
-                "window" => s.window = parse_window(value).or(s.window),
-                "render_scale" => s.render_scale = finite(value).unwrap_or(s.render_scale),
-                "frame_rate" => s.frame_rate = parse_name(value, FRAME_RATES, frame_rate_name).unwrap_or(s.frame_rate),
-                "ambient_occlusion" => {
-                    s.ambient_occlusion = parse_name(value, QUALITIES, quality_name).unwrap_or(s.ambient_occlusion)
-                }
-                "shadows" => s.shadows = parse_name(value, QUALITIES, quality_name).unwrap_or(s.shadows),
-                "anti_alias" => s.anti_alias = parse_name(value, ANTI_ALIASES, anti_alias_name).unwrap_or(s.anti_alias),
-                "brightness" => s.brightness = finite(value).unwrap_or(s.brightness),
-                "contrast" => s.contrast = finite(value).unwrap_or(s.contrast),
-                "gamma" => s.gamma = finite(value).unwrap_or(s.gamma),
-                "music" => s.music = value.parse().unwrap_or(s.music),
-                "ground_popup" => s.ground_popup = value.parse().unwrap_or(s.ground_popup),
-                "log_font_size" => {
-                    let v = finite(value).unwrap_or(s.log_font_size);
-                    s.log_font_size = v.clamp(LOG_FONT_SIZES.0, LOG_FONT_SIZES.1);
-                }
-                "log_opacity" => s.log_opacity = finite(value).unwrap_or(s.log_opacity).clamp(0.0, 100.0),
-                _ => {}
+            if let Some((_, set)) = SETTERS.iter().find(|(name, _)| *name == key.trim()) {
+                set(&mut s, value);
             }
         }
         s
     }
 }
+
+type Setter = fn(&mut Settings, &str);
+
+/// Each settings key and how its value is read into the settings (a bad value keeps the old one).
+const SETTERS: &[(&str, Setter)] = &[
+    ("fullscreen", |s, v| s.fullscreen = v.parse().unwrap_or(s.fullscreen)),
+    ("window", |s, v| s.window = parse_window(v).or(s.window)),
+    ("render_scale", |s, v| s.render_scale = finite(v).unwrap_or(s.render_scale)),
+    ("frame_rate", |s, v| s.frame_rate = parse_name(v, FRAME_RATES, frame_rate_name).unwrap_or(s.frame_rate)),
+    ("ambient_occlusion", |s, v| s.ambient_occlusion = parse_name(v, QUALITIES, quality_name).unwrap_or(s.ambient_occlusion)),
+    ("shadows", |s, v| s.shadows = parse_name(v, QUALITIES, quality_name).unwrap_or(s.shadows)),
+    ("anti_alias", |s, v| s.anti_alias = parse_name(v, ANTI_ALIASES, anti_alias_name).unwrap_or(s.anti_alias)),
+    ("brightness", |s, v| s.brightness = finite(v).unwrap_or(s.brightness)),
+    ("contrast", |s, v| s.contrast = finite(v).unwrap_or(s.contrast)),
+    ("gamma", |s, v| s.gamma = finite(v).unwrap_or(s.gamma)),
+    ("music", |s, v| s.music = v.parse().unwrap_or(s.music)),
+    ("ground_popup", |s, v| s.ground_popup = v.parse().unwrap_or(s.ground_popup)),
+    ("log_font_size", |s, v| s.log_font_size = finite(v).unwrap_or(s.log_font_size).clamp(LOG_FONT_SIZES.0, LOG_FONT_SIZES.1)),
+    ("log_opacity", |s, v| s.log_opacity = finite(v).unwrap_or(s.log_opacity).clamp(0.0, 100.0)),
+];
 
 const FRAME_RATES: &[FrameRate] =
     &[FrameRate::MatchScreen, FrameRate::Cap30, FrameRate::Cap60, FrameRate::Cap120, FrameRate::Unlimited];
@@ -402,6 +405,45 @@ mod tests {
         assert_eq!((s.log_font_size, s.log_opacity), (LOG_FONT_SIZES.1, 0.0));
         let s = Settings::from_text("log_font_size=1\nlog_opacity=300\n");
         assert_eq!((s.log_font_size, s.log_opacity), (LOG_FONT_SIZES.0, 100.0));
+    }
+
+    #[test]
+    fn every_key_valid_invalid_and_out_of_range() {
+        let d = Settings::default();
+        let s = Settings::from_text("fullscreen=true\nmusic=false\nground_popup=true\n");
+        assert_eq!((s.fullscreen, s.music, s.ground_popup), (true, false, true));
+        let s = Settings::from_text("fullscreen=maybe\nmusic=2\nground_popup=\n");
+        assert_eq!((s.fullscreen, s.music, s.ground_popup), (d.fullscreen, d.music, d.ground_popup));
+
+        let s = Settings::from_text("window=-5, 6 ,700,800\n");
+        assert_eq!(s.window, Some(WindowPlace { x: -5, y: 6, width: 700, height: 800 }));
+        for bad in ["window=1,2,3", "window=a,b,c,d", "window=1,2,0,4", "window=1,2,3,-4"] {
+            assert_eq!(Settings::from_text(bad).window, None, "{bad}");
+        }
+
+        let s = Settings::from_text("render_scale=0.5\nbrightness=5\ncontrast=-3\ngamma=9\n");
+        assert_eq!((s.render_scale, s.brightness, s.contrast, s.gamma), (0.5, 5.0, -3.0, 9.0));
+        let s = Settings::from_text("render_scale=x\nbrightness=\ncontrast=1,5\ngamma=inf\n");
+        assert_eq!((s.render_scale, s.brightness, s.contrast, s.gamma), (d.render_scale, d.brightness, d.contrast, d.gamma));
+
+        let s = Settings::from_text("frame_rate=unlimited\nambient_occlusion=high\nshadows=low\nanti_alias=msaa4\n");
+        assert_eq!((s.frame_rate, s.ambient_occlusion, s.shadows, s.anti_alias), (FrameRate::Unlimited, Quality::High, Quality::Low, AntiAlias::Msaa4));
+        let s = Settings::from_text("frame_rate=61\nambient_occlusion=HIGH\nshadows=\nanti_alias=fxaa\n");
+        assert_eq!((s.frame_rate, s.ambient_occlusion, s.shadows, s.anti_alias), (d.frame_rate, d.ambient_occlusion, d.shadows, d.anti_alias));
+
+        let s = Settings::from_text("log_font_size=12.5\nlog_opacity=60\n");
+        assert_eq!((s.log_font_size, s.log_opacity), (12.5, 60.0));
+        let s = Settings::from_text("log_font_size=big\nlog_opacity=NaN\n");
+        assert_eq!((s.log_font_size, s.log_opacity), (d.log_font_size, d.log_opacity));
+        let s = Settings::from_text("log_font_size=500\nlog_opacity=-1\n");
+        assert_eq!((s.log_font_size, s.log_opacity), (LOG_FONT_SIZES.1, 0.0));
+    }
+
+    #[test]
+    fn whitespace_unknown_keys_and_later_bad_lines() {
+        let s = Settings::from_text("  gamma  =  1.5  \nnonsense\nvolume=3\n=4\nshadows = high\nshadows=bogus\ngamma=oops\n");
+        assert_eq!((s.gamma, s.shadows), (1.5, Quality::High));
+        assert_eq!(Settings::from_text("fullscreen=true=false\n").fullscreen, Settings::default().fullscreen);
     }
 
     #[test]

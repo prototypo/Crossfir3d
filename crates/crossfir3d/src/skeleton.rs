@@ -3,6 +3,7 @@
 
 use std::collections::HashMap;
 
+use bevy::ecs::system::SystemParam;
 use bevy::prelude::*;
 
 use crate::back::{merged, rod};
@@ -21,40 +22,65 @@ fn long(a: Vec3, b: Vec3, r: f32) -> Mesh {
     merged([rod(a, b, r), ball(a, r * 1.6, Vec3::ONE, Quat::IDENTITY), ball(b, r * 1.6, Vec3::ONE, Quat::IDENTITY)])
 }
 
+/// What every part of the body is built from: the joints, the body's own axes and the size.
+struct Body<'a> {
+    j: &'a HashMap<&'a str, Vec3>,
+    up: Vec3,
+    front: Vec3,
+    side: Vec3,
+    frame: Quat,
+    s: f32,
+}
+
+type Parts = Vec<(&'static str, Mesh, bool)>;
+
 /// The bones, in the same space as the joints `j` (by bone name), `up` and `front` the
 /// body's own: (the bone each part moves with, its mesh, dark?).
-pub fn bones(j: &HashMap<&str, Vec3>, up: Vec3, front: Vec3) -> Vec<(&'static str, Mesh, bool)> {
+pub fn bones(j: &HashMap<&str, Vec3>, up: Vec3, front: Vec3) -> Parts {
     let side = up.cross(front).normalize();
     let frame = Quat::from_mat3(&Mat3::from_cols(side, up, front));
     // Sizes are for a person; bigger or smaller people scale them.
     let s = j["pelvis"].distance(j["neck_01"]) / 0.55;
-    let mut out: Vec<(&'static str, Mesh, bool)> = Vec::new();
-
-    // Limbs, hands and feet, each piece on the bone it starts from.
+    let b = Body { j, up, front, side, frame, s };
+    let mut out: Parts = Vec::new();
     for side_name in ["l", "r"] {
-        let at = |n: &str| j[format!("{n}_{side_name}").as_str()];
-        let name = |n: &str| -> &'static str { Box::leak(format!("{n}_{side_name}").into_boxed_str()) };
-        for (a, b, r) in [
-            ("clavicle", "upperarm", 0.012),
-            ("upperarm", "lowerarm", 0.02),
-            ("lowerarm", "hand", 0.016),
-            ("thigh", "calf", 0.026),
-            ("calf", "foot", 0.02),
-            ("foot", "ball", 0.016),
-            ("ball", "ball_leaf", 0.012),
-        ] {
-            out.push((name(a), long(at(a), at(b), r * s), false));
-        }
-        for f in ["thumb", "index", "middle", "ring", "pinky"] {
-            let joint = |n: &str| at(&format!("{f}_{n}"));
-            out.push((name("hand"), long(at("hand"), joint("01"), 0.006 * s), false));
-            for (a, b) in [("01", "02"), ("02", "03"), ("03", "04_leaf")] {
-                out.push((name(&format!("{f}_{a}")), long(joint(a), joint(b), 0.0055 * s), false));
-            }
+        limbs(&b, side_name, &mut out);
+    }
+    spine(&b, &mut out);
+    ribs(&b, &mut out);
+    pelvis(&b, &mut out);
+    skull(&b, &mut out);
+    out
+}
+
+/// Limbs, hands and feet of one side, each piece on the bone it starts from.
+fn limbs(b: &Body, side_name: &str, out: &mut Parts) {
+    let (j, s) = (b.j, b.s);
+    let at = |n: &str| j[format!("{n}_{side_name}").as_str()];
+    let name = |n: &str| -> &'static str { Box::leak(format!("{n}_{side_name}").into_boxed_str()) };
+    for (a, b, r) in [
+        ("clavicle", "upperarm", 0.012),
+        ("upperarm", "lowerarm", 0.02),
+        ("lowerarm", "hand", 0.016),
+        ("thigh", "calf", 0.026),
+        ("calf", "foot", 0.02),
+        ("foot", "ball", 0.016),
+        ("ball", "ball_leaf", 0.012),
+    ] {
+        out.push((name(a), long(at(a), at(b), r * s), false));
+    }
+    for f in ["thumb", "index", "middle", "ring", "pinky"] {
+        let joint = |n: &str| at(&format!("{f}_{n}"));
+        out.push((name("hand"), long(at("hand"), joint("01"), 0.006 * s), false));
+        for (a, b) in [("01", "02"), ("02", "03"), ("03", "04_leaf")] {
+            out.push((name(&format!("{f}_{a}")), long(joint(a), joint(b), 0.0055 * s), false));
         }
     }
+}
 
-    // The spine: a rod with a disc for each bone in it.
+/// The spine: a rod with a disc for each bone in it.
+fn spine(b: &Body, out: &mut Parts) {
+    let (j, s) = (b.j, b.s);
     for (a, b) in [("pelvis", "spine_01"), ("spine_01", "spine_02"), ("spine_02", "spine_03"), ("spine_03", "neck_01"), ("neck_01", "Head")] {
         let (pa, pb) = (j[a], j[b]);
         let along = (pb - pa).normalize();
@@ -65,8 +91,11 @@ pub fn bones(j: &HashMap<&str, Vec3>, up: Vec3, front: Vec3) -> Vec<(&'static st
         let key: &'static str = match a { "pelvis" => "pelvis", "spine_01" => "spine_01", "spine_02" => "spine_02", "spine_03" => "spine_03", _ => "neck_01" };
         out.push((key, merged(std::iter::once(rod(pa, pb, 0.011 * s)).chain(discs)), false));
     }
+}
 
-    // The ribs: curved from the spine round each side to the breastbone, sloping down.
+/// The ribs: curved from the spine round each side to the breastbone, sloping down.
+fn ribs(b: &Body, out: &mut Parts) {
+    let Body { j, up, front, side, s, .. } = *b;
     let (low, high) = (j["spine_02"], j["spine_03"] + up * 0.08 * s);
     let mut ribs = Vec::new();
     let count = 6;
@@ -90,8 +119,11 @@ pub fn bones(j: &HashMap<&str, Vec3>, up: Vec3, front: Vec3) -> Vec<(&'static st
     let front_of = |p: Vec3| p + front * 0.07 * s + front * 0.08 * s * 0.74 - up * 0.03 * s;
     ribs.push(long(front_of(high), front_of(low.lerp(high, 0.3)), 0.012 * s));
     out.push(("spine_03", merged(ribs), false));
+}
 
-    // The pelvis: a ring round the hips, wide flat wings each side, the sacrum behind.
+/// The pelvis: a ring round the hips, wide flat wings each side, the sacrum behind.
+fn pelvis(b: &Body, out: &mut Parts) {
+    let Body { j, up, front, side, frame, s } = *b;
     let hips = j["pelvis"];
     let mut pelvis = vec![
         Torus::new(0.055 * s, 0.075 * s).mesh().build().scaled_by(Vec3::new(1.2, 1.0, 0.9)).rotated_by(frame).translated_by(hips - up * 0.02 * s + front * 0.01 * s),
@@ -102,8 +134,11 @@ pub fn bones(j: &HashMap<&str, Vec3>, up: Vec3, front: Vec3) -> Vec<(&'static st
         pelvis.push(ball(hips + side * sign * 0.075 * s + up * 0.045 * s + front * 0.01 * s, 0.05 * s, Vec3::new(0.9, 1.0, 0.25), wing));
     }
     out.push(("pelvis", merged(pelvis), false));
+}
 
-    // The skull: a round crown, a narrower face, the jaw and teeth; dark eye and nose holes.
+/// The skull: a round crown, a narrower face, the jaw and teeth; dark eye and nose holes.
+fn skull(b: &Body, out: &mut Parts) {
+    let Body { j, up, front, side, frame, s } = *b;
     let head = j["Head"] + up * 0.12 * s;
     out.push((
         "Head",
@@ -126,56 +161,86 @@ pub fn bones(j: &HashMap<&str, Vec3>, up: Vec3, front: Vec3) -> Vec<(&'static st
         ]),
         true,
     ));
-    out
 }
 
 /// A body to build bones on (in this tint) once its own bones exist.
 #[derive(Component)]
 pub struct Bony(pub [f32; 3]);
 
-/// Hides each `Bony` body's skin and puts the bones on its bones.
-#[allow(clippy::too_many_arguments)]
-pub fn build_skeletons(
-    mut commands: Commands,
-    bony: Query<(Entity, &Bony, &GlobalTransform)>,
-    children: Query<&Children>,
-    names: Query<&Name>,
-    globals: Query<&GlobalTransform>,
-    skin: Query<(), With<Mesh3d>>,
-    mut meshes: ResMut<Assets<Mesh>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-) {
-    for (root, Bony([r, g, b]), at) in &bony {
-        let mut ids: HashMap<&str, Entity> = HashMap::new();
-        for e in children.iter_descendants(root) {
-            if let Ok(n) = names.get(e) {
-                ids.insert(n.as_str(), e);
-            }
+/// The queries and assets `build_skeletons` works with.
+#[derive(SystemParam)]
+pub struct SkeletonParams<'w, 's> {
+    commands: Commands<'w, 's>,
+    bony: Query<'w, 's, (Entity, &'static Bony, &'static GlobalTransform)>,
+    children: Query<'w, 's, &'static Children>,
+    names: Query<'w, 's, &'static Name>,
+    globals: Query<'w, 's, &'static GlobalTransform>,
+    skin: Query<'w, 's, (), With<Mesh3d>>,
+    meshes: ResMut<'w, Assets<Mesh>>,
+    materials: ResMut<'w, Assets<StandardMaterial>>,
+}
+
+/// The named bones under `root`, and where each one is.
+fn bone_ids_and_joints<'a>(
+    root: Entity,
+    children: &Query<&Children>,
+    names: &'a Query<&Name>,
+    globals: &Query<&GlobalTransform>,
+) -> (HashMap<&'a str, Entity>, HashMap<&'a str, Vec3>) {
+    let mut ids: HashMap<&str, Entity> = HashMap::new();
+    for e in children.iter_descendants(root) {
+        if let Ok(n) = names.get(e) {
+            ids.insert(n.as_str(), e);
         }
-        let joints: HashMap<&str, Vec3> = ids.iter().filter_map(|(n, e)| Some((*n, globals.get(*e).ok()?.translation()))).collect();
-        let body: Vec<Entity> = children.iter_descendants(root).filter(|e| skin.contains(*e)).collect();
-        // The body scene spawns a little after the character, and its bones are placed a
-        // frame later still: try again next frame.
-        let placed = |n: &str| joints.get(n).is_some_and(|p| p.y > at.translation().y + 0.3);
-        if body.is_empty() || !placed("Head") || !joints.contains_key("pinky_04_leaf_r") {
+    }
+    let joints = ids.iter().filter_map(|(n, e)| Some((*n, globals.get(*e).ok()?.translation()))).collect();
+    (ids, joints)
+}
+
+/// Whether the body's skin and bones are all in place at `at_y`.
+fn placed(body: &[Entity], joints: &HashMap<&str, Vec3>, at_y: f32) -> bool {
+    // The body scene spawns a little after the character, and its bones are placed a
+    // frame later still: try again next frame.
+    let placed = |n: &str| joints.get(n).is_some_and(|p| p.y > at_y + 0.3);
+    !(body.is_empty() || !placed("Head") || !joints.contains_key("pinky_04_leaf_r"))
+}
+
+/// The bone and hole materials for a body tinted `[r, g, b]`.
+fn bone_materials(materials: &mut Assets<StandardMaterial>, [r, g, b]: [f32; 3]) -> (Handle<StandardMaterial>, Handle<StandardMaterial>) {
+    let bone = materials.add(StandardMaterial { base_color: Color::srgb(BONE[0] * r, BONE[1] * g, BONE[2] * b), perceptual_roughness: 0.55, ..default() });
+    let hole = materials.add(StandardMaterial { base_color: Color::srgb(HOLE[0], HOLE[1], HOLE[2]), perceptual_roughness: 1.0, ..default() });
+    (bone, hole)
+}
+
+/// Queues one bone piece as a child of the bone `e`, in the bone's own space.
+fn spawn_piece(commands: &mut Commands, meshes: &mut Assets<Mesh>, (e, g): (Entity, &GlobalTransform), mesh: Mesh, material: Handle<StandardMaterial>) {
+    // Into the bone's own space, so the piece moves with it.
+    let local = Transform::from_matrix(Mat4::from(g.affine().inverse()));
+    let part = (Mesh3d(meshes.add(mesh.transformed_by(local))), MeshMaterial3d(material), ChildOf(e));
+    commands.queue_silenced(move |world: &mut World| {
+        world.spawn(part);
+    });
+}
+
+/// Hides each `Bony` body's skin and puts the bones on its bones.
+pub fn build_skeletons(mut p: SkeletonParams) {
+    for (root, Bony(tint), at) in &p.bony {
+        let (ids, joints) = bone_ids_and_joints(root, &p.children, &p.names, &p.globals);
+        let body: Vec<Entity> = p.children.iter_descendants(root).filter(|e| p.skin.contains(*e)).collect();
+        if !placed(&body, &joints, at.translation().y) {
             continue;
         }
         for e in body {
-            commands.entity(e).insert(Visibility::Hidden);
+            p.commands.entity(e).insert(Visibility::Hidden);
         }
         let turn = at.compute_transform().rotation;
-        let bone = materials.add(StandardMaterial { base_color: Color::srgb(BONE[0] * r, BONE[1] * g, BONE[2] * b), perceptual_roughness: 0.55, ..default() });
-        let hole = materials.add(StandardMaterial { base_color: Color::srgb(HOLE[0], HOLE[1], HOLE[2]), perceptual_roughness: 1.0, ..default() });
+        let (bone, hole) = bone_materials(&mut p.materials, *tint);
         for (name, mesh, dark) in bones(&joints, turn * Vec3::Y, turn * Vec3::Z) {
-            let (Some(&e), Ok(g)) = (ids.get(name), globals.get(ids[name])) else { continue };
-            // Into the bone's own space, so the piece moves with it.
-            let local = Transform::from_matrix(Mat4::from(g.affine().inverse()));
-            let part = (Mesh3d(meshes.add(mesh.transformed_by(local))), MeshMaterial3d(if dark { hole.clone() } else { bone.clone() }), ChildOf(e));
-            commands.queue_silenced(move |world: &mut World| {
-                world.spawn(part);
-            });
+            let Some(&e) = ids.get(name) else { continue };
+            let Ok(g) = p.globals.get(e) else { continue };
+            spawn_piece(&mut p.commands, &mut p.meshes, (e, g), mesh, if dark { hole.clone() } else { bone.clone() });
         }
-        commands.entity(root).remove::<Bony>();
+        p.commands.entity(root).remove::<Bony>();
     }
 }
 

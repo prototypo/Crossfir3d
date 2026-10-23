@@ -38,6 +38,7 @@ struct Music;
 pub struct AudioPlugin;
 
 impl Plugin for AudioPlugin {
+    /// Sets up the sound table and the systems that play, mute and stop sound.
     fn build(&self, app: &mut App) {
         let dir = sounds_dir();
         app.insert_resource(Sounds {
@@ -82,6 +83,7 @@ impl Sounds {
     }
 }
 
+/// Flips mute when M is pressed in the game and no binding takes the key.
 fn toggle_mute(
     keys: Res<ButtonInput<KeyCode>>,
     mode: Res<KeyMode>,
@@ -128,6 +130,7 @@ fn stop_music(mut commands: Commands, mut sounds: ResMut<Sounds>, playing: Query
     sounds.current = None;
 }
 
+/// Plays the queued sounds, quieter with distance, and warns once for a missing one.
 fn play_queued(
     mut commands: Commands,
     mut queue: ResMut<AudioQueue>,

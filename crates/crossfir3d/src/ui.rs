@@ -1,5 +1,6 @@
 //! egui screens: the login form and the in-game command line.
 
+use bevy::ecs::system::SystemParam;
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
 use cfproto::ClientMsg;
@@ -11,6 +12,19 @@ use crossfir3d::keys::{shadowed, bind_question, parse_typed, save_bindings, defa
 
 use crate::input::{held_mods, key_name, key_taken};
 use crate::{KeyBindings, KeyMode, LastAction, Msgs, NcomSeq, PendingQuery, Session, Status};
+
+/// The gold of overlay borders and headings.
+pub const GOLD: egui::Color32 = egui::Color32::from_rgb(0xc9, 0xa2, 0x4a);
+
+/// A full-screen overlay window: no title bar, fixed in place, dark with a gold border.
+pub fn overlay_window(id: &str, screen: egui::Rect, margin: f32) -> egui::Window<'static> {
+    let frame = egui::Frame::new()
+        .fill(egui::Color32::from_rgba_unmultiplied(20, 22, 30, 238))
+        .stroke(egui::Stroke::new(2.0, GOLD))
+        .corner_radius(8.0)
+        .inner_margin(margin);
+    egui::Window::new(id.to_owned()).title_bar(false).resizable(false).movable(false).fixed_rect(screen).frame(frame)
+}
 
 /// A typed `bind` waiting for its key, or a yes/no question waiting for its answer.
 #[derive(Resource, Default)]
@@ -41,7 +55,7 @@ fn bound_message(b: &crossfir3d::keys::Bindings, binding: &Binding) -> String {
 }
 
 fn log(msgs: &mut Msgs, text: &str, now: f32) {
-    msgs.0.push(0, 0, text, now, None);
+    msgs.0.push((0, 0), text, now, None);
 }
 
 fn save(bindings: &KeyBindings, session: &Option<NonSend<Session>>, msgs: &mut Msgs, now: f32) {
@@ -51,33 +65,61 @@ fn save(bindings: &KeyBindings, session: &Option<NonSend<Session>>, msgs: &mut M
     }
 }
 
-/// A typed `bind`/`unbind` line, or the answer to a bind question. False: not ours,
-/// send it to the server.
-fn typed_bind(text: &str, pending: &mut PendingBind, bindings: &mut KeyBindings, msgs: &mut Msgs, now: f32) -> Option<bool> {
-    if let Some(step) = pending.0.take() {
-        let answer = text.trim().to_ascii_lowercase();
-        match step {
-            BindStep::Confirm { binding } if answer == "y" => {
-                log(msgs, &bound_message(&bindings.0, &binding), now);
-                bindings.0.bind(binding);
-                return Some(true);
+/// Answers a pending bind question: Some(changed) when the text was the answer, None when it is handled as typed.
+fn answer_pending(text: &str, pending: &mut PendingBind, bindings: &mut KeyBindings, msgs: &mut Msgs, now: f32) -> Option<bool> {
+    let step = pending.0.take()?;
+    let answer = text.trim().to_ascii_lowercase();
+    match step {
+        BindStep::Confirm { binding } if answer == "y" => {
+            log(msgs, &bound_message(&bindings.0, &binding), now);
+            bindings.0.bind(binding);
+            return Some(true);
+        }
+        BindStep::ConfirmReset if answer == "y" => {
+            bindings.0.reset();
+            log(msgs, "Key bindings removed.", now);
+            return Some(true);
+        }
+        BindStep::WaitKey { .. } => pending.0 = Some(step), // still waiting for the key
+        _ => {
+            log(msgs, "Not changed.", now);
+            if answer == "n" {
+                return Some(false);
             }
-            BindStep::ConfirmReset if answer == "y" => {
-                bindings.0.reset();
-                log(msgs, "Key bindings removed.", now);
-                return Some(true);
-            }
-            BindStep::WaitKey { .. } => pending.0 = Some(step), // still waiting for the key
-            _ => {
-                log(msgs, "Not changed.", now);
-                if answer == "n" {
-                    return Some(false);
-                }
-                // Any other text drops the question and is handled as typed.
-            }
+            // Any other text drops the question and is handled as typed.
         }
     }
-    let changed = match parse_typed(text)? {
+    None
+}
+
+/// Logs the numbered key bindings, or that there are none.
+fn list_bindings(bindings: &KeyBindings, msgs: &mut Msgs, now: f32) {
+    if bindings.0.list.is_empty() {
+        log(msgs, "No key bindings.", now);
+        return;
+    }
+    for line in bindings.0.numbered(MAC) {
+        log(msgs, &line, now);
+    }
+}
+
+/// Removes the 1-based binding `n` and says so; true when one was removed.
+fn remove_binding(n: usize, bindings: &mut KeyBindings, msgs: &mut Msgs, now: f32) -> bool {
+    match n.checked_sub(1).and_then(|i| bindings.0.remove(i)) {
+        Some(b) => {
+            log(msgs, &format!("Unbound {}.", b.combo.text(MAC)), now);
+            true
+        }
+        None => {
+            log(msgs, &format!("No binding {n}."), now);
+            false
+        }
+    }
+}
+
+/// Runs one parsed `bind`/`unbind` command; true when the bindings changed.
+fn run_typed(typed: Typed, pending: &mut PendingBind, bindings: &mut KeyBindings, msgs: &mut Msgs, now: f32) -> bool {
+    match typed {
         Typed::Bind { all, edit, command } => {
             log(msgs, &format!("Press a key for: {command}"), now);
             pending.0 = Some(BindStep::WaitKey { all, edit, command });
@@ -91,69 +133,64 @@ fn typed_bind(text: &str, pending: &mut PendingBind, bindings: &mut KeyBindings,
             log(msgs, "bind [-nfregc] <command>   unbind [<number>|reset]", now);
             false
         }
-        Typed::List if bindings.0.list.is_empty() => {
-            log(msgs, "No key bindings.", now);
-            false
-        }
         Typed::List => {
-            for line in bindings.0.numbered(MAC) {
-                log(msgs, &line, now);
-            }
+            list_bindings(bindings, msgs, now);
             false
         }
-        Typed::Remove(n) => match n.checked_sub(1).and_then(|i| bindings.0.remove(i)) {
-            Some(b) => {
-                log(msgs, &format!("Unbound {}.", b.combo.text(MAC)), now);
-                true
-            }
-            None => {
-                log(msgs, &format!("No binding {n}."), now);
-                false
-            }
-        },
+        Typed::Remove(n) => remove_binding(n, bindings, msgs, now),
         Typed::Reset => {
             log(msgs, "Remove all key bindings of this character? Type y or n.", now);
             pending.0 = Some(BindStep::ConfirmReset);
             false
         }
-    };
-    Some(changed)
+    }
+}
+
+/// A typed `bind`/`unbind` line, or the answer to a bind question. False: not ours,
+/// send it to the server.
+fn typed_bind(text: &str, pending: &mut PendingBind, bindings: &mut KeyBindings, msgs: &mut Msgs, now: f32) -> Option<bool> {
+    if let Some(changed) = answer_pending(text, pending, bindings, msgs, now) {
+        return Some(changed);
+    }
+    Some(run_typed(parse_typed(text)?, pending, bindings, msgs, now))
+}
+
+/// The bind question state and the log it writes to.
+#[derive(SystemParam)]
+pub struct BindState<'w> {
+    pending: ResMut<'w, PendingBind>,
+    bindings: ResMut<'w, KeyBindings>,
+    msgs: ResMut<'w, Msgs>,
 }
 
 /// After a typed `bind`: the next key pressed (with its modifiers) gets the command.
 /// Runs after `world_keys`, which ignores that key press.
-pub fn capture_bind_key(
-    keys: Res<ButtonInput<KeyCode>>,
-    time: Res<Time>,
-    mut pending: ResMut<PendingBind>,
-    mut bindings: ResMut<KeyBindings>,
-    mut msgs: ResMut<Msgs>,
-    session: Option<NonSend<Session>>,
-) {
+pub fn capture_bind_key(keys: Res<ButtonInput<KeyCode>>, time: Res<Time>, mut st: BindState, session: Option<NonSend<Session>>) {
+    let BindState { pending, bindings, msgs } = &mut st;
     let Some(BindStep::WaitKey { all, edit, command }) = &pending.0 else { return };
     let Some(key) = keys.get_just_pressed().find_map(|k| key_name(*k)) else { return };
     let now = time.elapsed_secs();
     let combo = Combo { mods: held_mods(&keys), key: key.into() };
     if key == "Escape" && combo.mods.none() {
-        log(&mut msgs, "Cancelled.", now);
+        log(msgs, "Cancelled.", now);
         pending.0 = None;
         return;
     }
     let binding = Binding { all: *all, combo, edit: *edit, command: command.clone() };
     match bind_question(&bindings.0, &binding.combo, &binding.command, MAC) {
         Err(reason) => {
-            log(&mut msgs, &format!("{}: {reason}.", binding.combo.text(MAC)), now);
+            log(msgs, &format!("{}: {reason}.", binding.combo.text(MAC)), now);
             pending.0 = None;
         }
         Ok(Some(question)) => {
-            log(&mut msgs, &question, now);
+            log(msgs, &question, now);
             pending.0 = Some(BindStep::Confirm { binding });
         }
         Ok(None) => {
-            log(&mut msgs, &bound_message(&bindings.0, &binding), now);
+            log(msgs, &bound_message(&bindings.0, &binding), now);
             bindings.0.bind(binding);
             pending.0 = None;
-            save(&bindings, &session, &mut msgs, now);
+            save(bindings, &session, msgs, now);
         }
     }
 }
@@ -177,41 +214,51 @@ impl Default for LoginForm {
     }
 }
 
-pub fn login_screen(
-    mut contexts: EguiContexts,
-    mut form: ResMut<LoginForm>,
-    status: Res<Status>,
-    mut settings_open: ResMut<crate::settings_ui::SettingsOpen>,
-    mut commands: Commands,
-    session: Option<NonSend<Session>>,
-) -> Result {
+/// The login form fields, the status line and the Settings window flag.
+#[derive(SystemParam)]
+pub struct LoginState<'w> {
+    form: ResMut<'w, LoginForm>,
+    status: Res<'w, Status>,
+    settings_open: ResMut<'w, crate::settings_ui::SettingsOpen>,
+}
+
+/// Draws the login fields and buttons; returns whether Connect was clicked.
+fn login_form(ui: &mut egui::Ui, form: &mut LoginForm, status: &Status, settings_open: &mut crate::settings_ui::SettingsOpen) -> bool {
+    egui::Grid::new("login").num_columns(2).show(ui, |ui| {
+        ui.label("Server");
+        ui.text_edit_singleline(&mut form.server);
+        ui.end_row();
+        ui.label("Account");
+        ui.text_edit_singleline(&mut form.account);
+        ui.end_row();
+        ui.label("Password");
+        ui.add(egui::TextEdit::singleline(&mut form.password).password(true));
+        ui.end_row();
+    });
+    ui.checkbox(&mut form.new_account, "New account");
+    let mut connect = false;
+    ui.horizontal(|ui| {
+        connect = ui.button("Connect").clicked();
+        if ui.button("Settings").clicked() {
+            settings_open.0 = true;
+        }
+    });
+    if !status.0.is_empty() {
+        ui.label(&status.0);
+    }
+    connect
+}
+
+/// Draws the login window and starts the connection.
+pub fn login_screen(mut contexts: EguiContexts, mut st: LoginState, mut commands: Commands, session: Option<NonSend<Session>>) -> Result {
+    let LoginState { form, status, settings_open } = &mut st;
     // Connected: the character screens show instead.
     if settings_open.0 || session.is_some() {
         return Ok(());
     }
     let mut connect = false;
     egui::Window::new("Crossfir3d").collapsible(false).resizable(false).show(contexts.ctx_mut()?, |ui| {
-        egui::Grid::new("login").num_columns(2).show(ui, |ui| {
-            ui.label("Server");
-            ui.text_edit_singleline(&mut form.server);
-            ui.end_row();
-            ui.label("Account");
-            ui.text_edit_singleline(&mut form.account);
-            ui.end_row();
-            ui.label("Password");
-            ui.add(egui::TextEdit::singleline(&mut form.password).password(true));
-            ui.end_row();
-        });
-        ui.checkbox(&mut form.new_account, "New account");
-        ui.horizontal(|ui| {
-            connect = ui.button("Connect").clicked();
-            if ui.button("Settings").clicked() {
-                settings_open.0 = true;
-            }
-        });
-        if !status.0.is_empty() {
-            ui.label(&status.0);
-        }
+        connect = login_form(ui, form, status, settings_open);
     });
     if connect {
         let creds = Creds {
@@ -235,6 +282,7 @@ fn queue_connect(commands: &mut Commands, server: String, creds: Creds) {
     });
 }
 
+/// Opens the connection and starts the login flow, or shows why it failed.
 fn connect(world: &mut World, server: &str, creds: Creds) {
     match crossfir3d::net::connect(server) {
         Ok(net) => {
@@ -290,62 +338,75 @@ pub fn line_action(open: bool, enter: bool, escape: bool) -> LineAction {
     }
 }
 
+/// Everything `command_line` reads or changes in a frame, except egui and the session.
+#[derive(bevy::ecs::system::SystemParam)]
+pub struct LineParams<'w> {
+    line: ResMut<'w, CommandLine>,
+    keys: Res<'w, ButtonInput<KeyCode>>,
+    time: Res<'w, Time>,
+    mode: ResMut<'w, KeyMode>,
+    last: ResMut<'w, LastAction>,
+    seq: ResMut<'w, NcomSeq>,
+    query: ResMut<'w, PendingQuery>,
+    anim: ResMut<'w, crate::characters3d::PlayerAnimEvents>,
+    pending: ResMut<'w, PendingBind>,
+    bindings: ResMut<'w, KeyBindings>,
+    msgs: ResMut<'w, Msgs>,
+}
+
 /// Enter opens a one-line box; Enter again sends the text as a command; Escape cancels.
-pub fn command_line(
-    mut contexts: EguiContexts,
-    mut line: ResMut<CommandLine>,
-    keys: Res<ButtonInput<KeyCode>>,
-    time: Res<Time>,
-    mut mode: ResMut<KeyMode>,
-    mut last: ResMut<LastAction>,
-    mut seq: ResMut<NcomSeq>,
-    mut query: ResMut<PendingQuery>,
-    mut anim: ResMut<crate::characters3d::PlayerAnimEvents>,
-    (mut pending, mut bindings, mut msgs): (ResMut<PendingBind>, ResMut<KeyBindings>, ResMut<Msgs>),
-    session: Option<NonSend<Session>>,
-) -> Result {
-    if !command_line_allowed(mode.0) {
+pub fn command_line(mut contexts: EguiContexts, mut p: LineParams, session: Option<NonSend<Session>>) -> Result {
+    if !command_line_allowed(p.mode.0) {
         return Ok(());
     }
     // A bound shift+Enter (or the like) runs its binding, not the command box.
-    let enter = keys.just_pressed(KeyCode::Enter) && (line.open || !key_taken(&bindings, &keys, KeyCode::Enter));
-    match line_action(line.open, enter, keys.just_pressed(KeyCode::Escape)) {
+    let enter = p.keys.just_pressed(KeyCode::Enter) && (p.line.open || !key_taken(&p.bindings, &p.keys, KeyCode::Enter));
+    match line_action(p.line.open, enter, p.keys.just_pressed(KeyCode::Escape)) {
         LineAction::Open => {
-            line.open = true;
-            mode.0 = Mode::CommandLine;
+            p.line.open = true;
+            p.mode.0 = Mode::CommandLine;
         }
         LineAction::Cancel => {
-            line.open = false;
-            line.text.clear();
-            mode.0 = Mode::World;
+            p.line.open = false;
+            p.line.text.clear();
+            p.mode.0 = Mode::World;
         }
-        LineAction::Submit => {
-            let command = std::mem::take(&mut line.text);
-            line.open = false;
-            mode.0 = Mode::World;
-            let now = time.elapsed_secs();
-            if let Some(changed) = typed_bind(&command, &mut pending, &mut bindings, &mut msgs, now) {
-                if changed {
-                    save(&bindings, &session, &mut msgs, now);
-                }
-                return Ok(());
-            }
-            last.0 = Some(now);
-            if let (Some(session), false) = (session, command.trim().is_empty()) {
-                anim.0.extend(crossfir3d::anim::event_for_command(command.trim()));
-                session.send([submit_message(command, query.0, seq.next())]);
-                query.0 = false;
-            }
-        }
+        LineAction::Submit => submit_line(&mut p, session),
         LineAction::Nothing => {}
     }
-    if line.open {
-        let bottom = egui::Window::new("command").title_bar(false).resizable(false);
-        bottom.anchor(egui::Align2::CENTER_BOTTOM, [0.0, -10.0]).show(contexts.ctx_mut()?, |ui| {
-            ui.text_edit_singleline(&mut line.text).request_focus();
-        });
+    if p.line.open {
+        line_window(contexts.ctx_mut()?, &mut p.line.text);
     }
     Ok(())
+}
+
+/// The one-line text box anchored at the bottom of the screen.
+fn line_window(ctx: &egui::Context, text: &mut String) {
+    let bottom = egui::Window::new("command").title_bar(false).resizable(false);
+    bottom.anchor(egui::Align2::CENTER_BOTTOM, [0.0, -10.0]).show(ctx, |ui| {
+        ui.text_edit_singleline(text).request_focus();
+    });
+}
+
+/// Closes the box: typed_bind first (save on change, then stop), else stamp `last`, and send to the
+/// server only when there is a session and the text is not blank, with the anim event and `query.0 = false`.
+fn submit_line(p: &mut LineParams, session: Option<NonSend<Session>>) {
+    let command = std::mem::take(&mut p.line.text);
+    p.line.open = false;
+    p.mode.0 = Mode::World;
+    let now = p.time.elapsed_secs();
+    if let Some(changed) = typed_bind(&command, &mut p.pending, &mut p.bindings, &mut p.msgs, now) {
+        if changed {
+            save(&p.bindings, &session, &mut p.msgs, now);
+        }
+        return;
+    }
+    p.last.0 = Some(now);
+    if let (Some(session), false) = (session, command.trim().is_empty()) {
+        p.anim.0.extend(crossfir3d::anim::event_for_command(command.trim()));
+        session.send([submit_message(command, p.query.0, p.seq.next())]);
+        p.query.0 = false;
+    }
 }
 
 /// The command box text as a message: an answer if the server asked a question.
@@ -374,6 +435,88 @@ mod tests {
         p.0 = Some(BindStep::ConfirmReset);
         assert_eq!(typed_bind("unbind", &mut p, &mut b, &mut m, 0.0), Some(false)); // handled as typed
         assert!(p.0.is_none());
+    }
+
+    fn g() -> Binding {
+        Binding { all: false, combo: Combo { mods: Mods::default(), key: "G".into() }, edit: false, command: "say g".into() }
+    }
+
+    /// Runs `text` with `step` pending and `n` bindings: (return, logged lines, pending after, bindings after).
+    fn run(text: &str, step: Option<BindStep>, n: usize) -> (Option<bool>, Vec<String>, PendingBind, KeyBindings) {
+        let (mut p, mut b, mut m) = (PendingBind(step), KeyBindings::default(), Msgs::default());
+        for i in 0..n {
+            b.0.bind(Binding { combo: Combo { mods: Mods::default(), key: ["G", "H"][i].into() }, ..g() });
+        }
+        let r = typed_bind(text, &mut p, &mut b, &mut m, 0.0);
+        (r, m.0.log.iter().cloned().collect(), p, b)
+    }
+
+    #[test]
+    fn typed_bind_answers() {
+        let (r, l, p, b) = run(" Y ", Some(BindStep::Confirm { binding: g() }), 0);
+        assert_eq!((r, l, p.0.is_none(), b.0.list.len()), (Some(true), vec!["Bound g to say g.".to_string()], true, 1));
+        let (r, l, p, b) = run("n", Some(BindStep::Confirm { binding: g() }), 0);
+        assert_eq!((r, l, p.0.is_none(), b.0.list.len()), (Some(false), vec!["Not changed.".to_string()], true, 0));
+        let (r, l, p, b) = run("y", Some(BindStep::ConfirmReset), 2);
+        assert_eq!((r, l, p.0.is_none(), b.0.list.len()), (Some(true), vec!["Key bindings removed.".to_string()], true, 0));
+        let (r, l, p, b) = run("n", Some(BindStep::ConfirmReset), 2);
+        assert_eq!((r, l, p.0.is_none(), b.0.list.len()), (Some(false), vec!["Not changed.".to_string()], true, 2));
+    }
+
+    #[test]
+    fn typed_bind_unrelated_text_after_question() {
+        for step in [BindStep::Confirm { binding: g() }, BindStep::ConfirmReset] {
+            let (r, l, p, b) = run("shout hi", Some(step), 1);
+            assert_eq!((r, l, p.0.is_none(), b.0.list.len()), (None, vec!["Not changed.".to_string()], true, 1));
+        }
+        let (r, l, p, _) = run("bind say x", Some(BindStep::ConfirmReset), 0);
+        assert_eq!(r, Some(false));
+        assert_eq!(l, ["Not changed.", "Press a key for: say x"]);
+        assert!(p.waiting_key());
+    }
+
+    #[test]
+    fn typed_bind_wait_key_keeps_waiting() {
+        let wait = || BindStep::WaitKey { all: true, edit: false, command: "say w".into() };
+        for text in ["y", "n", "shout hi"] {
+            let (r, l, p, _) = run(text, Some(wait()), 0);
+            assert_eq!((r, l.is_empty(), p.waiting_key()), (None, true, true), "{text}");
+        }
+        let (r, l, p, _) = run("unbind 9", Some(wait()), 0);
+        assert_eq!((r, l, p.waiting_key()), (Some(false), vec!["No binding 9.".to_string()], true));
+        let (r, l, p, _) = run("bind say x", Some(wait()), 0);
+        assert_eq!((r, l, p.waiting_key()), (Some(false), vec!["Press a key for: say x".to_string()], true));
+        assert!(matches!(p.0, Some(BindStep::WaitKey { all: false, edit: false, ref command }) if command == "say x"));
+    }
+
+    #[test]
+    fn typed_bind_commands() {
+        assert_eq!(run("say hi", None, 0).0, None);
+        for (text, line) in [
+            ("bind firekey1", "Not supported."),
+            ("bind", "bind [-nfregc] <command>   unbind [<number>|reset]"),
+            ("unbind", "No key bindings."),
+            ("unbind 0", "No binding 0."),
+            ("unbind 1", "No binding 1."),
+            ("unbind x", "bind [-nfregc] <command>   unbind [<number>|reset]"),
+        ] {
+            let (r, l, p, b) = run(text, None, 0);
+            assert_eq!((r, l, p.0.is_none(), b.0.list.len()), (Some(false), vec![line.to_string()], true, 0), "{text}");
+        }
+        let (r, l, _, b) = run("unbind", None, 2);
+        assert_eq!((r, l, b.0.list.len()), (Some(false), vec!["1. g  say g".to_string(), "2. h  say g".to_string()], 2));
+        let (r, l, _, b) = run("unbind 0", None, 1);
+        assert_eq!((r, l, b.0.list.len()), (Some(false), vec!["No binding 0.".to_string()], 1));
+        let (r, l, _, b) = run("unbind 2", None, 1);
+        assert_eq!((r, l, b.0.list.len()), (Some(false), vec!["No binding 2.".to_string()], 1));
+        let (r, l, _, b) = run("unbind 1", None, 2);
+        assert_eq!((r, l, b.0.list.len()), (Some(true), vec!["Unbound g.".to_string()], 1));
+        let (r, l, p, b) = run("unbind reset", None, 1);
+        assert_eq!((r, l, b.0.list.len()), (Some(false), vec!["Remove all key bindings of this character? Type y or n.".to_string()], 1));
+        assert!(matches!(p.0, Some(BindStep::ConfirmReset)));
+        let (r, l, p, _) = run("bind -g say hello", None, 0);
+        assert_eq!((r, l), (Some(false), vec!["Press a key for: say hello".to_string()]));
+        assert!(matches!(p.0, Some(BindStep::WaitKey { all: true, edit: false, ref command }) if command == "say hello"));
     }
 
     #[test]

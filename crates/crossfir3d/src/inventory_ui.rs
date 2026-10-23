@@ -1,11 +1,13 @@
 //! Full-screen inventory (I): carried items with open bags, the ground, spells, stats.
 
+use bevy::ecs::system::SystemParam;
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts, EguiTextureHandle};
-use cfproto::{ClientMsg, Inventory, Item};
+use cfproto::{ClientMsg, Inventory, Item, Spell, Stats};
 use crossfir3d::modes::Mode;
 use crossfir3d::slots::{default_slots_path, save_slots, Slot};
 
+use crate::ui::{overlay_window, GOLD};
 use crate::{Inv, KeyMode, LastAction, PlayerStats, Session, Slots, Spells};
 
 /// Height of the item and spell pictures in the lists.
@@ -15,8 +17,6 @@ const ICON: f32 = 22.0;
 fn icon_size(px: Vec2) -> egui::Vec2 {
     egui::vec2(ICON * px.x / px.y.max(1.0), ICON)
 }
-
-const GOLD: egui::Color32 = egui::Color32::from_rgb(0xc9, 0xa2, 0x4a);
 
 /// Carried items, each open container followed by its contents one level deeper:
 /// (depth, tag).
@@ -53,6 +53,7 @@ pub struct InvSel {
     pub container: Option<u32>,
 }
 
+/// Writes an item's name with its applied, open, unpaid and locked marks.
 fn item_text(item: &Item) -> String {
     let mut s = if item.nrof > 1 { format!("{} {}", item.nrof, item.plural) } else { item.name.clone() };
     if item.applied() {
@@ -70,31 +71,37 @@ fn item_text(item: &Item) -> String {
     s
 }
 
-#[allow(clippy::too_many_arguments)]
-pub fn inventory_screen(
-    mut contexts: EguiContexts,
-    keys: Res<ButtonInput<KeyCode>>,
-    time: Res<Time>,
-    mode: Res<KeyMode>,
-    inv: Res<Inv>,
-    spells: Res<Spells>,
-    stats: Res<PlayerStats>,
-    mut slots: ResMut<Slots>,
-    mut sel: ResMut<InvSel>,
-    mut last: ResMut<LastAction>,
-    textures: Res<crate::world::Textures>,
-    session: Option<NonSend<Session>>,
-) -> Result {
-    if mode.0 != Mode::Inventory {
-        return Ok(());
-    }
-    let inv = &inv.0;
-    let items = item_rows(inv);
-    let ground: Vec<u32> = inv.ground().iter().map(|i| i.tag).filter(|&t| t != inv.player).collect(); // not you
-    let spell_list = spells.0.all();
-    let lens = [items.len(), ground.len(), spell_list.len()];
+/// Everything the inventory screen reads or changes in a frame.
+#[derive(SystemParam)]
+pub struct InventoryParams<'w, 's> {
+    contexts: EguiContexts<'w, 's>,
+    keys: Res<'w, ButtonInput<KeyCode>>,
+    time: Res<'w, Time>,
+    mode: Res<'w, KeyMode>,
+    inv: Res<'w, Inv>,
+    spells: Res<'w, Spells>,
+    stats: Res<'w, PlayerStats>,
+    slots: ResMut<'w, Slots>,
+    sel: ResMut<'w, InvSel>,
+    last: ResMut<'w, LastAction>,
+    textures: Res<'w, crate::world::Textures>,
+    session: Option<NonSend<'w, Session>>,
+}
 
-    // Arrow keys only: WASD letters are actions here (D = drop).
+/// What the three columns list this frame.
+struct Lists<'a> {
+    inv: &'a Inventory,
+    items: Vec<(usize, u32)>,
+    ground: Vec<u32>,
+    spells: Vec<&'a Spell>,
+}
+
+/// Each item's and spell's picture, as egui textures and sizes.
+type Icons = std::collections::HashMap<u32, (egui::TextureId, egui::Vec2)>;
+
+/// Arrow keys move the cursor, then it is kept on an entry that is left.
+/// Arrow keys only: WASD letters are actions here (D = drop).
+fn move_cursor(keys: &ButtonInput<KeyCode>, sel: &mut InvSel, lens: [usize; 3]) {
     if keys.just_pressed(KeyCode::ArrowLeft) {
         sel.column = sel.column.saturating_sub(1);
     }
@@ -109,30 +116,37 @@ pub fn inventory_screen(
     }
     // A deleted or moved entry: stay on the nearest one that is left.
     sel.row = sel.row.min(lens[sel.column].saturating_sub(1));
+}
 
-    let selected_tag = match sel.column {
-        0 => items.get(sel.row).map(|(_, t)| *t),
-        1 => ground.get(sel.row).copied(),
+/// The item under the cursor; in the items column an open one becomes the container for G.
+fn selected_item<'a>(lists: &Lists<'a>, sel: &mut InvSel) -> Option<&'a Item> {
+    let tag = match sel.column {
+        0 => lists.items.get(sel.row).map(|(_, t)| *t),
+        1 => lists.ground.get(sel.row).copied(),
         _ => None,
     };
-    let selected_item = selected_tag.and_then(|t| inv.get(t));
+    let item = tag.and_then(|t| lists.inv.get(t));
     if sel.column == 0 {
-        sel.container = selected_item.filter(|i| i.open()).map(|i| i.tag);
+        sel.container = item.filter(|i| i.open()).map(|i| i.tag);
     }
+    item
+}
 
-    let mut send: Vec<ClientMsg> = Vec::new();
-    if let Some(item) = selected_item
+/// The server commands for E apply, D drop, G get and X examine on the selected item.
+fn item_commands(keys: &ButtonInput<KeyCode>, inv: &Inventory, item: Option<&Item>, container: Option<u32>) -> Vec<ClientMsg> {
+    let mut send = Vec::new();
+    if let Some(item) = item
         && keys.just_pressed(KeyCode::KeyE)
     {
         send.push(ClientMsg::Apply(item.tag));
     }
     // A page entry only pages (E); dropping, getting or examining it does nothing.
-    if let Some(item) = selected_item.filter(|i| !crossfir3d::messages::is_page_entry(i.tag)) {
+    if let Some(item) = item.filter(|i| !crossfir3d::messages::is_page_entry(i.tag)) {
         if keys.just_pressed(KeyCode::KeyD) && item.location != 0 {
             send.push(ClientMsg::Move { to: 0, tag: item.tag, count: item.nrof });
         }
         if keys.just_pressed(KeyCode::KeyG) {
-            if let Some(to) = get_target(inv, item, sel.container) {
+            if let Some(to) = get_target(inv, item, container) {
                 send.push(ClientMsg::Move { to, tag: item.tag, count: item.nrof });
             }
         }
@@ -140,102 +154,158 @@ pub fn inventory_screen(
             send.push(ClientMsg::Examine(item.tag));
         }
     }
+    send
+}
+
+/// What a quick slot would hold: the selected spell, or the selected item.
+fn slot_under_cursor(lists: &Lists, sel: &InvSel, item: Option<&Item>) -> Option<Slot> {
+    match sel.column {
+        2 => lists.spells.get(sel.row).map(|s| Slot::Spell(s.name.clone())),
+        _ => item.map(|it| Slot::Item(it.name.clone())),
+    }
+}
+
+/// Keys 1-4 put `slot` on a quick slot and save the slots.
+fn quick_slot(keys: &ButtonInput<KeyCode>, slot: Option<Slot>, slots: &mut Slots, session: Option<&Session>) {
     let digit = [KeyCode::Digit1, KeyCode::Digit2, KeyCode::Digit3, KeyCode::Digit4].iter().position(|k| keys.just_pressed(*k));
-    if let Some(i) = digit {
-        let slot = match sel.column {
-            2 => spell_list.get(sel.row).map(|s| Slot::Spell(s.name.clone())),
-            _ => selected_item.map(|it| Slot::Item(it.name.clone())),
-        };
-        if let (Some(slot), Some(session)) = (slot, &session) {
-            slots.0 .0[i] = Some(slot);
-            if let Err(e) = save_slots(&default_slots_path(), session.login.character(), &slots.0) {
-                warn!("could not save quick slots: {e}");
-            }
+    let Some(i) = digit else { return };
+    if let (Some(slot), Some(session)) = (slot, session) {
+        slots.0 .0[i] = Some(slot);
+        if let Err(e) = save_slots(&default_slots_path(), session.login.character(), &slots.0) {
+            warn!("could not save quick slots: {e}");
         }
     }
-    if let (false, Some(session)) = (send.is_empty(), &session) {
-        last.0 = Some(time.elapsed_secs());
-        session.send(send);
-    }
+}
 
-    // Each item's and spell's picture, as egui textures (faces still on the way: none).
-    let faces = items.iter().map(|(_, t)| *t).chain(ground.iter().copied()).filter_map(|t| inv.get(t)).map(|i| i.face);
-    let mut icons = std::collections::HashMap::new();
-    for face in faces.chain(spell_list.iter().map(|s| s.face)) {
+/// Each item's and spell's picture, as egui textures (faces still on the way: none).
+fn build_icons(contexts: &mut EguiContexts, textures: &crate::world::Textures, lists: &Lists) -> Icons {
+    let faces = lists.items.iter().map(|(_, t)| *t).chain(lists.ground.iter().copied()).filter_map(|t| lists.inv.get(t)).map(|i| i.face);
+    let mut icons = Icons::new();
+    for face in faces.chain(lists.spells.iter().map(|s| s.face)) {
         if let Some((h, px)) = textures.picture(face as u16) {
             icons.entry(face).or_insert_with(|| (contexts.add_image(EguiTextureHandle::Weak(h.id())), icon_size(px)));
         }
     }
-    // A row: the picture (or a gap of its width), then the selectable text.
-    let row = |ui: &mut egui::Ui, face: u32, selected: bool, text: egui::RichText| {
-        ui.horizontal(|ui| {
-            match icons.get(&face) {
-                Some(&(id, size)) => {
-                    ui.add(egui::Image::new((id, size)));
-                }
-                None => ui.add_space(ICON),
+    icons
+}
+
+/// A row: the picture (or a gap of its width), then the selectable text.
+fn row(ui: &mut egui::Ui, icons: &Icons, face: u32, selected: bool, text: egui::RichText) -> egui::Response {
+    ui.horizontal(|ui| {
+        match icons.get(&face) {
+            Some(&(id, size)) => {
+                ui.add(egui::Image::new((id, size)));
             }
-            ui.selectable_label(selected, text)
-        })
-        .inner
-    };
-    let ctx = contexts.ctx_mut()?;
-    let frame = egui::Frame::new()
-        .fill(egui::Color32::from_rgba_unmultiplied(20, 22, 30, 238))
-        .stroke(egui::Stroke::new(2.0, GOLD))
-        .corner_radius(8.0)
-        .inner_margin(16.0);
+            None => ui.add_space(ICON),
+        }
+        ui.selectable_label(selected, text)
+    })
+    .inner
+}
+
+/// A gold bold label that titles a column.
+fn heading(ui: &mut egui::Ui, t: &str) {
+    ui.label(egui::RichText::new(t).color(GOLD).strong());
+}
+
+/// A heading and its rows (index, face, selected, text); the index of the clicked row.
+fn column(ui: &mut egui::Ui, title: &str, icons: &Icons, rows: impl Iterator<Item = (usize, u32, bool, egui::RichText)>) -> Option<usize> {
+    heading(ui, title);
+    let mut clicked = None;
+    for (i, face, selected, text) in rows {
+        if row(ui, icons, face, selected, text).clicked() {
+            clicked = Some(i);
+        }
+    }
+    clicked
+}
+
+/// An item's text, indented by `depth`, red if cursed.
+fn item_rich(item: &Item, depth: usize) -> egui::RichText {
+    let text = format!("{}{}", "    ".repeat(depth), item_text(item));
+    if item.cursed() { egui::RichText::new(text).color(egui::Color32::LIGHT_RED) } else { egui::RichText::new(text) }
+}
+
+/// A spell's text: name, level and what it costs.
+fn spell_text(s: &Spell) -> String {
+    let cost = if s.grace > 0 { format!("{} grace", s.grace) } else { format!("{} mana", s.mana) };
+    format!("{} (lvl {}, {cost})", s.name, s.level)
+}
+
+/// The stats block under the spells.
+fn stats_block(ui: &mut egui::Ui, st: &Stats) {
+    ui.add_space(16.0);
+    heading(ui, "STATS");
+    ui.label(format!(
+        "Str {}  Dex {}  Con {}  Wis {}\nCha {}  Int {}  Pow {}\nLevel {}  Exp {}",
+        st.str_, st.dex, st.con, st.wis, st.cha, st.int, st.pow, st.level, st.exp
+    ));
+}
+
+/// The items and ground columns; the (column, row) clicked, if any.
+fn draw_item_columns(cols: &mut [egui::Ui], lists: &Lists, icons: &Icons, sel: &InvSel) -> Option<(usize, usize)> {
+    let at = |c: usize, i: usize| sel.column == c && sel.row == i;
+    // `i` counts every entry, also the ones skipped for a tag missing from the inventory.
+    let items = lists.items.iter().enumerate().filter_map(|(i, (depth, tag))| {
+        let item = lists.inv.get(*tag)?;
+        Some((i, item.face, at(0, i), item_rich(item, *depth)))
+    });
+    let items = column(&mut cols[0], "ITEMS", icons, items).map(|i| (0, i));
+    let ground = lists.ground.iter().enumerate().filter_map(|(i, tag)| {
+        let item = lists.inv.get(*tag)?;
+        Some((i, item.face, at(1, i), egui::RichText::new(item_text(item))))
+    });
+    let ground = column(&mut cols[1], "ON THE GROUND", icons, ground).map(|i| (1, i));
+    ground.or(items)
+}
+
+/// The three columns and the stats; the (column, row) clicked, if any.
+fn draw_columns(cols: &mut [egui::Ui], lists: &Lists, icons: &Icons, sel: &InvSel, stats: &Stats) -> Option<(usize, usize)> {
+    let clicked = draw_item_columns(cols, lists, icons, sel);
+    let spells = lists.spells.iter().enumerate().map(|(i, s)| (i, s.face, sel.column == 2 && sel.row == i, egui::RichText::new(spell_text(s))));
+    let spells = column(&mut cols[2], "SPELLS", icons, spells).map(|i| (2, i));
+    stats_block(&mut cols[2], stats);
+    spells.or(clicked)
+}
+
+/// The inventory window; the (column, row) clicked, if any.
+fn draw_window(ctx: &egui::Context, lists: &Lists, icons: &Icons, sel: &InvSel, stats: &Stats) -> Option<(usize, usize)> {
     let screen = ctx.content_rect().shrink(24.0);
-    let mut clicked: Option<(usize, usize)> = None;
-    egui::Window::new("inventory")
-        .title_bar(false)
-        .resizable(false)
-        .movable(false)
-        .fixed_rect(screen)
-        .frame(frame)
+    overlay_window("inventory", screen, 16.0)
         .show(ctx, |ui| {
             ui.set_min_size(screen.size() - egui::vec2(32.0, 32.0));
             ui.label(egui::RichText::new("I or Esc: close · arrows: select · E apply · D drop · G get · X examine · 1-4 quick slot").small());
             ui.add_space(8.0);
-            ui.columns(3, |cols| {
-                let heading = |ui: &mut egui::Ui, t: &str| {
-                    ui.label(egui::RichText::new(t).color(GOLD).strong());
-                };
-                heading(&mut cols[0], "ITEMS");
-                for (i, (depth, tag)) in items.iter().enumerate() {
-                    let Some(item) = inv.get(*tag) else { continue };
-                    let text = format!("{}{}", "    ".repeat(*depth), item_text(item));
-                    let rich = if item.cursed() { egui::RichText::new(text).color(egui::Color32::LIGHT_RED) } else { egui::RichText::new(text) };
-                    if row(&mut cols[0], item.face, sel.column == 0 && sel.row == i, rich).clicked() {
-                        clicked = Some((0, i));
-                    }
-                }
-                heading(&mut cols[1], "ON THE GROUND");
-                for (i, tag) in ground.iter().enumerate() {
-                    let Some(item) = inv.get(*tag) else { continue };
-                    if row(&mut cols[1], item.face, sel.column == 1 && sel.row == i, egui::RichText::new(item_text(item))).clicked() {
-                        clicked = Some((1, i));
-                    }
-                }
-                heading(&mut cols[2], "SPELLS");
-                for (i, s) in spell_list.iter().enumerate() {
-                    let cost = if s.grace > 0 { format!("{} grace", s.grace) } else { format!("{} mana", s.mana) };
-                    let text = format!("{} (lvl {}, {cost})", s.name, s.level);
-                    if row(&mut cols[2], s.face, sel.column == 2 && sel.row == i, egui::RichText::new(text)).clicked() {
-                        clicked = Some((2, i));
-                    }
-                }
-                cols[2].add_space(16.0);
-                heading(&mut cols[2], "STATS");
-                let st = &stats.0;
-                cols[2].label(format!(
-                    "Str {}  Dex {}  Con {}  Wis {}\nCha {}  Int {}  Pow {}\nLevel {}  Exp {}",
-                    st.str_, st.dex, st.con, st.wis, st.cha, st.int, st.pow, st.level, st.exp
-                ));
-            });
-        });
+            ui.columns(3, |cols| draw_columns(cols, lists, icons, sel, stats))
+        })
+        .and_then(|r| r.inner)
+        .flatten()
+}
+
+/// Runs the inventory screen: moves the cursor, sends item commands and draws the window.
+pub fn inventory_screen(mut p: InventoryParams) -> Result {
+    if p.mode.0 != Mode::Inventory {
+        return Ok(());
+    }
+    let inv = &p.inv.0;
+    let ground = inv.ground().iter().map(|i| i.tag).filter(|&t| t != inv.player).collect(); // not you
+    let lists = Lists { inv, items: item_rows(inv), ground, spells: p.spells.0.all() };
+
+    move_cursor(&p.keys, &mut p.sel, [lists.items.len(), lists.ground.len(), lists.spells.len()]);
+    let item = selected_item(&lists, &mut p.sel);
+    let send = item_commands(&p.keys, inv, item, p.sel.container);
+    let slot = slot_under_cursor(&lists, &p.sel, item);
+    quick_slot(&p.keys, slot, &mut p.slots, p.session.as_deref());
+    if let (false, Some(session)) = (send.is_empty(), &p.session) {
+        p.last.0 = Some(p.time.elapsed_secs());
+        session.send(send);
+    }
+
+    let icons = build_icons(&mut p.contexts, &p.textures, &lists);
+    let ctx = p.contexts.ctx_mut()?;
+    let clicked = draw_window(ctx, &lists, &icons, &p.sel, &p.stats.0);
     if let Some((column, row)) = clicked {
-        (sel.column, sel.row) = (column, row);
+        (p.sel.column, p.sel.row) = (column, row);
     }
     Ok(())
 }

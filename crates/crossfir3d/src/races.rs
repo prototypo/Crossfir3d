@@ -31,28 +31,34 @@ pub const RACES: [(&str, &str); 14] = [
     ("pl_half_orc", "half orc"),
 ];
 
+const BROWN: [f32; 3] = [0.45, 0.3, 0.2];
+const CLOTH: [f32; 3] = [0.45, 0.4, 0.3];
+
+/// The look of each race arch except human, which is the fallback.
+const LOOKS: [(&str, Look); 13] = [
+    ("elf_player", look(1.02, [0.95, 0.85, 0.75], [0.9, 0.85, 0.6], [0.3, 0.5, 0.3])),
+    ("dwarf_player", look(0.78, [0.85, 0.65, 0.5], [0.6, 0.3, 0.15], [0.5, 0.35, 0.25])),
+    ("gnome_player", look(0.7, [0.9, 0.72, 0.6], [0.8, 0.8, 0.8], [0.6, 0.25, 0.25])),
+    ("halfling_player", look(0.72, [0.9, 0.7, 0.55], [0.5, 0.3, 0.15], [0.4, 0.5, 0.25])),
+    ("northman_player", look(1.12, [0.95, 0.8, 0.7], [0.85, 0.7, 0.4], [0.35, 0.35, 0.5])),
+    ("fenx_player", look(0.92, [0.85, 0.5, 0.2], [0.95, 0.9, 0.85], [0.35, 0.45, 0.25])),
+    ("fireborn_player", look(1.0, [0.95, 0.4, 0.15], [1.0, 0.75, 0.2], [0.6, 0.2, 0.1])),
+    ("quetzalcoatl_player", look(1.1, [0.3, 0.6, 0.35], [0.9, 0.3, 0.2], [0.8, 0.7, 0.2])),
+    ("serpentman_player", look(1.0, [0.45, 0.6, 0.3], [0.2, 0.3, 0.15], [0.5, 0.45, 0.3])),
+    ("troll_player", look(1.3, [0.45, 0.55, 0.45], [0.2, 0.2, 0.2], [0.4, 0.3, 0.2])),
+    ("wraith_player", look(1.0, [0.8, 0.82, 0.88], [0.9, 0.9, 0.95], [0.25, 0.25, 0.3])),
+    ("pl_dragon", look(0.95, [0.75, 0.15, 0.1], [0.3, 0.1, 0.05], [0.9, 0.6, 0.1])),
+    ("pl_half_orc", look(1.06, [0.5, 0.58, 0.4], [0.15, 0.15, 0.15], BROWN)),
+];
+
+const fn look(scale: f32, skin: [f32; 3], hair: [f32; 3], clothes: [f32; 3]) -> Look {
+    Look { scale, skin, hair, clothes }
+}
+
 /// Accepts a race arch ("dwarf_player") or display name ("dwarf"). Unknown: human.
 pub fn look_for_race(race: &str) -> Look {
     let arch = RACES.iter().find(|(a, n)| *a == race || *n == race).map_or("human_player", |(a, _)| *a);
-    let look = |scale, skin, hair, clothes| Look { scale, skin, hair, clothes };
-    let brown = [0.45, 0.3, 0.2];
-    let cloth = [0.45, 0.4, 0.3];
-    match arch {
-        "elf_player" => look(1.02, [0.95, 0.85, 0.75], [0.9, 0.85, 0.6], [0.3, 0.5, 0.3]),
-        "dwarf_player" => look(0.78, [0.85, 0.65, 0.5], [0.6, 0.3, 0.15], [0.5, 0.35, 0.25]),
-        "gnome_player" => look(0.7, [0.9, 0.72, 0.6], [0.8, 0.8, 0.8], [0.6, 0.25, 0.25]),
-        "halfling_player" => look(0.72, [0.9, 0.7, 0.55], [0.5, 0.3, 0.15], [0.4, 0.5, 0.25]),
-        "northman_player" => look(1.12, [0.95, 0.8, 0.7], [0.85, 0.7, 0.4], [0.35, 0.35, 0.5]),
-        "fenx_player" => look(0.92, [0.85, 0.5, 0.2], [0.95, 0.9, 0.85], [0.35, 0.45, 0.25]),
-        "fireborn_player" => look(1.0, [0.95, 0.4, 0.15], [1.0, 0.75, 0.2], [0.6, 0.2, 0.1]),
-        "quetzalcoatl_player" => look(1.1, [0.3, 0.6, 0.35], [0.9, 0.3, 0.2], [0.8, 0.7, 0.2]),
-        "serpentman_player" => look(1.0, [0.45, 0.6, 0.3], [0.2, 0.3, 0.15], [0.5, 0.45, 0.3]),
-        "troll_player" => look(1.3, [0.45, 0.55, 0.45], [0.2, 0.2, 0.2], [0.4, 0.3, 0.2]),
-        "wraith_player" => look(1.0, [0.8, 0.82, 0.88], [0.9, 0.9, 0.95], [0.25, 0.25, 0.3]),
-        "pl_dragon" => look(0.95, [0.75, 0.15, 0.1], [0.3, 0.1, 0.05], [0.9, 0.6, 0.1]),
-        "pl_half_orc" => look(1.06, [0.5, 0.58, 0.4], [0.15, 0.15, 0.15], brown),
-        _ => look(1.0, [0.9, 0.72, 0.6], brown, cloth),
-    }
+    LOOKS.iter().find(|(a, _)| *a == arch).map_or(look(1.0, [0.9, 0.72, 0.6], BROWN, CLOTH), |(_, l)| *l)
 }
 
 /// The look as multipliers for the model's own colours. Skin and clothes textures are a
@@ -89,58 +95,63 @@ pub enum PlayerFace {
     Class(&'static str),
 }
 
+/// Race picture names and the race arch each shows.
+const RACE_FACES: [(&str, &str); 15] = [
+    ("dwarf_p", "dwarf_player"),
+    ("elf", "elf_player"),
+    ("fenx", "fenx_player"),
+    ("fireborn", "fireborn_player"),
+    ("gnome_p", "gnome_player"),
+    ("halfling", "halfling_player"),
+    ("human", "human_player"),
+    ("viking", "northman_player"),
+    ("pl_dragon_r", "pl_dragon"),
+    ("pl_half_orc", "pl_half_orc"),
+    ("quetzalcoatl", "quetzalcoatl_player"),
+    ("serpentman", "serpentman_player"),
+    ("troll_p", "troll_player"),
+    ("wraithp", "wraith_player"),
+    ("mountain_dwarf", "dwarf_player"),
+];
+
+/// Race picture name starts. Action and race+class pictures: dwarf_player_class_barbarian,
+/// fenx_sword, pl_dragon_bl_spellcasting, wraith_player_feeding.
+const RACE_PREFIXES: [(&str, &str); 5] = [
+    ("dwarf_player_", "dwarf_player"),
+    ("elf_player_", "elf_player"),
+    ("fenx_", "fenx_player"),
+    ("pl_dragon_", "pl_dragon"),
+    ("wraith_player_", "wraith_player"),
+];
+
+/// Class picture names and the class arch each shows.
+const CLASS_FACES: [(&str, &str); 22] = [
+    ("alchemist", "alchemist_class"),
+    ("barbarian", "barbarian_class"),
+    ("wizard_white", "devotee_class"),
+    ("evoker", "evoker_class"),
+    ("monk", "monk_class"),
+    ("ninja", "ninja_class"),
+    ("paladin", "paladin_class"),
+    ("priestnew", "priest_class"),
+    ("ranger", "ranger_class"),
+    ("sorcerer", "sorcerer_class"),
+    ("wizard_yellow", "summoner_class"),
+    ("swashbuckl", "swashbuckler_class"),
+    ("thief", "thief_class"),
+    ("mage", "warlock_class"),
+    ("warrior", "warrior_class"),
+    ("wizard", "wizard_class"),
+    ("cleric", "priest_class"),
+    ("priest", "priest_class"),
+    ("sorcerer_hat", "sorcerer_class"),
+    ("wizard_blue", "wizard_class"),
+    ("wizard_green", "wizard_class"),
+    ("wizard_purple", "wizard_class"),
+];
+
 /// What a map picture name ("wizard.171", "dwarf_p.151") says about a player.
 pub fn classify_player_face(face_name: &str) -> Option<PlayerFace> {
-    const RACE_FACES: [(&str, &str); 15] = [
-        ("dwarf_p", "dwarf_player"),
-        ("elf", "elf_player"),
-        ("fenx", "fenx_player"),
-        ("fireborn", "fireborn_player"),
-        ("gnome_p", "gnome_player"),
-        ("halfling", "halfling_player"),
-        ("human", "human_player"),
-        ("viking", "northman_player"),
-        ("pl_dragon_r", "pl_dragon"),
-        ("pl_half_orc", "pl_half_orc"),
-        ("quetzalcoatl", "quetzalcoatl_player"),
-        ("serpentman", "serpentman_player"),
-        ("troll_p", "troll_player"),
-        ("wraithp", "wraith_player"),
-        ("mountain_dwarf", "dwarf_player"),
-    ];
-    // Action and race+class pictures: dwarf_player_class_barbarian, fenx_sword,
-    // pl_dragon_bl_spellcasting, wraith_player_feeding.
-    const RACE_PREFIXES: [(&str, &str); 5] = [
-        ("dwarf_player_", "dwarf_player"),
-        ("elf_player_", "elf_player"),
-        ("fenx_", "fenx_player"),
-        ("pl_dragon_", "pl_dragon"),
-        ("wraith_player_", "wraith_player"),
-    ];
-    const CLASS_FACES: [(&str, &str); 22] = [
-        ("alchemist", "alchemist_class"),
-        ("barbarian", "barbarian_class"),
-        ("wizard_white", "devotee_class"),
-        ("evoker", "evoker_class"),
-        ("monk", "monk_class"),
-        ("ninja", "ninja_class"),
-        ("paladin", "paladin_class"),
-        ("priestnew", "priest_class"),
-        ("ranger", "ranger_class"),
-        ("sorcerer", "sorcerer_class"),
-        ("wizard_yellow", "summoner_class"),
-        ("swashbuckl", "swashbuckler_class"),
-        ("thief", "thief_class"),
-        ("mage", "warlock_class"),
-        ("warrior", "warrior_class"),
-        ("wizard", "wizard_class"),
-        ("cleric", "priest_class"),
-        ("priest", "priest_class"),
-        ("sorcerer_hat", "sorcerer_class"),
-        ("wizard_blue", "wizard_class"),
-        ("wizard_green", "wizard_class"),
-        ("wizard_purple", "wizard_class"),
-    ];
     let base = face_name.split('.').next().unwrap_or(face_name);
     let find = |table: &[(&str, &'static str)]| table.iter().find(|(f, _)| *f == base).map(|(_, a)| *a);
     let prefixed = || RACE_PREFIXES.iter().find(|(p, _)| base.starts_with(p)).map(|(_, a)| *a);
@@ -150,20 +161,29 @@ pub fn classify_player_face(face_name: &str) -> Option<PlayerFace> {
         .or_else(|| find(&CLASS_FACES).map(PlayerFace::Class))
 }
 
+/// The clothes colour of each class arch; classes may share a colour.
+const CLASS_CLOTHES: [(&str, [f32; 3]); 16] = [
+    ("warrior_class", [0.5, 0.35, 0.25]),
+    ("barbarian_class", [0.5, 0.35, 0.25]),
+    ("paladin_class", [0.8, 0.8, 0.85]),
+    ("wizard_class", [0.25, 0.3, 0.6]),
+    ("evoker_class", [0.25, 0.3, 0.6]),
+    ("sorcerer_class", [0.25, 0.3, 0.6]),
+    ("devotee_class", [0.85, 0.82, 0.7]),
+    ("priest_class", [0.85, 0.82, 0.7]),
+    ("monk_class", [0.85, 0.82, 0.7]),
+    ("summoner_class", [0.7, 0.6, 0.2]),
+    ("alchemist_class", [0.7, 0.6, 0.2]),
+    ("warlock_class", [0.35, 0.15, 0.4]),
+    ("thief_class", [0.15, 0.15, 0.18]),
+    ("ninja_class", [0.15, 0.15, 0.18]),
+    ("ranger_class", [0.25, 0.45, 0.25]),
+    ("swashbuckler_class", [0.6, 0.2, 0.2]),
+];
+
 /// A clothes colour per class, so other players look different by class.
 pub fn clothes_for_class(class_arch: &str) -> [f32; 3] {
-    match class_arch {
-        "warrior_class" | "barbarian_class" => [0.5, 0.35, 0.25],
-        "paladin_class" => [0.8, 0.8, 0.85],
-        "wizard_class" | "evoker_class" | "sorcerer_class" => [0.25, 0.3, 0.6],
-        "devotee_class" | "priest_class" | "monk_class" => [0.85, 0.82, 0.7],
-        "summoner_class" | "alchemist_class" => [0.7, 0.6, 0.2],
-        "warlock_class" => [0.35, 0.15, 0.4],
-        "thief_class" | "ninja_class" => [0.15, 0.15, 0.18],
-        "ranger_class" => [0.25, 0.45, 0.25],
-        "swashbuckler_class" => [0.6, 0.2, 0.2],
-        _ => [0.45, 0.4, 0.3],
-    }
+    CLASS_CLOTHES.iter().find(|(c, _)| *c == class_arch).map_or(CLOTH, |(_, c)| *c)
 }
 
 #[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
@@ -237,6 +257,35 @@ mod tests {
     }
 
     #[test]
+    fn every_race_look_unchanged() {
+        let brown = [0.45, 0.3, 0.2];
+        let cloth = [0.45, 0.4, 0.3];
+        let rows: [(&str, &str, Look); 14] = [
+            ("human_player", "human", Look { scale: 1.0, skin: [0.9, 0.72, 0.6], hair: brown, clothes: cloth }),
+            ("elf_player", "elf", Look { scale: 1.02, skin: [0.95, 0.85, 0.75], hair: [0.9, 0.85, 0.6], clothes: [0.3, 0.5, 0.3] }),
+            ("dwarf_player", "dwarf", Look { scale: 0.78, skin: [0.85, 0.65, 0.5], hair: [0.6, 0.3, 0.15], clothes: [0.5, 0.35, 0.25] }),
+            ("gnome_player", "gnome", Look { scale: 0.7, skin: [0.9, 0.72, 0.6], hair: [0.8, 0.8, 0.8], clothes: [0.6, 0.25, 0.25] }),
+            ("halfling_player", "halfling", Look { scale: 0.72, skin: [0.9, 0.7, 0.55], hair: [0.5, 0.3, 0.15], clothes: [0.4, 0.5, 0.25] }),
+            ("northman_player", "northman", Look { scale: 1.12, skin: [0.95, 0.8, 0.7], hair: [0.85, 0.7, 0.4], clothes: [0.35, 0.35, 0.5] }),
+            ("fenx_player", "fenx", Look { scale: 0.92, skin: [0.85, 0.5, 0.2], hair: [0.95, 0.9, 0.85], clothes: [0.35, 0.45, 0.25] }),
+            ("fireborn_player", "fireborn", Look { scale: 1.0, skin: [0.95, 0.4, 0.15], hair: [1.0, 0.75, 0.2], clothes: [0.6, 0.2, 0.1] }),
+            ("quetzalcoatl_player", "quetzalcoatl", Look { scale: 1.1, skin: [0.3, 0.6, 0.35], hair: [0.9, 0.3, 0.2], clothes: [0.8, 0.7, 0.2] }),
+            ("serpentman_player", "serpentfolk", Look { scale: 1.0, skin: [0.45, 0.6, 0.3], hair: [0.2, 0.3, 0.15], clothes: [0.5, 0.45, 0.3] }),
+            ("troll_player", "troll", Look { scale: 1.3, skin: [0.45, 0.55, 0.45], hair: [0.2, 0.2, 0.2], clothes: [0.4, 0.3, 0.2] }),
+            ("wraith_player", "wraith", Look { scale: 1.0, skin: [0.8, 0.82, 0.88], hair: [0.9, 0.9, 0.95], clothes: [0.25, 0.25, 0.3] }),
+            ("pl_dragon", "fire hatchling", Look { scale: 0.95, skin: [0.75, 0.15, 0.1], hair: [0.3, 0.1, 0.05], clothes: [0.9, 0.6, 0.1] }),
+            ("pl_half_orc", "half orc", Look { scale: 1.06, skin: [0.5, 0.58, 0.4], hair: [0.15, 0.15, 0.15], clothes: brown }),
+        ];
+        for (arch, name, look) in rows {
+            assert_eq!(look_for_race(arch), look, "{arch}");
+            assert_eq!(look_for_race(name), look, "{name}");
+        }
+        let human = rows[0].2;
+        assert_eq!(look_for_race(""), human);
+        assert_eq!(look_for_race("martian"), human);
+    }
+
+    #[test]
     fn unknown_race_is_human() {
         assert_eq!(look_for_race("martian"), look_for_race("human"));
     }
@@ -283,6 +332,21 @@ mod tests {
     }
 
     #[test]
+    fn player_faces_from_every_table() {
+        let f = classify_player_face;
+        assert_eq!(f("viking.111"), Some(PlayerFace::Race("northman_player")));
+        assert_eq!(f("mountain_dwarf.151"), Some(PlayerFace::Race("dwarf_player")));
+        assert_eq!(f("wraithp.111"), Some(PlayerFace::Race("wraith_player")));
+        assert_eq!(f("fenx_sword.111"), Some(PlayerFace::Race("fenx_player")));
+        assert_eq!(f("dwarf_player_class_barbarian.111"), Some(PlayerFace::Race("dwarf_player")));
+        assert_eq!(f("pl_dragon_bl_spellcasting.111"), Some(PlayerFace::Race("pl_dragon")));
+        assert_eq!(f("mage.111"), Some(PlayerFace::Class("warlock_class")));
+        assert_eq!(f("cleric.111"), Some(PlayerFace::Class("priest_class")));
+        assert_eq!(f("wizard_purple.111"), Some(PlayerFace::Class("wizard_class")));
+        assert_eq!(f("x"), None);
+    }
+
+    #[test]
     fn every_stock_player_picture_is_known() {
         let race = |f| classify_player_face(f);
         assert_eq!(race("dwarf_player_class_barbarian.151"), Some(PlayerFace::Race("dwarf_player")));
@@ -306,6 +370,26 @@ mod tests {
     fn classes_have_distinct_clothes() {
         assert_ne!(clothes_for_class("wizard_class"), clothes_for_class("warrior_class"));
         let _ = clothes_for_class("unknown_class");
+    }
+
+    #[test]
+    fn every_class_has_its_clothes() {
+        let rows: [(&str, [f32; 3]); 16] = [
+            ("warrior", [0.5, 0.35, 0.25]), ("barbarian", [0.5, 0.35, 0.25]),
+            ("paladin", [0.8, 0.8, 0.85]),
+            ("wizard", [0.25, 0.3, 0.6]), ("evoker", [0.25, 0.3, 0.6]), ("sorcerer", [0.25, 0.3, 0.6]),
+            ("devotee", [0.85, 0.82, 0.7]), ("priest", [0.85, 0.82, 0.7]), ("monk", [0.85, 0.82, 0.7]),
+            ("summoner", [0.7, 0.6, 0.2]), ("alchemist", [0.7, 0.6, 0.2]),
+            ("warlock", [0.35, 0.15, 0.4]),
+            ("thief", [0.15, 0.15, 0.18]), ("ninja", [0.15, 0.15, 0.18]),
+            ("ranger", [0.25, 0.45, 0.25]),
+            ("swashbuckler", [0.6, 0.2, 0.2]),
+        ];
+        for (name, colour) in rows {
+            assert_eq!(clothes_for_class(&format!("{name}_class")), colour, "{name}");
+        }
+        assert_eq!(clothes_for_class(""), [0.45, 0.4, 0.3]);
+        assert_eq!(clothes_for_class("x_class"), [0.45, 0.4, 0.3]);
     }
 
     #[test]

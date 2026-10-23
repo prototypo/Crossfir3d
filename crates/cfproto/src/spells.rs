@@ -20,21 +20,40 @@ pub struct Spell {
     pub message: String,
 }
 
+/// Parses an addspell packet into the list of spells the server sends.
 pub fn parse_addspell(data: &[u8]) -> Result<Vec<Spell>, ParseError> {
     let mut r = Reader(data);
     let mut out = Vec::new();
     while !r.0.is_empty() {
-        let tag = r.u32()?;
-        let [level, casting_time, mana, grace, damage] = [(); 5].map(|_| r.u16().map(|v| v as i16));
-        let (level, casting_time, mana, grace, damage) = (level?, casting_time?, mana?, grace?, damage?);
-        let (skill, path, face) = (r.u8()?, r.u32()?, r.u32()?);
-        let len = r.u8()? as usize;
-        let name = String::from_utf8_lossy(r.take(len)?).into_owned();
-        let len = r.u16()? as usize;
-        let message = String::from_utf8_lossy(r.take(len)?).into_owned();
-        out.push(Spell { tag, level, casting_time, mana, grace, damage, skill, path, face, name, message });
+        out.push(read_spell(&mut r)?);
     }
     Ok(out)
+}
+
+/// Reads one spell record; the fields are read in wire order.
+fn read_spell(r: &mut Reader) -> Result<Spell, ParseError> {
+    let tag = r.u32()?;
+    let [level, casting_time, mana, grace, damage] = read_costs(r)?;
+    let (skill, path, face) = (r.u8()?, r.u32()?, r.u32()?);
+    let len = r.u8()? as usize;
+    let name = read_text(r, len)?;
+    let len = r.u16()? as usize;
+    let message = read_text(r, len)?;
+    Ok(Spell { tag, level, casting_time, mana, grace, damage, skill, path, face, name, message })
+}
+
+/// Reads the five i16 values: level, casting time, mana, grace, damage.
+fn read_costs(r: &mut Reader) -> Result<[i16; 5], ParseError> {
+    let mut v = [0; 5];
+    for x in &mut v {
+        *x = r.u16()? as i16;
+    }
+    Ok(v)
+}
+
+/// Reads `len` bytes as text, replacing invalid UTF-8.
+fn read_text(r: &mut Reader, len: usize) -> Result<String, ParseError> {
+    Ok(String::from_utf8_lossy(r.take(len)?).into_owned())
 }
 
 /// (tag, mana, grace, damage); each value only if its flag bit (0x01, 0x02, 0x04) is set.
@@ -98,6 +117,49 @@ pub(crate) mod tests {
         b.extend_from_slice(&5u16.to_be_bytes());
         b.extend_from_slice(b"Burns");
         b
+    }
+
+    const GOLDEN: (u64, usize, usize) = (17415989996775463756, 4698, 3799);
+
+    /// Next value of a 64-bit linear congruential generator.
+    fn lcg(state: &mut u64) -> u64 {
+        *state = state.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+        *state >> 33
+    }
+
+    /// Input `i`: even = 0..3 valid records cut short by 0..3 bytes, odd = random bytes.
+    fn random_input(state: &mut u64, i: usize) -> Vec<u8> {
+        if i % 2 == 1 {
+            let n = lcg(state) % 40;
+            return (0..n).map(|_| lcg(state) as u8).collect();
+        }
+        let mut d = Vec::new();
+        for k in 0..lcg(state) % 4 {
+            d.extend(spell_bytes(lcg(state) as u32, lcg(state) as i16, &"n".repeat((lcg(state) % 6 + k) as usize)));
+        }
+        d.truncate(d.len().saturating_sub((lcg(state) % 4) as usize));
+        d
+    }
+
+    /// FNV-1a 64-bit hash of `{:?}` of every result, plus the Ok count and total spells parsed.
+    fn golden_stats(parse: fn(&[u8]) -> Result<Vec<Spell>, ParseError>) -> (u64, usize, usize) {
+        let (mut state, mut hash, mut oks, mut spells) = (12345u64, 0xcbf29ce484222325u64, 0, 0);
+        for i in 0..20_000 {
+            let result = parse(&random_input(&mut state, i));
+            if let Ok(v) = &result {
+                oks += 1;
+                spells += v.len();
+            }
+            for b in format!("{:?}", result).bytes() {
+                hash = (hash ^ b as u64).wrapping_mul(0x100000001b3);
+            }
+        }
+        (hash, oks, spells)
+    }
+
+    #[test]
+    fn parse_addspell_golden() {
+        assert_eq!(golden_stats(parse_addspell), GOLDEN);
     }
 
     #[test]

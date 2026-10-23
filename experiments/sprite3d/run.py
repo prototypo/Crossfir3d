@@ -56,6 +56,7 @@ def approaches():
 
 
 def convert():
+    """Runs every enabled approach on every object, skipping models that already exist."""
     for _, arch, picture in objects():
         src = os.path.join(ARCH, picture)
         for name, _, cmd in approaches():
@@ -104,6 +105,7 @@ def write_map(category, arch, models):
 
 
 def shoot():
+    """Builds the game and screenshots each object's card beside its models, then labels the picture."""
     os.makedirs(SHOTS, exist_ok=True)
     subprocess.run(["cargo", "build", "--release", "-p", "crossfir3d"], cwd=ROOT, check=True)
     for category, arch, picture in objects():

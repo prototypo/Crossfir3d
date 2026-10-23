@@ -36,64 +36,75 @@ const BEAT_AFTER: Duration = Duration::from_millis(2500);
 /// while connecting).
 pub const CONNECT_TIMEOUT: Duration = Duration::from_secs(5);
 
-pub fn connect(addr: &str) -> io::Result<Net> {
+/// Tries each resolved address in turn and returns the first stream that connects.
+fn open_stream(addr: &str) -> io::Result<TcpStream> {
     let mut last = io::Error::new(io::ErrorKind::NotFound, format!("no address for {addr}"));
-    let mut stream = None;
     for a in addr.to_socket_addrs()? {
         match TcpStream::connect_timeout(&a, CONNECT_TIMEOUT) {
-            Ok(s) => {
-                stream = Some(s);
-                break;
-            }
+            Ok(s) => return Ok(s),
             Err(e) => last = e,
         }
     }
-    let stream = stream.ok_or(last)?;
+    Err(last)
+}
+
+/// The text shown to the player when reading from the server fails.
+fn disconnect_reason(e: &io::Error) -> String {
+    if e.kind() == io::ErrorKind::UnexpectedEof { "server closed the connection".into() } else { format!("connection lost: {e}") }
+}
+
+/// Reader thread body: parses frames into events until the connection ends, then reports why.
+fn read_loop(mut reader: TcpStream, in_tx: Sender<NetEvent>, dump: Option<PathBuf>) {
+    let reason = loop {
+        let payload = match cfproto::read_frame(&mut reader) {
+            Ok(p) => p,
+            Err(e) => break disconnect_reason(&e),
+        };
+        if let Some(dir) = &dump {
+            dump_packet(dir, &payload);
+        }
+        match cfproto::parse(&payload) {
+            Ok(ServerMsg::Goodbye) => {
+                let _ = in_tx.send(NetEvent::Msg(ServerMsg::Goodbye));
+                break "server said goodbye".to_string();
+            }
+            Ok(msg) => {
+                if in_tx.send(NetEvent::Msg(msg)).is_err() {
+                    return; // app is gone
+                }
+            }
+            Err(e) => eprintln!("dropped bad packet: {}", e.0),
+        }
+    };
+    let _ = in_tx.send(NetEvent::Disconnected(reason));
+}
+
+/// Writer thread body: sends queued messages, and a Beat whenever the queue stays quiet.
+fn write_loop(mut writer: TcpStream, out_rx: Receiver<ClientMsg>) {
+    loop {
+        let msg = match out_rx.recv_timeout(BEAT_AFTER) {
+            Ok(m) => m,
+            Err(RecvTimeoutError::Timeout) => ClientMsg::Beat,
+            Err(RecvTimeoutError::Disconnected) => return,
+        };
+        if cfproto::write_frame(&mut writer, &msg.encode()).is_err() {
+            return; // the reader thread reports the disconnect
+        }
+    }
+}
+
+/// Opens the server connection and starts its reader and writer threads.
+pub fn connect(addr: &str) -> io::Result<Net> {
+    let stream = open_stream(addr)?;
     stream.set_nodelay(true)?;
-    let mut reader = stream.try_clone()?;
-    let mut writer = stream.try_clone()?;
+    let reader = stream.try_clone()?;
+    let writer = stream.try_clone()?;
     let (tx, out_rx) = mpsc::channel::<ClientMsg>();
     let (in_tx, rx) = mpsc::channel();
     let dump = std::env::var_os("CROSSFIR3D_DUMP").map(PathBuf::from);
 
-    thread::spawn(move || {
-        let reason = loop {
-            let payload = match cfproto::read_frame(&mut reader) {
-                Ok(p) => p,
-                Err(e) if e.kind() == io::ErrorKind::UnexpectedEof => break "server closed the connection".into(),
-                Err(e) => break format!("connection lost: {e}"),
-            };
-            if let Some(dir) = &dump {
-                dump_packet(dir, &payload);
-            }
-            match cfproto::parse(&payload) {
-                Ok(ServerMsg::Goodbye) => {
-                    let _ = in_tx.send(NetEvent::Msg(ServerMsg::Goodbye));
-                    break "server said goodbye".to_string();
-                }
-                Ok(msg) => {
-                    if in_tx.send(NetEvent::Msg(msg)).is_err() {
-                        return; // app is gone
-                    }
-                }
-                Err(e) => eprintln!("dropped bad packet: {}", e.0),
-            }
-        };
-        let _ = in_tx.send(NetEvent::Disconnected(reason));
-    });
-
-    thread::spawn(move || {
-        loop {
-            let msg = match out_rx.recv_timeout(BEAT_AFTER) {
-                Ok(m) => m,
-                Err(RecvTimeoutError::Timeout) => ClientMsg::Beat,
-                Err(RecvTimeoutError::Disconnected) => return,
-            };
-            if cfproto::write_frame(&mut writer, &msg.encode()).is_err() {
-                return; // the reader thread reports the disconnect
-            }
-        }
-    });
+    thread::spawn(move || read_loop(reader, in_tx, dump));
+    thread::spawn(move || write_loop(writer, out_rx));
 
     Ok(Net { tx, rx, stream })
 }

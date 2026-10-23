@@ -142,49 +142,65 @@ pub fn skill_command(name: &str) -> String {
     format!("use_skill {name}")
 }
 
+/// Each key the game uses by itself, with its job.
+const GAME_KEYS: &[(&str, &str)] = &[
+    ("Up", "move"),
+    ("Down", "move"),
+    ("Left", "move"),
+    ("Right", "move"),
+    ("A", "apply"),
+    ("E", "apply"),
+    ("G", "get"),
+    ("I", "inventory"),
+    ("B", "what is below"),
+    ("L", "log"),
+    ("M", "mute"),
+    ("C", "camera behind"),
+    ("T", "face nearest"),
+    ("F", "look at face"),
+    ("Space", "fire"),
+    ("Tab", "top view"),
+    ("1", "quick slot"),
+    ("2", "quick slot"),
+    ("3", "quick slot"),
+    ("4", "quick slot"),
+];
+
 /// The game's own job for a key pressed alone (a binding may replace it, after asking).
 pub fn game_key(combo: &Combo) -> Option<&'static str> {
     if !combo.mods.none() {
         return None;
     }
-    Some(match combo.key.as_str() {
-        "Up" | "Down" | "Left" | "Right" => "move",
-        "A" | "E" => "apply",
-        "G" => "get",
-        "I" => "inventory",
-        "B" => "what is below",
-        "L" => "log",
-        "M" => "mute",
-        "C" => "camera behind",
-        "T" => "face nearest",
-        "F" => "look at face",
-        "Space" => "fire",
-        "Tab" => "top view",
-        "1" | "2" | "3" | "4" => "quick slot",
-        _ => return None,
-    })
+    GAME_KEYS.iter().find(|(k, _)| *k == combo.key).map(|(_, job)| *job)
+}
+
+/// Plain keys the game itself uses, with why they can't be bound.
+const GAME_RESERVED: [(&str, &str); 3] =
+    [("Escape", "Escape closes screens"), ("K", "K opens this screen"), ("Enter", "Enter opens the command box")];
+
+/// Why an unmodified key is the game's own, if it is.
+fn game_reserved(key: &str) -> Option<&'static str> {
+    GAME_RESERVED.iter().find(|(k, _)| *k == key).map(|(_, why)| *why)
+}
+
+/// Why a key with these modifiers belongs to the system: Cmd+key on macOS, Alt+key elsewhere.
+fn system_reserved(mods: Mods, key: &str, mac: bool) -> Option<&'static str> {
+    let cmd = Mods { cmd: true, ..Default::default() };
+    let alt = Mods { alt: true, ..Default::default() };
+    match mac {
+        true if mods == cmd && matches!(key, "Q" | "W" | "H" | "M" | "Tab" | "Space") => Some("used by macOS"),
+        false if mods == alt && matches!(key, "F4" | "Tab") => Some("used by the system"),
+        _ => None,
+    }
 }
 
 /// Why a combination can never be bound: the way back out, or the system's own keys.
 pub fn reserved(combo: &Combo, mac: bool) -> Option<&'static str> {
-    let m = combo.mods;
     let key = combo.key.as_str();
-    if m.none() {
-        match key {
-            "Escape" => return Some("Escape closes screens"),
-            "K" => return Some("K opens this screen"),
-            "Enter" => return Some("Enter opens the command box"),
-            _ => {}
-        }
+    if let (true, Some(why)) = (combo.mods.none(), game_reserved(key)) {
+        return Some(why);
     }
-    let only = |want: Mods| m == want;
-    let cmd = Mods { cmd: true, ..Default::default() };
-    let alt = Mods { alt: true, ..Default::default() };
-    match mac {
-        true if only(cmd) && matches!(key, "Q" | "W" | "H" | "M" | "Tab" | "Space") => Some("used by macOS"),
-        false if only(alt) && matches!(key, "F4" | "Tab") => Some("used by the system"),
-        _ => None,
-    }
+    system_reserved(combo.mods, key, mac)
 }
 
 /// Before binding `command` to `combo`: Err(reason) if it can never be bound,
@@ -226,27 +242,35 @@ pub fn parse_typed(line: &str) -> Option<Typed> {
     let (word, rest) = line.trim().split_once(' ').unwrap_or((line.trim(), ""));
     let rest = rest.trim();
     match word {
-        "bind" => {
-            let (mut all, mut edit, mut command) = (false, false, rest);
-            if let Some(flags) = rest.strip_prefix('-') {
-                let (flags, after) = flags.split_once(' ').unwrap_or((flags, ""));
-                if !flags.chars().all(|c| "nfregc".contains(c)) {
-                    return Some(Typed::Usage);
-                }
-                (all, edit, command) = (flags.contains('g'), flags.contains('e'), after.trim());
-            }
-            Some(match command {
-                "" => Typed::Usage,
-                c if SPECIAL_BINDS.contains(&c) => Typed::Special(c.into()),
-                c => Typed::Bind { all, edit, command: c.into() },
-            })
-        }
-        "unbind" => Some(match rest {
-            "" => Typed::List,
-            "reset" => Typed::Reset,
-            n => n.parse().map_or(Typed::Usage, Typed::Remove),
-        }),
+        "bind" => Some(parse_bind(rest)),
+        "unbind" => Some(parse_unbind(rest)),
         _ => None,
+    }
+}
+
+/// The arguments of `bind`: optional `-nfregc` flags, then the command.
+fn parse_bind(rest: &str) -> Typed {
+    let (mut all, mut edit, mut command) = (false, false, rest);
+    if let Some(flags) = rest.strip_prefix('-') {
+        let (flags, after) = flags.split_once(' ').unwrap_or((flags, ""));
+        if !flags.chars().all(|c| "nfregc".contains(c)) {
+            return Typed::Usage;
+        }
+        (all, edit, command) = (flags.contains('g'), flags.contains('e'), after.trim());
+    }
+    match command {
+        "" => Typed::Usage,
+        c if SPECIAL_BINDS.contains(&c) => Typed::Special(c.into()),
+        c => Typed::Bind { all, edit, command: c.into() },
+    }
+}
+
+/// The arguments of `unbind`: nothing (list), `reset`, or a binding number.
+fn parse_unbind(rest: &str) -> Typed {
+    match rest {
+        "" => Typed::List,
+        "reset" => Typed::Reset,
+        n => n.parse().map_or(Typed::Usage, Typed::Remove),
     }
 }
 
@@ -276,21 +300,28 @@ pub fn load_bindings(path: &Path, character: &str) -> Bindings {
     Bindings { list: text.lines().filter_map(|l| parse_line(l, character)).collect() }
 }
 
+/// Old file lines to keep: other characters', plus our own that do not load.
+fn kept_lines(old: &str, character: &str) -> Vec<String> {
+    // Other characters' lines stay, and so do this character's (and `*`) lines that do
+    // not load (a typo in a hand edit): they are not ours to drop.
+    let ours = |l: &str| matches!(l.split('\t').next(), Some(w) if w == character || w == "*");
+    old.lines().filter(|l| !ours(l) || parse_line(l, character).is_none()).map(String::from).collect()
+}
+
+/// One file line for a binding, with tabs and newlines in the command turned into spaces.
+fn binding_line(x: &Binding, character: &str) -> String {
+    let who = if x.all { "*" } else { character };
+    let mods = if x.combo.mods.none() { "-".to_string() } else { x.combo.mods.names(true).join("+") };
+    let command = x.command.replace(['\t', '\n', '\r'], " ");
+    format!("{who}\t{mods}\t{}\t{}\t{command}", x.combo.key, if x.edit { "e" } else { "-" })
+}
+
 /// Rewrites this character's and the all-characters lines, keeps other characters'
 /// lines, and replaces the file in one rename (a crash cannot leave half a file).
 pub fn save_bindings(path: &Path, character: &str, b: &Bindings) -> io::Result<()> {
     let old = std::fs::read_to_string(path).unwrap_or_default();
-    // Other characters' lines stay, and so do this character's (and `*`) lines that do
-    // not load (a typo in a hand edit): they are not ours to drop.
-    let ours = |l: &str| matches!(l.split('\t').next(), Some(w) if w == character || w == "*");
-    let mut lines: Vec<String> =
-        old.lines().filter(|l| !ours(l) || parse_line(l, character).is_none()).map(String::from).collect();
-    for x in &b.list {
-        let who = if x.all { "*" } else { character };
-        let mods = if x.combo.mods.none() { "-".to_string() } else { x.combo.mods.names(true).join("+") };
-        let command = x.command.replace(['\t', '\n', '\r'], " ");
-        lines.push(format!("{who}\t{mods}\t{}\t{}\t{command}", x.combo.key, if x.edit { "e" } else { "-" }));
-    }
+    let mut lines = kept_lines(&old, character);
+    lines.extend(b.list.iter().map(|x| binding_line(x, character)));
     if let Some(dir) = path.parent() {
         std::fs::create_dir_all(dir)?;
     }
@@ -402,6 +433,43 @@ mod tests {
     }
 
     #[test]
+    fn game_key_every_key() {
+        let job = |k: &str| game_key(&combo(Mods::default(), k));
+        for k in ["Up", "Down", "Left", "Right"] {
+            assert_eq!(job(k), Some("move"));
+        }
+        for k in ["1", "2", "3", "4"] {
+            assert_eq!(job(k), Some("quick slot"));
+        }
+        let rows = [
+            ("A", "apply"),
+            ("E", "apply"),
+            ("G", "get"),
+            ("I", "inventory"),
+            ("B", "what is below"),
+            ("L", "log"),
+            ("M", "mute"),
+            ("C", "camera behind"),
+            ("T", "face nearest"),
+            ("F", "look at face"),
+            ("Space", "fire"),
+            ("Tab", "top view"),
+        ];
+        for (k, want) in rows {
+            assert_eq!(job(k), Some(want));
+        }
+        for k in ["D", "K", "Escape", "5", "g"] {
+            assert_eq!(job(k), None);
+        }
+        let shift = Mods { shift: true, ..Default::default() };
+        let cmd = Mods { cmd: true, ..Default::default() };
+        let ctrl = Mods { ctrl: true, ..Default::default() };
+        assert_eq!(game_key(&combo(shift, "G")), None);
+        assert_eq!(game_key(&combo(cmd, "Up")), None);
+        assert_eq!(game_key(&combo(ctrl, "1")), None);
+    }
+
+    #[test]
     fn reserved_keys() {
         let plain = |k: &str| Combo { mods: Mods::default(), key: k.into() };
         let cmd = |k: &str| Combo { mods: Mods { cmd: true, ..Default::default() }, key: k.into() };
@@ -411,6 +479,52 @@ mod tests {
         assert!(reserved(&cmd("Q"), true).is_some());
         assert!(reserved(&cmd("Q"), false).is_none());
         assert!(reserved(&Combo { mods: Mods { alt: true, ..Default::default() }, key: "F4".into() }, false).is_some());
+    }
+
+    #[test]
+    fn reserved_table() {
+        let m = |shift, alt, cmd| Mods { shift, alt, cmd, ..Default::default() };
+        let (none, cmd, alt, cmd_shift) = (m(false, false, false), m(false, false, true), m(false, true, false), m(true, false, true));
+        let esc = Some("Escape closes screens");
+        let k = Some("K opens this screen");
+        let enter = Some("Enter opens the command box");
+        let mac = Some("used by macOS");
+        let sys = Some("used by the system");
+        // (mods, key, expected on mac, expected elsewhere)
+        let rows = [
+            (none, "Escape", esc, esc),
+            (none, "K", k, k),
+            (none, "Enter", enter, enter),
+            (none, "Q", None, None),
+            (none, "Tab", None, None),
+            (none, "F4", None, None),
+            (none, "A", None, None),
+            (cmd, "Escape", None, None),
+            (cmd, "K", None, None),
+            (cmd, "Enter", None, None),
+            (cmd, "Q", mac, None),
+            (cmd, "W", mac, None),
+            (cmd, "H", mac, None),
+            (cmd, "M", mac, None),
+            (cmd, "Tab", mac, None),
+            (cmd, "Space", mac, None),
+            (cmd, "F4", None, None),
+            (cmd, "A", None, None),
+            (alt, "F4", None, sys),
+            (alt, "Tab", None, sys),
+            (alt, "Q", None, None),
+            (alt, "F5", None, None),
+            (alt, "Up", None, None),
+            (cmd_shift, "Q", None, None),
+            (cmd_shift, "Tab", None, None),
+            (cmd_shift, "F4", None, None),
+            (cmd_shift, "K", None, None),
+        ];
+        for (mods, key, on_mac, elsewhere) in rows {
+            let c = Combo { mods, key: key.into() };
+            assert_eq!(reserved(&c, true), on_mac, "{mods:?} {key} mac");
+            assert_eq!(reserved(&c, false), elsewhere, "{mods:?} {key} other");
+        }
     }
 
     #[test]
@@ -437,6 +551,19 @@ mod tests {
         assert_eq!(parse_typed("unbind 3"), Some(Typed::Remove(3)));
         assert_eq!(parse_typed("unbind reset"), Some(Typed::Reset));
         assert_eq!(parse_typed("unbind x"), Some(Typed::Usage));
+        assert_eq!(parse_typed("bind -"), Some(Typed::Usage));
+        assert_eq!(parse_typed("bind -gx cmd"), Some(Typed::Usage));
+        assert_eq!(
+            parse_typed("bind  -g   spaced  cmd"),
+            Some(Typed::Bind { all: true, edit: false, command: "spaced  cmd".into() })
+        );
+        assert_eq!(parse_typed("unbind 0"), Some(Typed::Remove(0)));
+        assert_eq!(parse_typed("unbind -1"), Some(Typed::Usage));
+        assert_eq!(parse_typed("unbind 99999999999"), Some(Typed::Remove(99999999999)));
+        assert_eq!(
+            parse_typed("  bind x  "),
+            Some(Typed::Bind { all: false, edit: false, command: "x".into() })
+        );
     }
 
     #[test]

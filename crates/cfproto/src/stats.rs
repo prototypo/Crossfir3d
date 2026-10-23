@@ -33,36 +33,49 @@ pub struct Stats {
     pub skills: std::collections::BTreeMap<u8, i64>,
 }
 
+/// Reads an `n`-byte (2, 4 or 8) big-endian signed integer at `i`, if the data is long enough.
+fn read_int(d: &[u8], i: usize, n: usize) -> Option<i64> {
+    let b = d.get(i..i + n)?;
+    Some(match n {
+        2 => i16::from_be_bytes([b[0], b[1]]) as i64,
+        4 => i32::from_be_bytes(b.try_into().ok()?) as i64,
+        _ => i64::from_be_bytes(b.try_into().ok()?),
+    })
+}
+
+/// Reads a length-prefixed text value at `i`; returns it (None if cut short) and the bytes it spans.
+fn read_text(data: &[u8], i: usize) -> (Option<StatValue>, usize) {
+    let len = data.get(i).map_or(0, |&l| l as usize);
+    let text = data.get(i + 1..i + 1 + len).map(|t| StatValue::Text(String::from_utf8_lossy(t).into()));
+    (if data.get(i).is_some() { text } else { None }, 1 + len)
+}
+
+/// Reads the value for `code` at `i`; returns it (None if cut short) and the bytes it spans, or None for an unknown code.
+fn read_value(data: &[u8], i: usize, code: u8) -> Option<(Option<StatValue>, usize)> {
+    Some(match code {
+        17 | 19 | 26 | 29 | 30 | 31 | 55 | 57 => (read_int(data, i, 4).map(StatValue::Int), 4),
+        28 => (read_int(data, i, 8).map(StatValue::Int), 8),
+        20 | 21 | 56 => read_text(data, i),
+        140..=189 => (read_int(data, i + 1, 8).filter(|_| i < data.len()).map(StatValue::Int), 9),
+        1..=10 | 12..=16 | 18 | 22..=25 | 32..=54 | 58 | 100..=117 => (read_int(data, i, 2).map(StatValue::Int), 2),
+        _ => return None,
+    })
+}
+
 /// Parses until the end or the first unknown stat code. Returns what was read and,
 /// for an unknown code or short data, the error.
 pub fn parse_stats(data: &[u8]) -> (Vec<(u8, StatValue)>, Option<ParseError>) {
     let mut out = Vec::new();
     let mut i = 0;
-    let int = |d: &[u8], i: usize, n: usize| -> Option<i64> {
-        let b = d.get(i..i + n)?;
-        Some(match n {
-            2 => i16::from_be_bytes([b[0], b[1]]) as i64,
-            4 => i32::from_be_bytes(b.try_into().ok()?) as i64,
-            _ => i64::from_be_bytes(b.try_into().ok()?),
-        })
-    };
     while i < data.len() {
         let code = data[i];
         i += 1;
-        let short = || Some(ParseError(format!("stats: value for code {code} is cut short")));
-        let (value, size) = match code {
-            17 | 19 | 26 | 29 | 30 | 31 | 55 | 57 => (int(data, i, 4).map(StatValue::Int), 4),
-            28 => (int(data, i, 8).map(StatValue::Int), 8),
-            20 | 21 | 56 => {
-                let len = data.get(i).map_or(0, |&l| l as usize);
-                let text = data.get(i + 1..i + 1 + len).map(|t| StatValue::Text(String::from_utf8_lossy(t).into()));
-                (if data.get(i).is_some() { text } else { None }, 1 + len)
-            }
-            140..=189 => (int(data, i + 1, 8).filter(|_| i < data.len()).map(StatValue::Int), 9),
-            1..=10 | 12..=16 | 18 | 22..=25 | 32..=54 | 58 | 100..=117 => (int(data, i, 2).map(StatValue::Int), 2),
-            _ => return (out, Some(ParseError(format!("stats: unknown code {code}")))),
+        let Some((value, size)) = read_value(data, i, code) else {
+            return (out, Some(ParseError(format!("stats: unknown code {code}"))));
         };
-        let Some(value) = value else { return (out, short()) };
+        let Some(value) = value else {
+            return (out, Some(ParseError(format!("stats: value for code {code} is cut short"))));
+        };
         out.push((code, value));
         i += size;
     }
@@ -70,41 +83,45 @@ pub fn parse_stats(data: &[u8]) -> (Vec<(u8, StatValue)>, Option<ParseError>) {
 }
 
 impl Stats {
+    /// Applies each (code, value) update to the matching field; unknown codes are ignored.
     pub fn apply(&mut self, updates: &[(u8, StatValue)]) {
         for (code, value) in updates {
             match value {
-                StatValue::Text(t) => match code {
-                    20 => self.range = t.clone(),
-                    21 => self.title = t.clone(),
-                    _ => {}
-                },
-                StatValue::Int(v) => {
-                    let short = *v as i16;
-                    match code {
-                        1 => self.hp = short,
-                        2 => self.max_hp = short,
-                        3 => self.sp = short,
-                        4 => self.max_sp = short,
-                        5 => self.str_ = short,
-                        6 => self.int = short,
-                        7 => self.wis = short,
-                        8 => self.dex = short,
-                        9 => self.con = short,
-                        10 => self.cha = short,
-                        12 => self.level = short,
-                        18 => self.food = short,
-                        22 => self.pow = short,
-                        23 => self.grace = short,
-                        24 => self.max_grace = short,
-                        28 => self.exp = *v,
-                        140..=189 => {
-                            self.skills.insert(*code, *v);
-                        }
-                        _ => {}
-                    }
-                }
+                StatValue::Text(t) => self.apply_text(*code, t),
+                StatValue::Int(v) => self.apply_int(*code, *v),
             }
         }
+    }
+
+    /// Sets the range or title string for text codes 20 and 21.
+    fn apply_text(&mut self, code: u8, t: &str) {
+        match code {
+            20 => self.range = t.to_string(),
+            21 => self.title = t.to_string(),
+            _ => {}
+        }
+    }
+
+    /// Sets a short stat, the 64-bit exp or a skill from a numeric code.
+    fn apply_int(&mut self, code: u8, v: i64) {
+        if let Some(f) = self.short_stat(code) {
+            *f = v as i16;
+        } else if code == 28 {
+            self.exp = v;
+        } else if (140..=189).contains(&code) {
+            self.skills.insert(code, v);
+        }
+    }
+
+    /// The 16-bit field a numeric stat code writes to, if it is one of the short stats.
+    fn short_stat(&mut self, code: u8) -> Option<&mut i16> {
+        const CODES: [u8; 15] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 18, 22, 23, 24];
+        let fields = [
+            &mut self.hp, &mut self.max_hp, &mut self.sp, &mut self.max_sp, &mut self.str_,
+            &mut self.int, &mut self.wis, &mut self.dex, &mut self.con, &mut self.cha,
+            &mut self.level, &mut self.food, &mut self.pow, &mut self.grace, &mut self.max_grace,
+        ];
+        fields.into_iter().zip(CODES).find(|(_, c)| *c == code).map(|(f, _)| f)
     }
 }
 
@@ -174,6 +191,57 @@ mod tests {
     }
 
     #[test]
+    fn apply_sets_every_field() {
+        use StatValue::{Int, Text};
+        let mut s = Stats::default();
+        s.apply(&[
+            (20, Text("ranged".into())),
+            (21, Text("Fighter".into())),
+            (56, Text("ignored".into())),
+            (1, Int(11)),
+            (2, Int(12)),
+            (3, Int(13)),
+            (4, Int(14)),
+            (5, Int(15)),
+            (6, Int(16)),
+            (7, Int(17)),
+            (8, Int(18)),
+            (9, Int(19)),
+            (10, Int(20)),
+            (12, Int(22)),
+            (18, Int(28)),
+            (22, Int(32)),
+            (23, Int(33)),
+            (24, Int(0x1_0000 + 34)), // truncates to 34
+            (28, Int(5_000_000_000)),
+            (150, Int(777)),
+            (100, Int(99)),
+        ]);
+        let expected = Stats {
+            hp: 11,
+            max_hp: 12,
+            sp: 13,
+            max_sp: 14,
+            str_: 15,
+            int: 16,
+            wis: 17,
+            dex: 18,
+            con: 19,
+            cha: 20,
+            level: 22,
+            food: 28,
+            pow: 32,
+            grace: 33,
+            max_grace: 34,
+            exp: 5_000_000_000,
+            range: "ranged".into(),
+            title: "Fighter".into(),
+            skills: [(150, 777)].into(),
+        };
+        assert_eq!(s, expected);
+    }
+
+    #[test]
     fn stats_apply_updates_model() {
         let mut s = Stats::default();
         s.apply(&[
@@ -188,5 +256,95 @@ mod tests {
         ]);
         assert_eq!((s.hp, s.sp, s.grace, s.food, s.exp, s.level), (50, 7, 9, 999, 1234, 2));
         assert_eq!(s.title, "Fighter");
+    }
+
+    // Frozen copy of the original parse_stats, kept to check the refactor.
+    fn old_parse_stats(data: &[u8]) -> (Vec<(u8, StatValue)>, Option<ParseError>) {
+        let mut out = Vec::new();
+        let mut i = 0;
+        let int = |d: &[u8], i: usize, n: usize| -> Option<i64> {
+            let b = d.get(i..i + n)?;
+            Some(match n {
+                2 => i16::from_be_bytes([b[0], b[1]]) as i64,
+                4 => i32::from_be_bytes(b.try_into().ok()?) as i64,
+                _ => i64::from_be_bytes(b.try_into().ok()?),
+            })
+        };
+        while i < data.len() {
+            let code = data[i];
+            i += 1;
+            let short = || Some(ParseError(format!("stats: value for code {code} is cut short")));
+            let (value, size) = match code {
+                17 | 19 | 26 | 29 | 30 | 31 | 55 | 57 => (int(data, i, 4).map(StatValue::Int), 4),
+                28 => (int(data, i, 8).map(StatValue::Int), 8),
+                20 | 21 | 56 => {
+                    let len = data.get(i).map_or(0, |&l| l as usize);
+                    let text = data.get(i + 1..i + 1 + len).map(|t| StatValue::Text(String::from_utf8_lossy(t).into()));
+                    (if data.get(i).is_some() { text } else { None }, 1 + len)
+                }
+                140..=189 => (int(data, i + 1, 8).filter(|_| i < data.len()).map(StatValue::Int), 9),
+                1..=10 | 12..=16 | 18 | 22..=25 | 32..=54 | 58 | 100..=117 => (int(data, i, 2).map(StatValue::Int), 2),
+                _ => return (out, Some(ParseError(format!("stats: unknown code {code}")))),
+            };
+            let Some(value) = value else { return (out, short()) };
+            out.push((code, value));
+            i += size;
+        }
+        (out, None)
+    }
+
+    struct Lcg(u64);
+
+    impl Lcg {
+        fn next(&mut self) -> u64 {
+            self.0 = self.0.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+            self.0 >> 33
+        }
+        fn below(&mut self, n: usize) -> usize {
+            self.next() as usize % n
+        }
+        fn pick(&mut self, xs: &[u8]) -> u8 {
+            xs[self.below(xs.len())]
+        }
+        fn bytes(&mut self, v: &mut Vec<u8>, n: usize) {
+            (0..n).for_each(|_| v.push(self.next() as u8));
+        }
+    }
+
+    fn push_chunk(r: &mut Lcg, v: &mut Vec<u8>) {
+        match r.below(6) {
+            0 => { v.push(r.pick(&[17, 19, 26, 29, 30, 31, 55, 57])); r.bytes(v, 4) }
+            1 => { v.push(28); r.bytes(v, 8) }
+            2 => { v.push(r.pick(&[20, 21, 56])); let n = r.below(6); v.push(n as u8); r.bytes(v, n) }
+            3 => { v.push(140 + r.below(50) as u8); r.bytes(v, 9) }
+            4 => { v.push(r.pick(&[1, 2, 10, 12, 16, 18, 22, 25, 32, 54, 58, 100, 117])); r.bytes(v, 2) }
+            _ => r.bytes(v, 1),
+        }
+    }
+
+    fn gen_input(r: &mut Lcg, biased: bool) -> Vec<u8> {
+        let mut v = Vec::new();
+        if biased {
+            (0..r.below(6)).for_each(|_| push_chunk(r, &mut v));
+            if r.below(2) == 0 && !v.is_empty() {
+                v.truncate(r.below(v.len()));
+            }
+        } else {
+            let n = r.below(24);
+            r.bytes(&mut v, n);
+        }
+        v
+    }
+
+    #[test]
+    fn parse_stats_matches_old() {
+        let mut r = Lcg(12345);
+        for n in 0..30_000 {
+            let d = gen_input(&mut r, n % 2 == 0);
+            assert_eq!(parse_stats(&d), old_parse_stats(&d), "{d:?}");
+        }
+        for d in [&[1u8, 0, 50, 2, 0, 80][..], &[14, 0xff, 0xfe], &[1, 0, 50, 250, 1, 2, 3], &[1, 0], &[21, 7, b'F']] {
+            assert_eq!(parse_stats(d), old_parse_stats(d));
+        }
     }
 }

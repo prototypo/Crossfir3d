@@ -35,6 +35,7 @@ def esrgan():
 
 
 def upscale(rgba, cleanup, bg):
+    """Scales a sprite up to SIZE: plain pixel repeat, or 4x ESRGAN twice with a smoothed alpha when cleaning up."""
     a = rgba.getchannel("A")
     if not cleanup:
         k = SIZE // max(rgba.size)
@@ -66,6 +67,7 @@ def preprocess(path, cleanup, bg):
 
 
 def triposr(rgba, flat):
+    """Makes a textured mesh from the flat sprite with TripoSR, falling back to vertex colours if baking fails."""
     sys.path.insert(0, str(UP / "TripoSR"))
     import mcubes
     def mc(vol, t):  # torchmcubes.marching_cubes look-alike: verts in (z, y, x) order
@@ -106,6 +108,7 @@ def hunyuan_pipe():
 
 
 def hunyuan(rgba, flat):
+    """Makes a mesh from the sprite with Hunyuan3D and paints it by projecting the sprite's colours onto the front."""
     mesh = hunyuan_pipe()(image=rgba, num_inference_steps=30, octree_resolution=256, num_chunks=20000,
                 generator=torch.manual_seed(0), output_type="trimesh")[0]
     # Front planar projection: mesh x/y bbox -> sprite alpha bbox. Transparent pixels take the

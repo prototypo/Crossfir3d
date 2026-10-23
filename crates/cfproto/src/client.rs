@@ -96,6 +96,71 @@ mod tests {
         v.to_string()
     }
 
+    fn check(cases: Vec<(ClientMsg, Vec<u8>)>) {
+        for (m, want) in cases {
+            assert_eq!(m.encode(), want, "{m:?}");
+        }
+    }
+
+    fn lstr(b: &mut Vec<u8>, s: &[u8]) {
+        b.push(s.len() as u8);
+        b.extend_from_slice(s);
+    }
+
+    #[test]
+    fn golden_text() {
+        check(vec![
+            (ClientMsg::Setup(vec![]), b"setup".to_vec()),
+            (ClientMsg::Setup(vec![(s("é"), String::new()), (s("日本"), s("1"))]), "setup é  日本 1".as_bytes().to_vec()),
+            (ClientMsg::RequestInfo(String::new()), b"requestinfo ".to_vec()),
+            (ClientMsg::AccountPlay(s("héllo")), "accountplay héllo".as_bytes().to_vec()),
+            (ClientMsg::Reply("日".repeat(100)), format!("reply {}", "日".repeat(100)).into_bytes()),
+        ]);
+    }
+
+    #[test]
+    fn golden_account() {
+        let mut long = b"accountlogin ".to_vec();
+        lstr(&mut long, &[b'x'; 255]);
+        lstr(&mut long, b"");
+        let mut cut = b"accountnew ".to_vec();
+        lstr(&mut cut, &"日".repeat(100).as_bytes()[..255]);
+        lstr(&mut cut, "日本".as_bytes());
+        check(vec![
+            (ClientMsg::AccountLogin { name: "x".repeat(300), password: String::new() }, long),
+            (ClientMsg::AccountNew { name: "日".repeat(100), password: s("日本") }, cut),
+        ]);
+    }
+
+    #[test]
+    fn golden_createplayer() {
+        let mut bare = b"createplayer \x01n\x00".to_vec();
+        for l in ["race r\0", "class c\0", "starting_map é\0"] {
+            lstr(&mut bare, l.as_bytes());
+        }
+        let mut full = b"createplayer \x01n\x00".to_vec();
+        for l in ["race r\0", "class c\0", "Str 0\0", "日 255\0", "choice k é\0"] {
+            lstr(&mut full, l.as_bytes());
+        }
+        let mk = |stats, starting_map, choices| ClientMsg::CreatePlayer { name: s("n"), password: String::new(), race: s("r"), class: s("c"), stats, starting_map, choices };
+        check(vec![
+            (mk(vec![], Some(s("é")), vec![]), bare),
+            (mk(vec![(s("Str"), 0), (s("日"), 255)], None, vec![(s("k"), s("é"))]), full),
+        ]);
+    }
+
+    #[test]
+    fn golden_game() {
+        check(vec![
+            (ClientMsg::AskFace(u32::MAX), b"askface 4294967295".to_vec()),
+            (ClientMsg::Apply(0), b"apply 0".to_vec()),
+            (ClientMsg::Examine(u32::MAX), b"examine 4294967295".to_vec()),
+            (ClientMsg::Move { to: u32::MAX, tag: 0, count: 1 }, b"move 4294967295 0 1".to_vec()),
+            (ClientMsg::Ncom { packet: u16::MAX, repeat: i32::MIN, command: s("日") }, b"ncom \xff\xff\x80\x00\x00\x00\xe6\x97\xa5".to_vec()),
+            (ClientMsg::Ncom { packet: 0, repeat: i32::MAX, command: String::new() }, b"ncom \x00\x00\x7f\xff\xff\xff".to_vec()),
+        ]);
+    }
+
     #[test]
     fn encode_version() {
         assert_eq!(ClientMsg::Version.encode(), b"version 1023 1030 Crossfir3d");

@@ -1,7 +1,10 @@
 //! The in-game overlay: bars, quick slots, parchment box, pop-ups, and the log.
 
+use bevy::ecs::system::SystemParam;
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
+use cfproto::Stats;
+use crossfir3d::messages::Messages;
 use crossfir3d::slots::{usable, Slot};
 
 use crate::{HudState, Inv, Msgs, PlayerStats, Slots, Spells};
@@ -48,6 +51,7 @@ pub fn load_fonts(mut contexts: EguiContexts, mut done: Local<bool>) -> Result {
     Ok(())
 }
 
+/// Turns marked-up text into a coloured, styled egui text job.
 fn styled(text: &str, size: f32, base: egui::Color32, strong: egui::Color32) -> egui::text::LayoutJob {
     let mut job = egui::text::LayoutJob::default();
     for span in crossfir3d::markup::spans(text) {
@@ -67,21 +71,21 @@ fn styled(text: &str, size: f32, base: egui::Color32, strong: egui::Color32) -> 
     job
 }
 
-pub fn hud(
-    mut contexts: EguiContexts,
-    time: Res<Time>,
-    stats: Res<PlayerStats>,
-    slots: Res<Slots>,
-    inv: Res<Inv>,
-    spells: Res<Spells>,
-    hud: Res<HudState>,
-    mut msgs: ResMut<Msgs>,
-    settings: Res<crate::graphics::CurrentSettings>,
-) -> Result {
-    let ctx = contexts.ctx_mut()?;
-    let s = &stats.0;
-    msgs.0.expire(time.elapsed_secs());
+/// Everything `hud` reads or changes in a frame.
+#[derive(SystemParam)]
+pub struct HudParams<'w> {
+    time: Res<'w, Time>,
+    stats: Res<'w, PlayerStats>,
+    slots: Res<'w, Slots>,
+    inv: Res<'w, Inv>,
+    spells: Res<'w, Spells>,
+    hud: Res<'w, HudState>,
+    msgs: ResMut<'w, Msgs>,
+    settings: Res<'w, crate::graphics::CurrentSettings>,
+}
 
+/// Draws the HP, SP, grace and (when low) food bars at the top left.
+fn draw_bars(ctx: &egui::Context, s: &Stats) {
     egui::Area::new("bars".into()).anchor(egui::Align2::LEFT_TOP, [10.0, 10.0]).show(ctx, |ui| {
         bar(ui, s.hp, s.max_hp, egui::Color32::from_rgb(0xd0, 0x30, 0x30), "HP");
         bar(ui, s.sp, s.max_sp, egui::Color32::from_rgb(0x30, 0x60, 0xf0), "SP");
@@ -90,76 +94,104 @@ pub fn hud(
             bar(ui, s.food, 999, egui::Color32::from_rgb(0xc0, 0x80, 0x20), "Food");
         }
     });
+}
 
+/// Draws one quick slot: its number and a shortened name, gold-ringed when usable.
+fn draw_slot(ui: &mut egui::Ui, i: usize, slot: &Option<Slot>, ready: bool) {
+    let gold = egui::Color32::from_rgb(0xf0, 0xc8, 0x3c);
+    let stroke = if ready { gold } else { egui::Color32::GRAY };
+    egui::Frame::new()
+        .fill(egui::Color32::from_black_alpha(140))
+        .stroke(egui::Stroke::new(2.0, stroke))
+        .corner_radius(24.0)
+        .inner_margin(8.0)
+        .show(ui, |ui| {
+            ui.set_width(SLOT_PX);
+            ui.set_height(SLOT_PX);
+            ui.vertical(|ui| {
+                ui.label(egui::RichText::new((i + 1).to_string()).strong().color(gold));
+                let color = if ready { egui::Color32::WHITE } else { egui::Color32::GRAY };
+                let name: String = slot_label(slot).chars().take(10).collect();
+                ui.add(egui::Label::new(egui::RichText::new(name).small().color(color)).truncate());
+            });
+        });
+}
+
+/// Draws the row of quick slots at the top right.
+fn draw_slots(ctx: &egui::Context, p: &HudParams) {
     egui::Area::new("slots".into()).anchor(egui::Align2::RIGHT_TOP, [-10.0, 10.0]).show(ctx, |ui| {
         ui.horizontal(|ui| {
-            for (i, slot) in slots.0 .0.iter().enumerate() {
-                let ready = slot.as_ref().is_some_and(|s| usable(s, &inv.0, &spells.0));
-                let gold = egui::Color32::from_rgb(0xf0, 0xc8, 0x3c);
-                let stroke = if ready { gold } else { egui::Color32::GRAY };
-                egui::Frame::new()
-                    .fill(egui::Color32::from_black_alpha(140))
-                    .stroke(egui::Stroke::new(2.0, stroke))
-                    .corner_radius(24.0)
-                    .inner_margin(8.0)
-                    .show(ui, |ui| {
-                        ui.set_width(SLOT_PX);
-                        ui.set_height(SLOT_PX);
-                        ui.vertical(|ui| {
-                            ui.label(egui::RichText::new((i + 1).to_string()).strong().color(gold));
-                            let color = if ready { egui::Color32::WHITE } else { egui::Color32::GRAY };
-                            let name: String = slot_label(slot).chars().take(10).collect();
-                            ui.add(egui::Label::new(egui::RichText::new(name).small().color(color)).truncate());
-                        });
-                    });
+            for (i, slot) in p.slots.0 .0.iter().enumerate() {
+                let ready = slot.as_ref().is_some_and(|s| usable(s, &p.inv.0, &p.spells.0));
+                draw_slot(ui, i, slot, ready);
             }
         });
     });
+}
 
-    if let Some(text) = &msgs.0.boxed {
-        egui::Window::new("parchment")
-            .title_bar(false)
-            .resizable(false)
-            .anchor(egui::Align2::CENTER_CENTER, [0.0, -40.0])
-            .frame(egui::Frame::new().fill(PARCHMENT).corner_radius(6.0).inner_margin(16.0).stroke(egui::Stroke::new(2.0, INK)))
-            .max_width(460.0)
-            .show(ctx, |ui| {
-                ui.label(styled(text, 16.0, INK, egui::Color32::BLACK));
-                ui.add_space(8.0);
-                ui.label(egui::RichText::new("E to close").small().italics().color(INK));
-            });
-    }
-
-    if !msgs.0.popups.is_empty() {
-        egui::Area::new("popups".into()).anchor(egui::Align2::CENTER_TOP, [0.0, 20.0]).show(ctx, |ui| {
-            for (text, _) in &msgs.0.popups {
-                egui::Frame::new().fill(egui::Color32::from_rgba_unmultiplied(120, 20, 20, 200)).inner_margin(6.0).show(ui, |ui| {
-                    ui.label(styled(text, 14.0, egui::Color32::WHITE, egui::Color32::WHITE));
-                });
-            }
+/// Draws the parchment box with the book text.
+fn draw_parchment(ctx: &egui::Context, text: &str) {
+    egui::Window::new("parchment")
+        .title_bar(false)
+        .resizable(false)
+        .anchor(egui::Align2::CENTER_CENTER, [0.0, -40.0])
+        .frame(egui::Frame::new().fill(PARCHMENT).corner_radius(6.0).inner_margin(16.0).stroke(egui::Stroke::new(2.0, INK)))
+        .max_width(460.0)
+        .show(ctx, |ui| {
+            ui.label(styled(text, 16.0, INK, egui::Color32::BLACK));
+            ui.add_space(8.0);
+            ui.label(egui::RichText::new("E to close").small().italics().color(INK));
         });
-    }
+}
 
-    let lines = if hud.tall_log { TALL_LOG } else { SHORT_LOG };
-    // The log box grows with its text: 420 px wide at the default size 10.
-    let size = settings.0.log_font_size;
-    let fill = egui::Color32::from_black_alpha((settings.0.log_opacity / 100.0 * 255.0).round() as u8);
+/// Draws the red pop-up messages at the top centre.
+fn draw_popups(ctx: &egui::Context, msgs: &Messages) {
+    egui::Area::new("popups".into()).anchor(egui::Align2::CENTER_TOP, [0.0, 20.0]).show(ctx, |ui| {
+        for (text, _) in &msgs.popups {
+            egui::Frame::new().fill(egui::Color32::from_rgba_unmultiplied(120, 20, 20, 200)).inner_margin(6.0).show(ui, |ui| {
+                ui.label(styled(text, 14.0, egui::Color32::WHITE, egui::Color32::WHITE));
+            });
+        }
+    });
+}
+
+/// Draws the message log at the bottom left.
+fn draw_log(ctx: &egui::Context, msgs: &Messages, tall: bool, size: f32, fill: egui::Color32) {
+    let lines = if tall { TALL_LOG } else { SHORT_LOG };
     egui::Area::new("log".into()).anchor(egui::Align2::LEFT_BOTTOM, [10.0, -10.0]).show(ctx, |ui| {
         egui::Frame::new().fill(fill).inner_margin(6.0).show(ui, |ui| {
             ui.set_max_width(42.0 * size);
             let show = |ui: &mut egui::Ui| {
-                let skip = if hud.tall_log { 0 } else { msgs.0.log.len().saturating_sub(lines) };
-                for line in msgs.0.log.iter().skip(skip) {
+                let skip = if tall { 0 } else { msgs.log.len().saturating_sub(lines) };
+                for line in msgs.log.iter().skip(skip) {
                     ui.label(styled(line, size, egui::Color32::from_gray(230), egui::Color32::WHITE));
                 }
             };
-            if hud.tall_log {
+            if tall {
                 egui::ScrollArea::vertical().max_height(lines as f32 * size * 1.6).stick_to_bottom(true).show(ui, show);
             } else {
                 show(ui);
             }
         });
     });
+}
+
+/// Draws the bars, slots, messages and log of the in-game HUD.
+pub fn hud(mut contexts: EguiContexts, mut p: HudParams) -> Result {
+    let ctx = contexts.ctx_mut()?;
+    p.msgs.0.expire(p.time.elapsed_secs());
+    draw_bars(ctx, &p.stats.0);
+    draw_slots(ctx, &p);
+    if let Some(text) = &p.msgs.0.boxed {
+        draw_parchment(ctx, text);
+    }
+    if !p.msgs.0.popups.is_empty() {
+        draw_popups(ctx, &p.msgs.0);
+    }
+    // The log box grows with its text: 420 px wide at the default size 10.
+    let size = p.settings.0.log_font_size;
+    let fill = egui::Color32::from_black_alpha((p.settings.0.log_opacity / 100.0 * 255.0).round() as u8);
+    draw_log(ctx, &p.msgs.0, p.hud.tall_log, size, fill);
     Ok(())
 }
 

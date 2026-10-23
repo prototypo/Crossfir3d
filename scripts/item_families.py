@@ -53,6 +53,7 @@ def family(name):
 
 
 def colour(path, bright_part):
+    """Returns the average "r,g,b" of a picture's visible non-dark pixels, or of its most saturated ones for bright parts."""
     px = np.asarray(Image.open(path).convert("RGBA"), dtype=float) / 255
     px = px[px[..., 3] > 0.5][:, :3]
     hsv = np.array([colorsys.rgb_to_hsv(*p) for p in px])
@@ -66,6 +67,7 @@ def colour(path, bright_part):
 
 
 def main():
+    """Rewrites the model list so items in a family use a coloured recipe taken from their picture."""
     pictures = {}
     for row in csv.DictReader(open(CATALOG), delimiter="\t"):
         thing = row["picture"].split(".")[0]

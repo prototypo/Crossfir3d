@@ -14,26 +14,27 @@ pub enum Hand {
 /// The model for an applied item, or None (armour, tools, crossbows: no model yet).
 pub fn held_model(kind: u16, name: &str) -> Option<(&'static str, Hand)> {
     let name = name.to_ascii_lowercase();
-    let has = |words: &[&str]| words.iter().any(|w| name.contains(w));
-    let right = |file| Some((file, Hand::Right));
-    match kind {
-        // Artifacts: mostly swords.
-        100 => right("weapons/Sword_Golden.gltf"),
-        101 if has(&["dagger", "knife"]) => right("weapons/Dagger.gltf"),
-        101 if has(&["claymore", "great", "two-hand", "bastard"]) => right("weapons/Claymore.gltf"),
-        101 => right("weapons/Sword.gltf"),
-        106 if has(&["battle", "double", "great"]) => right("weapons/Axe_Double.gltf"),
-        106 => right("weapons/Axe.gltf"),
-        // Clubs, hammers, maces, and flails.
-        121 | 126 | 129 | 141 => right("weapons/Hammer_Small.gltf"),
-        136 if has(&["scythe"]) => right("weapons/Scythe.gltf"),
-        136 => right("weapons/Spear.gltf"),
-        150 | 151 => Some(("weapons/Bow_Wooden.gltf", Hand::Left)),
-        260 | 261 if has(&["kite", "high", "tower", "large"]) => Some(("weapons/Shield_Heater.gltf", Hand::Left)),
-        260 | 261 => Some(("weapons/Shield_Round.gltf", Hand::Left)),
-        _ => None,
-    }
+    let row = HELD.iter().find(|r| r.0.contains(&kind) && (r.1.is_empty() || r.1.iter().any(|w| name.contains(w))))?;
+    Some((row.2, row.3))
 }
+
+/// Per model: kinds, words one of which the name must hold (empty: any), file, hand. First match wins.
+static HELD: [(&[u16], &[&str], &str, Hand); 12] = [
+    // Artifacts: mostly swords.
+    (&[100], &[], "weapons/Sword_Golden.gltf", Hand::Right),
+    (&[101], &["dagger", "knife"], "weapons/Dagger.gltf", Hand::Right),
+    (&[101], &["claymore", "great", "two-hand", "bastard"], "weapons/Claymore.gltf", Hand::Right),
+    (&[101], &[], "weapons/Sword.gltf", Hand::Right),
+    (&[106], &["battle", "double", "great"], "weapons/Axe_Double.gltf", Hand::Right),
+    (&[106], &[], "weapons/Axe.gltf", Hand::Right),
+    // Clubs, hammers, maces, and flails.
+    (&[121, 126, 129, 141], &[], "weapons/Hammer_Small.gltf", Hand::Right),
+    (&[136], &["scythe"], "weapons/Scythe.gltf", Hand::Right),
+    (&[136], &[], "weapons/Spear.gltf", Hand::Right),
+    (&[150, 151], &[], "weapons/Bow_Wooden.gltf", Hand::Left),
+    (&[260, 261], &["kite", "high", "tower", "large"], "weapons/Shield_Heater.gltf", Hand::Left),
+    (&[260, 261], &[], "weapons/Shield_Round.gltf", Hand::Left),
+];
 
 /// The models for the applied items among `carried`, at most one per hand.
 pub fn held(carried: &[&Item]) -> Vec<(&'static str, Hand)> {
@@ -66,25 +67,27 @@ pub enum Garb {
 pub fn worn(carried: &[&Item]) -> Option<(Garb, [f32; 3])> {
     let item = carried.iter().find(|i| i.applied() && (250..=257).contains(&i.kind))?;
     let name = item.name.to_ascii_lowercase();
-    let has = |w: &str| name.contains(w);
-    let metal = |tint| Some((Garb::Metal, tint));
-    let peasant = |tint| Some((Garb::Peasant, tint));
-    match item.kind {
-        _ if has("robe") => peasant(if has("midnight") { [0.2, 0.2, 0.45] } else { [0.4, 0.3, 0.65] }),
-        250 => metal([1.6, 1.65, 1.8]),
-        251 if has("black") => metal([0.5, 0.5, 0.55]),
-        251 if has("blue") => metal([0.6, 0.8, 1.7]),
-        251 if has("green") => metal([0.6, 1.4, 0.6]),
-        251 => metal([1.5, 0.55, 0.45]),
-        252 if has("black") => metal([0.55, 0.55, 0.6]),
-        252 => metal([1.35, 1.38, 1.45]),
-        253 => metal([1.1, 1.12, 1.18]),
-        254 => Some((Garb::Ranger, [1.0, 1.0, 1.0])),
-        255 => peasant([0.8, 0.5, 0.65]),
-        257 => peasant([0.9, 0.9, 0.85]),
-        _ => peasant([0.6, 0.5, 0.35]),
+    if name.contains("robe") {
+        return Some((Garb::Peasant, if name.contains("midnight") { [0.2, 0.2, 0.45] } else { [0.4, 0.3, 0.65] }));
     }
+    let row = WORN.iter().find(|r| r.0 == item.kind && r.1.is_none_or(|w| name.contains(w)));
+    Some(row.map_or((Garb::Peasant, [0.6, 0.5, 0.35]), |r| (r.2, r.3)))
 }
+
+/// Per kind: kind, a word the name must hold (None: any), garb, tint. First match wins.
+static WORN: [(u16, Option<&str>, Garb, [f32; 3]); 11] = [
+    (250, None, Garb::Metal, [1.6, 1.65, 1.8]),
+    (251, Some("black"), Garb::Metal, [0.5, 0.5, 0.55]),
+    (251, Some("blue"), Garb::Metal, [0.6, 0.8, 1.7]),
+    (251, Some("green"), Garb::Metal, [0.6, 1.4, 0.6]),
+    (251, None, Garb::Metal, [1.5, 0.55, 0.45]),
+    (252, Some("black"), Garb::Metal, [0.55, 0.55, 0.6]),
+    (252, None, Garb::Metal, [1.35, 1.38, 1.45]),
+    (253, None, Garb::Metal, [1.1, 1.12, 1.18]),
+    (254, None, Garb::Ranger, [1.0, 1.0, 1.0]),
+    (255, None, Garb::Peasant, [0.8, 0.5, 0.65]),
+    (257, None, Garb::Peasant, [0.9, 0.9, 0.85]),
+];
 
 /// The colour of the applied helmet or crown (client type 271): crowns gold, others steel.
 pub fn helmet(carried: &[&Item]) -> Option<[f32; 3]> {
@@ -194,15 +197,9 @@ pub struct ClassLook {
     pub over: Option<Over>,
 }
 
-/// The look for a class, by arch ("wizard_class") or name ("Wizard"). Unknown: None.
-pub fn class_look(class: &str) -> Option<ClassLook> {
-    use Carry::{Model, Potion, Staff};
-    use Headwear::{Bald, Circlet, GlowEyes, Goggles, Helm, HornedCap, Hood, Mask, Mitre, PointedHat, SlouchHat, TallHat, Tricorn};
-    let key = class.to_ascii_lowercase();
-    let key = key.strip_suffix("_class").unwrap_or(&key);
-    // Peasant tints are over its brown cloth (1 keeps it); metal tints are over grey.
-    let white = [2.0, 2.2, 2.8];
-    let back = match key {
+/// What a class wears on its back, by lowercase class name.
+fn class_back(key: &str) -> Option<Back> {
+    match key {
         "warrior" => Some(Back::Cape([0.5, 0.06, 0.05])),
         "paladin" => Some(Back::Cape([0.12, 0.2, 0.55])),
         "sorcerer" => Some(Back::Cape([0.22, 0.06, 0.3])),
@@ -212,34 +209,51 @@ pub fn class_look(class: &str) -> Option<ClassLook> {
         "thief" => Some(Back::Sack),
         "ninja" => Some(Back::Scabbard),
         _ => None,
-    };
-    let over = match key {
+    }
+}
+
+/// What a class wears over its clothes, by lowercase class name.
+fn class_over(key: &str) -> Option<Over> {
+    match key {
         "alchemist" => Some(Over::Apron),
         "swashbuckler" => Some(Over::Sash([0.85, 0.62, 0.15])),
         "priest" => Some(Over::Tabard([0.9, 0.72, 0.3])),
         "summoner" => Some(Over::Tabard([0.2, 0.36, 0.22])),
         _ => None,
-    };
-    let look = |garb, tint, head, right, left| Some(ClassLook { garb, tint, head, right, left, back, over });
-    match key {
-        "warrior" => look(Garb::Metal, [1.3, 1.32, 1.38], Some(Helm), Some(Model("weapons/Sword.gltf")), Some(Model("weapons/Shield_Round.gltf"))),
-        "barbarian" => look(Garb::Peasant, [1.0, 0.75, 0.65], Some(HornedCap), Some(Model("weapons/Axe_Double.gltf")), None),
-        "paladin" => look(Garb::Metal, [1.65, 1.68, 1.8], Some(Circlet), Some(Model("weapons/Sword_Golden.gltf")), Some(Model("weapons/Shield_Heater.gltf"))),
-        "ranger" => look(Garb::Ranger, [1.0; 3], Some(Hood), None, Some(Model("weapons/Bow_Wooden.gltf"))),
-        "thief" => look(Garb::Peasant, [0.45, 0.42, 0.42], Some(Hood), Some(Model("weapons/Dagger.gltf")), None),
-        "ninja" => look(Garb::Peasant, [0.15, 0.15, 0.17], Some(Mask), Some(Model("weapons/Sword_2.gltf")), None),
-        "swashbuckler" => look(Garb::Peasant, [1.4, 0.5, 0.65], Some(Tricorn([0.32, 0.2, 0.12])), Some(Model("weapons/Sword.gltf")), None),
-        "monk" => look(Garb::Robe, [1.9, 1.4, 0.45], Some(Bald), None, None),
-        "priest" => look(Garb::Peasant, white, Some(Mitre), Some(Model("weapons/Hammer_Small.gltf")), None),
-        "devotee" => look(Garb::Peasant, white, Some(Hood), Some(Staff(StaffTop::Sun([1.0, 1.0, 0.95]))), None),
-        "wizard" => look(Garb::Peasant, [0.55, 0.75, 2.2], Some(PointedHat([0.45, 0.28, 0.15])), Some(Staff(StaffTop::Cradle([0.4, 0.6, 1.0]))), None),
-        "evoker" => look(Garb::Peasant, [1.7, 0.75, 0.5], Some(Hood), Some(Staff(StaffTop::Flame([1.0, 0.4, 0.1]))), None),
-        "sorcerer" => look(Garb::Peasant, [1.0, 0.5, 1.8], Some(TallHat([0.3, 0.1, 0.42])), Some(Staff(StaffTop::Crystal([0.8, 0.4, 1.0]))), None),
-        "summoner" => look(Garb::Peasant, [1.7, 1.6, 0.6], Some(SlouchHat([0.6, 0.45, 0.15])), Some(Staff(StaffTop::Hoop([1.0, 0.9, 0.3]))), None),
-        "warlock" => look(Garb::Peasant, [0.55, 0.3, 0.9], Some(GlowEyes([0.4, 1.0, 0.4])), Some(Staff(StaffTop::Horns([0.4, 1.0, 0.4]))), None),
-        "alchemist" => look(Garb::Peasant, [1.1, 0.95, 0.75], Some(Goggles), Some(Potion), None),
-        _ => None,
     }
+}
+
+type ClassRow = (&'static str, Garb, [f32; 3], Option<Headwear>, Option<Carry>, Option<Carry>);
+
+const WHITE: [f32; 3] = [2.0, 2.2, 2.8];
+
+/// Per class: name, garb, tint, headwear, right hand, left hand.
+/// Peasant tints are over its brown cloth (1 keeps it); metal tints are over grey.
+static CLASSES: [ClassRow; 16] = [
+    ("warrior", Garb::Metal, [1.3, 1.32, 1.38], Some(Headwear::Helm), Some(Carry::Model("weapons/Sword.gltf")), Some(Carry::Model("weapons/Shield_Round.gltf"))),
+    ("barbarian", Garb::Peasant, [1.0, 0.75, 0.65], Some(Headwear::HornedCap), Some(Carry::Model("weapons/Axe_Double.gltf")), None),
+    ("paladin", Garb::Metal, [1.65, 1.68, 1.8], Some(Headwear::Circlet), Some(Carry::Model("weapons/Sword_Golden.gltf")), Some(Carry::Model("weapons/Shield_Heater.gltf"))),
+    ("ranger", Garb::Ranger, [1.0; 3], Some(Headwear::Hood), None, Some(Carry::Model("weapons/Bow_Wooden.gltf"))),
+    ("thief", Garb::Peasant, [0.45, 0.42, 0.42], Some(Headwear::Hood), Some(Carry::Model("weapons/Dagger.gltf")), None),
+    ("ninja", Garb::Peasant, [0.15, 0.15, 0.17], Some(Headwear::Mask), Some(Carry::Model("weapons/Sword_2.gltf")), None),
+    ("swashbuckler", Garb::Peasant, [1.4, 0.5, 0.65], Some(Headwear::Tricorn([0.32, 0.2, 0.12])), Some(Carry::Model("weapons/Sword.gltf")), None),
+    ("monk", Garb::Robe, [1.9, 1.4, 0.45], Some(Headwear::Bald), None, None),
+    ("priest", Garb::Peasant, WHITE, Some(Headwear::Mitre), Some(Carry::Model("weapons/Hammer_Small.gltf")), None),
+    ("devotee", Garb::Peasant, WHITE, Some(Headwear::Hood), Some(Carry::Staff(StaffTop::Sun([1.0, 1.0, 0.95]))), None),
+    ("wizard", Garb::Peasant, [0.55, 0.75, 2.2], Some(Headwear::PointedHat([0.45, 0.28, 0.15])), Some(Carry::Staff(StaffTop::Cradle([0.4, 0.6, 1.0]))), None),
+    ("evoker", Garb::Peasant, [1.7, 0.75, 0.5], Some(Headwear::Hood), Some(Carry::Staff(StaffTop::Flame([1.0, 0.4, 0.1]))), None),
+    ("sorcerer", Garb::Peasant, [1.0, 0.5, 1.8], Some(Headwear::TallHat([0.3, 0.1, 0.42])), Some(Carry::Staff(StaffTop::Crystal([0.8, 0.4, 1.0]))), None),
+    ("summoner", Garb::Peasant, [1.7, 1.6, 0.6], Some(Headwear::SlouchHat([0.6, 0.45, 0.15])), Some(Carry::Staff(StaffTop::Hoop([1.0, 0.9, 0.3]))), None),
+    ("warlock", Garb::Peasant, [0.55, 0.3, 0.9], Some(Headwear::GlowEyes([0.4, 1.0, 0.4])), Some(Carry::Staff(StaffTop::Horns([0.4, 1.0, 0.4]))), None),
+    ("alchemist", Garb::Peasant, [1.1, 0.95, 0.75], Some(Headwear::Goggles), Some(Carry::Potion), None),
+];
+
+/// The look for a class, by arch ("wizard_class") or name ("Wizard"). Unknown: None.
+pub fn class_look(class: &str) -> Option<ClassLook> {
+    let key = class.to_ascii_lowercase();
+    let key = key.strip_suffix("_class").unwrap_or(&key);
+    let &(_, garb, tint, head, right, left) = CLASSES.iter().find(|row| row.0 == key)?;
+    Some(ClassLook { garb, tint, head, right, left, back: class_back(key), over: class_over(key) })
 }
 
 #[cfg(test)]
@@ -301,10 +315,82 @@ mod tests {
     }
 
     #[test]
+    fn every_worn_look_unchanged() {
+        let (m, p) = (|t| (Garb::Metal, t), |t| (Garb::Peasant, t));
+        let steel = [1.35, 1.38, 1.45];
+        let rows = [
+            (250, [m([1.6, 1.65, 1.8]); 4]),
+            (251, [m([1.5, 0.55, 0.45]), m([0.5, 0.5, 0.55]), m([0.6, 0.8, 1.7]), m([0.6, 1.4, 0.6])]),
+            (252, [m(steel), m([0.55, 0.55, 0.6]), m(steel), m(steel)]),
+            (253, [m([1.1, 1.12, 1.18]); 4]),
+            (254, [(Garb::Ranger, [1.0; 3]); 4]),
+            (255, [p([0.8, 0.5, 0.65]); 4]),
+            (256, [p([0.6, 0.5, 0.35]); 4]),
+            (257, [p([0.9, 0.9, 0.85]); 4]),
+        ];
+        for (kind, want) in rows {
+            for (name, want) in ["x", "black x", "blue x", "green x"].into_iter().zip(want) {
+                assert_eq!(worn(&[&item(kind, name, true)]), Some(want), "{kind} {name}");
+            }
+            for (name, tint) in [("robe", [0.4, 0.3, 0.65]), ("midnight robe", [0.2, 0.2, 0.45]), ("Black Robe", [0.4, 0.3, 0.65])] {
+                assert_eq!(worn(&[&item(kind, name, true)]), Some(p(tint)), "{kind} {name}");
+            }
+            assert_eq!(worn(&[&item(kind, "blue robe", false)]), None);
+        }
+        for kind in [0, 249, 258, 271] {
+            assert_eq!(worn(&[&item(kind, "robe", true)]), None);
+        }
+    }
+
+    #[test]
     fn helmet_colours() {
         assert_eq!(helmet(&[&item(271, "Crown", true)]), Some([0.95, 0.75, 0.25]));
         assert_eq!(helmet(&[&item(271, "full helmet", true)]), Some([0.6, 0.62, 0.66]));
         assert_eq!(helmet(&[&item(272, "turban", true)]), None);
+    }
+
+    #[test]
+    fn every_held_model_unchanged() {
+        let names = ["dagger", "knife", "claymore", "great", "two-hand", "bastard", "battle", "double", "scythe", "kite", "high", "tower", "large", "DAGGER", "stick"];
+        let (r, l) = (Hand::Right, Hand::Left);
+        let files = [
+            ('G', "weapons/Sword_Golden.gltf", r),
+            ('S', "weapons/Sword.gltf", r),
+            ('D', "weapons/Dagger.gltf", r),
+            ('C', "weapons/Claymore.gltf", r),
+            ('A', "weapons/Axe.gltf", r),
+            ('X', "weapons/Axe_Double.gltf", r),
+            ('H', "weapons/Hammer_Small.gltf", r),
+            ('Y', "weapons/Scythe.gltf", r),
+            ('P', "weapons/Spear.gltf", r),
+            ('B', "weapons/Bow_Wooden.gltf", l),
+            ('E', "weapons/Shield_Heater.gltf", l),
+            ('R', "weapons/Shield_Round.gltf", l),
+        ];
+        let rows = [
+            (100, "GGGGGGGGGGGGGGG"),
+            (101, "DDCCCCSSSSSSSDS"),
+            (106, "AAAXAAXXAAAAAAA"),
+            (121, "HHHHHHHHHHHHHHH"),
+            (126, "HHHHHHHHHHHHHHH"),
+            (129, "HHHHHHHHHHHHHHH"),
+            (136, "PPPPPPPPYPPPPPP"),
+            (141, "HHHHHHHHHHHHHHH"),
+            (150, "BBBBBBBBBBBBBBB"),
+            (151, "BBBBBBBBBBBBBBB"),
+            (260, "RRRRRRRRREEEERR"),
+            (261, "RRRRRRRRREEEERR"),
+            (0, "---------------"),
+            (99, "---------------"),
+            (102, "---------------"),
+            (999, "---------------"),
+        ];
+        for (kind, codes) in rows {
+            for (name, code) in names.into_iter().zip(codes.chars()) {
+                let want = files.iter().find(|f| f.0 == code).map(|f| (f.1, f.2));
+                assert_eq!(held_model(kind, name), want, "{kind} {name}");
+            }
+        }
     }
 
     #[test]
@@ -368,5 +454,37 @@ mod tests {
     #[test]
     fn thieves_wear_no_armour() {
         assert_eq!(class_look("thief").unwrap().garb, Garb::Peasant);
+    }
+
+    #[test]
+    fn every_class_look_unchanged() {
+        use Carry::{Model, Potion, Staff};
+        use Headwear::*;
+        let cape = |c| Some(Back::Cape(c));
+        let white = [2.0, 2.2, 2.8];
+        let want = [
+            ("warrior", (Garb::Metal, [1.3, 1.32, 1.38], Some(Helm), Some(Model("weapons/Sword.gltf")), Some(Model("weapons/Shield_Round.gltf")), cape([0.5, 0.06, 0.05]), None)),
+            ("barbarian", (Garb::Peasant, [1.0, 0.75, 0.65], Some(HornedCap), Some(Model("weapons/Axe_Double.gltf")), None, Some(Back::Fur), None)),
+            ("paladin", (Garb::Metal, [1.65, 1.68, 1.8], Some(Circlet), Some(Model("weapons/Sword_Golden.gltf")), Some(Model("weapons/Shield_Heater.gltf")), cape([0.12, 0.2, 0.55]), None)),
+            ("ranger", (Garb::Ranger, [1.0; 3], Some(Hood), None, Some(Model("weapons/Bow_Wooden.gltf")), Some(Back::Quiver), None)),
+            ("thief", (Garb::Peasant, [0.45, 0.42, 0.42], Some(Hood), Some(Model("weapons/Dagger.gltf")), None, Some(Back::Sack), None)),
+            ("ninja", (Garb::Peasant, [0.15, 0.15, 0.17], Some(Mask), Some(Model("weapons/Sword_2.gltf")), None, Some(Back::Scabbard), None)),
+            ("swashbuckler", (Garb::Peasant, [1.4, 0.5, 0.65], Some(Tricorn([0.32, 0.2, 0.12])), Some(Model("weapons/Sword.gltf")), None, None, Some(Over::Sash([0.85, 0.62, 0.15])))),
+            ("monk", (Garb::Robe, [1.9, 1.4, 0.45], Some(Bald), None, None, None, None)),
+            ("priest", (Garb::Peasant, white, Some(Mitre), Some(Model("weapons/Hammer_Small.gltf")), None, None, Some(Over::Tabard([0.9, 0.72, 0.3])))),
+            ("devotee", (Garb::Peasant, white, Some(Hood), Some(Staff(StaffTop::Sun([1.0, 1.0, 0.95]))), None, None, None)),
+            ("wizard", (Garb::Peasant, [0.55, 0.75, 2.2], Some(PointedHat([0.45, 0.28, 0.15])), Some(Staff(StaffTop::Cradle([0.4, 0.6, 1.0]))), None, None, None)),
+            ("evoker", (Garb::Peasant, [1.7, 0.75, 0.5], Some(Hood), Some(Staff(StaffTop::Flame([1.0, 0.4, 0.1]))), None, None, None)),
+            ("sorcerer", (Garb::Peasant, [1.0, 0.5, 1.8], Some(TallHat([0.3, 0.1, 0.42])), Some(Staff(StaffTop::Crystal([0.8, 0.4, 1.0]))), None, cape([0.22, 0.06, 0.3]), None)),
+            ("summoner", (Garb::Peasant, [1.7, 1.6, 0.6], Some(SlouchHat([0.6, 0.45, 0.15])), Some(Staff(StaffTop::Hoop([1.0, 0.9, 0.3]))), None, None, Some(Over::Tabard([0.2, 0.36, 0.22])))),
+            ("warlock", (Garb::Peasant, [0.55, 0.3, 0.9], Some(GlowEyes([0.4, 1.0, 0.4])), Some(Staff(StaffTop::Horns([0.4, 1.0, 0.4]))), None, cape([0.06, 0.05, 0.08]), None)),
+            ("alchemist", (Garb::Peasant, [1.1, 0.95, 0.75], Some(Goggles), Some(Potion), None, None, Some(Over::Apron))),
+        ];
+        for (name, look) in want {
+            let cap = format!("{}{}", name[..1].to_uppercase(), &name[1..]);
+            for form in [name.to_string(), cap, format!("{name}_class")] {
+                assert_eq!(class_look(&form).map(|c| (c.garb, c.tint, c.head, c.right, c.left, c.back, c.over)), Some(look), "{form}");
+            }
+        }
     }
 }

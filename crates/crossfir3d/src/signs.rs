@@ -36,38 +36,70 @@ const GLYPHS: [[u8; 7]; 26] = [
 const INK: [u8; 4] = [30, 20, 12, 255];
 
 /// Icon paints; `.` is see-through.
+const PAINTS: [(char, [u8; 4]); 11] = [
+    ('k', INK),
+    ('c', [80, 200, 230, 255]),  // cyan
+    ('w', [235, 245, 250, 255]), // white
+    ('y', [240, 200, 40, 255]),  // yellow
+    ('o', [190, 120, 20, 255]),  // dark gold
+    ('b', [80, 45, 20, 255]),    // dark wood
+    ('g', [150, 150, 160, 255]), // steel
+    ('u', [50, 90, 180, 255]),   // blue
+    ('r', [200, 40, 40, 255]),   // red
+    ('G', [50, 150, 50, 255]),   // green
+    ('n', [225, 200, 150, 255]), // sacking
+];
+
+/// The colour of an icon letter; None for a see-through or unknown one.
 fn paint(c: char) -> Option<[u8; 4]> {
-    Some(match c {
-        'k' => INK,
-        'c' => [80, 200, 230, 255],  // cyan
-        'w' => [235, 245, 250, 255], // white
-        'y' => [240, 200, 40, 255],  // yellow
-        'o' => [190, 120, 20, 255],  // dark gold
-        'b' => [80, 45, 20, 255],    // dark wood
-        'g' => [150, 150, 160, 255], // steel
-        'u' => [50, 90, 180, 255],   // blue
-        'r' => [200, 40, 40, 255],   // red
-        'G' => [50, 150, 50, 255],   // green
-        'n' => [225, 200, 150, 255], // sacking
-        _ => return None,
-    })
+    PAINTS.iter().find(|(k, _)| *k == c).map(|(_, rgba)| *rgba)
 }
 
 /// 7×7 icons by name (`assets/models.txt`: `building shop JEWELS gem`).
+const ICONS: [(&str, [&str; 7]); 10] = [
+    ("gem", [".......", ".cwccw.", "ccccccc", "uuuuuuu", ".ccccc.", "..ccc..", "...c..."]),
+    ("wand", ["....y..", "...yyy.", "....y..", "...b...", "..b....", ".b.....", "b......"]),
+    ("coin", ["..yyy..", ".yoooy.", "yoyyyoy", "yoyyyoy", "yoyyyoy", ".yoooy.", "..yyy.."]),
+    ("sword", ["......g", ".....g.", "....g..", ".y.g...", "..y....", ".b.y...", "b......"]),
+    ("shield", ["ggggggg", "guuuuug", "guuuuug", "guuuuug", ".guuug.", "..gug..", "...g..."]),
+    ("bow", ["...b...", "..b.w..", ".b..w..", ".b..w..", ".b..w..", "..b.w..", "...b..."]),
+    ("potion", ["..bbb..", "..g.g..", "..g.g..", ".grrrg.", "grrwrrg", "grrrrrg", ".ggggg."]),
+    ("apple", ["...b...", "...bGG.", ".rrbrr.", "rrrrrrr", "rrrrrrr", ".rrrrr.", "..r.r.."]),
+    ("hammer", [".ggggg.", ".ggggg.", "...b...", "...b...", "...b...", "...b...", "...b..."]),
+    ("sack", ["..b.b..", "...b...", "..nnn..", ".nnnnn.", "nnnnnnn", "nnnnnnn", ".nnnnn."]),
+];
+
+/// The rows of the named icon; None for an unknown name.
 fn icon(name: &str) -> Option<[&'static str; 7]> {
-    Some(match name {
-        "gem" => [".......", ".cwccw.", "ccccccc", "uuuuuuu", ".ccccc.", "..ccc..", "...c..."],
-        "wand" => ["....y..", "...yyy.", "....y..", "...b...", "..b....", ".b.....", "b......"],
-        "coin" => ["..yyy..", ".yoooy.", "yoyyyoy", "yoyyyoy", "yoyyyoy", ".yoooy.", "..yyy.."],
-        "sword" => ["......g", ".....g.", "....g..", ".y.g...", "..y....", ".b.y...", "b......"],
-        "shield" => ["ggggggg", "guuuuug", "guuuuug", "guuuuug", ".guuug.", "..gug..", "...g..."],
-        "bow" => ["...b...", "..b.w..", ".b..w..", ".b..w..", ".b..w..", "..b.w..", "...b..."],
-        "potion" => ["..bbb..", "..g.g..", "..g.g..", ".grrrg.", "grrwrrg", "grrrrrg", ".ggggg."],
-        "apple" => ["...b...", "...bGG.", ".rrbrr.", "rrrrrrr", "rrrrrrr", ".rrrrr.", "..r.r.."],
-        "hammer" => [".ggggg.", ".ggggg.", "...b...", "...b...", "...b...", "...b...", "...b..."],
-        "sack" => ["..b.b..", "...b...", "..nnn..", ".nnnnn.", "nnnnnnn", "nnnnnnn", ".nnnnn."],
-        _ => return None,
-    })
+    ICONS.iter().find(|(n, _)| *n == name).map(|(_, rows)| *rows)
+}
+
+/// Paints the icon's rows, if any, `icon_x` pixels in and one down.
+fn draw_icon(px: &mut [u8], w: usize, icon_x: usize, icon: Option<[&str; 7]>) {
+    for (row, line) in icon.iter().flatten().enumerate() {
+        for (col, c) in line.chars().enumerate() {
+            if let Some(rgba) = paint(c) {
+                let at = ((1 + row) * w + icon_x + col) * 4;
+                px[at..at + 4].copy_from_slice(&rgba);
+            }
+        }
+    }
+}
+
+/// Inks each letter of `chars` in its 6-pixel cell; non-letters stay blank.
+fn draw_text(px: &mut [u8], w: usize, chars: &[char]) {
+    for (i, c) in chars.iter().enumerate() {
+        let Some(glyph) = c.is_ascii_uppercase().then(|| GLYPHS[(*c as u8 - b'A') as usize]) else { continue };
+        for (row, bits) in glyph.iter().enumerate() {
+            for col in 0..5 {
+                if bits & (0x10 >> col) != 0 {
+                    let (x, y) = (1 + i * 6 + col, 1 + row);
+                    let at = (y * w + x) * 4;
+                    px[at..at + 4].copy_from_slice(&INK);
+                }
+            }
+        }
+    }
 }
 
 /// The text, then the named icon if there is one, as RGBA pixels (see-through round
@@ -80,26 +112,8 @@ pub fn sign_pixels(text: &str, icon_name: Option<&str>) -> (u32, u32, Vec<u8>) {
     let w = if icon.is_some() { icon_x + 8 } else { chars.len() * 6 + 1 } as u32;
     let h = 9;
     let mut px = vec![0u8; (w * h * 4) as usize];
-    for (row, line) in icon.iter().flatten().enumerate() {
-        for (col, c) in line.chars().enumerate() {
-            if let Some(rgba) = paint(c) {
-                let at = ((1 + row) * w as usize + icon_x + col) * 4;
-                px[at..at + 4].copy_from_slice(&rgba);
-            }
-        }
-    }
-    for (i, c) in chars.iter().enumerate() {
-        let Some(glyph) = c.is_ascii_uppercase().then(|| GLYPHS[(*c as u8 - b'A') as usize]) else { continue };
-        for (row, bits) in glyph.iter().enumerate() {
-            for col in 0..5 {
-                if bits & (0x10 >> col) != 0 {
-                    let (x, y) = (1 + i * 6 + col, 1 + row);
-                    let at = (y * w as usize + x) * 4;
-                    px[at..at + 4].copy_from_slice(&INK);
-                }
-            }
-        }
-    }
+    draw_icon(&mut px, w as usize, icon_x, icon);
+    draw_text(&mut px, w as usize, &chars);
     (w, h, px)
 }
 
@@ -141,6 +155,43 @@ mod tests {
                 assert_eq!(r.chars().count(), 7, "{name}: {r}");
                 assert!(r.chars().all(|c| c == '.' || paint(c).is_some()), "{name}: {r}");
             }
+        }
+    }
+
+    #[test]
+    fn icon_rows_by_name() {
+        let want = [
+            ("gem", [".......", ".cwccw.", "ccccccc", "uuuuuuu", ".ccccc.", "..ccc..", "...c..."]),
+            ("wand", ["....y..", "...yyy.", "....y..", "...b...", "..b....", ".b.....", "b......"]),
+            ("coin", ["..yyy..", ".yoooy.", "yoyyyoy", "yoyyyoy", "yoyyyoy", ".yoooy.", "..yyy.."]),
+            ("sword", ["......g", ".....g.", "....g..", ".y.g...", "..y....", ".b.y...", "b......"]),
+            ("shield", ["ggggggg", "guuuuug", "guuuuug", "guuuuug", ".guuug.", "..gug..", "...g..."]),
+            ("bow", ["...b...", "..b.w..", ".b..w..", ".b..w..", ".b..w..", "..b.w..", "...b..."]),
+            ("potion", ["..bbb..", "..g.g..", "..g.g..", ".grrrg.", "grrwrrg", "grrrrrg", ".ggggg."]),
+            ("apple", ["...b...", "...bGG.", ".rrbrr.", "rrrrrrr", "rrrrrrr", ".rrrrr.", "..r.r.."]),
+            ("hammer", [".ggggg.", ".ggggg.", "...b...", "...b...", "...b...", "...b...", "...b..."]),
+            ("sack", ["..b.b..", "...b...", "..nnn..", ".nnnnn.", "nnnnnnn", "nnnnnnn", ".nnnnn."]),
+        ];
+        for (name, rows) in want {
+            assert_eq!(icon(name), Some(rows), "{name}");
+        }
+        for name in ["", "Gem", "x"] {
+            assert_eq!(icon(name), None, "{name:?}");
+        }
+    }
+
+    #[test]
+    fn paint_colours() {
+        let want = [
+            ('k', INK), ('c', [80, 200, 230, 255]), ('w', [235, 245, 250, 255]), ('y', [240, 200, 40, 255]),
+            ('o', [190, 120, 20, 255]), ('b', [80, 45, 20, 255]), ('g', [150, 150, 160, 255]),
+            ('u', [50, 90, 180, 255]), ('r', [200, 40, 40, 255]), ('G', [50, 150, 50, 255]), ('n', [225, 200, 150, 255]),
+        ];
+        for (c, rgba) in want {
+            assert_eq!(paint(c), Some(rgba), "{c}");
+        }
+        for c in [' ', 'K', 'z', '.'] {
+            assert_eq!(paint(c), None, "{c}");
         }
     }
 

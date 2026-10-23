@@ -72,40 +72,57 @@ fn wait_for<T>(net: &Net, flow: &mut LoginFlow, what: &str, mut check: impl FnMu
     panic!("timed out waiting for {what}");
 }
 
-#[test]
-#[ignore]
-fn pick_up_and_drop() {
+/// Logs in as a new account with a quick character and returns the connection and login flow.
+fn quick_login(prefix: &str) -> (Net, LoginFlow) {
     let net = connect("localhost:13327").expect("is the server running? scripts/server.sh run");
     let stamp = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_millis() % 1_000_000;
-    let name = format!("drop{stamp}");
+    let name = format!("{prefix}{stamp}");
     let creds = Creds { account: name.clone(), password: "testpw".into(), new_account: true, quick_character: Some(name) };
-    let (mut flow, first) = LoginFlow::start(creds);
+    let (flow, first) = LoginFlow::start(creds);
     for m in first {
         net.tx.send(m).unwrap();
     }
-    let player = wait_for(&net, &mut flow, "player", |m| match m {
-        ServerMsg::Player { tag, .. } => Some(*tag),
+    (net, flow)
+}
+
+/// Waits until item `tag` is listed at `location`.
+fn wait_item_at(net: &Net, flow: &mut LoginFlow, what: &str, location: u32, tag: u32) {
+    wait_for(net, flow, what, |m| match m {
+        ServerMsg::Item2 { location: l, items } if *l == location => items.iter().any(|i| i.tag == tag).then_some(()),
         _ => None,
     });
-    // A starting item that is neither locked nor worn.
-    let (tag, nrof) = wait_for(&net, &mut flow, "a droppable item", |m| match m {
+}
+
+/// Waits for the player's tag.
+fn wait_player(net: &Net, flow: &mut LoginFlow) -> u32 {
+    wait_for(net, flow, "player", |m| match m {
+        ServerMsg::Player { tag, .. } => Some(*tag),
+        _ => None,
+    })
+}
+
+/// Waits for a starting item in the player's inventory that is neither locked nor worn; returns (tag, nrof).
+fn wait_droppable(net: &Net, flow: &mut LoginFlow, player: u32) -> (u32, u32) {
+    wait_for(net, flow, "a droppable item", |m| match m {
         ServerMsg::Item2 { location, items } if *location == player => {
             items.iter().find(|i| !i.locked() && !i.applied()).map(|i| (i.tag, i.nrof))
         }
         _ => None,
-    });
+    })
+}
+
+#[test]
+#[ignore]
+fn pick_up_and_drop() {
+    let (net, mut flow) = quick_login("drop");
+    let player = wait_player(&net, &mut flow);
+    let (tag, nrof) = wait_droppable(&net, &mut flow, player);
 
     net.tx.send(ClientMsg::Move { to: 0, tag, count: nrof }).unwrap();
-    wait_for(&net, &mut flow, "the dropped item on the ground", |m| match m {
-        ServerMsg::Item2 { location: 0, items } => items.iter().any(|i| i.tag == tag).then_some(()),
-        _ => None,
-    });
+    wait_item_at(&net, &mut flow, "the dropped item on the ground", 0, tag);
 
     net.tx.send(ClientMsg::Move { to: player, tag, count: nrof }).unwrap();
-    wait_for(&net, &mut flow, "the item back in the inventory", |m| match m {
-        ServerMsg::Item2 { location, items } if *location == player => items.iter().any(|i| i.tag == tag).then_some(()),
-        _ => None,
-    });
+    wait_item_at(&net, &mut flow, "the item back in the inventory", player, tag);
 }
 
 #[test]
@@ -136,60 +153,8 @@ fn creation_data_parses() {
     assert_eq!(seen, 5);
 }
 
-#[test]
-#[ignore]
-fn create_chosen_character() {
-    let net = connect("localhost:13327").expect("is the server running? scripts/server.sh run");
-    let stamp = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_millis() % 1_000_000;
-    let name = format!("make{stamp}");
-    let creds = Creds { account: name.clone(), password: "testpw".into(), new_account: true, quick_character: None };
-    let (mut flow, first) = LoginFlow::start(creds);
-    for m in first {
-        net.tx.send(m).unwrap();
-    }
-    wait_for(&net, &mut flow, "character list", |m| matches!(m, ServerMsg::AccountPlayers(_)).then_some(()));
-    for m in flow.start_creating() {
-        net.tx.send(m).unwrap();
-    }
-    // Wait until the lists, the second race's and class's descriptions, and the maps arrived.
-    let deadline = Instant::now() + Duration::from_secs(10);
-    loop {
-        assert!(Instant::now() < deadline, "creation data incomplete");
-        next(&net, &mut flow, Duration::from_secs(5));
-        let n = &flow.newchar;
-        let ready = n.races.len() > 1
-            && n.classes.len() > 1
-            && n.infos.contains_key(&n.races[1])
-            && n.infos.contains_key(&n.classes[1])
-            && n.map.is_some();
-        if ready {
-            break;
-        }
-    }
-    let n = &mut flow.newchar;
-    assert_eq!(n.map.as_deref(), Some("map_scorn"));
-    n.race = Some(n.races[1].clone());
-    n.class = Some(n.classes[1].clone());
-    n.refresh_choices();
-    n.name = name.clone();
-    // Roll until the race and class leave no stat below 1.
-    for seed in 1.. {
-        n.roll(seed);
-        if n.problem().is_none() {
-            break;
-        }
-    }
-    let create = flow.create();
-    assert!(matches!(&create[..], [ClientMsg::CreatePlayer { .. }]), "{create:?}");
-    for m in create {
-        net.tx.send(m).unwrap();
-    }
-    wait_for(&net, &mut flow, "the game to start", |m| matches!(m, ServerMsg::Map2(_)).then_some(()));
-    assert_eq!(flow.character(), name);
-}
-
-/// A new character of `class` starting on `map` (arch names, e.g. "alchemist_class", "map_scorn"), in the game.
-fn play_as(prefix: &str, class: &str, map: &str) -> (Net, LoginFlow) {
+/// Logs in as a new account without a quick character, waits for the character list and starts creating; returns the connection, login flow and name.
+fn start_creation(prefix: &str) -> (Net, LoginFlow, String) {
     let net = connect("localhost:13327").expect("is the server running? scripts/server.sh run");
     let stamp = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_millis() % 1_000_000;
     let name = format!("{prefix}{stamp}");
@@ -202,6 +167,61 @@ fn play_as(prefix: &str, class: &str, map: &str) -> (Net, LoginFlow) {
     for m in flow.start_creating() {
         net.tx.send(m).unwrap();
     }
+    (net, flow, name)
+}
+
+/// Waits until the lists, the second race's and class's descriptions, and the maps arrived.
+fn wait_creation_data(net: &Net, flow: &mut LoginFlow) {
+    let deadline = Instant::now() + Duration::from_secs(10);
+    loop {
+        assert!(Instant::now() < deadline, "creation data incomplete");
+        next(net, flow, Duration::from_secs(5));
+        let n = &flow.newchar;
+        let ready = n.races.len() > 1
+            && n.classes.len() > 1
+            && n.infos.contains_key(&n.races[1])
+            && n.infos.contains_key(&n.classes[1])
+            && n.map.is_some();
+        if ready {
+            break;
+        }
+    }
+}
+
+/// Rolls until the chosen race and class leave no stat below 1.
+fn roll_until_valid(flow: &mut LoginFlow) {
+    for seed in 1.. {
+        flow.newchar.roll(seed);
+        if flow.newchar.problem().is_none() {
+            break;
+        }
+    }
+}
+
+#[test]
+#[ignore]
+fn create_chosen_character() {
+    let (net, mut flow, name) = start_creation("make");
+    wait_creation_data(&net, &mut flow);
+    let n = &mut flow.newchar;
+    assert_eq!(n.map.as_deref(), Some("map_scorn"));
+    n.race = Some(n.races[1].clone());
+    n.class = Some(n.classes[1].clone());
+    n.refresh_choices();
+    n.name = name.clone();
+    roll_until_valid(&mut flow);
+    let create = flow.create();
+    assert!(matches!(&create[..], [ClientMsg::CreatePlayer { .. }]), "{create:?}");
+    for m in create {
+        net.tx.send(m).unwrap();
+    }
+    wait_for(&net, &mut flow, "the game to start", |m| matches!(m, ServerMsg::Map2(_)).then_some(()));
+    assert_eq!(flow.character(), name);
+}
+
+/// A new character of `class` starting on `map` (arch names, e.g. "alchemist_class", "map_scorn"), in the game.
+fn play_as(prefix: &str, class: &str, map: &str) -> (Net, LoginFlow) {
+    let (net, mut flow, name) = start_creation(prefix);
     while !(flow.newchar.classes.iter().any(|c| c == class) && flow.newchar.map.is_some()) {
         next(&net, &mut flow, Duration::from_secs(5));
     }
@@ -211,12 +231,7 @@ fn play_as(prefix: &str, class: &str, map: &str) -> (Net, LoginFlow) {
     n.map = Some(map.into());
     n.refresh_choices();
     n.name = name;
-    for seed in 1.. {
-        n.roll(seed);
-        if n.problem().is_none() {
-            break;
-        }
-    }
+    roll_until_valid(&mut flow);
     for m in flow.create() {
         net.tx.send(m).unwrap();
     }
@@ -239,7 +254,7 @@ fn read_a_sign_opens_the_box() {
     let mut msgs = Messages::default();
     wait_for(&net, &mut flow, "the sign's text", |m| match m {
         ServerMsg::Text { kind, subtype, text } if text.contains("Welcome to Crossfire!") => {
-            msgs.push(*kind, *subtype, text, 1.0, Some(0.5));
+            msgs.push((*kind, *subtype), text, 1.0, Some(0.5));
             Some(())
         }
         _ => None,

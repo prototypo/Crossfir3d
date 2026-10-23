@@ -66,30 +66,44 @@ pub enum Act {
 /// The spec's key table. In the command line the text box owns the keys; in the
 /// inventory only I and Escape act here (the inventory screen handles the rest).
 pub fn act(mode: Mode, key: KeyName, box_open: bool) -> Act {
-    match (mode, key) {
-        (Mode::CommandLine, _) => Act::Nothing,
-        (Mode::Inventory, KeyName::I | KeyName::Escape) => Act::CloseInventory,
-        (Mode::Inventory, _) => Act::Nothing,
-        (Mode::Settings, KeyName::Escape) => Act::CloseSettings,
-        (Mode::Settings, _) => Act::Nothing,
-        (Mode::Keys, KeyName::K | KeyName::Escape) => Act::CloseKeys,
-        (Mode::Keys, _) => Act::Nothing,
-        (Mode::World, KeyName::E | KeyName::Escape) if box_open => Act::CloseBox,
-        (Mode::World, KeyName::Escape) => Act::OpenSettings,
-        (Mode::World, KeyName::A | KeyName::E) => Act::Apply,
-        (Mode::World, KeyName::G) => Act::Get,
-        (Mode::World, KeyName::Digit(n @ 1..=4)) => Act::Slot(n as usize - 1),
-        (Mode::World, KeyName::I) => Act::OpenInventory,
-        (Mode::World, KeyName::K) => Act::OpenKeys,
-        (Mode::World, KeyName::B) => Act::ShowGround,
-        (Mode::World, KeyName::L) => Act::ToggleLog,
-        (Mode::World, KeyName::M) => Act::ToggleMute,
-        (Mode::World, KeyName::C) => Act::CameraBehind,
-        (Mode::World, KeyName::T) => Act::FaceNearest,
-        (Mode::World, KeyName::Space) => Act::Fire,
-        (Mode::World, KeyName::Tab) => Act::TopView,
-        (Mode::World, KeyName::Enter) => Act::OpenCommand,
-        (Mode::World, _) => Act::Nothing,
+    match mode {
+        Mode::World => world_act(key, box_open),
+        Mode::CommandLine => Act::Nothing,
+        Mode::Inventory => close_on(key, &[KeyName::I, KeyName::Escape], Act::CloseInventory),
+        Mode::Settings => close_on(key, &[KeyName::Escape], Act::CloseSettings),
+        Mode::Keys => close_on(key, &[KeyName::K, KeyName::Escape], Act::CloseKeys),
+    }
+}
+
+/// The close action when `key` is one of a screen's close keys, otherwise Nothing.
+fn close_on(key: KeyName, close_keys: &[KeyName], close: Act) -> Act {
+    if close_keys.contains(&key) { close } else { Act::Nothing }
+}
+
+/// The plain one-key world bindings, after the box, Escape and digit rules.
+const WORLD_KEYS: &[(KeyName, Act)] = &[
+    (KeyName::A, Act::Apply),
+    (KeyName::E, Act::Apply),
+    (KeyName::G, Act::Get),
+    (KeyName::I, Act::OpenInventory),
+    (KeyName::K, Act::OpenKeys),
+    (KeyName::B, Act::ShowGround),
+    (KeyName::L, Act::ToggleLog),
+    (KeyName::M, Act::ToggleMute),
+    (KeyName::C, Act::CameraBehind),
+    (KeyName::T, Act::FaceNearest),
+    (KeyName::Space, Act::Fire),
+    (KeyName::Tab, Act::TopView),
+    (KeyName::Enter, Act::OpenCommand),
+];
+
+/// What a key does while playing in the world.
+fn world_act(key: KeyName, box_open: bool) -> Act {
+    match key {
+        KeyName::E | KeyName::Escape if box_open => Act::CloseBox,
+        KeyName::Escape => Act::OpenSettings,
+        KeyName::Digit(n @ 1..=4) => Act::Slot(n as usize - 1),
+        _ => WORLD_KEYS.iter().find(|(k, _)| *k == key).map_or(Act::Nothing, |&(_, a)| a),
     }
 }
 
@@ -223,6 +237,48 @@ mod tests {
     fn inventory_swallows_world_keys() {
         for k in [KeyName::E, KeyName::G, KeyName::M, KeyName::L, KeyName::Digit(1), KeyName::Enter] {
             assert_eq!(act(Mode::Inventory, k, false), Act::Nothing, "{k:?}");
+        }
+    }
+
+    fn old_act(mode: Mode, key: KeyName, box_open: bool) -> Act {
+        match (mode, key) {
+            (Mode::CommandLine, _) => Act::Nothing,
+            (Mode::Inventory, KeyName::I | KeyName::Escape) => Act::CloseInventory,
+            (Mode::Inventory, _) => Act::Nothing,
+            (Mode::Settings, KeyName::Escape) => Act::CloseSettings,
+            (Mode::Settings, _) => Act::Nothing,
+            (Mode::Keys, KeyName::K | KeyName::Escape) => Act::CloseKeys,
+            (Mode::Keys, _) => Act::Nothing,
+            (Mode::World, KeyName::E | KeyName::Escape) if box_open => Act::CloseBox,
+            (Mode::World, KeyName::Escape) => Act::OpenSettings,
+            (Mode::World, KeyName::A | KeyName::E) => Act::Apply,
+            (Mode::World, KeyName::G) => Act::Get,
+            (Mode::World, KeyName::Digit(n @ 1..=4)) => Act::Slot(n as usize - 1),
+            (Mode::World, KeyName::I) => Act::OpenInventory,
+            (Mode::World, KeyName::K) => Act::OpenKeys,
+            (Mode::World, KeyName::B) => Act::ShowGround,
+            (Mode::World, KeyName::L) => Act::ToggleLog,
+            (Mode::World, KeyName::M) => Act::ToggleMute,
+            (Mode::World, KeyName::C) => Act::CameraBehind,
+            (Mode::World, KeyName::T) => Act::FaceNearest,
+            (Mode::World, KeyName::Space) => Act::Fire,
+            (Mode::World, KeyName::Tab) => Act::TopView,
+            (Mode::World, KeyName::Enter) => Act::OpenCommand,
+            (Mode::World, _) => Act::Nothing,
+        }
+    }
+
+    #[test]
+    fn every_key_in_every_mode_unchanged() {
+        use KeyName::*;
+        let mut keys = vec![A, E, G, D, X, I, L, M, C, T, K, B, Space, Tab, Escape, Enter, Other];
+        keys.extend((0..=9).map(Digit));
+        for m in [Mode::World, Mode::CommandLine, Mode::Inventory, Mode::Settings, Mode::Keys] {
+            for &k in &keys {
+                for open in [false, true] {
+                    assert_eq!(act(m, k, open), old_act(m, k, open), "{m:?} {k:?} {open}");
+                }
+            }
         }
     }
 

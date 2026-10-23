@@ -10,6 +10,7 @@ use bevy::render::render_resource::{Extent3d, TextureFormat};
 use bevy_egui::PrimaryEguiContext;
 use bevy::light::DirectionalLightShadowMap;
 use bevy::pbr::{ScreenSpaceAmbientOcclusion, ScreenSpaceAmbientOcclusionQualityLevel};
+use bevy::ecs::system::SystemParam;
 use bevy::prelude::*;
 use bevy::render::view::{ColorGrading, ColorGradingGlobal, ColorGradingSection};
 use bevy::window::{Monitor, MonitorSelection, PrimaryMonitor, PresentMode, PrimaryWindow, WindowMode, WindowMoved, WindowPosition, WindowResized};
@@ -75,47 +76,62 @@ fn look(s: &Settings) -> Settings {
     Settings { window: None, music: true, ..s.clone() }.normalized()
 }
 
-#[allow(clippy::too_many_arguments)]
+/// The window and shadow map that `apply_settings` sets.
+#[derive(SystemParam)]
+struct ApplyTargets<'w, 's> {
+    window: Single<'w, 's, &'static mut Window, With<PrimaryWindow>>,
+    shadow_map: ResMut<'w, DirectionalLightShadowMap>,
+}
+
+/// The shadow map size for a shadow quality.
+fn shadow_size(q: Quality) -> u32 {
+    match q {
+        Quality::Off | Quality::Low => 1024,
+        Quality::Medium => 2048,
+        Quality::High => 4096,
+    }
+}
+
+/// Sets one camera's ambient occlusion, anti-aliasing and colour grading.
+fn apply_to_camera(e: &mut EntityCommands, s: &Settings) {
+    match ssao_level(s.ambient_occlusion) {
+        Some(quality_level) => e.insert(ScreenSpaceAmbientOcclusion { quality_level, ..default() }),
+        None => e.remove::<ScreenSpaceAmbientOcclusion>(),
+    };
+    match s.anti_alias {
+        // TAA brought its jitter and mip bias with it: they go too, or textures shimmer.
+        AntiAlias::Off => e.insert(Msaa::Off).remove::<(TemporalAntiAliasing, TemporalJitter, MipBias)>(),
+        AntiAlias::Msaa4 => e.insert(Msaa::Sample4).remove::<(TemporalAntiAliasing, TemporalJitter, MipBias)>(),
+        AntiAlias::Taa => e.insert((Msaa::Off, TemporalAntiAliasing::default())),
+    };
+    let section = ColorGradingSection { contrast: s.contrast, gamma: s.gamma, ..default() };
+    e.insert(ColorGrading {
+        global: ColorGradingGlobal { exposure: s.brightness, ..default() },
+        shadows: section,
+        midtones: section,
+        highlights: section,
+    });
+}
+
+/// Applies changed settings to the window and the cameras.
 fn apply_settings(
     mut commands: Commands,
     settings: Res<CurrentSettings>,
     mut applied: Local<Option<Settings>>,
-    mut window: Single<&mut Window, With<PrimaryWindow>>,
+    mut targets: ApplyTargets,
     cameras: Query<Entity, With<Camera3d>>,
-    mut shadow_map: ResMut<DirectionalLightShadowMap>,
 ) {
     let s = look(&settings.0);
     // Cameras appear after startup; keep trying until there is one.
     if applied.as_ref() == Some(&s) && !cameras.is_empty() {
         return;
     }
-    window.mode = window_mode(&s);
-    window.present_mode = present_mode(s.frame_rate);
+    targets.window.mode = window_mode(&s);
+    targets.window.present_mode = present_mode(s.frame_rate);
     for cam in &cameras {
-        let mut e = commands.entity(cam);
-        match ssao_level(s.ambient_occlusion) {
-            Some(quality_level) => e.insert(ScreenSpaceAmbientOcclusion { quality_level, ..default() }),
-            None => e.remove::<ScreenSpaceAmbientOcclusion>(),
-        };
-        match s.anti_alias {
-            // TAA brought its jitter and mip bias with it: they go too, or textures shimmer.
-            AntiAlias::Off => e.insert(Msaa::Off).remove::<(TemporalAntiAliasing, TemporalJitter, MipBias)>(),
-            AntiAlias::Msaa4 => e.insert(Msaa::Sample4).remove::<(TemporalAntiAliasing, TemporalJitter, MipBias)>(),
-            AntiAlias::Taa => e.insert((Msaa::Off, TemporalAntiAliasing::default())),
-        };
-        let section = ColorGradingSection { contrast: s.contrast, gamma: s.gamma, ..default() };
-        e.insert(ColorGrading {
-            global: ColorGradingGlobal { exposure: s.brightness, ..default() },
-            shadows: section,
-            midtones: section,
-            highlights: section,
-        });
+        apply_to_camera(&mut commands.entity(cam), &s);
     }
-    shadow_map.size = match s.shadows {
-        Quality::Off | Quality::Low => 1024,
-        Quality::Medium => 2048,
-        Quality::High => 4096,
-    };
+    targets.shadow_map.size = shadow_size(s.shadows) as usize;
     if !cameras.is_empty() {
         *applied = Some(s);
     }
@@ -150,18 +166,25 @@ fn keep_window_on_screen(
     };
 }
 
+/// The window move and resize messages that `remember_window` reads.
+#[derive(SystemParam)]
+struct WindowMessages<'w, 's> {
+    moved: MessageReader<'w, 's, WindowMoved>,
+    resized: MessageReader<'w, 's, WindowResized>,
+}
+
+/// Saves the windowed position and size into the settings when the window moves.
 fn remember_window(
-    mut moved: MessageReader<WindowMoved>,
-    mut resized: MessageReader<WindowResized>,
+    mut messages: WindowMessages,
     window: Single<&Window, With<PrimaryWindow>>,
     mut last_pos: Local<Option<IVec2>>,
     mut settings: ResMut<CurrentSettings>,
     monitors: Query<&Monitor>,
 ) {
-    if let Some(m) = moved.read().last() {
+    if let Some(m) = messages.moved.read().last() {
         *last_pos = Some(m.position);
     }
-    let changed = last_pos.is_some() | (resized.read().count() > 0);
+    let changed = last_pos.is_some() | (messages.resized.read().count() > 0);
     if !changed || settings.0.fullscreen || window.mode != WindowMode::Windowed {
         return;
     }
@@ -185,7 +208,8 @@ fn remember_window(
 
 /// A window as big as one of the screens (logical points): full screen, not a place.
 fn fills_a_screen(place: WindowPlace, screens: &[(f32, f32)]) -> bool {
-    screens.iter().any(|&(w, h)| place.width as f32 >= w - 1.0 && place.height as f32 >= h - 40.0)
+    // As wide as a screen, not wider: a big window on a big screen is wider than the small one.
+    screens.iter().any(|&(w, h)| (place.width as f32 - w).abs() <= 1.0 && place.height as f32 >= h - 40.0)
 }
 
 /// Saves at most once a second (window moves send many changes).
@@ -242,6 +266,8 @@ pub struct SceneImage(pub Handle<Image>);
 fn scene_target() -> Image {
     let mut image = Image::new_target_texture(1, 1, TextureFormat::Rgba8Unorm, Some(TextureFormat::Rgba8UnormSrgb));
     image.data = None;
+    // Redrawn every frame: nothing to keep. A copy would need COPY_SRC, and without it wgpu quits.
+    image.copy_on_resize = false;
     image
 }
 
@@ -256,26 +282,32 @@ fn setup_scaled_view(mut commands: Commands, mut images: ResMut<Assets<Image>>) 
     ));
 }
 
+/// The scene image handle and the image assets it lives in.
+#[derive(SystemParam)]
+struct SceneTarget<'w> {
+    scene: Res<'w, SceneImage>,
+    images: ResMut<'w, Assets<Image>>,
+}
+
 /// Points the 3D camera at the scene image and keeps the image at window size x scale.
 fn fit_scene_image(
     mut commands: Commands,
-    scene: Res<SceneImage>,
+    mut target: SceneTarget,
     settings: Res<CurrentSettings>,
     window: Single<&Window, With<PrimaryWindow>>,
     cameras: Query<(Entity, Option<&RenderTarget>), With<Camera3d>>,
-    mut images: ResMut<Assets<Image>>,
 ) {
-    for (cam, target) in &cameras {
-        if !matches!(target, Some(RenderTarget::Image(_))) {
-            commands.entity(cam).insert((RenderTarget::Image(scene.0.clone().into()), Camera { order: 0, ..default() }));
+    for (cam, current) in &cameras {
+        if !matches!(current, Some(RenderTarget::Image(_))) {
+            commands.entity(cam).insert((RenderTarget::Image(target.scene.0.clone().into()), Camera { order: 0, ..default() }));
         }
     }
     let scale = settings.0.clone().normalized().render_scale;
     let size = window.physical_size().as_vec2() * scale;
     let want = Extent3d { width: (size.x as u32).max(1), height: (size.y as u32).max(1), depth_or_array_layers: 1 };
-    let Some(image) = images.get(&scene.0) else { return };
+    let Some(image) = target.images.get(&target.scene.0) else { return };
     if image.texture_descriptor.size != want {
-        if let Some(mut image) = images.get_mut(&scene.0) {
+        if let Some(mut image) = target.images.get_mut(&target.scene.0) {
             image.resize(want);
         }
     }
@@ -291,6 +323,15 @@ mod tests {
         assert!(fills_a_screen(place(1512, 982), &[(1512.0, 982.0)]));
         assert!(fills_a_screen(place(2560, 1440), &[(1512.0, 982.0), (2560.0, 1440.0)]));
         assert!(!fills_a_screen(place(1200, 800), &[(1512.0, 982.0)]));
+        // Dragged bigger than the laptop screen, on the big screen: a place.
+        assert!(!fills_a_screen(place(1700, 1000), &[(1512.0, 982.0), (2560.0, 1440.0)]));
+    }
+
+    #[test]
+    fn scene_image_is_not_copied_on_resize() {
+        // Its texture has no COPY_SRC: a GPU copy on resize is a validation error that quits.
+        let image = scene_target();
+        assert!(!image.copy_on_resize);
     }
 
     #[test]

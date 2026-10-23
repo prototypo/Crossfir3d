@@ -34,6 +34,7 @@ pub struct AnimState {
 }
 
 impl AnimState {
+    /// Moves the animation state on when something happens to the character.
     pub fn on_event(&mut self, ev: AnimEvent, now: f32) {
         match ev {
             AnimEvent::StepStarted => {
@@ -53,6 +54,7 @@ impl AnimState {
         }
     }
 
+    /// Picks the animation to play now: death, a one-shot, walk or idle.
     pub fn current(&self, now: f32) -> Anim {
         if self.dead {
             return Anim::Death;

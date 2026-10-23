@@ -3,6 +3,7 @@
 //! which flashes red when hit (a picture card, or a 3D creature). The protocol sends no creature health or damage, so
 //! there are no creature health bars or damage numbers.
 
+use bevy::ecs::system::SystemParam;
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
 
@@ -44,27 +45,38 @@ fn ahead(facing: u8) -> (i32, i32) {
     STEPS[(facing.clamp(1, 8) - 1) as usize]
 }
 
-#[allow(clippy::too_many_arguments)]
-pub fn watch(
-    time: Res<Time>,
-    stats: Res<PlayerStats>,
-    facing: Res<Facing>,
-    view: Res<View>,
-    size: Res<ViewSize>,
-    mut fx: ResMut<CombatFx>,
-    mut last_hp: Local<Option<i16>>,
-    mut tinted: Local<Vec<(Handle<StandardMaterial>, Color, f32)>>,
-    own: Query<&Transform, With<OwnCharacter>>,
-    things: Query<(Entity, &TileVisual, Has<Card>, Has<Character>)>,
-    children: Query<&Children>,
-    meshes: Query<&MeshMaterial3d<StandardMaterial>>,
-    mut materials: ResMut<Assets<StandardMaterial>>,
-) {
-    let now = time.elapsed_secs();
-    let Ok(me) = own.single().map(|t| t.translation) else { return };
+type Tinted = Vec<(Handle<StandardMaterial>, Color, f32)>;
+
+#[derive(SystemParam)]
+pub struct WatchParams<'w, 's> {
+    time: Res<'w, Time>,
+    stats: Res<'w, PlayerStats>,
+    facing: Res<'w, Facing>,
+    view: Res<'w, View>,
+    size: Res<'w, ViewSize>,
+    own: Query<'w, 's, &'static Transform, With<OwnCharacter>>,
+    things: Query<'w, 's, (Entity, &'static TileVisual, Has<Card>, Has<Character>)>,
+    children: Query<'w, 's, &'static Children>,
+    meshes: Query<'w, 's, &'static MeshMaterial3d<StandardMaterial>>,
+    materials: ResMut<'w, Assets<StandardMaterial>>,
+}
+
+/// Watches HP and attacks each frame to start the flash, floating numbers and tints.
+pub fn watch(mut w: WatchParams, mut fx: ResMut<CombatFx>, mut last_hp: Local<Option<i16>>, mut tinted: Local<Tinted>) {
+    let now = w.time.elapsed_secs();
+    let Ok(me) = w.own.single().map(|t| t.translation) else { return };
+    let hp = w.stats.0.hp;
+    flash_on_hp_drop(&mut fx, *last_hp, hp, me, now);
+    *last_hp = Some(hp);
+    show_attacks(&mut w, &mut fx, &mut tinted, me, now);
+    restore_tints(&mut tinted, &mut w.materials, now);
+    fx.floats.retain(|f| now - f.born < FLOAT_SECS);
+}
+
+/// Flashes the screen and floats the HP lost when HP fell.
+fn flash_on_hp_drop(fx: &mut CombatFx, last_hp: Option<i16>, hp: i16, me: Vec3, now: f32) {
     // Hit: HP fell (not the jump from 0 at login).
-    let hp = stats.0.hp;
-    if let Some(before) = *last_hp
+    if let Some(before) = last_hp
         && hp < before
         && before > 0
     {
@@ -72,9 +84,11 @@ pub fn watch(
         let text = format!("-{}", before - hp);
         fx.floats.push(Float { at: me + Vec3::Y * 1.25, text, colour: egui::Color32::from_rgb(0xff, 0x40, 0x30), born: now });
     }
-    *last_hp = Some(hp);
+}
 
-    let (dx, dy) = ahead(facing.0);
+/// Floats "hit", "miss" or "killed!" over the square ahead for each pending attack, tinting a hit target.
+fn show_attacks(w: &mut WatchParams, fx: &mut CombatFx, tinted: &mut Tinted, me: Vec3, now: f32) {
+    let (dx, dy) = ahead(w.facing.0);
     let target = me + Vec3::new(dx as f32, 1.0, dy as f32);
     for subtype in std::mem::take(&mut fx.attacks) {
         let (text, colour) = match subtype {
@@ -85,23 +99,32 @@ pub fn watch(
         };
         fx.floats.push(Float { at: target, text: text.into(), colour, born: now });
         if subtype == DID_HIT {
-            let (px, py) = view.0.world((size.0 / 2) as i8, (size.1 / 2) as i8);
-            // A picture card, or every part of a 3D creature (each has its own materials).
-            let hit = things.iter().filter(|(_, tv, ..)| (tv.x, tv.y) == (px + dx, py + dy) && tv.layer >= 6);
-            let parts = hit.flat_map(|(e, _, card, character)| {
-                let own = card.then_some(e).into_iter();
-                own.chain(character.then(|| children.iter_descendants(e)).into_iter().flatten())
-            });
-            for mat in parts.filter_map(|e| meshes.get(e).ok()) {
-                if !tinted.iter().any(|(h, ..)| h == &mat.0)
-                    && let Some(mut m) = materials.get_mut(&mat.0)
-                {
-                    tinted.push((mat.0.clone(), m.base_color, now));
-                    m.base_color = Color::srgb(1.0, 0.25, 0.2);
-                }
-            }
+            tint_hit(w, tinted, (dx, dy), now);
         }
     }
+}
+
+/// Turns the materials of the creature one square ahead red, remembering the originals.
+fn tint_hit(w: &mut WatchParams, tinted: &mut Tinted, (dx, dy): (i32, i32), now: f32) {
+    let (px, py) = w.view.0.world((w.size.0 / 2) as i8, (w.size.1 / 2) as i8);
+    // A picture card, or every part of a 3D creature (each has its own materials).
+    let hit = w.things.iter().filter(|(_, tv, ..)| (tv.x, tv.y) == (px + dx, py + dy) && tv.layer >= 6);
+    let parts = hit.flat_map(|(e, _, card, character)| {
+        let own = card.then_some(e).into_iter();
+        own.chain(character.then(|| w.children.iter_descendants(e)).into_iter().flatten())
+    });
+    for mat in parts.filter_map(|e| w.meshes.get(e).ok()) {
+        if !tinted.iter().any(|(h, ..)| h == &mat.0)
+            && let Some(mut m) = w.materials.get_mut(&mat.0)
+        {
+            tinted.push((mat.0.clone(), m.base_color, now));
+            m.base_color = Color::srgb(1.0, 0.25, 0.2);
+        }
+    }
+}
+
+/// Puts back the original colour of every tinted material older than TINT_SECS.
+fn restore_tints(tinted: &mut Tinted, materials: &mut Assets<StandardMaterial>, now: f32) {
     tinted.retain(|(handle, colour, at)| {
         let keep = now - at < TINT_SECS;
         if !keep && let Some(mut m) = materials.get_mut(handle) {
@@ -109,9 +132,9 @@ pub fn watch(
         }
         keep
     });
-    fx.floats.retain(|f| now - f.born < FLOAT_SECS);
 }
 
+/// Draws the damage flash and the floating hit numbers over the world.
 pub fn draw(
     mut contexts: EguiContexts,
     time: Res<Time>,

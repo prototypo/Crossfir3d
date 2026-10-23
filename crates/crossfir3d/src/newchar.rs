@@ -7,6 +7,11 @@ use cfproto::{ArchInfo, ClientMsg, StartMap, StatLimits};
 
 pub const STAT_NAMES: [&str; 7] = ["Str", "Dex", "Con", "Wis", "Cha", "Int", "Pow"];
 
+/// The non-empty `|`-separated names in a list reply.
+fn names(data: &[u8]) -> Vec<String> {
+    String::from_utf8_lossy(data).split('|').filter(|s| !s.is_empty()).map(String::from).collect()
+}
+
 /// The server's stat codes in race/class info, in `STAT_NAMES` order.
 pub fn stat_code(i: usize) -> u8 {
     [5, 8, 9, 7, 10, 6, 22][i]
@@ -31,6 +36,7 @@ pub struct NewChar {
 }
 
 impl Default for NewChar {
+    /// Starts a new character with no race or class and the minimum stats.
     fn default() -> Self {
         let limits = StatLimits::default();
         NewChar {
@@ -57,41 +63,58 @@ impl NewChar {
 
     /// Takes a `replyinfo`; returns follow-up requests (race/class info).
     pub fn on_reply(&mut self, kind: &str, data: &[u8]) -> Vec<ClientMsg> {
-        let list = || String::from_utf8_lossy(data).split('|').filter(|s| !s.is_empty()).map(String::from).collect::<Vec<_>>();
         let mut out = Vec::new();
         match kind {
             "newcharinfo" => {
                 self.limits = parse_newcharinfo(data);
                 self.stats = [self.limits.min; 7];
             }
-            "race_list" => {
-                self.races = list();
-                out = self.races.iter().map(|r| ClientMsg::RequestInfo(format!("race_info {r}"))).collect();
-                self.race = self.race.take().or_else(|| self.races.first().cloned());
-            }
-            "class_list" => {
-                self.classes = list();
-                out = self.classes.iter().map(|c| ClientMsg::RequestInfo(format!("class_info {c}"))).collect();
-                self.class = self.class.take().or_else(|| self.classes.first().cloned());
-            }
-            "race_info" | "class_info" => match parse_arch_info(data) {
-                Ok(info) => {
-                    self.infos.insert(info.arch.clone(), info);
-                }
-                Err(e) => eprintln!("{kind}: {}", e.0),
-            },
-            "startingmap" => match parse_starting_maps(data) {
-                Ok(maps) => {
-                    self.maps = maps;
-                    let scorn = self.maps.iter().find(|m| m.arch == "map_scorn");
-                    self.map = scorn.or(self.maps.first()).map(|m| m.arch.clone());
-                }
-                Err(e) => eprintln!("startingmap: {}", e.0),
-            },
+            "race_list" => out = self.on_race_list(data),
+            "class_list" => out = self.on_class_list(data),
+            "race_info" | "class_info" => self.on_arch_info(kind, data),
+            "startingmap" => self.on_starting_maps(data),
             _ => {}
         }
         self.refresh_choices();
         out
+    }
+
+    /// Stores the race names, selects the first if none is selected, and asks for each race's info.
+    fn on_race_list(&mut self, data: &[u8]) -> Vec<ClientMsg> {
+        self.races = names(data);
+        let out = self.races.iter().map(|r| ClientMsg::RequestInfo(format!("race_info {r}"))).collect();
+        self.race = self.race.take().or_else(|| self.races.first().cloned());
+        out
+    }
+
+    /// Stores the class names, selects the first if none is selected, and asks for each class's info.
+    fn on_class_list(&mut self, data: &[u8]) -> Vec<ClientMsg> {
+        self.classes = names(data);
+        let out = self.classes.iter().map(|c| ClientMsg::RequestInfo(format!("class_info {c}"))).collect();
+        self.class = self.class.take().or_else(|| self.classes.first().cloned());
+        out
+    }
+
+    /// Stores a race or class info reply by arch name; logs a bad one.
+    fn on_arch_info(&mut self, kind: &str, data: &[u8]) {
+        match parse_arch_info(data) {
+            Ok(info) => {
+                self.infos.insert(info.arch.clone(), info);
+            }
+            Err(e) => eprintln!("{kind}: {}", e.0),
+        }
+    }
+
+    /// Stores the starting maps and selects map_scorn, else the first.
+    fn on_starting_maps(&mut self, data: &[u8]) {
+        match parse_starting_maps(data) {
+            Ok(maps) => {
+                self.maps = maps;
+                let scorn = self.maps.iter().find(|m| m.arch == "map_scorn");
+                self.map = scorn.or(self.maps.first()).map(|m| m.arch.clone());
+            }
+            Err(e) => eprintln!("startingmap: {}", e.0),
+        }
     }
 
     /// The choices the selected race and class offer.
@@ -175,6 +198,7 @@ impl NewChar {
         low.map(|i| format!("{} would be below 1 with this race and class.", STAT_NAMES[i]))
     }
 
+    /// Builds the create-player message, or None while the form has a problem.
     pub fn create_msg(&self, password: &str) -> Option<ClientMsg> {
         if self.problem().is_some() {
             return None;

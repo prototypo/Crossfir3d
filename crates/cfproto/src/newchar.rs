@@ -44,53 +44,75 @@ impl Default for StatLimits {
     }
 }
 
+/// A `u8` length then that many bytes, as lossy UTF-8.
+fn lstring(r: &mut Reader) -> Result<String, ParseError> {
+    let len = r.u8()? as usize;
+    Ok(String::from_utf8_lossy(r.take(len)?).into_owned())
+}
+
+/// A `u16` length then that many bytes, as lossy UTF-8.
+fn l2string(r: &mut Reader) -> Result<String, ParseError> {
+    let len = r.u16()? as usize;
+    Ok(String::from_utf8_lossy(r.take(len)?).into_owned())
+}
+
+/// `<code u8><change i16>` pairs up to a 0 code, pushed as they are read.
+fn parse_stats(r: &mut Reader, stats: &mut Vec<(u8, i16)>) -> Result<(), ParseError> {
+    loop {
+        let code = r.u8()?;
+        if code == 0 {
+            return Ok(());
+        }
+        stats.push((code, r.u16()? as i16));
+    }
+}
+
+/// A `choice` field: key, description, then `(arch, name)` options up to a 0 length.
+fn parse_choice(r: &mut Reader) -> Result<Choice, ParseError> {
+    let key = lstring(r)?;
+    let description = lstring(r)?;
+    let mut options = Vec::new();
+    loop {
+        let len = r.u8()? as usize;
+        if len == 0 {
+            return Ok(Choice { key, description, options });
+        }
+        let arch = String::from_utf8_lossy(r.take(len)?).into_owned();
+        options.push((arch, lstring(r)?));
+    }
+}
+
+/// Consumes the next space-terminated field word; `None` when there is no complete word.
+fn next_field(r: &mut Reader) -> Result<Option<Vec<u8>>, ParseError> {
+    let word: Vec<u8> = r.0.iter().take_while(|&&b| b != b' ').copied().collect();
+    if word.is_empty() || word.len() == r.0.len() {
+        return Ok(None);
+    }
+    r.take(word.len() + 1)?;
+    Ok(Some(word))
+}
+
+/// Reads one known field into `info`; `false` for an unknown field word.
+fn read_field(r: &mut Reader, word: &[u8], info: &mut ArchInfo) -> Result<bool, ParseError> {
+    match word {
+        b"name" => info.name = lstring(r)?,
+        b"msg" => info.message = l2string(r)?,
+        b"stats" => parse_stats(r, &mut info.stats)?,
+        b"choice" => info.choices.push(parse_choice(r)?),
+        _ => return Ok(false),
+    }
+    Ok(true)
+}
+
 /// `race_info` / `class_info` data: `<arch>\n` then `name`, `msg`, `stats`, `choice`
 /// fields. An unknown field stops parsing; what was read is kept.
 pub fn parse_arch_info(data: &[u8]) -> Result<ArchInfo, ParseError> {
     let nl = data.iter().position(|&b| b == b'\n').ok_or_else(|| ParseError("info: no arch line".into()))?;
     let mut info = ArchInfo { arch: String::from_utf8_lossy(&data[..nl]).into_owned(), ..Default::default() };
     let mut r = Reader(&data[nl + 1..]);
-    let text = |b: &[u8]| String::from_utf8_lossy(b).into_owned();
-    loop {
-        let word: Vec<u8> = r.0.iter().take_while(|&&b| b != b' ').copied().collect();
-        if word.is_empty() || word.len() == r.0.len() {
-            break;
-        }
-        r.take(word.len() + 1)?;
-        match &word[..] {
-            b"name" => {
-                let len = r.u8()? as usize;
-                info.name = text(r.take(len)?);
-            }
-            b"msg" => {
-                let len = r.u16()? as usize;
-                info.message = text(r.take(len)?);
-            }
-            b"stats" => loop {
-                let code = r.u8()?;
-                if code == 0 {
-                    break;
-                }
-                info.stats.push((code, r.u16()? as i16));
-            },
-            b"choice" => {
-                let len = r.u8()? as usize;
-                let key = text(r.take(len)?);
-                let len = r.u8()? as usize;
-                let description = text(r.take(len)?);
-                let mut options = Vec::new();
-                loop {
-                    let len = r.u8()? as usize;
-                    if len == 0 {
-                        break;
-                    }
-                    let arch = text(r.take(len)?);
-                    let len = r.u8()? as usize;
-                    options.push((arch, text(r.take(len)?)));
-                }
-                info.choices.push(Choice { key, description, options });
-            }
-            _ => break, // a newer field we do not know: keep what we have
+    while let Some(word) = next_field(&mut r)? {
+        if !read_field(&mut r, &word, &mut info)? {
+            break; // a newer field we do not know: keep what we have
         }
     }
     Ok(info)
@@ -126,6 +148,7 @@ pub fn parse_skill_info(data: &[u8]) -> HashMap<u8, String> {
     text.lines().filter_map(skill).collect()
 }
 
+/// Reads the stat limits (points, min and max) from the newcharinfo lines.
 pub fn parse_newcharinfo(data: &[u8]) -> StatLimits {
     let mut limits = StatLimits::default();
     let mut r = Reader(data);
