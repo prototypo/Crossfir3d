@@ -10,6 +10,7 @@ use bevy::render::render_resource::{Extent3d, TextureFormat};
 use bevy_egui::PrimaryEguiContext;
 use bevy::light::DirectionalLightShadowMap;
 use bevy::pbr::{ScreenSpaceAmbientOcclusion, ScreenSpaceAmbientOcclusionQualityLevel};
+use bevy::ecs::system::SystemParam;
 use bevy::prelude::*;
 use bevy::render::view::{ColorGrading, ColorGradingGlobal, ColorGradingSection};
 use bevy::window::{Monitor, MonitorSelection, PrimaryMonitor, PresentMode, PrimaryWindow, WindowMode, WindowMoved, WindowPosition, WindowResized};
@@ -75,48 +76,62 @@ fn look(s: &Settings) -> Settings {
     Settings { window: None, music: true, ..s.clone() }.normalized()
 }
 
+/// The window and shadow map that `apply_settings` sets.
+#[derive(SystemParam)]
+struct ApplyTargets<'w, 's> {
+    window: Single<'w, 's, &'static mut Window, With<PrimaryWindow>>,
+    shadow_map: ResMut<'w, DirectionalLightShadowMap>,
+}
+
+/// The shadow map size for a shadow quality.
+fn shadow_size(q: Quality) -> u32 {
+    match q {
+        Quality::Off | Quality::Low => 1024,
+        Quality::Medium => 2048,
+        Quality::High => 4096,
+    }
+}
+
+/// Sets one camera's ambient occlusion, anti-aliasing and colour grading.
+fn apply_to_camera(e: &mut EntityCommands, s: &Settings) {
+    match ssao_level(s.ambient_occlusion) {
+        Some(quality_level) => e.insert(ScreenSpaceAmbientOcclusion { quality_level, ..default() }),
+        None => e.remove::<ScreenSpaceAmbientOcclusion>(),
+    };
+    match s.anti_alias {
+        // TAA brought its jitter and mip bias with it: they go too, or textures shimmer.
+        AntiAlias::Off => e.insert(Msaa::Off).remove::<(TemporalAntiAliasing, TemporalJitter, MipBias)>(),
+        AntiAlias::Msaa4 => e.insert(Msaa::Sample4).remove::<(TemporalAntiAliasing, TemporalJitter, MipBias)>(),
+        AntiAlias::Taa => e.insert((Msaa::Off, TemporalAntiAliasing::default())),
+    };
+    let section = ColorGradingSection { contrast: s.contrast, gamma: s.gamma, ..default() };
+    e.insert(ColorGrading {
+        global: ColorGradingGlobal { exposure: s.brightness, ..default() },
+        shadows: section,
+        midtones: section,
+        highlights: section,
+    });
+}
+
 /// Applies changed settings to the window and the cameras.
-#[allow(clippy::too_many_arguments)]
 fn apply_settings(
     mut commands: Commands,
     settings: Res<CurrentSettings>,
     mut applied: Local<Option<Settings>>,
-    mut window: Single<&mut Window, With<PrimaryWindow>>,
+    mut targets: ApplyTargets,
     cameras: Query<Entity, With<Camera3d>>,
-    mut shadow_map: ResMut<DirectionalLightShadowMap>,
 ) {
     let s = look(&settings.0);
     // Cameras appear after startup; keep trying until there is one.
     if applied.as_ref() == Some(&s) && !cameras.is_empty() {
         return;
     }
-    window.mode = window_mode(&s);
-    window.present_mode = present_mode(s.frame_rate);
+    targets.window.mode = window_mode(&s);
+    targets.window.present_mode = present_mode(s.frame_rate);
     for cam in &cameras {
-        let mut e = commands.entity(cam);
-        match ssao_level(s.ambient_occlusion) {
-            Some(quality_level) => e.insert(ScreenSpaceAmbientOcclusion { quality_level, ..default() }),
-            None => e.remove::<ScreenSpaceAmbientOcclusion>(),
-        };
-        match s.anti_alias {
-            // TAA brought its jitter and mip bias with it: they go too, or textures shimmer.
-            AntiAlias::Off => e.insert(Msaa::Off).remove::<(TemporalAntiAliasing, TemporalJitter, MipBias)>(),
-            AntiAlias::Msaa4 => e.insert(Msaa::Sample4).remove::<(TemporalAntiAliasing, TemporalJitter, MipBias)>(),
-            AntiAlias::Taa => e.insert((Msaa::Off, TemporalAntiAliasing::default())),
-        };
-        let section = ColorGradingSection { contrast: s.contrast, gamma: s.gamma, ..default() };
-        e.insert(ColorGrading {
-            global: ColorGradingGlobal { exposure: s.brightness, ..default() },
-            shadows: section,
-            midtones: section,
-            highlights: section,
-        });
+        apply_to_camera(&mut commands.entity(cam), &s);
     }
-    shadow_map.size = match s.shadows {
-        Quality::Off | Quality::Low => 1024,
-        Quality::Medium => 2048,
-        Quality::High => 4096,
-    };
+    targets.shadow_map.size = shadow_size(s.shadows) as usize;
     if !cameras.is_empty() {
         *applied = Some(s);
     }
