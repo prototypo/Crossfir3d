@@ -159,7 +159,7 @@ denominator grew.
 - Measured: complexity 25 (threshold 10); length 95 (threshold 50); nesting 6 (threshold 4); arguments 9 (threshold 5)
 - Recommendation: Draw the bars, the quick slots, the log and the parchment box in their own functions, and group its 9 system arguments into a `SystemParam` struct.
 
-### [ ] 🔴 Q19: complexity — crates/crossfir3d/src/modes.rs:68 `act`
+### [x] 🔴 Q19: complexity — crates/crossfir3d/src/modes.rs:68 `act`
 
 - Measured: complexity 25 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
