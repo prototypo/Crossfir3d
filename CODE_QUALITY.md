@@ -102,7 +102,7 @@ denominator grew.
 - Measured: 2,566 lines (threshold 500)
 - Recommendation: Move the families into submodules: `buildings/village.rs`, `castle.rs`, `items.rs`, `furniture.rs`, `walls.rs`, with the shared `Part` helpers in `buildings/mod.rs`.
 
-### [ ] 🔴 Q10: complexity, length, arguments — crates/crossfir3d/src/robe.rs:202 `dress_robes`
+### [x] 🔴 Q10: complexity, length, arguments — crates/crossfir3d/src/robe.rs:202 `dress_robes`
 
 - Measured: complexity 43 (threshold 10); length 122 (threshold 50); arguments 10 (threshold 5)
 - Recommendation: Split the robe, back piece, over piece and rags into one function each.
