@@ -136,7 +136,7 @@ fn text(world: &mut World, msg: ServerMsg) -> Option<ServerMsg> {
         ServerMsg::Text { kind, subtype, text } => {
             info!("server: {text}");
             let (now, last) = (world.resource::<Time>().elapsed_secs(), world.resource::<LastAction>().0);
-            world.resource_mut::<Msgs>().0.push(kind, subtype, &text, now, last);
+            world.resource_mut::<Msgs>().0.push((kind, subtype), &text, now, last);
             if kind == combat_fx::MSG_ATTACK {
                 world.resource_mut::<combat_fx::CombatFx>().attacks.push(subtype);
             }
@@ -147,7 +147,7 @@ fn text(world: &mut World, msg: ServerMsg) -> Option<ServerMsg> {
         ServerMsg::Query { text, .. } => {
             world.resource_mut::<PendingQuery>().0 = true;
             let now = world.resource::<Time>().elapsed_secs();
-            world.resource_mut::<Msgs>().0.push(0, 0, &format!("Server asks: {text} (answer with Enter)"), now, None);
+            world.resource_mut::<Msgs>().0.push((0, 0), &format!("Server asks: {text} (answer with Enter)"), now, None);
         }
         other => return Some(other),
     }

@@ -36,7 +36,7 @@ pub struct Messages {
 
 impl Messages {
     /// Files a server message into the box, popups or log by its kind and cause.
-    pub fn push(&mut self, kind: u8, subtype: u8, text: &str, now: f32, last_action: Option<f32>) {
+    pub fn push(&mut self, (kind, subtype): (u8, u8), text: &str, now: f32, last_action: Option<f32>) {
         let caused = last_action.is_some_and(|t| now - t <= CAUSE_WINDOW_SECS);
         self.died |= (kind, subtype) == (19, 5);
         match route(kind, subtype, caused) {
@@ -148,7 +148,7 @@ mod tests {
         let mut m = Messages::default();
         let list = cfproto::ServerMsg::AccountPlayers(vec![]);
         assert_eq!(in_game_reset(&list, m.died), Some("Back to your characters"));
-        m.push(19, 5, "You die.", 0.0, None);
+        m.push((19, 5), "You die.", 0.0, None);
         assert!(m.died);
         assert_eq!(in_game_reset(&list, m.died), Some("Your character died"));
     }
@@ -219,7 +219,7 @@ mod tests {
     #[test]
     fn sign_after_apply_boxes() {
         let mut m = Messages::default();
-        m.push(4, 1, "Welcome", 10.0, Some(9.0));
+        m.push((4, 1), "Welcome", 10.0, Some(9.0));
         assert_eq!(m.boxed.as_deref(), Some("Welcome"));
         assert_eq!(m.log.back().map(String::as_str), Some("Welcome"));
     }
@@ -227,8 +227,8 @@ mod tests {
     #[test]
     fn sign_without_action_logs() {
         let mut m = Messages::default();
-        m.push(4, 1, "Welcome", 10.0, Some(5.0));
-        m.push(6, 1, "Hello other player", 10.0, None);
+        m.push((4, 1), "Welcome", 10.0, Some(5.0));
+        m.push((6, 1), "Hello other player", 10.0, None);
         assert!(m.boxed.is_none());
         assert_eq!(m.log.len(), 2);
     }
@@ -248,7 +248,7 @@ mod tests {
     #[test]
     fn popups_expire_after_3s() {
         let mut m = Messages::default();
-        m.push(14, 9, "You miss bird!", 10.0, None);
+        m.push((14, 9), "You miss bird!", 10.0, None);
         m.expire(12.9);
         assert_eq!(m.popups.len(), 1);
         m.expire(13.1);
@@ -258,8 +258,8 @@ mod tests {
     #[test]
     fn second_box_message_appends() {
         let mut m = Messages::default();
-        m.push(6, 1, "Hello.", 10.0, Some(10.0));
-        m.push(6, 1, "Need help?", 10.5, Some(10.0));
+        m.push((6, 1), "Hello.", 10.0, Some(10.0));
+        m.push((6, 1), "Need help?", 10.5, Some(10.0));
         assert_eq!(m.boxed.as_deref(), Some("Hello.\nNeed help?"));
         m.close_box();
         assert!(m.boxed.is_none());
@@ -269,7 +269,7 @@ mod tests {
     fn log_capped_at_500() {
         let mut m = Messages::default();
         for i in 0..600 {
-            m.push(0, 0, &i.to_string(), 0.0, None);
+            m.push((0, 0), &i.to_string(), 0.0, None);
         }
         assert_eq!(m.log.len(), 500);
         assert_eq!(m.log.front().map(String::as_str), Some("100"));

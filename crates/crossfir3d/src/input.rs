@@ -282,7 +282,7 @@ pub fn watch_ground(
         return;
     }
     if let Some(line) = standing_on(&ground) {
-        msgs.0.push(0, 0, &line, time.elapsed_secs(), None);
+        msgs.0.push((0, 0), &line, time.elapsed_secs(), None);
     }
     if settings.0.ground_popup && new_square(&last, &tags) {
         msgs.0.boxed = ground_box(&ground);

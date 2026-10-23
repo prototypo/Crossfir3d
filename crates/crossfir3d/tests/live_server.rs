@@ -254,7 +254,7 @@ fn read_a_sign_opens_the_box() {
     let mut msgs = Messages::default();
     wait_for(&net, &mut flow, "the sign's text", |m| match m {
         ServerMsg::Text { kind, subtype, text } if text.contains("Welcome to Crossfire!") => {
-            msgs.push(*kind, *subtype, text, 1.0, Some(0.5));
+            msgs.push((*kind, *subtype), text, 1.0, Some(0.5));
             Some(())
         }
         _ => None,

@@ -114,7 +114,7 @@ impl WorldKeyParams<'_> {
             Act::CloseInventory | Act::CloseSettings => self.mode.0 = Mode::World,
             Act::ShowGround => match ground_box(&ground_things(&self.inv.0)) {
                 Some(text) => self.msgs.0.boxed = Some(text),
-                None => self.msgs.0.push(0, 0, "There is nothing under you.", self.time.elapsed_secs(), None),
+                None => self.msgs.0.push((0, 0), "There is nothing under you.", self.time.elapsed_secs(), None),
             },
             Act::OpenSettings => self.mode.0 = Mode::Settings,
             Act::ToggleLog => self.hud.tall_log = !self.hud.tall_log,
@@ -168,7 +168,7 @@ impl WorldKeyParams<'_> {
         let fire = fire_commands(&self.inv.0, self.facing.0, &self.stats.0.range);
         if fire.is_empty() {
             let now = self.time.elapsed_secs();
-            self.msgs.0.push(0, 0, "Nothing to fire: ready a bow or wand first (I, select it, E).", now, None);
+            self.msgs.0.push((0, 0), "Nothing to fire: ready a bow or wand first (I, select it, E).", now, None);
         }
         for c in &fire {
             self.send(session, c);

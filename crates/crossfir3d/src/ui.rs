@@ -54,7 +54,7 @@ fn bound_message(b: &crossfir3d::keys::Bindings, binding: &Binding) -> String {
 }
 
 fn log(msgs: &mut Msgs, text: &str, now: f32) {
-    msgs.0.push(0, 0, text, now, None);
+    msgs.0.push((0, 0), text, now, None);
 }
 
 fn save(bindings: &KeyBindings, session: &Option<NonSend<Session>>, msgs: &mut Msgs, now: f32) {
