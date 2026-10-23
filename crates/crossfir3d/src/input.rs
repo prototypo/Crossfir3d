@@ -3,17 +3,14 @@
 use bevy::prelude::*;
 use cfproto::{ClientMsg, Inventory, SpellBook};
 
-use crossfir3d::camera::{compass, heading_of, nearest_dir, screen_dir, Heading, CREATURE_LAYERS};
-use crossfir3d::modes::{act, bindings_active, Act, KeyName, Mode};
-use crossfir3d::anim::event_for_command;
+use crossfir3d::camera::{compass, heading_of, screen_dir, Heading};
+use crossfir3d::modes::{KeyName, Mode};
 use crossfir3d::messages::{ground_box, ground_things, new_square, object_tags, standing_on};
 use crossfir3d::keys::{action_of, skill_command, Action, Binding, Combo, Mods};
-use crossfir3d::slots::{dir_number, fire_commands, slot_commands, Slot};
+use crossfir3d::slots::{dir_number, slot_commands, Slot};
 
-use crate::characters3d::PlayerAnimEvents;
-
-use crate::ui::{CommandLine, PendingBind};
-use crate::{known_skills, HudState, Inv, KeyBindings, KeyMode, SkillNames, LastAction, LastComc, Msgs, NcomSeq, PlayerStats, Session, Slots, Spells, View, ViewSize};
+use crate::ui::PendingBind;
+use crate::{Inv, KeyBindings, KeyMode, LastComc, Msgs, NcomSeq, Session};
 
 /// Where the camera looks (45° steps); the world rig eases its yaw toward it.
 /// It follows the player's facing, so the camera stays behind them.
@@ -262,114 +259,8 @@ pub fn watch_ground(
     *last = tags;
 }
 
-/// One-key actions (the spec's key table, via `modes::act`). Enter is handled by the
-/// command line, M by the audio plugin.
-#[allow(clippy::too_many_arguments)]
-pub fn world_keys(
-    keys: Res<ButtonInput<KeyCode>>,
-    time: Res<Time>,
-    mut mode: ResMut<KeyMode>,
-    mut msgs: ResMut<Msgs>,
-    mut hud: ResMut<HudState>,
-    mut last: ResMut<LastAction>,
-    mut seq: ResMut<NcomSeq>,
-    (mut facing, slots, inv, spells, stats): (ResMut<Facing>, Res<Slots>, Res<Inv>, Res<Spells>, Res<PlayerStats>),
-    (map, size): (Res<View>, Res<ViewSize>),
-    mut heading: ResMut<CameraHeading>,
-    mut view: ResMut<CameraView>,
-    mut anim: ResMut<PlayerAnimEvents>,
-    (bindings, skill_names, mut line, pending): (Res<KeyBindings>, Res<SkillNames>, ResMut<CommandLine>, Res<PendingBind>),
-    mut keys_sel: ResMut<crate::keys_ui::KeysSel>,
-    session: Option<NonSend<Session>>,
-) {
-    let Some(session) = session else { return };
-    if pending.waiting_key() {
-        return; // `capture_bind_key` takes this key press
-    }
-    view.face = mode.0 == Mode::World && keys.pressed(KeyCode::KeyF) && !key_taken(&bindings, &keys, KeyCode::KeyF);
-    let mods = held_mods(&keys);
-    let pressed: Vec<KeyCode> = keys.get_just_pressed().copied().collect();
-    for code in pressed {
-        let bound = key_name(code)
-            .filter(|_| bindings_active(mode.0))
-            .and_then(|key| bindings.0.lookup(&Combo { mods, key: key.into() }))
-            .cloned();
-        if let Some(b) = bound {
-            if b.edit {
-                line.open = true;
-                line.text = b.command.clone();
-                mode.0 = Mode::CommandLine;
-                continue;
-            }
-            last.0 = Some(time.elapsed_secs());
-            let skills = known_skills(&stats.0, &skill_names);
-            for c in binding_commands(&b, &inv.0, &spells.0, &skills, facing.0, &stats.0.range) {
-                anim.0.extend(event_for_command(&c));
-                session.send([ClientMsg::Ncom { packet: seq.next(), repeat: 0, command: c }]);
-            }
-            continue;
-        }
-        let key = act_key(code);
-        let mut command = |c: &str| {
-            last.0 = Some(time.elapsed_secs());
-            anim.0.extend(event_for_command(c));
-            session.send([ClientMsg::Ncom { packet: seq.next(), repeat: 0, command: c.into() }]);
-        };
-        match act(mode.0, key, msgs.0.boxed.is_some()) {
-            Act::Apply => command("apply"),
-            Act::Get => command("get"),
-            Act::CloseBox => msgs.0.close_box(),
-            Act::OpenInventory => mode.0 = Mode::Inventory,
-            // shift+K and the like are picked as keys on the bindings screen, not closing it.
-            Act::CloseKeys if !mods.none() || (key == KeyName::K && keys_sel.typing) => {}
-            Act::CloseInventory | Act::CloseSettings => mode.0 = Mode::World,
-            Act::CloseKeys => {
-                keys_sel.reset();
-                mode.0 = Mode::World;
-            }
-            Act::OpenKeys => {
-                keys_sel.reset();
-                mode.0 = Mode::Keys;
-            }
-            Act::ShowGround => match ground_box(&ground_things(&inv.0)) {
-                Some(text) => msgs.0.boxed = Some(text),
-                None => msgs.0.push(0, 0, "There is nothing under you.", time.elapsed_secs(), None),
-            },
-            Act::OpenSettings => mode.0 = Mode::Settings,
-            Act::ToggleLog => hud.tall_log = !hud.tall_log,
-            Act::Slot(i) => {
-                let Some(slot) = &slots.0 .0[i] else { continue };
-                for c in slot_commands(slot, &inv.0, &spells.0, facing.0, &stats.0.range) {
-                    command(&c);
-                }
-            }
-            Act::CameraBehind => {
-                heading.0 = heading_of(facing.0);
-                view.top = false;
-            }
-            Act::Fire => {
-                let fire = fire_commands(&inv.0, facing.0, &stats.0.range);
-                if fire.is_empty() {
-                    let now = time.elapsed_secs();
-                    msgs.0.push(0, 0, "Nothing to fire: ready a bow or wand first (I, select it, E).", now, None);
-                }
-                for c in &fire {
-                    command(c);
-                }
-            }
-            Act::FaceNearest => {
-                let (cx, cy) = (size.0 as i32 / 2, size.1 as i32 / 2);
-                let creatures = map.0.cells().filter(|(_, c)| c.layers[CREATURE_LAYERS].iter().any(|f| *f != 0));
-                if let Some(dir) = nearest_dir(creatures.map(|((x, y), _)| (x as i32 - cx, y as i32 - cy)), 4) {
-                    facing.0 = dir_number(dir).unwrap_or(facing.0);
-                    heading.0 = heading_of(facing.0);
-                }
-            }
-            Act::TopView => view.top = !view.top,
-            Act::ToggleMute | Act::OpenCommand | Act::Nothing => {}
-        }
-    }
-}
+mod world_keys;
+pub use world_keys::world_keys;
 
 #[cfg(test)]
 mod tests {

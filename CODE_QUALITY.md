@@ -107,7 +107,7 @@ denominator grew.
 - Measured: complexity 43 (threshold 10); length 122 (threshold 50); arguments 10 (threshold 5)
 - Recommendation: Split the robe, back piece, over piece and rags into one function each.
 
-### [ ] 🔴 Q11: complexity, length, arguments — crates/crossfir3d/src/input.rs:268 `world_keys`
+### [x] 🔴 Q11: complexity, length, arguments — crates/crossfir3d/src/input.rs:268 `world_keys`
 
 - Measured: complexity 40 (threshold 10); length 105 (threshold 50); arguments 15 (threshold 5)
 - Recommendation: Group the queries and resources into one or two `SystemParam` structs; split movement keys from action keys.
