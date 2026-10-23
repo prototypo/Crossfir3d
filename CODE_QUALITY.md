@@ -355,7 +355,7 @@ denominator grew.
 - Measured: complexity 15 (threshold 10); length 70 (threshold 50)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
 
-### [ ] 🔴 Q58: complexity — crates/crossfir3d/src/markup.rs:39 `apply`
+### [x] 🔴 Q58: complexity — crates/crossfir3d/src/markup.rs:39 `apply`
 
 - Measured: complexity 15 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
