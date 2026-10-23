@@ -34,7 +34,8 @@ pub enum ServerMsg {
     Image2 { face: u32, set: u8, png: Vec<u8> },
     Anim { id: u16, faces: Vec<u16> },
     Smooth { face: u16, smooth: u16 },
-    Comc { packet: u16, time_ms: u32 },
+    /// `time_us`: how long the command takes, in microseconds (server `MAX_TIME / speed`).
+    Comc { packet: u16, time_us: u32 },
     Tick(u32),
     /// Stat updates read before any unknown code (the rest of that packet is dropped).
     Stats(Vec<(u8, StatValue)>),
@@ -254,7 +255,7 @@ mod tests {
 
     #[test]
     fn parse_comc() {
-        assert_eq!(p(b"comc \x00\x02\x00\x00\x00\xfa"), ServerMsg::Comc { packet: 2, time_ms: 250 });
+        assert_eq!(p(b"comc \x00\x02\x00\x00\x00\xfa"), ServerMsg::Comc { packet: 2, time_us: 250 });
     }
 
     #[test]

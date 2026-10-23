@@ -190,7 +190,7 @@ fn parse_smooth(data: &[u8]) -> Result<ServerMsg, ParseError> {
 /// Command completion: packet number and time in ms.
 fn parse_comc(data: &[u8]) -> Result<ServerMsg, ParseError> {
     let mut r = Reader(data);
-    Ok(ServerMsg::Comc { packet: r.u16()?, time_ms: r.u32()? })
+    Ok(ServerMsg::Comc { packet: r.u16()?, time_us: r.u32()? })
 }
 
 /// The server tick number.

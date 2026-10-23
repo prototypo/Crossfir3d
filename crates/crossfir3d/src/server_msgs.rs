@@ -82,7 +82,7 @@ fn map_view(world: &mut World, msg: ServerMsg, playing: bool) -> Option<ServerMs
             // A new map after dying is the respawn.
             world.resource_mut::<characters3d::PlayerAnimEvents>().0.push(crossfir3d::anim::AnimEvent::Revived);
         }
-        ServerMsg::Comc { packet, time_ms } => world.insert_resource(LastComc { time_ms, packet }),
+        ServerMsg::Comc { packet, time_us } => world.insert_resource(LastComc { time_ms: time_us / 1000, packet }),
         ServerMsg::Tick(t) => world.resource_mut::<Clock>().0.on_tick(t),
         other => return Some(other),
     }
