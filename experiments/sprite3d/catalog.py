@@ -205,9 +205,8 @@ def map_faces():
     return out
 
 
-def classify(face, users, maps, size, folder):
-    """(group, reason) for one picture. `users` are the objects that show it; `folder`
-    is where the picture is (used when no object shows it)."""
+def rule_existing(face, users, maps, size, folder):
+    """Pictures that already have a 3D look: models.txt, walls, player bodies."""
     kind = lookup(maps, face)
     if kind != "card":
         return "existing", f"models.txt: {kind}"
@@ -215,23 +214,49 @@ def classify(face, users, maps, size, folder):
         return "existing", "drawn as wall blocks"
     if any(u["folder"].startswith("player") for u in users):
         return "existing", "player character (3D bodies)"
+    return None
+
+
+def rule_icon_or_generator(face, users, maps, size, folder):
+    """Spell icons are skipped; monster generators are modelled from scratch."""
     if face.startswith(("spell_", "skill_", "prayer_")):
         return "skip", "a spell or skill icon"
     # A monster that multiplies (centipede, slime) is a generator too, but a creature.
     if any(u.get("generator") == "1" and u.get("monster") != "1" for u in users):
         return "scratch", "a monster generator (a building or object)"
-    if folder.split(os.sep)[0] in FOLDER_FIRST:
-        group, why = FOLDER_FIRST[folder.split(os.sep)[0]]
-        return group, f"folder {folder.split(os.sep)[0]}/: {why}"
+    return None
+
+
+def rule_folder_first(face, users, maps, size, folder):
+    """Folders whose group is fixed before any object flag is looked at."""
+    top = folder.split(os.sep)[0]
+    if top in FOLDER_FIRST:
+        group, why = FOLDER_FIRST[top]
+        return group, f"folder {top}/: {why}"
+    return None
+
+
+def rule_flags(face, users, maps, size, folder):
+    """Creatures (alive or monster) are rigged; floors are flat."""
     if any(u.get("monster") == "1" or u.get("alive") == "1" for u in users):
         return "rigged", "alive: a creature"
     if any(u.get("is_floor") == "1" for u in users):
         return "flat", "is_floor"
+    return None
+
+
+def rule_type(face, users, maps, size, folder):
+    """The group of the commonest object type that BY_TYPE lists."""
     types = Counter(int(u.get("type", 0)) for u in users)
     for group, wanted, why in BY_TYPE:
         hit = next((t for t, _ in types.most_common() if t in wanted), None)
         if hit is not None:
             return group, f"type {NAME[hit]}: {why}"
+    return None
+
+
+def rule_fallback(face, users, maps, size, folder):
+    """Invisible objects, big pictures, then the picture's folder."""
     if users and all(u.get("invisible") == "1" for u in users):
         return "skip", "invisible"
     if size[0] > 32 or size[1] > 32:
@@ -240,6 +265,19 @@ def classify(face, users, maps, size, folder):
     for group, folders in BY_FOLDER.items():
         if top in folders:
             return group, f"folder {top}/" + ("" if users else " (no object uses it)")
+    return None
+
+
+RULES = (rule_existing, rule_icon_or_generator, rule_folder_first, rule_flags, rule_type, rule_fallback)
+
+
+def classify(face, users, maps, size, folder):
+    """(group, reason) for one picture. `users` are the objects that show it; `folder`
+    is where the picture is (used when no object shows it)."""
+    for rule in RULES:
+        found = rule(face, users, maps, size, folder)
+        if found:
+            return found
     return "review", "no rule fits"
 
 

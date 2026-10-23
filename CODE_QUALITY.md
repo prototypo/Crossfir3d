@@ -89,7 +89,7 @@ denominator grew.
 - Measured: complexity 29 (threshold 10); length 91 (threshold 50); nesting 5 (threshold 4); arguments 7 (threshold 5)
 - Recommendation: Split into the character list, the buttons and the login handling, and group its 7 system arguments into a `SystemParam` struct like `new_character`'s helpers.
 
-### [ ] 🔴 Q5: complexity — experiments/sprite3d/catalog.py:208 `classify`
+### [x] 🔴 Q5: complexity — experiments/sprite3d/catalog.py:208 `classify`
 
 - Measured: complexity 29 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
