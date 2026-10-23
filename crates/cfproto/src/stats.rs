@@ -33,36 +33,49 @@ pub struct Stats {
     pub skills: std::collections::BTreeMap<u8, i64>,
 }
 
+/// Reads an `n`-byte (2, 4 or 8) big-endian signed integer at `i`, if the data is long enough.
+fn read_int(d: &[u8], i: usize, n: usize) -> Option<i64> {
+    let b = d.get(i..i + n)?;
+    Some(match n {
+        2 => i16::from_be_bytes([b[0], b[1]]) as i64,
+        4 => i32::from_be_bytes(b.try_into().ok()?) as i64,
+        _ => i64::from_be_bytes(b.try_into().ok()?),
+    })
+}
+
+/// Reads a length-prefixed text value at `i`; returns it (None if cut short) and the bytes it spans.
+fn read_text(data: &[u8], i: usize) -> (Option<StatValue>, usize) {
+    let len = data.get(i).map_or(0, |&l| l as usize);
+    let text = data.get(i + 1..i + 1 + len).map(|t| StatValue::Text(String::from_utf8_lossy(t).into()));
+    (if data.get(i).is_some() { text } else { None }, 1 + len)
+}
+
+/// Reads the value for `code` at `i`; returns it (None if cut short) and the bytes it spans, or None for an unknown code.
+fn read_value(data: &[u8], i: usize, code: u8) -> Option<(Option<StatValue>, usize)> {
+    Some(match code {
+        17 | 19 | 26 | 29 | 30 | 31 | 55 | 57 => (read_int(data, i, 4).map(StatValue::Int), 4),
+        28 => (read_int(data, i, 8).map(StatValue::Int), 8),
+        20 | 21 | 56 => read_text(data, i),
+        140..=189 => (read_int(data, i + 1, 8).filter(|_| i < data.len()).map(StatValue::Int), 9),
+        1..=10 | 12..=16 | 18 | 22..=25 | 32..=54 | 58 | 100..=117 => (read_int(data, i, 2).map(StatValue::Int), 2),
+        _ => return None,
+    })
+}
+
 /// Parses until the end or the first unknown stat code. Returns what was read and,
 /// for an unknown code or short data, the error.
 pub fn parse_stats(data: &[u8]) -> (Vec<(u8, StatValue)>, Option<ParseError>) {
     let mut out = Vec::new();
     let mut i = 0;
-    let int = |d: &[u8], i: usize, n: usize| -> Option<i64> {
-        let b = d.get(i..i + n)?;
-        Some(match n {
-            2 => i16::from_be_bytes([b[0], b[1]]) as i64,
-            4 => i32::from_be_bytes(b.try_into().ok()?) as i64,
-            _ => i64::from_be_bytes(b.try_into().ok()?),
-        })
-    };
     while i < data.len() {
         let code = data[i];
         i += 1;
-        let short = || Some(ParseError(format!("stats: value for code {code} is cut short")));
-        let (value, size) = match code {
-            17 | 19 | 26 | 29 | 30 | 31 | 55 | 57 => (int(data, i, 4).map(StatValue::Int), 4),
-            28 => (int(data, i, 8).map(StatValue::Int), 8),
-            20 | 21 | 56 => {
-                let len = data.get(i).map_or(0, |&l| l as usize);
-                let text = data.get(i + 1..i + 1 + len).map(|t| StatValue::Text(String::from_utf8_lossy(t).into()));
-                (if data.get(i).is_some() { text } else { None }, 1 + len)
-            }
-            140..=189 => (int(data, i + 1, 8).filter(|_| i < data.len()).map(StatValue::Int), 9),
-            1..=10 | 12..=16 | 18 | 22..=25 | 32..=54 | 58 | 100..=117 => (int(data, i, 2).map(StatValue::Int), 2),
-            _ => return (out, Some(ParseError(format!("stats: unknown code {code}")))),
+        let Some((value, size)) = read_value(data, i, code) else {
+            return (out, Some(ParseError(format!("stats: unknown code {code}"))));
         };
-        let Some(value) = value else { return (out, short()) };
+        let Some(value) = value else {
+            return (out, Some(ParseError(format!("stats: value for code {code} is cut short"))));
+        };
         out.push((code, value));
         i += size;
     }
@@ -243,5 +256,95 @@ mod tests {
         ]);
         assert_eq!((s.hp, s.sp, s.grace, s.food, s.exp, s.level), (50, 7, 9, 999, 1234, 2));
         assert_eq!(s.title, "Fighter");
+    }
+
+    // Frozen copy of the original parse_stats, kept to check the refactor.
+    fn old_parse_stats(data: &[u8]) -> (Vec<(u8, StatValue)>, Option<ParseError>) {
+        let mut out = Vec::new();
+        let mut i = 0;
+        let int = |d: &[u8], i: usize, n: usize| -> Option<i64> {
+            let b = d.get(i..i + n)?;
+            Some(match n {
+                2 => i16::from_be_bytes([b[0], b[1]]) as i64,
+                4 => i32::from_be_bytes(b.try_into().ok()?) as i64,
+                _ => i64::from_be_bytes(b.try_into().ok()?),
+            })
+        };
+        while i < data.len() {
+            let code = data[i];
+            i += 1;
+            let short = || Some(ParseError(format!("stats: value for code {code} is cut short")));
+            let (value, size) = match code {
+                17 | 19 | 26 | 29 | 30 | 31 | 55 | 57 => (int(data, i, 4).map(StatValue::Int), 4),
+                28 => (int(data, i, 8).map(StatValue::Int), 8),
+                20 | 21 | 56 => {
+                    let len = data.get(i).map_or(0, |&l| l as usize);
+                    let text = data.get(i + 1..i + 1 + len).map(|t| StatValue::Text(String::from_utf8_lossy(t).into()));
+                    (if data.get(i).is_some() { text } else { None }, 1 + len)
+                }
+                140..=189 => (int(data, i + 1, 8).filter(|_| i < data.len()).map(StatValue::Int), 9),
+                1..=10 | 12..=16 | 18 | 22..=25 | 32..=54 | 58 | 100..=117 => (int(data, i, 2).map(StatValue::Int), 2),
+                _ => return (out, Some(ParseError(format!("stats: unknown code {code}")))),
+            };
+            let Some(value) = value else { return (out, short()) };
+            out.push((code, value));
+            i += size;
+        }
+        (out, None)
+    }
+
+    struct Lcg(u64);
+
+    impl Lcg {
+        fn next(&mut self) -> u64 {
+            self.0 = self.0.wrapping_mul(6364136223846793005).wrapping_add(1442695040888963407);
+            self.0 >> 33
+        }
+        fn below(&mut self, n: usize) -> usize {
+            self.next() as usize % n
+        }
+        fn pick(&mut self, xs: &[u8]) -> u8 {
+            xs[self.below(xs.len())]
+        }
+        fn bytes(&mut self, v: &mut Vec<u8>, n: usize) {
+            (0..n).for_each(|_| v.push(self.next() as u8));
+        }
+    }
+
+    fn push_chunk(r: &mut Lcg, v: &mut Vec<u8>) {
+        match r.below(6) {
+            0 => { v.push(r.pick(&[17, 19, 26, 29, 30, 31, 55, 57])); r.bytes(v, 4) }
+            1 => { v.push(28); r.bytes(v, 8) }
+            2 => { v.push(r.pick(&[20, 21, 56])); let n = r.below(6); v.push(n as u8); r.bytes(v, n) }
+            3 => { v.push(140 + r.below(50) as u8); r.bytes(v, 9) }
+            4 => { v.push(r.pick(&[1, 2, 10, 12, 16, 18, 22, 25, 32, 54, 58, 100, 117])); r.bytes(v, 2) }
+            _ => r.bytes(v, 1),
+        }
+    }
+
+    fn gen_input(r: &mut Lcg, biased: bool) -> Vec<u8> {
+        let mut v = Vec::new();
+        if biased {
+            (0..r.below(6)).for_each(|_| push_chunk(r, &mut v));
+            if r.below(2) == 0 && !v.is_empty() {
+                v.truncate(r.below(v.len()));
+            }
+        } else {
+            let n = r.below(24);
+            r.bytes(&mut v, n);
+        }
+        v
+    }
+
+    #[test]
+    fn parse_stats_matches_old() {
+        let mut r = Lcg(12345);
+        for n in 0..30_000 {
+            let d = gen_input(&mut r, n % 2 == 0);
+            assert_eq!(parse_stats(&d), old_parse_stats(&d), "{d:?}");
+        }
+        for d in [&[1u8, 0, 50, 2, 0, 80][..], &[14, 0xff, 0xfe], &[1, 0, 50, 250, 1, 2, 3], &[1, 0], &[21, 7, b'F']] {
+            assert_eq!(parse_stats(d), old_parse_stats(d));
+        }
     }
 }

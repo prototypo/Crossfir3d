@@ -245,7 +245,7 @@ denominator grew.
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
 - Blocked: a flat match over the 17 message kinds is the clearest form. Splitting it under 10 needs dead `=> Vec::new()` arms that would send an empty packet for a misplaced kind. Kept the old code; added byte-exact golden tests for every kind instead.
 
-### [ ] 🔴 Q36: complexity — crates/cfproto/src/stats.rs:38 `parse_stats`
+### [x] 🔴 Q36: complexity — crates/cfproto/src/stats.rs:38 `parse_stats`
 
 - Measured: complexity 20 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
