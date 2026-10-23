@@ -166,19 +166,25 @@ fn keep_window_on_screen(
     };
 }
 
+/// The window move and resize messages that `remember_window` reads.
+#[derive(SystemParam)]
+struct WindowMessages<'w, 's> {
+    moved: MessageReader<'w, 's, WindowMoved>,
+    resized: MessageReader<'w, 's, WindowResized>,
+}
+
 /// Saves the windowed position and size into the settings when the window moves.
 fn remember_window(
-    mut moved: MessageReader<WindowMoved>,
-    mut resized: MessageReader<WindowResized>,
+    mut messages: WindowMessages,
     window: Single<&Window, With<PrimaryWindow>>,
     mut last_pos: Local<Option<IVec2>>,
     mut settings: ResMut<CurrentSettings>,
     monitors: Query<&Monitor>,
 ) {
-    if let Some(m) = moved.read().last() {
+    if let Some(m) = messages.moved.read().last() {
         *last_pos = Some(m.position);
     }
-    let changed = last_pos.is_some() | (resized.read().count() > 0);
+    let changed = last_pos.is_some() | (messages.resized.read().count() > 0);
     if !changed || settings.0.fullscreen || window.mode != WindowMode::Windowed {
         return;
     }
