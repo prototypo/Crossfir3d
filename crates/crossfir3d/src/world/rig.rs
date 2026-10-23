@@ -32,62 +32,90 @@ pub(super) fn glide(time: Res<Time>, comc: Res<LastComc>, mut q: Query<(&mut Tra
     }
 }
 
-#[allow(clippy::too_many_arguments)]
-pub(super) fn follow_player(
-    time: Res<Time>,
-    comc: Res<LastComc>,
-    view: Res<View>,
-    size: Res<ViewSize>,
-    heading: Res<CameraHeading>,
-    cam: Res<CameraView>,
-    solid: Res<Solid>,
-    scroll: Res<AccumulatedMouseScroll>,
-    mut pinch: MessageReader<PinchGesture>,
-    doorstep: Res<Doorstep>,
-    rig: Single<(&mut Transform, &mut CameraRig, &mut DistanceFog)>,
-) {
-    let (mut t, mut rig, mut fog) = rig.into_inner();
+/// What `follow_player` reads: the clock, the view, the camera mode, the walls, and the zoom input.
+#[derive(SystemParam)]
+pub(super) struct Follow<'w, 's> {
+    time: Res<'w, Time>,
+    comc: Res<'w, LastComc>,
+    view: Res<'w, View>,
+    size: Res<'w, ViewSize>,
+    heading: Res<'w, CameraHeading>,
+    cam: Res<'w, CameraView>,
+    solid: Res<'w, Solid>,
+    scroll: Res<'w, AccumulatedMouseScroll>,
+    pinch: MessageReader<'w, 's, PinchGesture>,
+    doorstep: Res<'w, Doorstep>,
+}
+
+/// Zooms the distance of the current view by the scroll and pinch input.
+fn zoom_rig(p: &mut Follow, rig: &mut CameraRig) {
     // A trackpad's two-finger scroll comes in pixels, a mouse wheel in lines.
-    let lines = match scroll.unit {
-        MouseScrollUnit::Line => scroll.delta.y,
-        MouseScrollUnit::Pixel => scroll.delta.y / PIXELS_PER_LINE,
+    let lines = match p.scroll.unit {
+        MouseScrollUnit::Line => p.scroll.delta.y,
+        MouseScrollUnit::Pixel => p.scroll.delta.y / PIXELS_PER_LINE,
     };
-    let pinched: f32 = pinch.read().map(|p| p.0).sum();
-    if cam.top {
+    let pinched: f32 = p.pinch.read().map(|g| g.0).sum();
+    if p.cam.top {
         rig.top_distance = zoom(rig.top_distance, lines, pinched, TOP_ZOOM_MIN, TOP_ZOOM_MAX);
     } else {
         rig.distance = zoom(rig.distance, lines, pinched, ZOOM_MIN, ZOOM_MAX);
     }
-    let (px, py) = view.0.world((size.0 / 2) as i8, (size.1 / 2) as i8);
-    let target = doorstep.0.map_or(Vec3::new(px as f32 + 0.5, 0.0, py as f32 + 0.5), |d| d.with_y(0.0));
-    let step_secs = comc.time_ms.clamp(100, 400) as f32 / 1000.0;
+}
+
+/// Moves the focus toward the player's square (or doorstep), snapping on far jumps.
+fn follow_focus(p: &Follow, rig: &mut CameraRig) {
+    let (px, py) = p.view.0.world((p.size.0 / 2) as i8, (p.size.1 / 2) as i8);
+    let target = p.doorstep.0.map_or(Vec3::new(px as f32 + 0.5, 0.0, py as f32 + 0.5), |d| d.with_y(0.0));
+    let step_secs = p.comc.time_ms.clamp(100, 400) as f32 / 1000.0;
     let d = target - rig.focus;
-    rig.focus = if d.length() > 2.0 { target } else { rig.focus + d.clamp_length_max(time.delta_secs() / step_secs) };
-    let behind = heading.0 as f32 * std::f32::consts::FRAC_PI_4;
-    let (goal, pitch, want, side, ahead) = if cam.top {
+    rig.focus = if d.length() > 2.0 { target } else { rig.focus + d.clamp_length_max(p.time.delta_secs() / step_secs) };
+}
+
+/// The camera mode's (goal yaw, pitch in degrees, wanted distance, side, ahead).
+fn camera_mode(p: &Follow, rig: &CameraRig) -> (f32, f32, f32, f32, f32) {
+    let behind = p.heading.0 as f32 * std::f32::consts::FRAC_PI_4;
+    if p.cam.top {
         (0.0, TOP_PITCH_DEG, rig.top_distance, 0.0, 0.0)
-    } else if cam.face {
+    } else if p.cam.face {
         (behind + std::f32::consts::PI, FACE_PITCH_DEG, FACE_DISTANCE, 0.0, 0.0)
     } else {
         (behind, PITCH_DEG, rig.distance, SHOULDER, AHEAD)
-    };
+    }
+}
+
+/// Eases the yaw the short way round toward the goal.
+fn ease_yaw(rig: &mut CameraRig, goal: f32, dt: f32) {
     // Ease the yaw the short way round toward the goal (about 0.4 s per 45°).
     let diff = (goal - rig.yaw + std::f32::consts::PI).rem_euclid(std::f32::consts::TAU) - std::f32::consts::PI;
-    rig.yaw += diff.clamp(-1.0, 1.0) * (time.delta_secs() * 4.0).min(1.0);
+    rig.yaw += diff.clamp(-1.0, 1.0) * (dt * 4.0).min(1.0);
+}
+
+/// The camera distance, pulled in while a wall stands between player and camera.
+fn pulled_distance(p: &Follow, rig: &CameraRig, pitch: f32, want: f32, side: f32) -> f32 {
     // Pull in while a wall or building stands between player and camera; never rise
     // above them (that looked into upper floors).
     let (focus, yaw) = (rig.focus, rig.yaw);
     let blocked = |dist: f32| {
         let eye = camera_eye(focus, dist, yaw, pitch.to_radians(), side);
-        sight_blocked((focus.x, focus.z), (eye.x, eye.z), |x, y| solid.0.contains(&(x, y)))
+        sight_blocked((focus.x, focus.z), (eye.x, eye.z), |x, y| p.solid.0.contains(&(x, y)))
     };
-    let distance = if cam.top { want } else { pull_in(want, blocked) };
+    if p.cam.top { want } else { pull_in(want, blocked) }
+}
+
+pub(super) fn follow_player(mut p: Follow, rig: Single<(&mut Transform, &mut CameraRig, &mut DistanceFog)>) {
+    let (mut t, mut rig, mut fog) = rig.into_inner();
+    zoom_rig(&mut p, &mut rig);
+    follow_focus(&p, &mut rig);
+    let (goal, pitch, want, side, ahead) = camera_mode(&p, &rig);
+    let dt = p.time.delta_secs();
+    ease_yaw(&mut rig, goal, dt);
+    let distance = pulled_distance(&p, &rig, pitch, want, side);
     let step = pitch.to_radians() - rig.pitch;
-    rig.pitch += step * (time.delta_secs() * 4.0).min(1.0);
+    rig.pitch += step * (dt * 4.0).min(1.0);
     *t = camera_transform(rig.focus, distance, rig.yaw, rig.pitch, side, ahead);
     // Haze from the edge of what the server sends out to the edge of map memory: nearby
     // houses keep their colours, remembered ones fade.
-    let radius = size.0.min(size.1) as f32 / 2.0;
+    let radius = p.size.0.min(p.size.1) as f32 / 2.0;
     fog.falloff = FogFalloff::Linear { start: distance + radius, end: distance + MEMORY_SQUARES as f32 };
 }
 
