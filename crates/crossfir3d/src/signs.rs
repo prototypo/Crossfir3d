@@ -36,21 +36,23 @@ const GLYPHS: [[u8; 7]; 26] = [
 const INK: [u8; 4] = [30, 20, 12, 255];
 
 /// Icon paints; `.` is see-through.
+const PAINTS: [(char, [u8; 4]); 11] = [
+    ('k', INK),
+    ('c', [80, 200, 230, 255]),  // cyan
+    ('w', [235, 245, 250, 255]), // white
+    ('y', [240, 200, 40, 255]),  // yellow
+    ('o', [190, 120, 20, 255]),  // dark gold
+    ('b', [80, 45, 20, 255]),    // dark wood
+    ('g', [150, 150, 160, 255]), // steel
+    ('u', [50, 90, 180, 255]),   // blue
+    ('r', [200, 40, 40, 255]),   // red
+    ('G', [50, 150, 50, 255]),   // green
+    ('n', [225, 200, 150, 255]), // sacking
+];
+
+/// The colour of an icon letter; None for a see-through or unknown one.
 fn paint(c: char) -> Option<[u8; 4]> {
-    Some(match c {
-        'k' => INK,
-        'c' => [80, 200, 230, 255],  // cyan
-        'w' => [235, 245, 250, 255], // white
-        'y' => [240, 200, 40, 255],  // yellow
-        'o' => [190, 120, 20, 255],  // dark gold
-        'b' => [80, 45, 20, 255],    // dark wood
-        'g' => [150, 150, 160, 255], // steel
-        'u' => [50, 90, 180, 255],   // blue
-        'r' => [200, 40, 40, 255],   // red
-        'G' => [50, 150, 50, 255],   // green
-        'n' => [225, 200, 150, 255], // sacking
-        _ => return None,
-    })
+    PAINTS.iter().find(|(k, _)| *k == c).map(|(_, rgba)| *rgba)
 }
 
 /// 7×7 icons by name (`assets/models.txt`: `building shop JEWELS gem`).
@@ -141,6 +143,21 @@ mod tests {
                 assert_eq!(r.chars().count(), 7, "{name}: {r}");
                 assert!(r.chars().all(|c| c == '.' || paint(c).is_some()), "{name}: {r}");
             }
+        }
+    }
+
+    #[test]
+    fn paint_colours() {
+        let want = [
+            ('k', INK), ('c', [80, 200, 230, 255]), ('w', [235, 245, 250, 255]), ('y', [240, 200, 40, 255]),
+            ('o', [190, 120, 20, 255]), ('b', [80, 45, 20, 255]), ('g', [150, 150, 160, 255]),
+            ('u', [50, 90, 180, 255]), ('r', [200, 40, 40, 255]), ('G', [50, 150, 50, 255]), ('n', [225, 200, 150, 255]),
+        ];
+        for (c, rgba) in want {
+            assert_eq!(paint(c), Some(rgba), "{c}");
+        }
+        for c in [' ', 'K', 'z', '.'] {
+            assert_eq!(paint(c), None, "{c}");
         }
     }
 
