@@ -546,7 +546,7 @@ denominator grew.
 - Measured: length 59 (threshold 50)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
 
-### [ ] 🔴 Q96: file size — crates/crossfir3d/src/models.rs
+### [x] 🔴 Q96: file size — crates/crossfir3d/src/models.rs
 
 - Measured: 579 lines (threshold 500)
 - Recommendation: Move the model-list tests into `models/tests.rs`; the code itself is under the limit.
