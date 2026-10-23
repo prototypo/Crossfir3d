@@ -219,7 +219,7 @@ denominator grew.
 - Measured: complexity 22 (threshold 10); nesting 7 (threshold 4)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
 
-### [ ] 🔴 Q31: file size — crates/crossfir3d/src/characters3d.rs
+### [x] 🔴 Q31: file size — crates/crossfir3d/src/characters3d.rs
 
 - Measured: 1,075 lines (threshold 500)
 - Recommendation: Move the dressing systems (`dress_people`, `wear_helmet`, `put_on_head`) into a `characters3d/dress.rs` submodule.
