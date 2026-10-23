@@ -156,17 +156,23 @@ pub fn outfit_file(body: Body, garb: Garb) -> &'static str {
     }
 }
 
-/// Spawns a character standing at `at` from its scene files (body, hair, outfit; see
-/// `character_files`); `parts` is the parts' visibility, `extra` goes on the root.
+/// Where a spawned figure stands (`at`), the visibility of its parts, and the bundle `extra` that goes on its root.
+pub struct Placement<B: Bundle> {
+    pub at: Transform,
+    pub parts: Visibility,
+    pub extra: B,
+}
+
+/// Spawns a character from its scene files (body, hair, outfit; see `character_files`)
+/// at `place`.
 pub fn spawn_character(
     commands: &mut Commands,
     mut load: impl FnMut(&str) -> Handle<WorldAsset>,
     files: [&str; 3],
     look: &Look,
-    at: Transform,
-    parts: Visibility,
-    extra: impl Bundle,
+    place: Placement<impl Bundle>,
 ) -> Entity {
+    let Placement { at, parts, extra } = place;
     let t = tints(look);
     let root = commands.spawn((at, Visibility::default(), Character::default(), AnimationPlayer::default(), extra)).id();
     let inner = Transform::from_scale(Vec3::splat(BODY_SCALE * look.scale));
@@ -438,7 +444,7 @@ fn update_preview(
             let load = |f: &str| server.load(GltfAssetLabel::Scene(0).from_asset(format!("models/{f}")));
             let files = character_files(preview.body);
             let extra = (PreviewBody, RenderLayers::layer(PREVIEW_LAYER));
-            spawn_character(&mut commands, load, files, &look_for_race(&race), at, Visibility::Inherited, extra);
+            spawn_character(&mut commands, load, files, &look_for_race(&race), Placement { at, parts: Visibility::Inherited, extra });
         }
         preview.shown = want;
     }

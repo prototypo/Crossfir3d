@@ -370,7 +370,7 @@ denominator grew.
 - Measured: complexity 13 (threshold 10); arguments 7 (threshold 5)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
 
-### [ ] 🔴 Q61: arguments — crates/crossfir3d/src/characters3d.rs:159 `spawn_character`
+### [x] 🔴 Q61: arguments — crates/crossfir3d/src/characters3d.rs:159 `spawn_character`
 
 - Measured: arguments 7 (threshold 5)
 - Recommendation: This is a Bevy system: group its queries and resources into a `#[derive(SystemParam)]` struct.

@@ -75,7 +75,7 @@ pub(super) fn spawn_person(sq: &Square, draw: &mut Draw, own: &OwnLook) -> bool 
     let pos = sq.centre();
     let load = |f: &str| draw.models.scene(&draw.server, f);
     let at = Transform::from_translation(pos);
-    let e = spawn_character(&mut draw.commands, load, files, &look, at, Visibility::Hidden, (sq.tv(), Glide { target: pos }));
+    let e = spawn_character(&mut draw.commands, load, files, &look, Placement { at, parts: Visibility::Hidden, extra: (sq.tv(), Glide { target: pos }) });
     draw.commands.entity(e).insert(Assembled(files.iter().filter(|f| !f.is_empty()).map(|f| f.to_string()).collect()));
     if let Some(dress) = dress_of(sq, &draw.models.map, class, outfit.is_some_and(|o| o.armour)) {
         draw.commands.entity(e).insert(dress);
@@ -113,7 +113,7 @@ pub(super) fn spawn_creature(sq: &Square, draw: &mut Draw) -> bool {
             let load = |f: &str| draw.models.scene(&draw.server, f);
             let bony = crate::skeleton::Bony(tint.unwrap_or([1.0; 3]));
             let extra = (extra, Assembled(vec![file.to_string()]), bony);
-            spawn_character(&mut draw.commands, load, [file, "", ""], &look, at, Visibility::Hidden, extra);
+            spawn_character(&mut draw.commands, load, [file, "", ""], &look, Placement { at, parts: Visibility::Hidden, extra });
         }
         _ => return false,
     }
@@ -198,7 +198,7 @@ pub(super) fn spawn_statue(sq: &Square, draw: &mut Draw) -> bool {
     let look = Look { scale: 0.5, skin: rel(human.skin), hair: [r, g, b], clothes: rel(human.clothes) };
     let load = |f: &str| draw.models.scene(&draw.server, f);
     let on_top = Transform::from_xyz(0.0, PLINTH_TOP, 0.0);
-    let figure = spawn_character(&mut draw.commands, load, character_files(Body::Regular), &look, on_top, Visibility::Inherited, StatueFigure);
+    let figure = spawn_character(&mut draw.commands, load, character_files(Body::Regular), &look, Placement { at: on_top, parts: Visibility::Inherited, extra: StatueFigure });
     draw.commands.entity(figure).insert(ChildOf(parent));
     true
 }
