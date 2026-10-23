@@ -330,7 +330,7 @@ denominator grew.
 - Measured: complexity 16 (threshold 10); arguments 8 (threshold 5)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
 
-### [ ] 🔴 Q53: file size — crates/crossfir3d/src/keys_ui.rs
+### [x] 🔴 Q53: file size — crates/crossfir3d/src/keys_ui.rs
 
 - Measured: 768 lines (threshold 500)
 - Recommendation: Move the keyboard drawing into `keys_ui/keyboard.rs` and the lists into `keys_ui/lists.rs`.
