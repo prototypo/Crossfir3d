@@ -128,7 +128,7 @@ pub(super) fn wear_helmet(mut commands: Commands, wearer: Wearer, skeleton: Skel
             e.with_child(cap);
         });
     } else if let Some(wear) = wearer.own_look.class.and_then(|c| c.head) {
-        put_on_head(&mut commands, head, wear, k, &stock.leather, &mut stock.meshes, &mut stock.materials, HelmetShape);
+        crate::hat::put_on(stock.hat_kit(&mut commands), head, wear, k, HelmetShape);
     }
     commands.entity(root).try_insert(want);
 }
@@ -138,7 +138,7 @@ pub(super) fn gear_up(mut commands: Commands, server: Res<AssetServer>, geared: 
         // The body scenes spawn a little later than the character: try again next frame.
         let (Some(head), Some(right), Some(left)) = (skeleton.find(root, "Head"), skeleton.find(root, "hand_r"), skeleton.find(root, "hand_l")) else { continue };
         if let Some(wear) = class.head {
-            put_on_head(&mut commands, head, wear, scale / bone_scale(head, &skeleton.parents, &skeleton.parts), &stock.leather, &mut stock.meshes, &mut stock.materials, ());
+            crate::hat::put_on(stock.hat_kit(&mut commands), head, wear, scale / bone_scale(head, &skeleton.parents, &skeleton.parts), ());
         }
         for (carry, side, bone) in [(class.right, Hand::Right, right), (class.left, Hand::Left, left)] {
             if let Some(carry) = carry {
@@ -154,24 +154,6 @@ pub(super) fn plain(materials: &mut Assets<StandardMaterial>, [r, g, b]: [f32; 3
     let color = Color::srgb(r, g, b);
     let emissive = if glow { LinearRgba::from(color) * 4.0 } else { LinearRgba::BLACK };
     materials.add(StandardMaterial { base_color: color, emissive, perceptual_roughness: 0.8, ..default() })
-}
-
-/// Puts a hat, cap or mask on a head bone, `k` times its size for a human; `marker`
-/// goes on each shape. A hood is an outfit part, not a shape: nothing here.
-#[allow(clippy::too_many_arguments)]
-pub(super) fn put_on_head(
-    commands: &mut Commands,
-    head: Entity,
-    wear: Headwear,
-    k: f32,
-    leather: &crate::hat::Leather,
-    meshes: &mut Assets<Mesh>,
-    materials: &mut Assets<StandardMaterial>,
-    marker: impl Bundle + Clone,
-) {
-    // Hoods and baldness are outfit and hair files, chosen at spawn: nothing to build.
-    let kit = crate::hat::HatKit { commands, leather, meshes, materials };
-    crate::hat::put_on(kit, head, wear, k, marker);
 }
 
 /// How a hand holds a thing: where its grip sits and how it turns. The hand bone's +Y runs

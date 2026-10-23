@@ -318,6 +318,13 @@ struct Stock<'w> {
     leather: Res<'w, crate::hat::Leather>,
 }
 
+impl Stock<'_> {
+    /// The tools for putting on a hat, spawning with `commands`.
+    fn hat_kit<'a, 'w, 's>(&'a mut self, commands: &'a mut Commands<'w, 's>) -> crate::hat::HatKit<'a, 'w, 's> {
+        crate::hat::HatKit { commands, leather: &self.leather, meshes: &mut self.meshes, materials: &mut self.materials }
+    }
+}
+
 /// Facing 1 = north .. 8 = northwest, clockwise. The model looks along +Z unturned.
 fn facing_rotation(facing: u8) -> Quat {
     let clockwise = (facing.clamp(1, 8) - 1) as f32 * std::f32::consts::FRAC_PI_4;

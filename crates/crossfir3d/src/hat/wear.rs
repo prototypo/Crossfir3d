@@ -211,7 +211,8 @@ fn material(finish: Finish, [r, g, b]: [f32; 3], leather: &Leather) -> StandardM
 }
 
 /// Puts a built hat or mask on a head bone, `k` times the size for a human; `marker` goes on
-/// each part. Other headwear is not built here: false.
+/// each part. Other headwear is not built here: false (hoods and baldness are outfit and
+/// hair files, chosen at spawn).
 pub fn put_on(kit: HatKit, head: Entity, wear: Headwear, k: f32, marker: impl Bundle + Clone) -> bool {
     let Some(parts) = parts(wear) else { return false };
     for (m, colour, finish) in parts {

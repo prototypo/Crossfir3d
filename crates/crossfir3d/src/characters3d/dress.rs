@@ -68,7 +68,7 @@ fn put_headwear(commands: &mut Commands, body: &Skeleton, root: Entity, outfit: 
     if let Some(wear) = wear
         && let Some(head) = body.find(root, "Head")
     {
-        put_on_head(commands, head, wear, outfit.scale / bone_scale(head, &body.parents, &body.parts), &stock.leather, &mut stock.meshes, &mut stock.materials, ());
+        crate::hat::put_on(stock.hat_kit(commands), head, wear, outfit.scale / bone_scale(head, &body.parents, &body.parts), ());
     }
 }
 
