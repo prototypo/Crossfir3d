@@ -421,35 +421,44 @@ fn setup_preview(mut commands: Commands, mut images: ResMut<Assets<Image>>, mut 
 #[derive(Component)]
 struct PreviewCamera;
 
+/// What the preview system draws with and turns.
+#[derive(SystemParam)]
+struct PreviewParams<'w, 's> {
+    commands: Commands<'w, 's>,
+    time: Res<'w, Time>,
+    server: Res<'w, AssetServer>,
+    preview: ResMut<'w, Preview>,
+    camera: Single<'w, 's, &'static mut Camera, With<PreviewCamera>>,
+    bodies: Query<'w, 's, (Entity, &'static mut Transform), With<PreviewBody>>,
+}
+
 /// Shows the selected race and Body on the new-character screen, slowly turning.
-fn update_preview(
-    mut commands: Commands,
-    time: Res<Time>,
-    server: Res<AssetServer>,
-    mut preview: ResMut<Preview>,
-    session: Option<NonSend<Session>>,
-    mut camera: Single<&mut Camera, With<PreviewCamera>>,
-    mut bodies: Query<(Entity, &mut Transform), With<PreviewBody>>,
-) {
+fn update_preview(mut p: PreviewParams, session: Option<NonSend<Session>>) {
     let creating = session.as_ref().is_some_and(|s| *s.login.state() == LoginState::Creating);
-    camera.is_active = creating;
+    p.camera.is_active = creating;
     let race = session.as_ref().and_then(|s| s.login.newchar.race.clone()).unwrap_or_default();
-    let want = creating.then(|| (race.clone(), preview.body));
-    if preview.shown != want {
-        for (e, _) in &bodies {
-            commands.entity(e).despawn();
-        }
-        if want.is_some() {
-            let at = Transform::from_translation(PREVIEW_AT);
-            let load = |f: &str| server.load(GltfAssetLabel::Scene(0).from_asset(format!("models/{f}")));
-            let files = character_files(preview.body);
-            let extra = (PreviewBody, RenderLayers::layer(PREVIEW_LAYER));
-            spawn_character(&mut commands, load, files, &look_for_race(&race), Placement { at, parts: Visibility::Inherited, extra });
-        }
-        preview.shown = want;
+    let want = creating.then(|| (race.clone(), p.preview.body));
+    if p.preview.shown != want {
+        respawn_preview(&mut p, want.is_some(), &race);
+        p.preview.shown = want;
     }
-    for (_, mut t) in &mut bodies {
-        t.rotate_y(time.delta_secs() * 0.6);
+    let turn = p.time.delta_secs() * 0.6;
+    for (_, mut t) in &mut p.bodies {
+        t.rotate_y(turn);
+    }
+}
+
+/// Despawns the preview body and, if `show`, spawns one for `race`.
+fn respawn_preview(p: &mut PreviewParams, show: bool, race: &str) {
+    for (e, _) in &p.bodies {
+        p.commands.entity(e).despawn();
+    }
+    if show {
+        let at = Transform::from_translation(PREVIEW_AT);
+        let load = |f: &str| p.server.load(GltfAssetLabel::Scene(0).from_asset(format!("models/{f}")));
+        let files = character_files(p.preview.body);
+        let extra = (PreviewBody, RenderLayers::layer(PREVIEW_LAYER));
+        spawn_character(&mut p.commands, load, files, &look_for_race(race), Placement { at, parts: Visibility::Inherited, extra });
     }
 }
 

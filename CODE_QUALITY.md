@@ -385,7 +385,7 @@ denominator grew.
 - Measured: arguments 7 (threshold 5)
 - Recommendation: This is a Bevy system: group its queries and resources into a `#[derive(SystemParam)]` struct.
 
-### [ ] 🔴 Q64: arguments — crates/crossfir3d/src/characters3d.rs:960 `update_preview`
+### [x] 🔴 Q64: arguments — crates/crossfir3d/src/characters3d.rs:960 `update_preview`
 
 - Measured: arguments 7 (threshold 5)
 - Recommendation: This is a Bevy system: group its queries and resources into a `#[derive(SystemParam)]` struct.
