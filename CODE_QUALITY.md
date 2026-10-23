@@ -74,7 +74,7 @@ denominator grew.
 - Measured: complexity 33 (threshold 10)
 - Recommendation: Move the back and over `match`es into their own `class_back` and `class_over` functions; the rest is one row per class, so its complexity is data, not logic.
 
-### [ ] 🔴 Q2: file size — crates/crossfir3d/src/world.rs
+### [x] 🔴 Q2: file size — crates/crossfir3d/src/world.rs
 
 - Measured: 1,617 lines (threshold 500)
 - Recommendation: Move each family of spawn helpers (`spawn_part`, the ground, the creatures, the arrows) into a `world/` submodule, as `buildings/` now is.
