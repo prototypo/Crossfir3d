@@ -16,10 +16,17 @@ fn camera_eye(focus: Vec3, distance: f32, yaw: f32, pitch: f32, side: f32) -> Ve
     shoulder(focus, yaw, side) - look_dir(yaw) * pitch.cos() * distance + Vec3::Y * pitch.sin() * distance
 }
 
+/// Where the camera frames the player: `side` to the right of the shoulder point, looking `ahead` past it.
+#[derive(Clone, Copy)]
+pub(super) struct Framing {
+    pub(super) side: f32,
+    pub(super) ahead: f32,
+}
+
 /// Looks `ahead` past the shoulder point.
-pub(super) fn camera_transform(focus: Vec3, distance: f32, yaw: f32, pitch: f32, side: f32, ahead: f32) -> Transform {
-    let target = shoulder(focus, yaw, side) + look_dir(yaw) * ahead;
-    Transform::from_translation(camera_eye(focus, distance, yaw, pitch, side)).looking_at(target, Vec3::Y)
+pub(super) fn camera_transform(focus: Vec3, distance: f32, yaw: f32, pitch: f32, framing: Framing) -> Transform {
+    let target = shoulder(focus, yaw, framing.side) + look_dir(yaw) * framing.ahead;
+    Transform::from_translation(camera_eye(focus, distance, yaw, pitch, framing.side)).looking_at(target, Vec3::Y)
 }
 
 pub(super) fn glide(time: Res<Time>, comc: Res<LastComc>, mut q: Query<(&mut Transform, &Glide), Without<CameraRig>>) {
@@ -71,15 +78,15 @@ fn follow_focus(p: &Follow, rig: &mut CameraRig) {
     rig.focus = if d.length() > 2.0 { target } else { rig.focus + d.clamp_length_max(p.time.delta_secs() / step_secs) };
 }
 
-/// The camera mode's (goal yaw, pitch in degrees, wanted distance, side, ahead).
-fn camera_mode(p: &Follow, rig: &CameraRig) -> (f32, f32, f32, f32, f32) {
+/// The camera mode's (goal yaw, pitch in degrees, wanted distance, framing).
+fn camera_mode(p: &Follow, rig: &CameraRig) -> (f32, f32, f32, Framing) {
     let behind = p.heading.0 as f32 * std::f32::consts::FRAC_PI_4;
     if p.cam.top {
-        (0.0, TOP_PITCH_DEG, rig.top_distance, 0.0, 0.0)
+        (0.0, TOP_PITCH_DEG, rig.top_distance, Framing { side: 0.0, ahead: 0.0 })
     } else if p.cam.face {
-        (behind + std::f32::consts::PI, FACE_PITCH_DEG, FACE_DISTANCE, 0.0, 0.0)
+        (behind + std::f32::consts::PI, FACE_PITCH_DEG, FACE_DISTANCE, Framing { side: 0.0, ahead: 0.0 })
     } else {
-        (behind, PITCH_DEG, rig.distance, SHOULDER, AHEAD)
+        (behind, PITCH_DEG, rig.distance, Framing { side: SHOULDER, ahead: AHEAD })
     }
 }
 
@@ -107,13 +114,13 @@ pub(super) fn follow_player(mut p: Follow, rig: Single<(&mut Transform, &mut Cam
     let (mut t, mut rig, mut fog) = rig.into_inner();
     zoom_rig(&mut p, &mut rig);
     follow_focus(&p, &mut rig);
-    let (goal, pitch, want, side, ahead) = camera_mode(&p, &rig);
+    let (goal, pitch, want, framing) = camera_mode(&p, &rig);
     let dt = p.time.delta_secs();
     ease_yaw(&mut rig, goal, dt);
-    let distance = pulled_distance(&p, &rig, pitch, want, side);
+    let distance = pulled_distance(&p, &rig, pitch, want, framing.side);
     let step = pitch.to_radians() - rig.pitch;
     rig.pitch += step * (dt * 4.0).min(1.0);
-    *t = camera_transform(rig.focus, distance, rig.yaw, rig.pitch, side, ahead);
+    *t = camera_transform(rig.focus, distance, rig.yaw, rig.pitch, framing);
     // Haze from the edge of what the server sends out to the edge of map memory: nearby
     // houses keep their colours, remembered ones fade.
     let radius = p.size.0.min(p.size.1) as f32 / 2.0;

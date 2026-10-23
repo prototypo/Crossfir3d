@@ -353,7 +353,7 @@ fn setup(
     let distance = 2.3;
     commands.spawn((
         Camera3d::default(),
-        camera_transform(Vec3::ZERO, distance, 0.0, PITCH_DEG.to_radians(), SHOULDER, AHEAD),
+        camera_transform(Vec3::ZERO, distance, 0.0, PITCH_DEG.to_radians(), Framing { side: SHOULDER, ahead: AHEAD }),
         CameraRig { focus: Vec3::ZERO, distance, top_distance: TOP_DISTANCE, yaw: 0.0, pitch: PITCH_DEG.to_radians() },
         Glide { target: Vec3::ZERO },
         DistanceFog { color: FOG_COLOR, falloff: FogFalloff::Linear { start: 15.0, end: 25.0 }, ..default() },
