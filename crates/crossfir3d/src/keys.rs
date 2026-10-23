@@ -242,27 +242,35 @@ pub fn parse_typed(line: &str) -> Option<Typed> {
     let (word, rest) = line.trim().split_once(' ').unwrap_or((line.trim(), ""));
     let rest = rest.trim();
     match word {
-        "bind" => {
-            let (mut all, mut edit, mut command) = (false, false, rest);
-            if let Some(flags) = rest.strip_prefix('-') {
-                let (flags, after) = flags.split_once(' ').unwrap_or((flags, ""));
-                if !flags.chars().all(|c| "nfregc".contains(c)) {
-                    return Some(Typed::Usage);
-                }
-                (all, edit, command) = (flags.contains('g'), flags.contains('e'), after.trim());
-            }
-            Some(match command {
-                "" => Typed::Usage,
-                c if SPECIAL_BINDS.contains(&c) => Typed::Special(c.into()),
-                c => Typed::Bind { all, edit, command: c.into() },
-            })
-        }
-        "unbind" => Some(match rest {
-            "" => Typed::List,
-            "reset" => Typed::Reset,
-            n => n.parse().map_or(Typed::Usage, Typed::Remove),
-        }),
+        "bind" => Some(parse_bind(rest)),
+        "unbind" => Some(parse_unbind(rest)),
         _ => None,
+    }
+}
+
+/// The arguments of `bind`: optional `-nfregc` flags, then the command.
+fn parse_bind(rest: &str) -> Typed {
+    let (mut all, mut edit, mut command) = (false, false, rest);
+    if let Some(flags) = rest.strip_prefix('-') {
+        let (flags, after) = flags.split_once(' ').unwrap_or((flags, ""));
+        if !flags.chars().all(|c| "nfregc".contains(c)) {
+            return Typed::Usage;
+        }
+        (all, edit, command) = (flags.contains('g'), flags.contains('e'), after.trim());
+    }
+    match command {
+        "" => Typed::Usage,
+        c if SPECIAL_BINDS.contains(&c) => Typed::Special(c.into()),
+        c => Typed::Bind { all, edit, command: c.into() },
+    }
+}
+
+/// The arguments of `unbind`: nothing (list), `reset`, or a binding number.
+fn parse_unbind(rest: &str) -> Typed {
+    match rest {
+        "" => Typed::List,
+        "reset" => Typed::Reset,
+        n => n.parse().map_or(Typed::Usage, Typed::Remove),
     }
 }
 
@@ -536,6 +544,19 @@ mod tests {
         assert_eq!(parse_typed("unbind 3"), Some(Typed::Remove(3)));
         assert_eq!(parse_typed("unbind reset"), Some(Typed::Reset));
         assert_eq!(parse_typed("unbind x"), Some(Typed::Usage));
+        assert_eq!(parse_typed("bind -"), Some(Typed::Usage));
+        assert_eq!(parse_typed("bind -gx cmd"), Some(Typed::Usage));
+        assert_eq!(
+            parse_typed("bind  -g   spaced  cmd"),
+            Some(Typed::Bind { all: true, edit: false, command: "spaced  cmd".into() })
+        );
+        assert_eq!(parse_typed("unbind 0"), Some(Typed::Remove(0)));
+        assert_eq!(parse_typed("unbind -1"), Some(Typed::Usage));
+        assert_eq!(parse_typed("unbind 99999999999"), Some(Typed::Remove(99999999999)));
+        assert_eq!(
+            parse_typed("  bind x  "),
+            Some(Typed::Bind { all: false, edit: false, command: "x".into() })
+        );
     }
 
     #[test]
