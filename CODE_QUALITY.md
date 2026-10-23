@@ -1,64 +1,70 @@
 # Code Quality Report
 
-Generated: 2026-10-23 by quality-report v0.4.1 (second run, after Q1–Q13 of the first report)
+Generated: 2026-10-24 by quality-report v0.4.1 (codequalityexplorer 0.7.1; third run, after the 100 fixes of the second report)
 
 ## Summary
 
 - Languages analyzed: Rust (crates/cfproto, crates/crossfir3d), Python (scripts/, experiments/sprite3d/)
-- Files analyzed: 79 (68 Rust, 11 Python)
+- Files analyzed: 96 (85 Rust, 11 Python)
 - Tools used:
   - rust-code-analysis-cli 0.0.25
-  - cargo clippy 0.1.98 (unwrap_used, expect_used, excessive_nesting at 4)
+  - cargo clippy 0.1.98 (unwrap_used, expect_used, excessive_nesting at 4, dead_code; `--workspace --all-targets`)
   - rustc dead_code
   - radon 6.0.1
-  - ruff 0.6.7
-  - vulture 2.16 (run one file at a time: on both folders together it crashed with a recursion error)
+  - ruff 0.6.7 (from the pyenv `venv` environment; not on the default PATH)
+  - vulture 2.16 (run one file at a time, as last time)
   - function_metrics.py (quality-report)
-- Tools missing: none. Rust nesting depth and comment presence come from a brace and comment scan of each function (estimated).
-- Findings: 102 open
-- Branch decision: quality-improvements
-- Scope notes: Rust `mod tests` blocks are left out of the function counts but kept in file sizes. The integration tests in `crates/crossfir3d/tests/` are counted. The Python files have not changed since the first run, so their numbers are carried over from it.
+- Tools missing: none. Rust nesting depth and comment presence come from a brace and comment scan of each function (estimated), as last time.
+- Findings: 9 open, 2 blocked
+- Branch: quality-improvements
+- Scope notes: skipped `target/`, `upstream/`, `dist/`, `node_modules` and `experiments/sprite3d/.venv`. Rust `#[cfg(test)]` modules (inline, and the `tests.rs` files under `buildings/`, `characters3d/`, `keys_ui/`, `models/`, `world/`) are left out of the function counts but kept in file sizes. The integration tests in `crates/*/tests/` and the example `crates/cfproto/examples/dump_map2.rs` are counted. 5,506 of the 23,375 lines are unit-test modules.
 
 ## Metrics
 
 | Metric | Threshold | Status | Compliance | Source |
 |---|---|---|---|---|
-| Cyclomatic complexity | > 10 | 🟡 92.2% pass | 🟢 758 · 🟡 46 · 🔴 68 | tool |
-| Function length | > 50 lines | 🟢 97.2% pass | 🟢 840 · 🟡 8 · 🔴 24 | tool |
-| Nesting depth | > 4 levels | 🟢 98.7% pass | 🟢 838 · 🟡 23 · 🔴 11 | tool (Rust estimated) |
-| Argument count | > 5 | 🔴 worst 2.8× limit | 🟢 792 · 🟡 40 · 🔴 40 (95.4% pass) | tool |
-| Code duplication | ≥ 5 lines repeated | 🟢 0.1% (estimated) | 1 group | tool + judgment |
-| Dead code | any | 🟢 100% (872/872) | 0 unused | tool |
-| Error-handling smells | unwrap/expect outside tests; bare except | 🟡 1.0 / 1k lines | 20 Rust, 0 Python | tool |
-| File size | > 500 lines | 🟡 94.9% pass | 🟢 72 · 🟡 3 · 🔴 4 | tool |
-| Comment quality | WHAT, not HOW, on functions > 10 lines | 🔴 75.5% (estimated) | 🟢 275 · 🔴 89 | judgment |
-| Reusability | shared logic | 🟢 0.1% (estimated) | 1 group | judgment |
+| Cyclomatic complexity | > 10 | 🟢 99.9% pass | 🟢 1040 · 🟡 35 · 🔴 1 | tool |
+| Function length | > 50 lines | 🟢 100% pass | 🟢 1074 · 🟡 2 · 🔴 0 | tool |
+| Nesting depth | > 4 levels | 🟢 100% pass | 🟢 1063 · 🟡 13 · 🔴 0 | tool (Rust estimated) |
+| Argument count | > 5 | 🟢 99.9% pass | 🟢 993 · 🟡 82 · 🔴 1 | tool |
+| Code duplication | ≥ 5 lines repeated | 🟢 0.3% (estimated) | 2 groups | tool + judgment |
+| Dead code | any | 🟢 100% (1076/1076) | 0 unused | tool |
+| Error-handling smells | unwrap/expect outside tests; bare except | 🟡 0.8 / 1k lines | 19 Rust, 0 Python | tool |
+| File size | > 500 lines | 🟢 95.8% pass | 🟢 88 · 🟡 4 · 🔴 4 | tool |
+| Comment quality | WHAT, not HOW, on functions > 10 lines | 🟢 98.6% (estimated) | 🟢 420 · 🔴 6 | judgment |
+| Reusability | shared logic | 🟢 0.3% (estimated) | 2 groups | judgment |
 
-Comment presence was counted for every function longer than 10 lines; comment quality (WHAT vs HOW) was judged on a sample: the functions with findings and the largest files. In that sample the comments that exist say WHAT, not HOW. Suppressions: 16 `#[allow(clippy::too_many_arguments / type_complexity)]` attributes (22 in the first run), 9 of them in characters3d.rs; their functions are still counted above. No `#[allow(dead_code)]`, `# noqa` or bare `except:`.
+Comment presence was counted for every function longer than 10 lines; comment quality (WHAT vs HOW) was judged on a sample: the files with findings and the largest remaining files (settings.rs, held.rs, items.rs, login.rs, hat.rs, races.rs, main.rs, input.rs, newchar.rs, catalog.py). In that sample the comments say WHAT, not HOW; the 6 functions without a comment are all integration tests. Duplication was found by hashing every 5-line window of non-test code (whitespace-normalised) and then judging the hits; the 2 real groups are about 46 lines of about 17,900. Suppressions: 2 `#[allow(clippy::type_complexity)]` (sky.rs:178, characters3d/mod.rs:386), down from 16; no `#[allow(dead_code)]`, `#[allow(clippy::too_many_arguments)]`, `# noqa` or bare `except:`. Clippy's `excessive_nesting` also fires at view.rs:37 and props.rs:14, but it counts the `impl`/`fn` block as a level; measured from the function body (the convention used in every run) both are depth 4, so they are listed as marginal.
 
 ## Distribution
 
 | Metric | Compliance | Worst | Median | Std dev |
 |---|---|---|---|---|
-| Cyclomatic complexity | 92.2% (804/872) | 33 | 3 | 4.9 |
-| Function length | 97.2% (848/872) | 135 | 9 | 13.7 |
-| Nesting depth | 98.7% (861/872) | 7 | 1 | 1.2 |
-| Argument count | 95.4% (832/872) | 14 | 2 | 1.9 |
-| File size | 94.9% (75/79) | 1,617 | 225 | 225.7 |
+| Cyclomatic complexity | 99.9% (1075/1076) | 20 | 3 | 2.6 |
+| Function length | 100% (1076/1076) | 48 | 9 | 7.1 |
+| Nesting depth | 100% (1076/1076) | 4 | 1 | 1.0 |
+| Argument count | 99.9% (1075/1076) | 6 | 2 | 1.4 |
+| File size | 95.8% (92/96) | 617 | 229 | 138.1 |
 
-By language: Rust complexity 92.3% (worst 33), length 97.2% (worst 135), nesting 99.0% (worst 7), arguments 95.3% (worst 14), file size 94.1% (worst 1,617). Python complexity 90.0% (worst 29), length 98.0% (worst 71), nesting 94.0% (worst 7), arguments 98.0% (worst 6), file size 100% (worst 327).
+By language: Rust complexity 99.9% (998 functions, worst 20), length 100% (worst 48), nesting 100% (worst 4), arguments 99.9% (worst 6), file size 95.3% (85 files, worst 617). Python complexity 100% (78 functions, worst 10), length 100% (worst 34), nesting 100% (worst 4), arguments 100% (worst 5), file size 100% (11 files, worst 392).
 
-### Change since the first run
+## Progress since the last report
 
-| Metric | Compliance, first → now | Worst, first → now | Std dev, first → now |
-|---|---|---|---|
-| Cyclomatic complexity | 87.6% → 92.2% | 159 → 33 | 12.5 → 4.9 |
-| Function length | 94.6% → 97.2% | 368 → 135 | 29.4 → 13.7 |
-| Nesting depth | 97.4% → 98.7% | 10 → 7 | 1.3 → 1.2 |
-| Argument count | 92.9% → 95.4% | 15 → 14 | 2.3 → 1.9 |
-| File size | 90.6% → 94.9% | 2,566 → 1,617 | 365.3 → 225.7 |
+Previous report: 2026-10-23 (102 findings: 100 fixed, 2 blocked).
 
-The denominator grew: 645 → 872 functions and 64 → 79 files, because the fixes split big functions and files into smaller ones. Every ratio rose, every worst value fell, and every standard deviation fell.
+| Metric | Compliance, before → now | Worst, before → now | Median, before → now | Std dev, before → now |
+|---|---|---|---|---|
+| Cyclomatic complexity | **92.2% (804/872) → 99.9% (1075/1076)** | 33 → 20 | 3 → 3 | 4.9 → 2.6 |
+| Function length | **97.2% (848/872) → 100% (1076/1076)** | 135 → 48 | 9 → 9 | 13.7 → 7.1 |
+| Nesting depth | **98.7% (861/872) → 100% (1076/1076)** | 7 → 4 | 1 → 1 | 1.2 → 1.0 |
+| Argument count | **95.4% (832/872) → 99.9% (1075/1076)** | 14 → 6 | 2 → 2 | 1.9 → 1.4 |
+| File size | **94.9% (75/79) → 95.8% (92/96)** | 1,617 → 617 | 225 → 229 | 225.7 → 138.1 |
+| Dead code | 100% (872/872) → 100% (1076/1076) | | | |
+| Error-handling smells | 1.0 → 0.8 per 1k lines (20 → 19) | | | |
+| Comment quality | 75.5% → 98.6% (estimated) | | | |
+| Duplication | 0.1% → 0.3% (estimated; 1 → 2 groups) | | | |
+
+The denominator grew again: 872 → 1,076 functions (+204) and 79 → 96 files (+17), because the fixes split big functions and files. Every ratio rose or held, every worst value fell, and every standard deviation fell. The count of oversized files stayed at 4 while the file count rose by 17, and the largest file is now 617 lines instead of 1,617; three of the four are over only because of their inline test modules. The duplication rise is two small groups found by a new whole-code window scan, not new copying: the previous run judged duplication on a sample only.
 
 ### Counts lie when the denominator moves
 
@@ -69,595 +75,206 @@ denominator grew.
 
 ## Findings (worst first)
 
-### [x] 🔴 Q1: complexity — crates/crossfir3d/src/held.rs:198 `class_look`
-
-- Measured: complexity 33 (threshold 10)
-- Recommendation: Move the back and over `match`es into their own `class_back` and `class_over` functions; the rest is one row per class, so its complexity is data, not logic.
-
-### [x] 🔴 Q2: file size — crates/crossfir3d/src/world.rs
-
-- Measured: 1,617 lines (threshold 500)
-- Recommendation: Move each family of spawn helpers (`spawn_part`, the ground, the creatures, the arrows) into a `world/` submodule, as `buildings/` now is.
-
-### [x] 🔴 Q3: complexity — crates/crossfir3d/src/buildings/castle.rs:7 `castle`
-
-- Measured: complexity 31 (threshold 10)
-- Recommendation: Split the castle into one function per piece (walls, towers, gate, keep), as the other building families already are.
-
-### [x] 🔴 Q4: complexity, length, nesting, arguments — crates/crossfir3d/src/characters_ui.rs:31 `characters_screen`
-
-- Measured: complexity 29 (threshold 10); length 91 (threshold 50); nesting 5 (threshold 4); arguments 7 (threshold 5)
-- Recommendation: Split into the character list, the buttons and the login handling, and group its 7 system arguments into a `SystemParam` struct like `new_character`'s helpers.
-
-### [x] 🔴 Q5: complexity — experiments/sprite3d/catalog.py:208 `classify`
-
-- Measured: complexity 29 (threshold 10)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q6: complexity, length, nesting, arguments — crates/crossfir3d/src/characters3d.rs:790 `dress_people`
-
-- Measured: complexity 28 (threshold 10); length 72 (threshold 50); nesting 5 (threshold 4); arguments 10 (threshold 5)
-- Recommendation: Group its 10 system arguments into a `SystemParam` struct and move each clothing step (body, hair, hat, held items) into its own function, as `dress_robes` now is.
-
-### [x] 🔴 Q7: complexity, length, arguments — crates/crossfir3d/src/input.rs:86 `send_moves`
-
-- Measured: complexity 17 (threshold 10); length 66 (threshold 50); arguments 14 (threshold 5)
-- Recommendation: Group the queries and resources into a `SystemParam` struct.
-
-### [x] 🔴 Q8: complexity, length — crates/crossfir3d/src/login.rs:77 `on_message`
-
-- Measured: complexity 28 (threshold 10); length 67 (threshold 50)
-- Recommendation: Handle each login message kind in its own function; `on_message` keeps only the `match`.
-
-### [x] 🔴 Q9: complexity, length, nesting, arguments — crates/crossfir3d/src/settings_ui.rs:27 `settings_screen`
-
-- Measured: complexity 22 (threshold 10); length 135 (threshold 50); nesting 5 (threshold 4); arguments 6 (threshold 5)
-- Recommendation: Draw each settings group (window, graphics, sound, log) in its own function, and use one shared overlay frame (see the reusability finding).
-
-### [x] 🔴 Q10: complexity, length — scripts/obj2gltf.py:29 `convert`
-
-- Measured: complexity 27 (threshold 10); length 71 (threshold 50)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q11: complexity, length — crates/crossfir3d/src/buildings/items.rs:194 `item`
-
-- Measured: complexity 26 (threshold 10); length 71 (threshold 50)
-- Recommendation: Split the item `match` into family tables (weapons, armour, jewels, potions), like `buildings::parts`.
-
-### [x] 🔴 Q12: complexity, arguments — crates/crossfir3d/src/characters3d.rs:469 `wear_helmet`
-
-- Measured: complexity 12 (threshold 10); arguments 13 (threshold 5)
-- Recommendation: Group its 13 arguments into a `SystemParam` struct or a small struct, as `hat::HatKit` does for `put_on`.
-
-### [x] 🔴 Q13: complexity, length, arguments — crates/crossfir3d/src/combat_fx.rs:48 `watch`
-
-- Measured: complexity 24 (threshold 10); length 66 (threshold 50); arguments 13 (threshold 5)
-- Recommendation: Group its 13 system arguments into a `SystemParam` struct and move each effect (flash, damage number, hit text) into its own function.
-
-### [x] 🔴 Q14: complexity — crates/crossfir3d/src/held.rs:66 `worn`
-
-- Measured: complexity 26 (threshold 10)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q15: complexity, length, nesting — crates/crossfir3d/src/net.rs:39 `connect`
-
-- Measured: complexity 26 (threshold 10); length 61 (threshold 50); nesting 5 (threshold 4)
-- Recommendation: Move the address parsing, the socket set-up and the handshake into their own functions.
-
-### [x] 🔴 Q16: length, arguments — crates/crossfir3d/src/sky.rs:153 `update_sky`
-
-- Measured: length 62 (threshold 50); arguments 13 (threshold 5)
-- Recommendation: Group its 13 system arguments into a `SystemParam` struct; move the sun, the clouds and the stars into their own functions.
-
-### [x] 🔴 Q17: complexity, nesting — crates/cfproto/src/stats.rs:73 `apply`
-
-- Measured: complexity 25 (threshold 10); nesting 5 (threshold 4)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q18: complexity, length, nesting, arguments — crates/crossfir3d/src/hud.rs:70 `hud`
-
-- Measured: complexity 25 (threshold 10); length 95 (threshold 50); nesting 6 (threshold 4); arguments 9 (threshold 5)
-- Recommendation: Draw the bars, the quick slots, the log and the parchment box in their own functions, and group its 9 system arguments into a `SystemParam` struct.
-
-### [x] 🔴 Q19: complexity — crates/crossfir3d/src/modes.rs:68 `act`
-
-- Measured: complexity 25 (threshold 10)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q20: complexity, length, arguments — crates/crossfir3d/src/world.rs:1112 `spawn_part`
-
-- Measured: complexity 25 (threshold 10); length 106 (threshold 50); arguments 8 (threshold 5)
-- Recommendation: Move each `Shape` arm with more than a few lines (lamps, mist, models, signs) into its own function.
-
-### [x] 🔴 Q21: complexity, length, nesting — crates/cfproto/src/map2.rs:25 `parse_map2`
-
-- Measured: complexity 24 (threshold 10); length 51 (threshold 50); nesting 7 (threshold 4)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q22: complexity, arguments — crates/crossfir3d/src/characters3d.rs:381 `hold_items`
-
-- Measured: complexity 15 (threshold 10); arguments 12 (threshold 5)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q23: complexity, length — crates/crossfir3d/src/back.rs:45 `tabard_straps`
-
-- Measured: complexity 22 (threshold 10); length 66 (threshold 50)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q24: complexity — crates/crossfir3d/src/held.rs:15 `held_model`
-
-- Measured: complexity 22 (threshold 10)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q25: complexity — crates/crossfir3d/src/input.rs:153 `act_key`
-
-- Measured: complexity 22 (threshold 10)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q26: complexity, length — crates/crossfir3d/src/ui.rs:56 `typed_bind`
-
-- Measured: complexity 22 (threshold 10); length 66 (threshold 50)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q27: complexity, length, arguments — crates/crossfir3d/src/ui.rs:294 `command_line`
-
-- Measured: complexity 14 (threshold 10); length 56 (threshold 50); arguments 11 (threshold 5)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q28: complexity, length, arguments — crates/crossfir3d/src/world.rs:1301 `tint_model`
-
-- Measured: complexity 14 (threshold 10); length 51 (threshold 50); arguments 11 (threshold 5)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q29: complexity, length, arguments — crates/crossfir3d/src/world.rs:1386 `follow_player`
-
-- Measured: complexity 12 (threshold 10); length 57 (threshold 50); arguments 11 (threshold 5)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q30: complexity, nesting — experiments/sprite3d/catalog.py:114 `parse_arch`
-
-- Measured: complexity 22 (threshold 10); nesting 7 (threshold 4)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q31: file size — crates/crossfir3d/src/characters3d.rs
-
-- Measured: 1,075 lines (threshold 500)
-- Recommendation: Move the dressing systems (`dress_people`, `wear_helmet`, `put_on_head`) into a `characters3d/dress.rs` submodule.
-
-### [x] 🔴 Q32: complexity — crates/cfproto/src/items.rs:83 `parse_upditem`
-
-- Measured: complexity 21 (threshold 10)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q33: complexity, length — crates/crossfir3d/src/skeleton.rs:26 `bones`
-
-- Measured: complexity 21 (threshold 10); length 105 (threshold 50)
-- Recommendation: Build each limb with one shared helper; the arms and legs repeat the same pattern.
-
-### [x] 🔴 Q34: complexity — crates/crossfir3d/tests/live_server.rs:77 `pick_up_and_drop`
-
-- Measured: complexity 21 (threshold 10)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [!] 🔴 Q35: complexity — crates/cfproto/src/client.rs:33 `encode`
+### [!] 🔴 Q1: complexity — crates/cfproto/src/client.rs:33 `encode`
 
 - Measured: complexity 20 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
 - Blocked: a flat match over the 17 message kinds is the clearest form. Splitting it under 10 needs dead `=> Vec::new()` arms that would send an empty packet for a misplaced kind. Kept the old code; added byte-exact golden tests for every kind instead.
 
-### [x] 🔴 Q36: complexity — crates/cfproto/src/stats.rs:38 `parse_stats`
+### [ ] 🔴 Q2: file size — crates/crossfir3d/src/keys.rs
 
-- Measured: complexity 20 (threshold 10)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
+- Measured: 617 lines (threshold 500); the code is 332 lines, the inline `mod tests` from line 333 is 285
+- Recommendation: Move the test module into `keys/tests.rs` (`#[cfg(test)] mod tests;`), as `buildings/` and `keys_ui/` already do.
 
-### [x] 🔴 Q37: arguments — crates/crossfir3d/src/characters3d.rs:551 `gear_up`
+### [ ] 🔴 Q3: file size — crates/crossfir3d/src/ui.rs
 
-- Measured: arguments 10 (threshold 5)
-- Recommendation: This is a Bevy system: group its queries and resources into a `#[derive(SystemParam)]` struct.
+- Measured: 566 lines (threshold 500); the code is 420 lines, the inline `mod tests` from line 421 is 146
+- Recommendation: Move the test module into `ui/tests.rs`, as Q2.
 
-### [x] 🔴 Q38: error handling — `unwrap()` on game queries: crates/crossfir3d/src/characters3d.rs:358, crates/crossfir3d/src/robe/dress.rs:84, crates/crossfir3d/src/robe/dress.rs:234, crates/crossfir3d/src/world.rs:679
+### [ ] 🔴 Q4: file size — crates/crossfir3d/src/back.rs
 
-- Measured: 4 query `get(...).unwrap()` calls that can panic if an entity loses a component; 16 more `unwrap`/`expect` calls guard invariants (fixed-size byte slices, built-in meshes, constant styles). 20 in all, outside tests: 1.0 per 1,000 lines
-- Recommendation: Replace the 4 query unwraps with `let Ok(..) = ... else { continue/return }`. Give the remaining bare `unwrap()`s an `expect("why it cannot fail")` (server.rs:110, 113; sky.rs:92, 106; keys_ui.rs:134; hat/wear.rs:45).
+- Measured: 563 lines (threshold 500); the code is 406 lines, the inline `mod tests` from line 407 is 157
+- Recommendation: Move the test module into `back/tests.rs`, as Q2.
 
-### [x] 🔴 Q39: complexity — crates/crossfir3d/src/buildings/walls.rs:75 `wall_parts`
+### [ ] 🔴 Q5: file size — crates/crossfir3d/src/characters3d/mod.rs
 
-- Measured: complexity 19 (threshold 10)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
+- Measured: 504 lines (threshold 500); its tests are already in `characters3d/tests.rs`
+- Recommendation: Move the preview systems (`setup_preview`, `update_preview`, `respawn_preview`, `clear_preview`, lines 422–493) into `characters3d/preview.rs`, beside `beasts.rs`, `dress.rs` and `worn.rs`.
 
-### [x] 🔴 Q40: complexity, arguments — crates/crossfir3d/src/characters3d.rs:242 `animate_beasts`
-
-- Measured: complexity 19 (threshold 10); arguments 8 (threshold 5)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q41: complexity — crates/crossfir3d/src/newchar.rs:59 `on_reply`
-
-- Measured: complexity 19 (threshold 10)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q42: complexity — crates/crossfir3d/src/races.rs:35 `look_for_race`
-
-- Measured: complexity 19 (threshold 10)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q43: reusability — the overlay window frame is copied in 3 places: crates/crossfir3d/src/settings_ui.rs:49, crates/crossfir3d/src/inventory_ui.rs:272, crates/crossfir3d/src/keys_ui.rs:333
-
-- Measured: 5 identical frame lines × 3 (`egui::Frame` fill, gold stroke, radius, margin), plus the fixed, untitled, unmovable `egui::Window` in two of them
-- Recommendation: Add one `overlay_frame()` in `ui.rs` (keys_ui.rs already has it as `window_frame`) and make the three screens call it.
-
-### [x] 🔴 Q44: complexity, arguments — crates/crossfir3d/src/characters3d.rs:319 `bind_bones`
-
-- Measured: complexity 16 (threshold 10); arguments 9 (threshold 5)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q45: comment quality — 27 of the flagged functions have no comment saying what they do
-
-- Measured: Missing on, among others: `characters_screen`, `on_message`, `item`, `connect`, `apply` (stats.rs), `hud`, `spawn_part`, `parse_map2`, `watch`, `act_key`, `settings_screen`. Overall 275 of 364 functions longer than 10 lines have a comment (75.5%, estimated)
-- Recommendation: Add one `///` line above each saying WHAT it does ("Draws the settings overlay"), not how.
-
-### [x] 🔴 Q46: complexity — crates/cfproto/src/spells.rs:23 `parse_addspell`
-
-- Measured: complexity 17 (threshold 10)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q47: complexity — crates/crossfir3d/src/markup.rs:16 `colour`
-
-- Measured: complexity 17 (threshold 10)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q48: complexity — crates/crossfir3d/src/settings.rs:127 `from_text`
-
-- Measured: complexity 17 (threshold 10)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q49: arguments — crates/crossfir3d/src/characters3d.rs:589 `put_on_head`
-
-- Measured: arguments 8 (threshold 5)
-- Recommendation: This is a Bevy system: group its queries and resources into a `#[derive(SystemParam)]` struct.
-
-### [x] 🔴 Q50: arguments — crates/crossfir3d/src/characters3d.rs:641 `put_in_hand`
-
-- Measured: arguments 8 (threshold 5)
-- Recommendation: This is a Bevy system: group its queries and resources into a `#[derive(SystemParam)]` struct.
-
-### [x] 🔴 Q51: complexity — crates/crossfir3d/src/keys.rs:146 `game_key`
-
-- Measured: complexity 16 (threshold 10)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q52: complexity, arguments — crates/crossfir3d/src/skeleton.rs:138 `build_skeletons`
-
-- Measured: complexity 16 (threshold 10); arguments 8 (threshold 5)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q53: file size — crates/crossfir3d/src/keys_ui.rs
-
-- Measured: 768 lines (threshold 500)
-- Recommendation: Move the keyboard drawing into `keys_ui/keyboard.rs` and the lists into `keys_ui/lists.rs`.
-
-### [x] 🔴 Q54: complexity, nesting — crates/cfproto/src/view.rs:31 `apply`
-
-- Measured: complexity 12 (threshold 10); nesting 6 (threshold 4)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q55: complexity — crates/crossfir3d/src/buildings/village.rs:7 `village`
-
-- Measured: complexity 15 (threshold 10)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q56: complexity — crates/crossfir3d/src/characters3d.rs:607 `grip`
-
-- Measured: complexity 15 (threshold 10)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q57: complexity, length — crates/crossfir3d/src/characters3d.rs:683 `staff_top`
-
-- Measured: complexity 15 (threshold 10); length 70 (threshold 50)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q58: complexity — crates/crossfir3d/src/markup.rs:39 `apply`
-
-- Measured: complexity 15 (threshold 10)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q59: complexity — experiments/sprite3d/auto.py:37 `main`
-
-- Measured: complexity 15 (threshold 10)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q60: complexity, arguments — crates/crossfir3d/src/back.rs:161 `panel`
-
-- Measured: complexity 13 (threshold 10); arguments 7 (threshold 5)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q61: arguments — crates/crossfir3d/src/characters3d.rs:159 `spawn_character`
-
-- Measured: arguments 7 (threshold 5)
-- Recommendation: This is a Bevy system: group its queries and resources into a `#[derive(SystemParam)]` struct.
-
-### [x] 🔴 Q62: arguments — crates/crossfir3d/src/characters3d.rs:188 `spawn_monster`
-
-- Measured: arguments 7 (threshold 5)
-- Recommendation: This is a Bevy system: group its queries and resources into a `#[derive(SystemParam)]` struct.
-
-### [x] 🔴 Q63: arguments — crates/crossfir3d/src/characters3d.rs:213 `spawn_beast`
-
-- Measured: arguments 7 (threshold 5)
-- Recommendation: This is a Bevy system: group its queries and resources into a `#[derive(SystemParam)]` struct.
-
-### [x] 🔴 Q64: arguments — crates/crossfir3d/src/characters3d.rs:960 `update_preview`
-
-- Measured: arguments 7 (threshold 5)
-- Recommendation: This is a Bevy system: group its queries and resources into a `#[derive(SystemParam)]` struct.
-
-### [x] 🔴 Q65: complexity — crates/crossfir3d/src/keys.rs:169 `reserved`
-
-- Measured: complexity 14 (threshold 10)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q66: complexity — crates/crossfir3d/src/keys.rs:225 `parse_typed`
-
-- Measured: complexity 14 (threshold 10)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q67: arguments — crates/crossfir3d/src/main.rs:290 `dev_commands`
-
-- Measured: arguments 7 (threshold 5)
-- Recommendation: This is a Bevy system: group its queries and resources into a `#[derive(SystemParam)]` struct.
-
-### [x] 🔴 Q68: complexity — crates/crossfir3d/tests/live_server.rs:141 `create_chosen_character`
-
-- Measured: complexity 14 (threshold 10)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q69: complexity — crates/crossfir3d/src/buildings/creatures.rs:215 `chess_piece`
-
-- Measured: complexity 13 (threshold 10)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q70: complexity, arguments — crates/crossfir3d/src/graphics.rs:79 `apply_settings`
-
-- Measured: complexity 13 (threshold 10); arguments 6 (threshold 5)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q71: complexity — crates/crossfir3d/src/signs.rs:39 `paint`
-
-- Measured: complexity 13 (threshold 10)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q72: complexity — scripts/pick_models.py:193 `copy_model`
-
-- Measured: complexity 13 (threshold 10)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q73: nesting — scripts/pick_models.py:240 `grey_copies`
-
-- Measured: nesting 5 (threshold 4)
-- Recommendation: Return early or extract the innermost block into a helper to cut the nesting.
-
-### [x] 🔴 Q74: nesting — experiments/sprite3d/catalog.py:196 `map_faces`
-
-- Measured: nesting 5 (threshold 4)
-- Recommendation: Return early or extract the innermost block into a helper to cut the nesting.
-
-### [x] 🔴 Q75: length — crates/crossfir3d/src/main.rs:139 `main`
-
-- Measured: length 61 (threshold 50)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q76: complexity — crates/cfproto/src/items.rs:69 `parse_item2`
-
-- Measured: complexity 12 (threshold 10)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q77: complexity — crates/crossfir3d/src/buildings/items.rs:49 `die`
-
-- Measured: complexity 12 (threshold 10)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q78: arguments — crates/crossfir3d/src/buildings/items.rs:166 `hoop`
-
-- Measured: arguments 6 (threshold 5)
-- Recommendation: This is a Bevy system: group its queries and resources into a `#[derive(SystemParam)]` struct.
-
-### [!] 🔴 Q79: arguments — crates/crossfir3d/src/buildings/props.rs:71 `arc`
+### [!] 🔴 Q6: arguments — crates/crossfir3d/src/buildings/props.rs:71 `arc`
 
 - Measured: arguments 6 (threshold 5)
 - Recommendation: This is a Bevy system: group its queries and resources into a `#[derive(SystemParam)]` struct.
 - Blocked: `arc` is a geometry helper with 6 clear, all-varying inputs at 6 call sites; a struct would make every call harder to read without making anything safer.
 
-### [x] 🔴 Q80: arguments — crates/crossfir3d/src/characters3d.rs:426 `wear_armour`
+### [ ] 🔴 Q7: reusability — the "write a file atomically" tail is copied in 3 places, and a 4th save skips it: crates/crossfir3d/src/keys.rs:321 `save_bindings`, crates/crossfir3d/src/slots.rs:111 `save_slots`, crates/crossfir3d/src/settings.rs:265 `save_settings`, crates/crossfir3d/src/races.rs:207 `save_body`
 
-- Measured: arguments 6 (threshold 5)
-- Recommendation: This is a Bevy system: group its queries and resources into a `#[derive(SystemParam)]` struct.
+- Measured: 5 identical lines × 3 (`create_dir_all` of the parent, write to a `.tmp`, `rename`); `slots::save_slots` and `races::save_body` also share the same 2-line "keep other characters' lines" filter. `races::save_body` writes the file directly, so a crash there can leave half a file — the thing the other three guard against.
+- Recommendation: Add one `write_atomic(path, text) -> io::Result<()>` in `settings.rs` and call it from all four saves (`faces.rs:55` can use it too).
 
-### [x] 🔴 Q81: complexity, arguments — crates/crossfir3d/src/characters3d.rs:883 `animate`
+### [ ] 🔴 Q8: reusability — crates/crossfir3d/src/characters_ui.rs:14 re-creates `ui::GOLD` and `ui::overlay_window`
 
-- Measured: complexity 12 (threshold 10); arguments 6 (threshold 5)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
+- Measured: its own `GOLD` constant, a `panel()` frame that matches `ui::overlay_window`'s frame except for the fill alpha, and the same 6-line `egui::Window` builder (`title_bar(false)`, `resizable(false)`, `movable(false)`, `fixed_rect`, `frame`) written twice, at lines 104 and 174
+- Recommendation: Use `ui::GOLD`, and call `ui::overlay_window` for both character screens (give it the fill as a parameter, or accept the overlay's 238 alpha).
 
-### [x] 🔴 Q82: arguments — crates/crossfir3d/src/graphics.rs:153 `remember_window`
+### [ ] 🔴 Q9: error handling — 19 `unwrap()`/`expect()` outside tests: 0.8 per 1,000 lines
 
-- Measured: arguments 6 (threshold 5)
-- Recommendation: This is a Bevy system: group its queries and resources into a `#[derive(SystemParam)]` struct.
+- Measured: 6 in crates/cfproto/examples/dump_map2.rs (lines 3, 4, 4, 7, 7, 8); 13 `expect("why")` on built-in mesh data: back.rs:123 (×2), 295, 326, 328; robe.rs:153, 155, 159; sky.rs:108, 163; hat.rs:134; hat/wear.rs:45; buildings/village.rs:66. None is on server data or a game query.
+- Recommendation: Make `dump_map2`'s `main` return `Result<(), Box<dyn Error>>` and use `?`; that alone gives 0.56 per 1k. To reach 🟢 (≤ 0.5), let `back.rs`'s merge helper (326–328) and `robe.rs`'s bead merge (153–159) return `Option` and skip the part on `None`; the remaining `expect`s state real invariants and can stay.
 
-### [x] 🔴 Q83: arguments — crates/crossfir3d/src/graphics.rs:260 `fit_scene_image`
+### [ ] 🔴 Q10: comment quality — 6 integration tests longer than 10 lines have no comment: crates/cfproto/tests/captured.rs:6 `captured_packets_parse`; crates/crossfir3d/tests/live_server.rs:33 `walk_one_step`, :116 `pick_up_and_drop`, :130 `creation_data_parses`, :203 `create_chosen_character`, :248 `read_a_sign_opens_the_box`
 
-- Measured: arguments 6 (threshold 5)
-- Recommendation: This is a Bevy system: group its queries and resources into a `#[derive(SystemParam)]` struct.
+- Measured: 420 of 426 functions longer than 10 lines have a WHAT comment (98.6%); these 6 are the rest
+- Recommendation: Give each a one-line `///` saying what server behaviour it checks (the names already say most of it, so this is low priority).
 
-### [x] 🔴 Q84: arguments — crates/crossfir3d/src/input.rs:223 `binding_commands`
+### [ ] 🔴 Q11: complexity, length, nesting — frozen old code kept as test oracles: crates/crossfir3d/src/modes.rs:243 `old_act`, crates/cfproto/src/map2.rs:190 `old_parse_map2`, crates/cfproto/src/items.rs:296 `old_parse_upditem`, crates/cfproto/src/stats.rs:262 `old_parse_stats`
 
-- Measured: arguments 6 (threshold 5)
-- Recommendation: This is a Bevy system: group its queries and resources into a `#[derive(SystemParam)]` struct.
-
-### [x] 🔴 Q85: complexity — crates/crossfir3d/src/keys.rs:281 `save_bindings`
-
-- Measured: complexity 12 (threshold 10)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q86: arguments — crates/crossfir3d/src/messages.rs:38 `push`
-
-- Measured: arguments 6 (threshold 5)
-- Recommendation: This is a Bevy system: group its queries and resources into a `#[derive(SystemParam)]` struct.
-
-### [x] 🔴 Q87: complexity — crates/crossfir3d/src/signs.rs:57 `icon`
-
-- Measured: complexity 12 (threshold 10)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q88: length — crates/crossfir3d/src/sky.rs:91 `spawn_sky`
-
-- Measured: length 60 (threshold 50)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q89: arguments — crates/crossfir3d/src/ui.rs:125 `capture_bind_key`
-
-- Measured: arguments 6 (threshold 5)
-- Recommendation: This is a Bevy system: group its queries and resources into a `#[derive(SystemParam)]` struct.
-
-### [x] 🔴 Q90: arguments — crates/crossfir3d/src/ui.rs:180 `login_screen`
-
-- Measured: arguments 6 (threshold 5)
-- Recommendation: This is a Bevy system: group its queries and resources into a `#[derive(SystemParam)]` struct.
-
-### [x] 🔴 Q91: arguments — crates/crossfir3d/src/world.rs:380 `camera_transform`
-
-- Measured: arguments 6 (threshold 5)
-- Recommendation: This is a Bevy system: group its queries and resources into a `#[derive(SystemParam)]` struct.
-
-### [x] 🔴 Q92: complexity, arguments — crates/crossfir3d/src/world.rs:1447 `hide_entered`
-
-- Measured: complexity 11 (threshold 10); arguments 6 (threshold 5)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q93: arguments — crates/crossfir3d/src/world.rs:1508 `lighting`
-
-- Measured: arguments 6 (threshold 5)
-- Recommendation: This is a Bevy system: group its queries and resources into a `#[derive(SystemParam)]` struct.
-
-### [x] 🔴 Q94: arguments — scripts/obj2gltf.py:62 `add`
-
-- Measured: arguments 6 (threshold 5)
-- Recommendation: This is a Bevy system: group its queries and resources into a `#[derive(SystemParam)]` struct.
-
-### [x] 🔴 Q95: length — crates/crossfir3d/src/races.rs:93 `classify_player_face`
-
-- Measured: length 59 (threshold 50)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q96: file size — crates/crossfir3d/src/models.rs
-
-- Measured: 579 lines (threshold 500)
-- Recommendation: Move the model-list tests into `models/tests.rs`; the code itself is under the limit.
-
-### [x] 🔴 Q97: complexity — crates/crossfir3d/src/buildings/castle.rs:76 `moat`
-
-- Measured: complexity 11 (threshold 10)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q98: complexity — crates/crossfir3d/src/clock.rs:17 `parse_time_reply`
-
-- Measured: complexity 11 (threshold 10)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q99: complexity — crates/crossfir3d/src/races.rs:154 `clothes_for_class`
-
-- Measured: complexity 11 (threshold 10)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q100: complexity — crates/crossfir3d/src/signs.rs:75 `sign_pixels`
-
-- Measured: complexity 11 (threshold 10)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q101: complexity — crates/crossfir3d/tests/live_server.rs:192 `play_as`
-
-- Measured: complexity 11 (threshold 10)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
-
-### [x] 🔴 Q102: length — crates/crossfir3d/src/buildings/terrain.rs:74 `volcano`
-
-- Measured: length 53 (threshold 50)
-- Recommendation: Extract the separate steps into named helper functions so each one does one job.
+- Measured: complexity 25, 24, 21 and 20 (threshold 10); `old_parse_map2` also length 51 (threshold 50) and nesting 7 (threshold 4). All four sit inside `#[cfg(test)]` modules, so they are not in the counts above.
+- Recommendation: Nothing to refactor: these are deliberate copies of the code before its split, kept only so tests can compare old and new behaviour. Delete all four (and the tests that call them) once the new code is trusted; that also takes about 135 lines off map2.rs, items.rs, stats.rs and modes.rs.
 
 ## Marginal (🟡) — close to the limit, no action required
 
 - Complexity 10 (limit 10) — crates/cfproto/examples/dump_map2.rs:2 `main`
 - Nesting 4 (limit 4) — crates/cfproto/examples/dump_map2.rs:2 `main`
-- Complexity 10 (limit 10) — crates/cfproto/src/items.rs:123 `apply_upd`
+- Complexity 10 (limit 10) — crates/cfproto/src/items.rs:80 `read_item`
+- Complexity 10 (limit 10) — crates/cfproto/src/items.rs:145 `apply_upd`
 - Complexity 10 (limit 10) — crates/cfproto/src/newchar.rs:96 `read_field`
 - Complexity 10 (limit 10) — crates/cfproto/src/server/commands.rs:110 `set_character_field`
 - Complexity 10 (limit 10) — crates/cfproto/src/server/commands.rs:282 `parse_sound2`
-- Arguments 5 (limit 5) — crates/cfproto/src/spells.rs:61 `update`
-- Arguments 5 (limit 5) — crates/crossfir3d/src/audio.rs:85 `toggle_mute`
-- Complexity 10 (limit 10) — crates/crossfir3d/src/audio.rs:131 `play_queued`
-- Arguments 5 (limit 5) — crates/crossfir3d/src/audio.rs:131 `play_queued`
+- Complexity 10 (limit 10) — crates/cfproto/src/spells.rs:34 `read_spell`
+- Arguments 5 (limit 5) — crates/cfproto/src/spells.rs:80 `update`
+- Nesting 4 (limit 4) — crates/cfproto/src/view.rs:32 `apply`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/audio.rs:87 `toggle_mute`
+- Complexity 10 (limit 10) — crates/crossfir3d/src/audio.rs:134 `play_queued`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/audio.rs:134 `play_queued`
+- Complexity 10 (limit 10) — crates/crossfir3d/src/back.rs:237 `panel_point`
+- Complexity 10 (limit 10) — crates/crossfir3d/src/buildings/castle.rs:7 `castle`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/buildings/castle.rs:42 `square_walls`
 - Complexity 10 (limit 10) — crates/crossfir3d/src/buildings/dispatch.rs:30 `masked`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/buildings/items.rs:168 `hoop`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/buildings/mod.rs:130 `part`
 - Nesting 4 (limit 4) — crates/crossfir3d/src/buildings/props.rs:7 `flames`
 - Length 47 (limit 50) — crates/crossfir3d/src/buildings/props.rs:170 `machine`
+- Length 48 (limit 50) — crates/crossfir3d/src/buildings/terrain.rs:74 `volcano`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/buildings/village.rs:17 `wall_file`
 - Arguments 5 (limit 5) — crates/crossfir3d/src/camera.rs:50 `zoom`
-- Arguments 5 (limit 5) — crates/crossfir3d/src/characters_ui.rs:123 `new_character`
-- Arguments 5 (limit 5) — crates/crossfir3d/src/characters_ui.rs:159 `pick_list`
-- Nesting 4 (limit 4) — crates/crossfir3d/src/characters_ui.rs:241 `stats_grid`
-- Arguments 5 (limit 5) — crates/crossfir3d/src/characters_ui.rs:264 `stats_column`
-- Complexity 10 (limit 10) — crates/crossfir3d/src/characters_ui.rs:304 `dev_autofill`
-- Complexity 10 (limit 10) — crates/crossfir3d/src/graphics.rs:126 `keep_window_on_screen`
-- Arguments 5 (limit 5) — crates/crossfir3d/src/hat/wear.rs:215 `put_on`
-- Arguments 5 (limit 5) — crates/crossfir3d/src/hud.rs:17 `bar`
-- Arguments 5 (limit 5) — crates/crossfir3d/src/input.rs:241 `watch_ground`
-- Complexity 10 (limit 10) — crates/crossfir3d/src/input/world_keys.rs:105 `screen_act`
-- Complexity 10 (limit 10) — crates/crossfir3d/src/input/world_keys.rs:140 `world_act`
-- Arguments 5 (limit 5) — crates/crossfir3d/src/inventory_ui.rs:24 `item_rows`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/characters_ui.rs:70 `send_choice`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/characters_ui.rs:100 `character_list`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/characters_ui.rs:169 `new_character`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/characters_ui.rs:205 `pick_list`
+- Nesting 4 (limit 4) — crates/crossfir3d/src/characters_ui.rs:287 `stats_grid`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/characters_ui.rs:310 `stats_column`
+- Complexity 10 (limit 10) — crates/crossfir3d/src/characters_ui.rs:350 `dev_autofill`
+- Complexity 10 (limit 10) — crates/crossfir3d/src/characters3d/beasts.rs:40 `find_clips`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/characters3d/beasts.rs:57 `animate_beasts`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/characters3d/beasts.rs:136 `head_mesh`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/characters3d/dress.rs:29 `put_skirt`
+- Complexity 10 (limit 10) — crates/crossfir3d/src/characters3d/dress.rs:44 `reshape_body`
+- Nesting 4 (limit 4) — crates/crossfir3d/src/characters3d/dress.rs:44 `reshape_body`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/characters3d/dress.rs:62 `put_headwear`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/characters3d/dress.rs:77 `put_broom`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/characters3d/dress.rs:93 `dress_people`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/characters3d/mod.rs:168 `spawn_character`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/characters3d/mod.rs:196 `spawn_monster`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/characters3d/mod.rs:363 `turn_own`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/characters3d/worn.rs:16 `hold_class_items`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/characters3d/worn.rs:118 `wear_helmet`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/characters3d/worn.rs:142 `gear_up`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/characters3d/worn.rs:218 `put_in_hand`
+- Complexity 10 (limit 10) — crates/crossfir3d/src/clock.rs:17 `parse_time_reply`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/combat_fx.rs:77 `flash_on_hp_drop`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/combat_fx.rs:90 `show_attacks`
+- Complexity 10 (limit 10) — crates/crossfir3d/src/combat_fx.rs:108 `tint_hit`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/graphics.rs:117 `apply_settings`
+- Complexity 10 (limit 10) — crates/crossfir3d/src/graphics.rs:142 `keep_window_on_screen`
+- Complexity 10 (limit 10) — crates/crossfir3d/src/graphics.rs:177 `remember_window`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/graphics.rs:177 `remember_window`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/graphics.rs:293 `fit_scene_image`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/hat/wear.rs:216 `put_on`
+- Complexity 10 (limit 10) — crates/crossfir3d/src/held.rs:67 `worn`
+- Complexity 10 (limit 10) — crates/crossfir3d/src/held.rs:201 `class_back`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/hud.rs:20 `bar`
+- Nesting 4 (limit 4) — crates/crossfir3d/src/hud.rs:159 `draw_log`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/hud.rs:159 `draw_log`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/input.rs:272 `watch_ground`
+- Complexity 10 (limit 10) — crates/crossfir3d/src/input/world_keys.rs:110 `screen_act`
+- Complexity 10 (limit 10) — crates/crossfir3d/src/input/world_keys.rs:145 `world_act`
 - Complexity 10 (limit 10) — crates/crossfir3d/src/inventory_ui.rs:136 `item_commands`
 - Nesting 4 (limit 4) — crates/crossfir3d/src/inventory_ui.rs:136 `item_commands`
 - Arguments 5 (limit 5) — crates/crossfir3d/src/inventory_ui.rs:193 `row`
 - Arguments 5 (limit 5) — crates/crossfir3d/src/inventory_ui.rs:263 `draw_columns`
 - Arguments 5 (limit 5) — crates/crossfir3d/src/inventory_ui.rs:272 `draw_window`
-- Arguments 5 (limit 5) — crates/crossfir3d/src/keys_ui.rs:372 `draw_cap`
-- Arguments 5 (limit 5) — crates/crossfir3d/src/keys_ui.rs:525 `scroll_list`
-- Arguments 5 (limit 5) — crates/crossfir3d/src/keys_ui.rs:566 `apply_clicks`
-- Arguments 5 (limit 5) — crates/crossfir3d/src/keys_ui.rs:586 `click_key`
-- Arguments 5 (limit 5) — crates/crossfir3d/src/keys_ui.rs:616 `apply`
-- Arguments 5 (limit 5) — crates/crossfir3d/src/keys_ui.rs:648 `bind_press`
-- Complexity 10 (limit 10) — crates/crossfir3d/src/models.rs:222 `parse_plain`
-- Complexity 10 (limit 10) — crates/crossfir3d/src/models.rs:256 `parse_person`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/keys_ui/keyboard.rs:67 `draw_cap`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/keys_ui/lists.rs:44 `scroll_list`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/keys_ui/press.rs:6 `apply_clicks`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/keys_ui/press.rs:26 `click_key`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/keys_ui/press.rs:56 `apply`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/keys_ui/press.rs:88 `bind_press`
+- Complexity 10 (limit 10) — crates/crossfir3d/src/login.rs:95 `on_failure`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/messages.rs:39 `push`
+- Complexity 10 (limit 10) — crates/crossfir3d/src/models/mod.rs:224 `parse_plain`
+- Complexity 10 (limit 10) — crates/crossfir3d/src/models/mod.rs:258 `parse_person`
+- Nesting 4 (limit 4) — crates/crossfir3d/src/net.rs:57 `read_loop`
 - Arguments 5 (limit 5) — crates/crossfir3d/src/robe/dress.rs:95 `new`
-- Arguments 5 (limit 5) — crates/crossfir3d/src/sky.rs:47 `sky_toward`
-- Arguments 5 (limit 5) — crates/crossfir3d/src/slots.rs:32 `slot_commands`
-- Complexity 10 (limit 10) — crates/crossfir3d/src/slots.rs:102 `save_slots`
+- Nesting 4 (limit 4) — crates/crossfir3d/src/signs.rs:90 `draw_text`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/skeleton.rs:216 `spawn_piece`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/sky.rs:48 `sky_toward`
+- Complexity 10 (limit 10) — crates/crossfir3d/src/slots.rs:111 `save_slots`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/ui.rs:69 `answer_pending`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/ui.rs:121 `run_typed`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/ui.rs:151 `typed_bind`
+- Complexity 10 (limit 10) — crates/crossfir3d/src/ui.rs:358 `command_line`
 - Complexity 10 (limit 10) — crates/crossfir3d/src/walls.rs:34 `piece_for`
-- Arguments 5 (limit 5) — crates/crossfir3d/src/world.rs:375 `camera_eye`
-- Nesting 4 (limit 4) — crates/crossfir3d/src/world.rs:402 `load_textures`
-- Arguments 5 (limit 5) — crates/crossfir3d/src/world.rs:528 `new`
-- Arguments 5 (limit 5) — crates/crossfir3d/src/world.rs:597 `mark_solid`
-- Arguments 5 (limit 5) — crates/crossfir3d/src/world.rs:636 `remembered`
-- Arguments 5 (limit 5) — crates/crossfir3d/src/world.rs:667 `find_orphan`
-- Arguments 5 (limit 5) — crates/crossfir3d/src/world.rs:693 `reuse_orphan`
-- Arguments 5 (limit 5) — crates/crossfir3d/src/world.rs:767 `mark_owner_or_class`
-- Complexity 10 (limit 10) — crates/crossfir3d/src/world.rs:777 `spawn_person`
-- Arguments 5 (limit 5) — crates/crossfir3d/src/world.rs:853 `stand_in`
-- Arguments 5 (limit 5) — crates/crossfir3d/src/world.rs:934 `add_ground_side`
-- Nesting 4 (limit 4) — crates/crossfir3d/src/world.rs:984 `add_pending_model`
-- Arguments 5 (limit 5) — crates/crossfir3d/src/world.rs:984 `add_pending_model`
-- Arguments 5 (limit 5) — crates/crossfir3d/src/world.rs:1043 `sync_visuals`
-- Arguments 5 (limit 5) — crates/crossfir3d/src/world.rs:1084 `sign_material`
-- Nesting 4 (limit 4) — crates/crossfir3d/src/world.rs:1255 `reveal_assembled`
-- Arguments 5 (limit 5) — crates/crossfir3d/src/world.rs:1255 `reveal_assembled`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/world/light.rs:36 `lighting`
+- Nesting 4 (limit 4) — crates/crossfir3d/src/world/load.rs:22 `load_textures`
+- Nesting 4 (limit 4) — crates/crossfir3d/src/world/load.rs:97 `reveal_assembled`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/world/load.rs:97 `reveal_assembled`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/world/parts.rs:6 `sign_material`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/world/parts.rs:43 `spawn_slab`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/world/rig.rs:15 `camera_eye`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/world/rig.rs:27 `camera_transform`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/world/rig.rs:101 `pulled_distance`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/world/rig.rs:158 `hide_entered`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/world/spawn.rs:55 `mark_owner_or_class`
+- Complexity 10 (limit 10) — crates/crossfir3d/src/world/spawn.rs:65 `spawn_person`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/world/spawn.rs:141 `stand_in`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/world/spawn.rs:222 `add_ground_side`
+- Nesting 4 (limit 4) — crates/crossfir3d/src/world/spawn.rs:272 `add_pending_model`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/world/spawn.rs:272 `add_pending_model`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/world/sync.rs:93 `new`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/world/sync.rs:162 `mark_solid`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/world/sync.rs:201 `remembered`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/world/sync.rs:232 `find_orphan`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/world/sync.rs:258 `reuse_orphan`
+- Arguments 5 (limit 5) — crates/crossfir3d/src/world/sync.rs:299 `sync_visuals`
+- Arguments 5 (limit 5) — crates/crossfir3d/tests/live_server.rs:89 `wait_item_at`
+- Arguments 5 (limit 5) — experiments/sprite3d/ai3d.py:145 `convert`
+- Arguments 5 (limit 5) — experiments/sprite3d/catalog.py:234 `rule_existing`
+- Arguments 5 (limit 5) — experiments/sprite3d/catalog.py:246 `rule_icon_or_generator`
+- Arguments 5 (limit 5) — experiments/sprite3d/catalog.py:256 `rule_folder_first`
+- Arguments 5 (limit 5) — experiments/sprite3d/catalog.py:265 `rule_flags`
+- Arguments 5 (limit 5) — experiments/sprite3d/catalog.py:274 `rule_type`
+- Complexity 10 (limit 10) — experiments/sprite3d/catalog.py:284 `rule_fallback`
+- Arguments 5 (limit 5) — experiments/sprite3d/catalog.py:284 `rule_fallback`
+- Arguments 5 (limit 5) — experiments/sprite3d/catalog.py:300 `classify`
+- Complexity 10 (limit 10) — experiments/sprite3d/catalog.py:310 `catalog`
+- Complexity 10 (limit 10) — experiments/sprite3d/catalog.py:336 `main`
+- Arguments 5 (limit 5) — experiments/sprite3d/voxel.py:87 `write_glb`
+- Complexity 10 (limit 10) — scripts/obj2gltf.py:44 `read_obj`
+- Arguments 5 (limit 5) — scripts/obj2gltf.py:94 `build_primitives`
+- Arguments 5 (limit 5) — scripts/obj2gltf.py:108 `write_gltf`
 - Nesting 4 (limit 4) — scripts/pick_models.py:132 `move_uvs`
 - Complexity 10 (limit 10) — scripts/pick_models.py:158 `unpack_glb`
-- Arguments 5 (limit 5) — experiments/sprite3d/ai3d.py:142 `convert`
-- Complexity 10 (limit 10) — experiments/sprite3d/catalog.py:246 `catalog`
-- Complexity 10 (limit 10) — experiments/sprite3d/catalog.py:272 `main`
-- Arguments 5 (limit 5) — experiments/sprite3d/voxel.py:86 `write_glb`
-- File size 493 (limit 500) — crates/crossfir3d/src/back.rs
-- File size 490 (limit 500) — crates/crossfir3d/src/keys.rs
-- File size 453 (limit 500) — crates/crossfir3d/src/settings.rs
+- Arguments 5 (limit 5) — scripts/pick_models.py:193 `write_glb_with_node`
+- File size 495 (limit 500) — crates/crossfir3d/src/settings.rs
+- File size 490 (limit 500) — crates/crossfir3d/src/held.rs
+- File size 488 (limit 500) — crates/cfproto/src/items.rs
+- File size 466 (limit 500) — crates/crossfir3d/src/login.rs
 
 ## Top recommendations
 
-1. Group the remaining large Bevy systems' queries into `SystemParam` structs (`send_moves`, `wear_helmet`, `watch`, `update_sky`, `dress_people`, `hud`): argument count is the one metric still 🔴.
-2. Split `world.rs` (1,617 lines) and `characters3d.rs` (1,075 lines) into submodules, as `buildings/` now is.
-3. Turn the long data `match`es into tables: `held::class_look`, `buildings::item`, `buildings::castle`.
-4. Add one shared overlay frame for the settings, inventory and key bindings screens.
-5. Replace the 4 query `unwrap()`s with `let Ok(..) = ... else`, so a missing component cannot crash the game.
+1. Move the inline test modules of `keys.rs`, `ui.rs` and `back.rs` into sibling `tests.rs` files, and the preview systems out of `characters3d/mod.rs`: that clears every oversized file (Q2–Q5) without touching code.
+2. Add one `write_atomic` helper and use it in all four per-character saves; this also fixes `races::save_body`, the one save that can leave half a file after a crash (Q7).
+3. Make `characters_ui.rs` use `ui::GOLD` and `ui::overlay_window` instead of its own copies (Q8).
+4. Return `Result` from `dump_map2`'s `main` and make the two mesh-merge helpers return `Option` to bring error-handling smells under 0.5 per 1k lines (Q9).
+5. When the split parsers are trusted, delete the four `old_*` test oracles (Q11).
