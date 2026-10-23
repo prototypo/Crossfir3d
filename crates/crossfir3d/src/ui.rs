@@ -51,33 +51,61 @@ fn save(bindings: &KeyBindings, session: &Option<NonSend<Session>>, msgs: &mut M
     }
 }
 
-/// A typed `bind`/`unbind` line, or the answer to a bind question. False: not ours,
-/// send it to the server.
-fn typed_bind(text: &str, pending: &mut PendingBind, bindings: &mut KeyBindings, msgs: &mut Msgs, now: f32) -> Option<bool> {
-    if let Some(step) = pending.0.take() {
-        let answer = text.trim().to_ascii_lowercase();
-        match step {
-            BindStep::Confirm { binding } if answer == "y" => {
-                log(msgs, &bound_message(&bindings.0, &binding), now);
-                bindings.0.bind(binding);
-                return Some(true);
+/// Answers a pending bind question: Some(changed) when the text was the answer, None when it is handled as typed.
+fn answer_pending(text: &str, pending: &mut PendingBind, bindings: &mut KeyBindings, msgs: &mut Msgs, now: f32) -> Option<bool> {
+    let step = pending.0.take()?;
+    let answer = text.trim().to_ascii_lowercase();
+    match step {
+        BindStep::Confirm { binding } if answer == "y" => {
+            log(msgs, &bound_message(&bindings.0, &binding), now);
+            bindings.0.bind(binding);
+            return Some(true);
+        }
+        BindStep::ConfirmReset if answer == "y" => {
+            bindings.0.reset();
+            log(msgs, "Key bindings removed.", now);
+            return Some(true);
+        }
+        BindStep::WaitKey { .. } => pending.0 = Some(step), // still waiting for the key
+        _ => {
+            log(msgs, "Not changed.", now);
+            if answer == "n" {
+                return Some(false);
             }
-            BindStep::ConfirmReset if answer == "y" => {
-                bindings.0.reset();
-                log(msgs, "Key bindings removed.", now);
-                return Some(true);
-            }
-            BindStep::WaitKey { .. } => pending.0 = Some(step), // still waiting for the key
-            _ => {
-                log(msgs, "Not changed.", now);
-                if answer == "n" {
-                    return Some(false);
-                }
-                // Any other text drops the question and is handled as typed.
-            }
+            // Any other text drops the question and is handled as typed.
         }
     }
-    let changed = match parse_typed(text)? {
+    None
+}
+
+/// Logs the numbered key bindings, or that there are none.
+fn list_bindings(bindings: &KeyBindings, msgs: &mut Msgs, now: f32) {
+    if bindings.0.list.is_empty() {
+        log(msgs, "No key bindings.", now);
+        return;
+    }
+    for line in bindings.0.numbered(MAC) {
+        log(msgs, &line, now);
+    }
+}
+
+/// Removes the 1-based binding `n` and says so; true when one was removed.
+fn remove_binding(n: usize, bindings: &mut KeyBindings, msgs: &mut Msgs, now: f32) -> bool {
+    match n.checked_sub(1).and_then(|i| bindings.0.remove(i)) {
+        Some(b) => {
+            log(msgs, &format!("Unbound {}.", b.combo.text(MAC)), now);
+            true
+        }
+        None => {
+            log(msgs, &format!("No binding {n}."), now);
+            false
+        }
+    }
+}
+
+/// Runs one parsed `bind`/`unbind` command; true when the bindings changed.
+fn run_typed(typed: Typed, pending: &mut PendingBind, bindings: &mut KeyBindings, msgs: &mut Msgs, now: f32) -> bool {
+    match typed {
         Typed::Bind { all, edit, command } => {
             log(msgs, &format!("Press a key for: {command}"), now);
             pending.0 = Some(BindStep::WaitKey { all, edit, command });
@@ -91,33 +119,26 @@ fn typed_bind(text: &str, pending: &mut PendingBind, bindings: &mut KeyBindings,
             log(msgs, "bind [-nfregc] <command>   unbind [<number>|reset]", now);
             false
         }
-        Typed::List if bindings.0.list.is_empty() => {
-            log(msgs, "No key bindings.", now);
-            false
-        }
         Typed::List => {
-            for line in bindings.0.numbered(MAC) {
-                log(msgs, &line, now);
-            }
+            list_bindings(bindings, msgs, now);
             false
         }
-        Typed::Remove(n) => match n.checked_sub(1).and_then(|i| bindings.0.remove(i)) {
-            Some(b) => {
-                log(msgs, &format!("Unbound {}.", b.combo.text(MAC)), now);
-                true
-            }
-            None => {
-                log(msgs, &format!("No binding {n}."), now);
-                false
-            }
-        },
+        Typed::Remove(n) => remove_binding(n, bindings, msgs, now),
         Typed::Reset => {
             log(msgs, "Remove all key bindings of this character? Type y or n.", now);
             pending.0 = Some(BindStep::ConfirmReset);
             false
         }
-    };
-    Some(changed)
+    }
+}
+
+/// A typed `bind`/`unbind` line, or the answer to a bind question. False: not ours,
+/// send it to the server.
+fn typed_bind(text: &str, pending: &mut PendingBind, bindings: &mut KeyBindings, msgs: &mut Msgs, now: f32) -> Option<bool> {
+    if let Some(changed) = answer_pending(text, pending, bindings, msgs, now) {
+        return Some(changed);
+    }
+    Some(run_typed(parse_typed(text)?, pending, bindings, msgs, now))
 }
 
 /// After a typed `bind`: the next key pressed (with its modifiers) gets the command.
@@ -374,6 +395,88 @@ mod tests {
         p.0 = Some(BindStep::ConfirmReset);
         assert_eq!(typed_bind("unbind", &mut p, &mut b, &mut m, 0.0), Some(false)); // handled as typed
         assert!(p.0.is_none());
+    }
+
+    fn g() -> Binding {
+        Binding { all: false, combo: Combo { mods: Mods::default(), key: "G".into() }, edit: false, command: "say g".into() }
+    }
+
+    /// Runs `text` with `step` pending and `n` bindings: (return, logged lines, pending after, bindings after).
+    fn run(text: &str, step: Option<BindStep>, n: usize) -> (Option<bool>, Vec<String>, PendingBind, KeyBindings) {
+        let (mut p, mut b, mut m) = (PendingBind(step), KeyBindings::default(), Msgs::default());
+        for i in 0..n {
+            b.0.bind(Binding { combo: Combo { mods: Mods::default(), key: ["G", "H"][i].into() }, ..g() });
+        }
+        let r = typed_bind(text, &mut p, &mut b, &mut m, 0.0);
+        (r, m.0.log.iter().cloned().collect(), p, b)
+    }
+
+    #[test]
+    fn typed_bind_answers() {
+        let (r, l, p, b) = run(" Y ", Some(BindStep::Confirm { binding: g() }), 0);
+        assert_eq!((r, l, p.0.is_none(), b.0.list.len()), (Some(true), vec!["Bound g to say g.".to_string()], true, 1));
+        let (r, l, p, b) = run("n", Some(BindStep::Confirm { binding: g() }), 0);
+        assert_eq!((r, l, p.0.is_none(), b.0.list.len()), (Some(false), vec!["Not changed.".to_string()], true, 0));
+        let (r, l, p, b) = run("y", Some(BindStep::ConfirmReset), 2);
+        assert_eq!((r, l, p.0.is_none(), b.0.list.len()), (Some(true), vec!["Key bindings removed.".to_string()], true, 0));
+        let (r, l, p, b) = run("n", Some(BindStep::ConfirmReset), 2);
+        assert_eq!((r, l, p.0.is_none(), b.0.list.len()), (Some(false), vec!["Not changed.".to_string()], true, 2));
+    }
+
+    #[test]
+    fn typed_bind_unrelated_text_after_question() {
+        for step in [BindStep::Confirm { binding: g() }, BindStep::ConfirmReset] {
+            let (r, l, p, b) = run("shout hi", Some(step), 1);
+            assert_eq!((r, l, p.0.is_none(), b.0.list.len()), (None, vec!["Not changed.".to_string()], true, 1));
+        }
+        let (r, l, p, _) = run("bind say x", Some(BindStep::ConfirmReset), 0);
+        assert_eq!(r, Some(false));
+        assert_eq!(l, ["Not changed.", "Press a key for: say x"]);
+        assert!(p.waiting_key());
+    }
+
+    #[test]
+    fn typed_bind_wait_key_keeps_waiting() {
+        let wait = || BindStep::WaitKey { all: true, edit: false, command: "say w".into() };
+        for text in ["y", "n", "shout hi"] {
+            let (r, l, p, _) = run(text, Some(wait()), 0);
+            assert_eq!((r, l.is_empty(), p.waiting_key()), (None, true, true), "{text}");
+        }
+        let (r, l, p, _) = run("unbind 9", Some(wait()), 0);
+        assert_eq!((r, l, p.waiting_key()), (Some(false), vec!["No binding 9.".to_string()], true));
+        let (r, l, p, _) = run("bind say x", Some(wait()), 0);
+        assert_eq!((r, l, p.waiting_key()), (Some(false), vec!["Press a key for: say x".to_string()], true));
+        assert!(matches!(p.0, Some(BindStep::WaitKey { all: false, edit: false, ref command }) if command == "say x"));
+    }
+
+    #[test]
+    fn typed_bind_commands() {
+        assert_eq!(run("say hi", None, 0).0, None);
+        for (text, line) in [
+            ("bind firekey1", "Not supported."),
+            ("bind", "bind [-nfregc] <command>   unbind [<number>|reset]"),
+            ("unbind", "No key bindings."),
+            ("unbind 0", "No binding 0."),
+            ("unbind 1", "No binding 1."),
+            ("unbind x", "bind [-nfregc] <command>   unbind [<number>|reset]"),
+        ] {
+            let (r, l, p, b) = run(text, None, 0);
+            assert_eq!((r, l, p.0.is_none(), b.0.list.len()), (Some(false), vec![line.to_string()], true, 0), "{text}");
+        }
+        let (r, l, _, b) = run("unbind", None, 2);
+        assert_eq!((r, l, b.0.list.len()), (Some(false), vec!["1. g  say g".to_string(), "2. h  say g".to_string()], 2));
+        let (r, l, _, b) = run("unbind 0", None, 1);
+        assert_eq!((r, l, b.0.list.len()), (Some(false), vec!["No binding 0.".to_string()], 1));
+        let (r, l, _, b) = run("unbind 2", None, 1);
+        assert_eq!((r, l, b.0.list.len()), (Some(false), vec!["No binding 2.".to_string()], 1));
+        let (r, l, _, b) = run("unbind 1", None, 2);
+        assert_eq!((r, l, b.0.list.len()), (Some(true), vec!["Unbound g.".to_string()], 1));
+        let (r, l, p, b) = run("unbind reset", None, 1);
+        assert_eq!((r, l, b.0.list.len()), (Some(false), vec!["Remove all key bindings of this character? Type y or n.".to_string()], 1));
+        assert!(matches!(p.0, Some(BindStep::ConfirmReset)));
+        let (r, l, p, _) = run("bind -g say hello", None, 0);
+        assert_eq!((r, l), (Some(false), vec!["Press a key for: say hello".to_string()]));
+        assert!(matches!(p.0, Some(BindStep::WaitKey { all: true, edit: false, ref command }) if command == "say hello"));
     }
 
     #[test]
