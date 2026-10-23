@@ -119,7 +119,7 @@ denominator grew.
 - Measured: complexity 27 (threshold 10); length 71 (threshold 50)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
 
-### [ ] 🔴 Q11: complexity, length — crates/crossfir3d/src/buildings/items.rs:194 `item`
+### [x] 🔴 Q11: complexity, length — crates/crossfir3d/src/buildings/items.rs:194 `item`
 
 - Measured: complexity 26 (threshold 10); length 71 (threshold 50)
 - Recommendation: Split the item `match` into family tables (weapons, armour, jewels, potions), like `buildings::parts`.

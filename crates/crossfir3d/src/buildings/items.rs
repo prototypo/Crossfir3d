@@ -191,9 +191,50 @@ pub(super) fn shaft(grip_x: f32, head: [f32; 3]) -> Part {
     limb([grip_x, 0.013, 0.0], [grip_x + dx * k, 0.013 + dy * k, 0.0], 0.026, WOOD)
 }
 
-pub(super) fn item(kind: &str, c: [f32; 3]) -> Vec<Part> {
-    let ball = |r: f32, pos: [f32; 3], scale: [f32; 3], color| part(Shape::Ball(r), pos, 0.0, scale, Some(color));
-    let parts = match kind {
+fn ball(r: f32, pos: [f32; 3], scale: [f32; 3], color: [f32; 3]) -> Part {
+    part(Shape::Ball(r), pos, 0.0, scale, Some(color))
+}
+
+/// A long staff, its gem glowing in a cage of three prongs at the top.
+fn staff(c: [f32; 3]) -> Vec<Part> {
+    let mut out = vec![shaft(-0.42, [0.37, 0.045, 0.0])];
+    for z in [-0.03, 0.0, 0.03] {
+        out.push(limb([0.3, 0.015, z * 0.6], [0.4, 0.05, z], 0.012, GOLD));
+    }
+    out.push(Part { yaw_deg: 45.0, tilt_deg: 45.0, ..part(Shape::Glow([0.045; 3]), [0.37, 0.045, 0.0], 0.0, [1.0; 3], Some(c)) });
+    out
+}
+
+/// A smooth curved bow with its string.
+fn bow(c: [f32; 3]) -> Vec<Part> {
+    let (cx, r, n) = (-0.2, 0.3, 10);
+    let at = |i: usize| {
+        let a = (-60.0 + 120.0 * i as f32 / n as f32).to_radians();
+        [cx + r * a.cos(), 0.015, r * a.sin()]
+    };
+    let mut out: Vec<Part> = (0..n).map(|i| limb(at(i), at(i + 1), 0.022, c)).collect();
+    out.push(limb(at(0), at(n), 0.004, [0.9, 0.88, 0.8]));
+    out
+}
+
+/// A gold band with a small stone set on it.
+fn ring(c: [f32; 3]) -> Vec<Part> {
+    let mut out = hoop(0.045, 12, 0.012, 0.012, 0.0, GOLD);
+    out.push(ball(0.022, [0.05, 0.03, 0.0], [1.0; 3], c));
+    out
+}
+
+/// A gold chain with a round gold plate and a stone on it.
+fn amulet(c: [f32; 3]) -> Vec<Part> {
+    let mut out = hoop(0.1, 20, 0.007, 0.007, -0.03, GOLD);
+    out.push(cylinder(0.04, 0.012, [0.0, 0.006, 0.1], GOLD));
+    out.push(ball(0.026, [0.0, 0.016, 0.1], [1.0, 0.6, 1.0], c));
+    out
+}
+
+/// The hand weapons: sword, dagger, axe, hammer, mace, club and spear.
+fn weapon(kind: &str, c: [f32; 3]) -> Option<Vec<Part>> {
+    Some(match kind {
         "sword" => sword(c, 1.0),
         "dagger" => sword(c, 0.55),
         "axe" => vec![shaft(-0.26, [0.2, 0.045, 0.0]), cube([0.07, 0.03, 0.18], [0.2, 0.045, 0.05], c)],
@@ -211,42 +252,39 @@ pub(super) fn item(kind: &str, c: [f32; 3]) -> Vec<Part> {
             ball(0.06, [0.21, 0.05, 0.0], [0.5, 1.0, 1.0], c),
         ],
         "spear" => vec![cube([0.78, 0.02, 0.02], [-0.06, 0.011, 0.0], WOOD), cube([0.12, 0.012, 0.045], [0.38, 0.011, 0.0], c)],
-        // A long staff, its gem glowing in a cage of three prongs at the top.
-        "staff" => {
-            let mut out = vec![shaft(-0.42, [0.37, 0.045, 0.0])];
-            for z in [-0.03, 0.0, 0.03] {
-                out.push(limb([0.3, 0.015, z * 0.6], [0.4, 0.05, z], 0.012, GOLD));
-            }
-            out.push(Part { yaw_deg: 45.0, tilt_deg: 45.0, ..part(Shape::Glow([0.045; 3]), [0.37, 0.045, 0.0], 0.0, [1.0; 3], Some(c)) });
-            out
-        }
-        // A smooth curved bow with its string.
-        "bow" => {
-            let (cx, r, n) = (-0.2, 0.3, 10);
-            let at = |i: usize| {
-                let a = (-60.0 + 120.0 * i as f32 / n as f32).to_radians();
-                [cx + r * a.cos(), 0.015, r * a.sin()]
-            };
-            let mut out: Vec<Part> = (0..n).map(|i| limb(at(i), at(i + 1), 0.022, c)).collect();
-            out.push(limb(at(0), at(n), 0.004, [0.9, 0.88, 0.8]));
-            out
-        }
+        _ => return None,
+    })
+}
+
+/// The things that reach: staff, bow and arrow.
+fn ranged(kind: &str, c: [f32; 3]) -> Option<Vec<Part>> {
+    Some(match kind {
+        "staff" => staff(c),
+        "bow" => bow(c),
         "arrow" => vec![
             cube([0.5, 0.012, 0.012], [0.0, 0.007, 0.0], WOOD),
             cube([0.05, 0.01, 0.03], [0.27, 0.007, 0.0], c),
             cube([0.08, 0.004, 0.045], [-0.21, 0.007, 0.0], [0.92, 0.92, 0.88]),
         ],
-        "ring" => {
-            let mut out = hoop(0.045, 12, 0.012, 0.012, 0.0, GOLD);
-            out.push(ball(0.022, [0.05, 0.03, 0.0], [1.0; 3], c));
-            out
-        }
-        "amulet" => {
-            let mut out = hoop(0.1, 20, 0.007, 0.007, -0.03, GOLD);
-            out.push(cylinder(0.04, 0.012, [0.0, 0.006, 0.1], GOLD));
-            out.push(ball(0.026, [0.0, 0.016, 0.1], [1.0, 0.6, 1.0], c));
-            out
-        }
+        _ => return None,
+    })
+}
+
+/// The valuables: ring, amulet, gem, coin and ingot.
+fn jewel(kind: &str, c: [f32; 3]) -> Option<Vec<Part>> {
+    Some(match kind {
+        "ring" => ring(c),
+        "amulet" => amulet(c),
+        "coin" => [(0.0, 0.005), (0.01, 0.015), (-0.005, 0.025)].map(|(x, y)| cylinder(0.045, 0.01, [x, y, 0.0], c)).to_vec(),
+        "gem" => vec![point(0.05, 0.06, [0.0, 0.03, 0.0], c), Part { tilt_deg: 180.0, ..point(0.05, 0.03, [0.0, 0.0, 0.0], c) }],
+        "ingot" => vec![cube([0.2, 0.05, 0.08], [0.0, 0.025, 0.0], c), cube([0.17, 0.01, 0.06], [0.0, 0.055, 0.0], c)],
+        _ => return None,
+    })
+}
+
+/// The rest: potion, shield, helmet and fruit.
+fn other(kind: &str, c: [f32; 3]) -> Option<Vec<Part>> {
+    Some(match kind {
         "potion" => vec![
             ball(0.07, [0.0, 0.075, 0.0], [1.0, 1.1, 1.0], c),
             cylinder(0.022, 0.06, [0.0, 0.17, 0.0], c),
@@ -254,12 +292,17 @@ pub(super) fn item(kind: &str, c: [f32; 3]) -> Vec<Part> {
         ],
         "shield" => vec![cylinder(0.24, 0.03, [0.0, 0.015, 0.0], c), ball(0.05, [0.0, 0.03, 0.0], [1.0, 0.5, 1.0], STEEL)],
         "helmet" => vec![ball(0.12, [0.0, 0.0, 0.0], [1.0, 0.85, 1.05], c), cylinder(0.13, 0.015, [0.0, 0.008, 0.0], c.map(|v| v * 0.7))],
-        "coin" => [(0.0, 0.005), (0.01, 0.015), (-0.005, 0.025)].map(|(x, y)| cylinder(0.045, 0.01, [x, y, 0.0], c)).to_vec(),
-        "gem" => vec![point(0.05, 0.06, [0.0, 0.03, 0.0], c), Part { tilt_deg: 180.0, ..point(0.05, 0.03, [0.0, 0.0, 0.0], c) }],
-        "ingot" => vec![cube([0.2, 0.05, 0.08], [0.0, 0.025, 0.0], c), cube([0.17, 0.01, 0.06], [0.0, 0.055, 0.0], c)],
         "fruit" => vec![ball(0.06, [0.0, 0.06, 0.0], [1.0; 3], c), cube([0.008, 0.03, 0.008], [0.0, 0.13, 0.0], [0.35, 0.25, 0.12])],
-        _ => Vec::new(),
-    };
+        _ => return None,
+    })
+}
+
+pub(super) fn item(kind: &str, c: [f32; 3]) -> Vec<Part> {
+    let parts = weapon(kind, c)
+        .or_else(|| ranged(kind, c))
+        .or_else(|| jewel(kind, c))
+        .or_else(|| other(kind, c))
+        .unwrap_or_default();
     turned(parts, 25.0)
 }
 
