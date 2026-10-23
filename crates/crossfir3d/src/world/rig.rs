@@ -127,20 +127,16 @@ pub(super) fn follow_player(mut p: Follow, rig: Single<(&mut Transform, &mut Cam
     fog.falloff = FogFalloff::Linear { start: distance + radius, end: distance + MEMORY_SQUARES as f32 };
 }
 
-/// The player on a house's squares stands on its doorstep, outside, with the house in
-/// view. One-square things (a well) are drawn with them; anything bigger they stand in
-/// (a castle) is hidden.
-pub(super) fn hide_entered(
-    view: Res<View>,
-    size: Res<ViewSize>,
-    mut step: ResMut<Doorstep>,
-    mut exit: ResMut<DoorExit>,
-    mut q: Query<(&Span, Option<&Door>, &mut Visibility)>,
-    mut own: Query<&mut Glide, With<OwnCharacter>>,
-) {
-    let (px, py) = view.0.world((size.0 / 2) as i8, (size.1 / 2) as i8);
-    step.0 = None;
-    for (Span(x0, y0, x1, y1), door, mut vis) in &mut q {
+/// The doorstep the camera follows and how the player came out of the door.
+#[derive(SystemParam)]
+pub(super) struct Doors<'w> {
+    step: ResMut<'w, Doorstep>,
+    exit: ResMut<'w, DoorExit>,
+}
+
+/// Sets the doorstep from the house the player is on and hides the big buildings they stand in.
+fn scan_spans(px: i32, py: i32, step: &mut Doorstep, q: &mut Query<(&Span, Option<&Door>, &mut Visibility)>) {
+    for (Span(x0, y0, x1, y1), door, mut vis) in q {
         let inside = (*x0..=*x1).contains(&px) && (*y0..=*y1).contains(&py);
         if let (true, Some(Door(at))) = (inside, door) {
             step.0 = Some(*at);
@@ -148,14 +144,32 @@ pub(super) fn hide_entered(
         let big = x1 > x0 || y1 > y0;
         vis.set_if_neq(if inside && door.is_none() && big { Visibility::Hidden } else { Visibility::Inherited });
     }
+}
+
+/// The compass direction from the player's square to the square in front of the door.
+fn door_out(at: Vec3, px: i32, py: i32) -> &'static str {
+    let d = (at.x.floor() as i32 - px, (at.z + 0.25).floor() as i32 - py);
+    compass((d.0.signum() as i8, d.1.signum() as i8), 0)
+}
+
+/// The player on a house's squares stands on its doorstep, outside, with the house in
+/// view. One-square things (a well) are drawn with them; anything bigger they stand in
+/// (a castle) is hidden.
+pub(super) fn hide_entered(
+    view: Res<View>,
+    size: Res<ViewSize>,
+    mut doors: Doors,
+    mut q: Query<(&Span, Option<&Door>, &mut Visibility)>,
+    mut own: Query<&mut Glide, With<OwnCharacter>>,
+) {
+    let (px, py) = view.0.world((size.0 / 2) as i8, (size.1 / 2) as i8);
+    doors.step.0 = None;
+    scan_spans(px, py, &mut doors.step, &mut q);
     // The square in front of the door, one step out of the doorway.
-    exit.came_out = step.0.is_some() && exit.new_map;
-    exit.out = step.0.map(|at| {
-        let d = (at.x.floor() as i32 - px, (at.z + 0.25).floor() as i32 - py);
-        compass((d.0.signum() as i8, d.1.signum() as i8), 0)
-    });
+    doors.exit.came_out = doors.step.0.is_some() && doors.exit.new_map;
+    doors.exit.out = doors.step.0.map(|at| door_out(at, px, py));
     // Moving off the house gives the character a new tile target (`sync_visuals`).
-    if let (Some(at), Ok(mut glide)) = (step.0, own.single_mut()) {
+    if let (Some(at), Ok(mut glide)) = (doors.step.0, own.single_mut()) {
         glide.target = at;
     }
 }
