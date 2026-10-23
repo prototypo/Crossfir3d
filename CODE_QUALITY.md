@@ -340,7 +340,7 @@ denominator grew.
 - Measured: complexity 12 (threshold 10); nesting 6 (threshold 4)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
 
-### [ ] 🔴 Q55: complexity — crates/crossfir3d/src/buildings/village.rs:7 `village`
+### [x] 🔴 Q55: complexity — crates/crossfir3d/src/buildings/village.rs:7 `village`
 
 - Measured: complexity 15 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.

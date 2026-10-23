@@ -5,34 +5,50 @@ use super::*;
 /// Walls round the edge (door in the middle of the south side), posts at the corners,
 /// a roof on top, and maybe a chimney.
 pub(super) fn village(s: &Style, w: u32, h: u32) -> Vec<Part> {
-    let (fw, fh) = (w as f32, h as f32);
     let mut out = Vec::new();
     for story in 0..s.stories {
-        let y = story as f32 * STORY;
-        // Pieces run east-west unturned.
-        let sides: [Side; 4] = [
-            (N, w, &|t| (-fw / 2.0 + t, -fh / 2.0), 0.0),
-            (E, h, &|t| (fw / 2.0, -fh / 2.0 + t), 90.0),
-            (S, w, &|t| (fw / 2.0 - t, fh / 2.0), 180.0),
-            (W, h, &|t| (-fw / 2.0, fh / 2.0 - t), 270.0),
-        ];
-        for (side, len, at, yaw) in sides {
-            for i in 0..len {
-                let (x, z) = at(i as f32 + 0.5);
-                let file = if story == 0 && side == S && i == len / 2 {
-                    s.door
-                } else if len == 1 || i % 2 == 1 {
-                    s.window
-                } else {
-                    s.wall
-                };
-                out.push(model(file, [x, y, z], yaw, VILLAGE));
-            }
-        }
-        for (i, (cx, cz)) in [(-1.0, -1.0), (1.0, -1.0), (1.0, 1.0), (-1.0, 1.0)].into_iter().enumerate() {
-            out.push(model(s.corner, [cx * fw / 2.0, y, cz * fh / 2.0], i as f32 * 90.0, VILLAGE));
+        storey(&mut out, s, (w, h), story);
+    }
+    village_top(&mut out, s, (w, h));
+    out
+}
+
+/// The piece for square `i` of a side `len` long: the door, a window or plain wall.
+fn wall_file(s: &Style, story: u32, side: u8, i: u32, len: u32) -> &'static str {
+    if story == 0 && side == S && i == len / 2 {
+        s.door
+    } else if len == 1 || i % 2 == 1 {
+        s.window
+    } else {
+        s.wall
+    }
+}
+
+/// One storey: the walls on all four sides and a post at each corner.
+fn storey(out: &mut Vec<Part>, s: &Style, (w, h): (u32, u32), story: u32) {
+    let (fw, fh) = (w as f32, h as f32);
+    let y = story as f32 * STORY;
+    // Pieces run east-west unturned.
+    let sides: [Side; 4] = [
+        (N, w, &|t| (-fw / 2.0 + t, -fh / 2.0), 0.0),
+        (E, h, &|t| (fw / 2.0, -fh / 2.0 + t), 90.0),
+        (S, w, &|t| (fw / 2.0 - t, fh / 2.0), 180.0),
+        (W, h, &|t| (-fw / 2.0, fh / 2.0 - t), 270.0),
+    ];
+    for (side, len, at, yaw) in sides {
+        for i in 0..len {
+            let (x, z) = at(i as f32 + 0.5);
+            out.push(model(wall_file(s, story, side, i, len), [x, y, z], yaw, VILLAGE));
         }
     }
+    for (i, (cx, cz)) in [(-1.0, -1.0), (1.0, -1.0), (1.0, 1.0), (-1.0, 1.0)].into_iter().enumerate() {
+        out.push(model(s.corner, [cx * fw / 2.0, y, cz * fh / 2.0], i as f32 * 90.0, VILLAGE));
+    }
+}
+
+/// The solid inside, the wedge under the roof, the roof and maybe a chimney.
+fn village_top(out: &mut Vec<Part>, s: &Style, (w, h): (u32, u32)) {
+    let (fw, fh) = (w as f32, h as f32);
     let top = s.stories as f32 * STORY;
     // Fill the hollow pieces: a solid inside behind windows and a wedge under the roof.
     let (iw, ih) = (fw - 2.0 * WALL_INSET, fh - 2.0 * WALL_INSET);
@@ -43,7 +59,6 @@ pub(super) fn village(s: &Style, w: u32, h: u32) -> Vec<Part> {
     if s.chimney {
         out.push(model("buildings/Prop_Chimney.gltf", [fw / 4.0, top, 0.0], 0.0, VILLAGE));
     }
-    out
 }
 
 /// A one-storey house with a sign board high on the front (south) wall, over the door.
