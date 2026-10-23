@@ -300,21 +300,28 @@ pub fn load_bindings(path: &Path, character: &str) -> Bindings {
     Bindings { list: text.lines().filter_map(|l| parse_line(l, character)).collect() }
 }
 
+/// Old file lines to keep: other characters', plus our own that do not load.
+fn kept_lines(old: &str, character: &str) -> Vec<String> {
+    // Other characters' lines stay, and so do this character's (and `*`) lines that do
+    // not load (a typo in a hand edit): they are not ours to drop.
+    let ours = |l: &str| matches!(l.split('\t').next(), Some(w) if w == character || w == "*");
+    old.lines().filter(|l| !ours(l) || parse_line(l, character).is_none()).map(String::from).collect()
+}
+
+/// One file line for a binding, with tabs and newlines in the command turned into spaces.
+fn binding_line(x: &Binding, character: &str) -> String {
+    let who = if x.all { "*" } else { character };
+    let mods = if x.combo.mods.none() { "-".to_string() } else { x.combo.mods.names(true).join("+") };
+    let command = x.command.replace(['\t', '\n', '\r'], " ");
+    format!("{who}\t{mods}\t{}\t{}\t{command}", x.combo.key, if x.edit { "e" } else { "-" })
+}
+
 /// Rewrites this character's and the all-characters lines, keeps other characters'
 /// lines, and replaces the file in one rename (a crash cannot leave half a file).
 pub fn save_bindings(path: &Path, character: &str, b: &Bindings) -> io::Result<()> {
     let old = std::fs::read_to_string(path).unwrap_or_default();
-    // Other characters' lines stay, and so do this character's (and `*`) lines that do
-    // not load (a typo in a hand edit): they are not ours to drop.
-    let ours = |l: &str| matches!(l.split('\t').next(), Some(w) if w == character || w == "*");
-    let mut lines: Vec<String> =
-        old.lines().filter(|l| !ours(l) || parse_line(l, character).is_none()).map(String::from).collect();
-    for x in &b.list {
-        let who = if x.all { "*" } else { character };
-        let mods = if x.combo.mods.none() { "-".to_string() } else { x.combo.mods.names(true).join("+") };
-        let command = x.command.replace(['\t', '\n', '\r'], " ");
-        lines.push(format!("{who}\t{mods}\t{}\t{}\t{command}", x.combo.key, if x.edit { "e" } else { "-" }));
-    }
+    let mut lines = kept_lines(&old, character);
+    lines.extend(b.list.iter().map(|x| binding_line(x, character)));
     if let Some(dir) = path.parent() {
         std::fs::create_dir_all(dir)?;
     }
