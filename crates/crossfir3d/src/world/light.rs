@@ -25,17 +25,23 @@ pub(crate) fn sun_now(clock: &Clock) -> (SunPose, Vec3) {
     (pose, dir)
 }
 
+/// What the darkness of the view is read from.
+#[derive(SystemParam)]
+pub(super) struct Gloom<'w> {
+    view: Res<'w, View>,
+    size: Res<'w, ViewSize>,
+}
+
 /// Sets the sun's direction, colour and strength for the hour, or torchlight indoors.
 pub(super) fn lighting(
-    view: Res<View>,
-    size: Res<ViewSize>,
+    gloom: Gloom,
     clock: Res<Clock>,
     settings: Res<CurrentSettings>,
     indoors: Res<Indoors>,
     sun: Single<(&mut DirectionalLight, &mut Transform), With<Sun>>,
 ) {
     let (mut light, mut transform) = sun.into_inner();
-    let dark = darkness(&view, &size);
+    let dark = darkness(&gloom.view, &gloom.size);
     // Indoors no sun reaches: a dim, warm torchlight from high up, whatever the hour.
     if indoors.0 {
         *transform = Transform::from_xyz(3.0, 20.0, 5.0).looking_at(Vec3::ZERO, Vec3::Y);
