@@ -84,7 +84,7 @@ denominator grew.
 - Measured: complexity 31 (threshold 10)
 - Recommendation: Split the castle into one function per piece (walls, towers, gate, keep), as the other building families already are.
 
-### [ ] 🔴 Q4: complexity, length, nesting, arguments — crates/crossfir3d/src/characters_ui.rs:31 `characters_screen`
+### [x] 🔴 Q4: complexity, length, nesting, arguments — crates/crossfir3d/src/characters_ui.rs:31 `characters_screen`
 
 - Measured: complexity 29 (threshold 10); length 91 (threshold 50); nesting 5 (threshold 4); arguments 7 (threshold 5)
 - Recommendation: Split into the character list, the buttons and the login handling, and group its 7 system arguments into a `SystemParam` struct like `new_character`'s helpers.

@@ -1,7 +1,9 @@
 //! After account login: the character list and the new-character screen.
 
+use bevy::ecs::system::SystemParam;
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts, EguiTextureHandle};
+use cfproto::{CharacterInfo, ClientMsg};
 use crossfir3d::login::{still_connecting, LoginState};
 use crossfir3d::newchar::{stat_code, NewChar, STAT_NAMES};
 use crossfir3d::races::{default_body_path, save_body, Body};
@@ -28,15 +30,21 @@ fn seed() -> u64 {
     std::time::SystemTime::now().duration_since(std::time::UNIX_EPOCH).map_or(1, |d| d.as_nanos() as u64)
 }
 
-pub fn characters_screen(
-    mut contexts: EguiContexts,
-    keys: Res<ButtonInput<KeyCode>>,
-    mut status: ResMut<Status>,
-    mut auto: Local<bool>,
-    mut commands: Commands,
-    mut preview: ResMut<Preview>,
-    session: Option<NonSendMut<Session>>,
-) -> Result {
+/// Everything `characters_screen` reads or changes in a frame.
+#[derive(SystemParam)]
+pub struct CharactersParams<'w, 's> {
+    contexts: EguiContexts<'w, 's>,
+    keys: Res<'w, ButtonInput<KeyCode>>,
+    status: ResMut<'w, Status>,
+    auto: Local<'s, bool>,
+    commands: Commands<'w, 's>,
+    preview: ResMut<'w, Preview>,
+    session: Option<NonSendMut<'w, Session>>,
+}
+
+/// Draws the screen for the current login state: the character list, the new-character form or "connecting".
+pub fn characters_screen(p: CharactersParams) -> Result {
+    let CharactersParams { mut contexts, keys, mut status, mut auto, mut commands, mut preview, session } = p;
     let Some(mut session) = session else { return Ok(()) };
     let picture = contexts.add_image(EguiTextureHandle::Weak(preview.image.id()));
     let connecting = still_connecting(session.login.state());
@@ -45,79 +53,116 @@ pub fn characters_screen(
     }
     let ctx = contexts.ctx_mut()?;
     let screen = ctx.content_rect().shrink(24.0);
-    // Developer screenshots: CROSSFIR3D_SCREEN=newchar[:race_arch] opens the
-    // new-character screen, picks that race, and rolls once.
+    open_dev_screen(&mut auto, &mut session);
+    match session.login.state().clone() {
+        LoginState::Characters => {
+            let (out, back) = character_list(ctx, screen, &mut session, &status.0, &keys);
+            send_choice(out, back, &mut session, &mut status, &mut commands);
+        }
+        LoginState::Creating => new_character(ctx, screen, &mut session, &mut preview.body, picture),
+        _ if connecting => connecting_window(ctx),
+        _ => {}
+    }
+    Ok(())
+}
+
+/// Sends the chosen messages (clearing the status line if there are any) and, on Back, queues closing the connection.
+fn send_choice(out: Vec<ClientMsg>, back: bool, session: &mut Session, status: &mut Status, commands: &mut Commands) {
+    if !out.is_empty() {
+        status.0.clear();
+    }
+    session.send(out);
+    if back {
+        // No account logout in the protocol: close the connection.
+        commands.queue(|world: &mut World| crate::end_session(world, String::new()));
+    }
+}
+
+/// Developer screenshots: CROSSFIR3D_SCREEN=newchar[:race_arch] opens the
+/// new-character screen, once, from the character list.
+fn open_dev_screen(auto: &mut bool, session: &mut Session) {
     let dev = std::env::var("CROSSFIR3D_SCREEN").ok().filter(|v| v.starts_with("newchar"));
     if !*auto && dev.is_some() && *session.login.state() == LoginState::Characters {
         *auto = true;
         let out = session.login.start_creating();
         session.send(out);
     }
-    match session.login.state().clone() {
-        LoginState::Characters => {
-            let mut out = Vec::new();
-            let mut back = false;
-            let chars = session.login.characters().to_vec();
-            egui::Window::new("characters")
-                .title_bar(false)
-                .resizable(false)
-                .movable(false)
-                .fixed_rect(screen)
-                .frame(panel())
-                .show(ctx, |ui| {
-                    ui.set_min_size(screen.size() - egui::vec2(40.0, 40.0));
-                    heading(ui, "CHOOSE A CHARACTER");
-                    if !status.0.is_empty() {
-                        ui.label(&status.0);
-                    }
-                    if let Some(notice) = &session.login.notice {
-                        ui.label(egui::RichText::new(notice).color(egui::Color32::from_rgb(0xe0, 0x80, 0x60)));
-                    }
-                    ui.add_space(12.0);
-                    if chars.is_empty() {
-                        ui.label("No characters yet.");
-                    }
-                    for (i, c) in chars.iter().enumerate() {
-                        let text = format!("{} — {} {}, level {}", c.name, c.race, c.class, c.level);
-                        let row = ui.selectable_label(session.login.selected == Some(i), egui::RichText::new(text).size(15.0));
-                        if row.clicked() {
-                            session.login.selected = Some(i);
-                        }
-                        if row.double_clicked() {
-                            out = session.login.play(&c.name);
-                        }
-                    }
-                    ui.add_space(16.0);
-                    ui.horizontal(|ui| {
-                        let chosen = session.login.selected.and_then(|i| chars.get(i));
-                        let play = ui.add_enabled(chosen.is_some(), egui::Button::new("Play"));
-                        if let (Some(c), true) = (chosen, play.clicked() || keys.just_pressed(KeyCode::Enter)) {
-                            out = session.login.play(&c.name);
-                        }
-                        if ui.button("New character").clicked() {
-                            out = session.login.start_creating();
-                        }
-                        back = ui.button("Back").clicked();
-                    });
-                });
-            if !out.is_empty() {
-                status.0.clear();
+}
+
+/// The small centred "Connecting..." window.
+fn connecting_window(ctx: &egui::Context) {
+    egui::Window::new("connecting").title_bar(false).resizable(false).anchor(egui::Align2::CENTER_CENTER, [0.0, 0.0]).show(ctx, |ui| {
+        ui.label("Connecting...");
+    });
+}
+
+/// The character window; returns the messages to send and whether Back was clicked.
+fn character_list(ctx: &egui::Context, screen: egui::Rect, session: &mut Session, status: &str, keys: &ButtonInput<KeyCode>) -> (Vec<ClientMsg>, bool) {
+    let mut out = Vec::new();
+    let mut back = false;
+    let chars = session.login.characters().to_vec();
+    egui::Window::new("characters")
+        .title_bar(false)
+        .resizable(false)
+        .movable(false)
+        .fixed_rect(screen)
+        .frame(panel())
+        .show(ctx, |ui| {
+            ui.set_min_size(screen.size() - egui::vec2(40.0, 40.0));
+            heading(ui, "CHOOSE A CHARACTER");
+            if !status.is_empty() {
+                ui.label(status);
             }
-            session.send(out);
-            if back {
-                // No account logout in the protocol: close the connection.
-                commands.queue(|world: &mut World| crate::end_session(world, String::new()));
+            if let Some(notice) = &session.login.notice {
+                ui.label(egui::RichText::new(notice).color(egui::Color32::from_rgb(0xe0, 0x80, 0x60)));
             }
-        }
-        LoginState::Creating => new_character(ctx, screen, &mut session, &mut preview.body, picture),
-        _ if connecting => {
-            egui::Window::new("connecting").title_bar(false).resizable(false).anchor(egui::Align2::CENTER_CENTER, [0.0, 0.0]).show(ctx, |ui| {
-                ui.label("Connecting...");
+            ui.add_space(12.0);
+            if chars.is_empty() {
+                ui.label("No characters yet.");
+            }
+            if let Some(played) = character_rows(ui, session, &chars) {
+                out = played;
+            }
+            ui.add_space(16.0);
+            ui.horizontal(|ui| {
+                let (picked, went_back) = character_buttons(ui, session, &chars, keys);
+                if let Some(picked) = picked {
+                    out = picked;
+                }
+                back = went_back;
             });
+        });
+    (out, back)
+}
+
+/// One selectable row per character; a double-click returns the messages that play it.
+fn character_rows(ui: &mut egui::Ui, session: &mut Session, chars: &[CharacterInfo]) -> Option<Vec<ClientMsg>> {
+    let mut out = None;
+    for (i, c) in chars.iter().enumerate() {
+        let text = format!("{} — {} {}, level {}", c.name, c.race, c.class, c.level);
+        let row = ui.selectable_label(session.login.selected == Some(i), egui::RichText::new(text).size(15.0));
+        if row.clicked() {
+            session.login.selected = Some(i);
         }
-        _ => {}
+        if row.double_clicked() {
+            out = Some(session.login.play(&c.name));
+        }
     }
-    Ok(())
+    out
+}
+
+/// The Play, New character and Back buttons; returns the messages of a Play or New click, and whether Back was clicked.
+fn character_buttons(ui: &mut egui::Ui, session: &mut Session, chars: &[CharacterInfo], keys: &ButtonInput<KeyCode>) -> (Option<Vec<ClientMsg>>, bool) {
+    let mut out = None;
+    let chosen = session.login.selected.and_then(|i| chars.get(i));
+    let play = ui.add_enabled(chosen.is_some(), egui::Button::new("Play"));
+    if let (Some(c), true) = (chosen, play.clicked() || keys.just_pressed(KeyCode::Enter)) {
+        out = Some(session.login.play(&c.name));
+    }
+    if ui.button("New character").clicked() {
+        out = Some(session.login.start_creating());
+    }
+    (out, ui.button("Back").clicked())
 }
 
 fn new_character(ctx: &egui::Context, screen: egui::Rect, session: &mut Session, body: &mut Body, picture: egui::TextureId) {
