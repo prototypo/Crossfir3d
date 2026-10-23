@@ -597,7 +597,8 @@ fn put_on_head(
     marker: impl Bundle + Clone,
 ) {
     // Hoods and baldness are outfit and hair files, chosen at spawn: nothing to build.
-    crate::hat::put_on(commands, head, wear, k, leather, meshes, materials, marker);
+    let kit = crate::hat::HatKit { commands, leather, meshes, materials };
+    crate::hat::put_on(kit, head, wear, k, marker);
 }
 
 /// How a hand holds a thing: where its grip sits and how it turns. The hand bone's +Y runs

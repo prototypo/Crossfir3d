@@ -112,7 +112,7 @@ denominator grew.
 - Measured: complexity 40 (threshold 10); length 105 (threshold 50); arguments 15 (threshold 5)
 - Recommendation: Group the queries and resources into one or two `SystemParam` structs; split movement keys from action keys.
 
-### [ ] 🔴 Q12: complexity, length, arguments — crates/crossfir3d/src/hat.rs:365 `put_on`
+### [x] 🔴 Q12: complexity, length, arguments — crates/crossfir3d/src/hat.rs:365 `put_on`
 
 - Measured: complexity 35 (threshold 10); length 142 (threshold 50); arguments 8 (threshold 5)
 - Recommendation: Give each hat family its own builder function, chosen by one `match`.
