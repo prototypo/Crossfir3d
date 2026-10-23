@@ -176,7 +176,7 @@ pub(super) fn spawn_built(sq: &Square, draw: &mut Draw, material: &Handle<Standa
     let at = if sq.layer == 0 || sq.wall { sq.centre() } else { sq.middle };
     let parent = spawn_building_root(sq, draw, &parts, at);
     for p in &parts {
-        let child = spawn_part(&mut draw.commands, p, sq.shade, &draw.textures, sign.as_ref(), &draw.server, &mut draw.models, &mut draw.materials);
+        let child = spawn_part(draw, p, sq.shade, sign.as_ref());
         draw.commands.entity(parent).add_child(child);
     }
     stand_in(sq, draw, material, parent, at);

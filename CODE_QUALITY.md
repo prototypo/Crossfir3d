@@ -164,7 +164,7 @@ denominator grew.
 - Measured: complexity 25 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
 
-### [ ] 🔴 Q20: complexity, length, arguments — crates/crossfir3d/src/world.rs:1112 `spawn_part`
+### [x] 🔴 Q20: complexity, length, arguments — crates/crossfir3d/src/world.rs:1112 `spawn_part`
 
 - Measured: complexity 25 (threshold 10); length 106 (threshold 50); arguments 8 (threshold 5)
 - Recommendation: Move each `Shape` arm with more than a few lines (lamps, mist, models, signs) into its own function.
