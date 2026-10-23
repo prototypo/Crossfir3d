@@ -8,6 +8,8 @@ Known problems left for later. Each line says what goes wrong and where to look.
 
 - [ ] **Fix before launch.** A wall clock with no wall beside it floats in the air at wall height (seen on `/experiment/props_1792700700`). Stand it on the ground, or show it as a free-standing clock, when no wall is next to it (`walls.rs` `hangs_on_walls`, `facing`).
 - [ ] Dragging a settings slider resets the TAA history (a brief blur while dragging).
+- [ ] The live server tests sometimes fail with "Connection reset by peer" when they run in parallel (`walk_one_step`, `cast_a_known_spell`); they pass with `--test-threads=1`.
+- [ ] `MapView::scroll` adds each scroll to an `i32` origin with `+=`: after about 17 million scrolls one way (a misbehaving server) it overflows (`cfproto/src/view.rs`; `wrapping_add` or `saturating_add` fixes it).
 
 
 ## Before making the repo public
