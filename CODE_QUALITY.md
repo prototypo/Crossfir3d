@@ -117,7 +117,7 @@ denominator grew.
 - Measured: complexity 35 (threshold 10); length 142 (threshold 50); arguments 8 (threshold 5)
 - Recommendation: Give each hat family its own builder function, chosen by one `match`.
 
-### [ ] 🔴 Q13: complexity, nesting — crates/cfproto/src/newchar.rs:49 `parse_arch_info`
+### [x] 🔴 Q13: complexity, nesting — crates/cfproto/src/newchar.rs:49 `parse_arch_info`
 
 - Measured: complexity 33 (threshold 10); nesting 5 (threshold 4)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
