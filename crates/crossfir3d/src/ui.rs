@@ -311,62 +311,75 @@ pub fn line_action(open: bool, enter: bool, escape: bool) -> LineAction {
     }
 }
 
+/// Everything `command_line` reads or changes in a frame, except egui and the session.
+#[derive(bevy::ecs::system::SystemParam)]
+pub struct LineParams<'w> {
+    line: ResMut<'w, CommandLine>,
+    keys: Res<'w, ButtonInput<KeyCode>>,
+    time: Res<'w, Time>,
+    mode: ResMut<'w, KeyMode>,
+    last: ResMut<'w, LastAction>,
+    seq: ResMut<'w, NcomSeq>,
+    query: ResMut<'w, PendingQuery>,
+    anim: ResMut<'w, crate::characters3d::PlayerAnimEvents>,
+    pending: ResMut<'w, PendingBind>,
+    bindings: ResMut<'w, KeyBindings>,
+    msgs: ResMut<'w, Msgs>,
+}
+
 /// Enter opens a one-line box; Enter again sends the text as a command; Escape cancels.
-pub fn command_line(
-    mut contexts: EguiContexts,
-    mut line: ResMut<CommandLine>,
-    keys: Res<ButtonInput<KeyCode>>,
-    time: Res<Time>,
-    mut mode: ResMut<KeyMode>,
-    mut last: ResMut<LastAction>,
-    mut seq: ResMut<NcomSeq>,
-    mut query: ResMut<PendingQuery>,
-    mut anim: ResMut<crate::characters3d::PlayerAnimEvents>,
-    (mut pending, mut bindings, mut msgs): (ResMut<PendingBind>, ResMut<KeyBindings>, ResMut<Msgs>),
-    session: Option<NonSend<Session>>,
-) -> Result {
-    if !command_line_allowed(mode.0) {
+pub fn command_line(mut contexts: EguiContexts, mut p: LineParams, session: Option<NonSend<Session>>) -> Result {
+    if !command_line_allowed(p.mode.0) {
         return Ok(());
     }
     // A bound shift+Enter (or the like) runs its binding, not the command box.
-    let enter = keys.just_pressed(KeyCode::Enter) && (line.open || !key_taken(&bindings, &keys, KeyCode::Enter));
-    match line_action(line.open, enter, keys.just_pressed(KeyCode::Escape)) {
+    let enter = p.keys.just_pressed(KeyCode::Enter) && (p.line.open || !key_taken(&p.bindings, &p.keys, KeyCode::Enter));
+    match line_action(p.line.open, enter, p.keys.just_pressed(KeyCode::Escape)) {
         LineAction::Open => {
-            line.open = true;
-            mode.0 = Mode::CommandLine;
+            p.line.open = true;
+            p.mode.0 = Mode::CommandLine;
         }
         LineAction::Cancel => {
-            line.open = false;
-            line.text.clear();
-            mode.0 = Mode::World;
+            p.line.open = false;
+            p.line.text.clear();
+            p.mode.0 = Mode::World;
         }
-        LineAction::Submit => {
-            let command = std::mem::take(&mut line.text);
-            line.open = false;
-            mode.0 = Mode::World;
-            let now = time.elapsed_secs();
-            if let Some(changed) = typed_bind(&command, &mut pending, &mut bindings, &mut msgs, now) {
-                if changed {
-                    save(&bindings, &session, &mut msgs, now);
-                }
-                return Ok(());
-            }
-            last.0 = Some(now);
-            if let (Some(session), false) = (session, command.trim().is_empty()) {
-                anim.0.extend(crossfir3d::anim::event_for_command(command.trim()));
-                session.send([submit_message(command, query.0, seq.next())]);
-                query.0 = false;
-            }
-        }
+        LineAction::Submit => submit_line(&mut p, session),
         LineAction::Nothing => {}
     }
-    if line.open {
-        let bottom = egui::Window::new("command").title_bar(false).resizable(false);
-        bottom.anchor(egui::Align2::CENTER_BOTTOM, [0.0, -10.0]).show(contexts.ctx_mut()?, |ui| {
-            ui.text_edit_singleline(&mut line.text).request_focus();
-        });
+    if p.line.open {
+        line_window(contexts.ctx_mut()?, &mut p.line.text);
     }
     Ok(())
+}
+
+/// The one-line text box anchored at the bottom of the screen.
+fn line_window(ctx: &egui::Context, text: &mut String) {
+    let bottom = egui::Window::new("command").title_bar(false).resizable(false);
+    bottom.anchor(egui::Align2::CENTER_BOTTOM, [0.0, -10.0]).show(ctx, |ui| {
+        ui.text_edit_singleline(text).request_focus();
+    });
+}
+
+/// Closes the box: typed_bind first (save on change, then stop), else stamp `last`, and send to the
+/// server only when there is a session and the text is not blank, with the anim event and `query.0 = false`.
+fn submit_line(p: &mut LineParams, session: Option<NonSend<Session>>) {
+    let command = std::mem::take(&mut p.line.text);
+    p.line.open = false;
+    p.mode.0 = Mode::World;
+    let now = p.time.elapsed_secs();
+    if let Some(changed) = typed_bind(&command, &mut p.pending, &mut p.bindings, &mut p.msgs, now) {
+        if changed {
+            save(&p.bindings, &session, &mut p.msgs, now);
+        }
+        return;
+    }
+    p.last.0 = Some(now);
+    if let (Some(session), false) = (session, command.trim().is_empty()) {
+        p.anim.0.extend(crossfir3d::anim::event_for_command(command.trim()));
+        session.send([submit_message(command, p.query.0, p.seq.next())]);
+        p.query.0 = false;
+    }
 }
 
 /// The command box text as a message: an answer if the server asked a question.
