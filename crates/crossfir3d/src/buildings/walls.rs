@@ -73,20 +73,42 @@ pub fn wave_pixels() -> (u32, u32, Vec<u8>) {
 /// The parts of one wall square that joins its neighbours on the sides in `mask`.
 /// Unknown style: nothing (keep the plain block).
 pub fn wall_parts(style: &str, mask: u8) -> Vec<Part> {
-    let (straight, post) = match style {
-        "stone" => return vec![stone_wall(mask)],
+    if let Some(parts) = single_piece(style, mask) {
+        return parts;
+    }
+    match village_models(style) {
+        Some((straight, post)) => village_wall(straight, post, mask),
+        None => Vec::new(),
+    }
+}
+
+/// The one-model wall styles (stone, gate, hedge, rock); `None` for any other style.
+fn single_piece(style: &str, mask: u8) -> Option<Vec<Part>> {
+    Some(match style {
+        "stone" => vec![stone_wall(mask)],
         // A way through a stone wall, turned to run along it.
         "gate" => {
             let yaw = if mask & (N | S) != 0 && mask & (E | W) == 0 { 90.0 } else { 0.0 };
-            return vec![part(Shape::Model("kaykit/wall_doorway.gltf"), [0.0; 3], yaw, KAYKIT_WALL, None)];
+            vec![part(Shape::Model("kaykit/wall_doorway.gltf"), [0.0; 3], yaw, KAYKIT_WALL, None)]
         }
-        "hedge" => return vec![model("nature/Bush_Common.gltf", [0.0; 3], 0.0, 0.55)],
-        "rock" => return vec![model("nature/Rock_Medium_1.gltf", [0.0; 3], (mask as f32) * 40.0, 0.35)],
-        "brick" => ("buildings/Wall_UnevenBrick_Straight.gltf", "buildings/Corner_Exterior_Brick.gltf"),
-        "plaster" => ("buildings/Wall_Plaster_Straight.gltf", "buildings/Corner_Exterior_Wood.gltf"),
-        "wood" => ("buildings/Wall_Plaster_WoodGrid.gltf", "buildings/Corner_Exterior_Wood.gltf"),
-        _ => return Vec::new(),
-    };
+        "hedge" => vec![model("nature/Bush_Common.gltf", [0.0; 3], 0.0, 0.55)],
+        "rock" => vec![model("nature/Rock_Medium_1.gltf", [0.0; 3], (mask as f32) * 40.0, 0.35)],
+        _ => return None,
+    })
+}
+
+/// The (straight, post) models of a village wall style; `None` for any other style.
+fn village_models(style: &str) -> Option<(&'static str, &'static str)> {
+    match style {
+        "brick" => Some(("buildings/Wall_UnevenBrick_Straight.gltf", "buildings/Corner_Exterior_Brick.gltf")),
+        "plaster" => Some(("buildings/Wall_Plaster_Straight.gltf", "buildings/Corner_Exterior_Wood.gltf")),
+        "wood" => Some(("buildings/Wall_Plaster_WoodGrid.gltf", "buildings/Corner_Exterior_Wood.gltf")),
+        _ => None,
+    }
+}
+
+/// A village wall square: one straight piece, or a post with a half piece toward each neighbour.
+fn village_wall(straight: &'static str, post: &'static str, mask: u8) -> Vec<Part> {
     // A straight run (or a lone square) is one full piece; anything else is a half
     // piece toward each neighbour round a post.
     match mask & 0xF {

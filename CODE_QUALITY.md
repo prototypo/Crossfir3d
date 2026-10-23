@@ -260,7 +260,7 @@ denominator grew.
 - Measured: 4 query `get(...).unwrap()` calls that can panic if an entity loses a component; 16 more `unwrap`/`expect` calls guard invariants (fixed-size byte slices, built-in meshes, constant styles). 20 in all, outside tests: 1.0 per 1,000 lines
 - Recommendation: Replace the 4 query unwraps with `let Ok(..) = ... else { continue/return }`. Give the remaining bare `unwrap()`s an `expect("why it cannot fail")` (server.rs:110, 113; sky.rs:92, 106; keys_ui.rs:134; hat/wear.rs:45).
 
-### [ ] 🔴 Q39: complexity — crates/crossfir3d/src/buildings/walls.rs:75 `wall_parts`
+### [x] 🔴 Q39: complexity — crates/crossfir3d/src/buildings/walls.rs:75 `wall_parts`
 
 - Measured: complexity 19 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
