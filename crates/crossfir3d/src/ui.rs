@@ -1,5 +1,6 @@
 //! egui screens: the login form and the in-game command line.
 
+use bevy::ecs::system::SystemParam;
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
 use cfproto::ClientMsg;
@@ -154,40 +155,42 @@ fn typed_bind(text: &str, pending: &mut PendingBind, bindings: &mut KeyBindings,
     Some(run_typed(parse_typed(text)?, pending, bindings, msgs, now))
 }
 
+/// The bind question state and the log it writes to.
+#[derive(SystemParam)]
+pub struct BindState<'w> {
+    pending: ResMut<'w, PendingBind>,
+    bindings: ResMut<'w, KeyBindings>,
+    msgs: ResMut<'w, Msgs>,
+}
+
 /// After a typed `bind`: the next key pressed (with its modifiers) gets the command.
 /// Runs after `world_keys`, which ignores that key press.
-pub fn capture_bind_key(
-    keys: Res<ButtonInput<KeyCode>>,
-    time: Res<Time>,
-    mut pending: ResMut<PendingBind>,
-    mut bindings: ResMut<KeyBindings>,
-    mut msgs: ResMut<Msgs>,
-    session: Option<NonSend<Session>>,
-) {
+pub fn capture_bind_key(keys: Res<ButtonInput<KeyCode>>, time: Res<Time>, mut st: BindState, session: Option<NonSend<Session>>) {
+    let BindState { pending, bindings, msgs } = &mut st;
     let Some(BindStep::WaitKey { all, edit, command }) = &pending.0 else { return };
     let Some(key) = keys.get_just_pressed().find_map(|k| key_name(*k)) else { return };
     let now = time.elapsed_secs();
     let combo = Combo { mods: held_mods(&keys), key: key.into() };
     if key == "Escape" && combo.mods.none() {
-        log(&mut msgs, "Cancelled.", now);
+        log(msgs, "Cancelled.", now);
         pending.0 = None;
         return;
     }
     let binding = Binding { all: *all, combo, edit: *edit, command: command.clone() };
     match bind_question(&bindings.0, &binding.combo, &binding.command, MAC) {
         Err(reason) => {
-            log(&mut msgs, &format!("{}: {reason}.", binding.combo.text(MAC)), now);
+            log(msgs, &format!("{}: {reason}.", binding.combo.text(MAC)), now);
             pending.0 = None;
         }
         Ok(Some(question)) => {
-            log(&mut msgs, &question, now);
+            log(msgs, &question, now);
             pending.0 = Some(BindStep::Confirm { binding });
         }
         Ok(None) => {
-            log(&mut msgs, &bound_message(&bindings.0, &binding), now);
+            log(msgs, &bound_message(&bindings.0, &binding), now);
             bindings.0.bind(binding);
             pending.0 = None;
-            save(&bindings, &session, &mut msgs, now);
+            save(bindings, &session, msgs, now);
         }
     }
 }

@@ -511,7 +511,7 @@ denominator grew.
 - Measured: length 60 (threshold 50)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
 
-### [ ] 🔴 Q89: arguments — crates/crossfir3d/src/ui.rs:125 `capture_bind_key`
+### [x] 🔴 Q89: arguments — crates/crossfir3d/src/ui.rs:125 `capture_bind_key`
 
 - Measured: arguments 6 (threshold 5)
 - Recommendation: This is a Bevy system: group its queries and resources into a `#[derive(SystemParam)]` struct.
