@@ -66,25 +66,27 @@ pub enum Garb {
 pub fn worn(carried: &[&Item]) -> Option<(Garb, [f32; 3])> {
     let item = carried.iter().find(|i| i.applied() && (250..=257).contains(&i.kind))?;
     let name = item.name.to_ascii_lowercase();
-    let has = |w: &str| name.contains(w);
-    let metal = |tint| Some((Garb::Metal, tint));
-    let peasant = |tint| Some((Garb::Peasant, tint));
-    match item.kind {
-        _ if has("robe") => peasant(if has("midnight") { [0.2, 0.2, 0.45] } else { [0.4, 0.3, 0.65] }),
-        250 => metal([1.6, 1.65, 1.8]),
-        251 if has("black") => metal([0.5, 0.5, 0.55]),
-        251 if has("blue") => metal([0.6, 0.8, 1.7]),
-        251 if has("green") => metal([0.6, 1.4, 0.6]),
-        251 => metal([1.5, 0.55, 0.45]),
-        252 if has("black") => metal([0.55, 0.55, 0.6]),
-        252 => metal([1.35, 1.38, 1.45]),
-        253 => metal([1.1, 1.12, 1.18]),
-        254 => Some((Garb::Ranger, [1.0, 1.0, 1.0])),
-        255 => peasant([0.8, 0.5, 0.65]),
-        257 => peasant([0.9, 0.9, 0.85]),
-        _ => peasant([0.6, 0.5, 0.35]),
+    if name.contains("robe") {
+        return Some((Garb::Peasant, if name.contains("midnight") { [0.2, 0.2, 0.45] } else { [0.4, 0.3, 0.65] }));
     }
+    let row = WORN.iter().find(|r| r.0 == item.kind && r.1.is_none_or(|w| name.contains(w)));
+    Some(row.map_or((Garb::Peasant, [0.6, 0.5, 0.35]), |r| (r.2, r.3)))
 }
+
+/// Per kind: kind, a word the name must hold (None: any), garb, tint. First match wins.
+static WORN: [(u16, Option<&str>, Garb, [f32; 3]); 11] = [
+    (250, None, Garb::Metal, [1.6, 1.65, 1.8]),
+    (251, Some("black"), Garb::Metal, [0.5, 0.5, 0.55]),
+    (251, Some("blue"), Garb::Metal, [0.6, 0.8, 1.7]),
+    (251, Some("green"), Garb::Metal, [0.6, 1.4, 0.6]),
+    (251, None, Garb::Metal, [1.5, 0.55, 0.45]),
+    (252, Some("black"), Garb::Metal, [0.55, 0.55, 0.6]),
+    (252, None, Garb::Metal, [1.35, 1.38, 1.45]),
+    (253, None, Garb::Metal, [1.1, 1.12, 1.18]),
+    (254, None, Garb::Ranger, [1.0, 1.0, 1.0]),
+    (255, None, Garb::Peasant, [0.8, 0.5, 0.65]),
+    (257, None, Garb::Peasant, [0.9, 0.9, 0.85]),
+];
 
 /// The colour of the applied helmet or crown (client type 271): crowns gold, others steel.
 pub fn helmet(carried: &[&Item]) -> Option<[f32; 3]> {
@@ -309,6 +311,34 @@ mod tests {
         assert_eq!(worn(&[&robe]).map(|w| w.0), Some(Garb::Peasant));
         assert_eq!(worn(&[&item(251, "blue dragon mail", true)]), Some((Garb::Metal, [0.6, 0.8, 1.7])));
         assert_eq!(worn(&[&spare, &sword]), None);
+    }
+
+    #[test]
+    fn every_worn_look_unchanged() {
+        let (m, p) = (|t| (Garb::Metal, t), |t| (Garb::Peasant, t));
+        let steel = [1.35, 1.38, 1.45];
+        let rows = [
+            (250, [m([1.6, 1.65, 1.8]); 4]),
+            (251, [m([1.5, 0.55, 0.45]), m([0.5, 0.5, 0.55]), m([0.6, 0.8, 1.7]), m([0.6, 1.4, 0.6])]),
+            (252, [m(steel), m([0.55, 0.55, 0.6]), m(steel), m(steel)]),
+            (253, [m([1.1, 1.12, 1.18]); 4]),
+            (254, [(Garb::Ranger, [1.0; 3]); 4]),
+            (255, [p([0.8, 0.5, 0.65]); 4]),
+            (256, [p([0.6, 0.5, 0.35]); 4]),
+            (257, [p([0.9, 0.9, 0.85]); 4]),
+        ];
+        for (kind, want) in rows {
+            for (name, want) in ["x", "black x", "blue x", "green x"].into_iter().zip(want) {
+                assert_eq!(worn(&[&item(kind, name, true)]), Some(want), "{kind} {name}");
+            }
+            for (name, tint) in [("robe", [0.4, 0.3, 0.65]), ("midnight robe", [0.2, 0.2, 0.45]), ("Black Robe", [0.4, 0.3, 0.65])] {
+                assert_eq!(worn(&[&item(kind, name, true)]), Some(p(tint)), "{kind} {name}");
+            }
+            assert_eq!(worn(&[&item(kind, "blue robe", false)]), None);
+        }
+        for kind in [0, 249, 258, 271] {
+            assert_eq!(worn(&[&item(kind, "robe", true)]), None);
+        }
     }
 
     #[test]

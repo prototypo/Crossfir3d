@@ -134,7 +134,7 @@ denominator grew.
 - Measured: complexity 24 (threshold 10); length 66 (threshold 50); arguments 13 (threshold 5)
 - Recommendation: Group its 13 system arguments into a `SystemParam` struct and move each effect (flash, damage number, hit text) into its own function.
 
-### [ ] 🔴 Q14: complexity — crates/crossfir3d/src/held.rs:66 `worn`
+### [x] 🔴 Q14: complexity — crates/crossfir3d/src/held.rs:66 `worn`
 
 - Measured: complexity 26 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
