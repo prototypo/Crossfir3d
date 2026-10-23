@@ -275,7 +275,7 @@ denominator grew.
 - Measured: complexity 19 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.
 
-### [ ] 🔴 Q42: complexity — crates/crossfir3d/src/races.rs:35 `look_for_race`
+### [x] 🔴 Q42: complexity — crates/crossfir3d/src/races.rs:35 `look_for_race`
 
 - Measured: complexity 19 (threshold 10)
 - Recommendation: Extract the separate steps into named helper functions so each one does one job.

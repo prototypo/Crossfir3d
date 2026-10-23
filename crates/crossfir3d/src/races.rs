@@ -31,28 +31,34 @@ pub const RACES: [(&str, &str); 14] = [
     ("pl_half_orc", "half orc"),
 ];
 
+const BROWN: [f32; 3] = [0.45, 0.3, 0.2];
+const CLOTH: [f32; 3] = [0.45, 0.4, 0.3];
+
+/// The look of each race arch except human, which is the fallback.
+const LOOKS: [(&str, Look); 13] = [
+    ("elf_player", look(1.02, [0.95, 0.85, 0.75], [0.9, 0.85, 0.6], [0.3, 0.5, 0.3])),
+    ("dwarf_player", look(0.78, [0.85, 0.65, 0.5], [0.6, 0.3, 0.15], [0.5, 0.35, 0.25])),
+    ("gnome_player", look(0.7, [0.9, 0.72, 0.6], [0.8, 0.8, 0.8], [0.6, 0.25, 0.25])),
+    ("halfling_player", look(0.72, [0.9, 0.7, 0.55], [0.5, 0.3, 0.15], [0.4, 0.5, 0.25])),
+    ("northman_player", look(1.12, [0.95, 0.8, 0.7], [0.85, 0.7, 0.4], [0.35, 0.35, 0.5])),
+    ("fenx_player", look(0.92, [0.85, 0.5, 0.2], [0.95, 0.9, 0.85], [0.35, 0.45, 0.25])),
+    ("fireborn_player", look(1.0, [0.95, 0.4, 0.15], [1.0, 0.75, 0.2], [0.6, 0.2, 0.1])),
+    ("quetzalcoatl_player", look(1.1, [0.3, 0.6, 0.35], [0.9, 0.3, 0.2], [0.8, 0.7, 0.2])),
+    ("serpentman_player", look(1.0, [0.45, 0.6, 0.3], [0.2, 0.3, 0.15], [0.5, 0.45, 0.3])),
+    ("troll_player", look(1.3, [0.45, 0.55, 0.45], [0.2, 0.2, 0.2], [0.4, 0.3, 0.2])),
+    ("wraith_player", look(1.0, [0.8, 0.82, 0.88], [0.9, 0.9, 0.95], [0.25, 0.25, 0.3])),
+    ("pl_dragon", look(0.95, [0.75, 0.15, 0.1], [0.3, 0.1, 0.05], [0.9, 0.6, 0.1])),
+    ("pl_half_orc", look(1.06, [0.5, 0.58, 0.4], [0.15, 0.15, 0.15], BROWN)),
+];
+
+const fn look(scale: f32, skin: [f32; 3], hair: [f32; 3], clothes: [f32; 3]) -> Look {
+    Look { scale, skin, hair, clothes }
+}
+
 /// Accepts a race arch ("dwarf_player") or display name ("dwarf"). Unknown: human.
 pub fn look_for_race(race: &str) -> Look {
     let arch = RACES.iter().find(|(a, n)| *a == race || *n == race).map_or("human_player", |(a, _)| *a);
-    let look = |scale, skin, hair, clothes| Look { scale, skin, hair, clothes };
-    let brown = [0.45, 0.3, 0.2];
-    let cloth = [0.45, 0.4, 0.3];
-    match arch {
-        "elf_player" => look(1.02, [0.95, 0.85, 0.75], [0.9, 0.85, 0.6], [0.3, 0.5, 0.3]),
-        "dwarf_player" => look(0.78, [0.85, 0.65, 0.5], [0.6, 0.3, 0.15], [0.5, 0.35, 0.25]),
-        "gnome_player" => look(0.7, [0.9, 0.72, 0.6], [0.8, 0.8, 0.8], [0.6, 0.25, 0.25]),
-        "halfling_player" => look(0.72, [0.9, 0.7, 0.55], [0.5, 0.3, 0.15], [0.4, 0.5, 0.25]),
-        "northman_player" => look(1.12, [0.95, 0.8, 0.7], [0.85, 0.7, 0.4], [0.35, 0.35, 0.5]),
-        "fenx_player" => look(0.92, [0.85, 0.5, 0.2], [0.95, 0.9, 0.85], [0.35, 0.45, 0.25]),
-        "fireborn_player" => look(1.0, [0.95, 0.4, 0.15], [1.0, 0.75, 0.2], [0.6, 0.2, 0.1]),
-        "quetzalcoatl_player" => look(1.1, [0.3, 0.6, 0.35], [0.9, 0.3, 0.2], [0.8, 0.7, 0.2]),
-        "serpentman_player" => look(1.0, [0.45, 0.6, 0.3], [0.2, 0.3, 0.15], [0.5, 0.45, 0.3]),
-        "troll_player" => look(1.3, [0.45, 0.55, 0.45], [0.2, 0.2, 0.2], [0.4, 0.3, 0.2]),
-        "wraith_player" => look(1.0, [0.8, 0.82, 0.88], [0.9, 0.9, 0.95], [0.25, 0.25, 0.3]),
-        "pl_dragon" => look(0.95, [0.75, 0.15, 0.1], [0.3, 0.1, 0.05], [0.9, 0.6, 0.1]),
-        "pl_half_orc" => look(1.06, [0.5, 0.58, 0.4], [0.15, 0.15, 0.15], brown),
-        _ => look(1.0, [0.9, 0.72, 0.6], brown, cloth),
-    }
+    LOOKS.iter().find(|(a, _)| *a == arch).map_or(look(1.0, [0.9, 0.72, 0.6], BROWN, CLOTH), |(_, l)| *l)
 }
 
 /// The look as multipliers for the model's own colours. Skin and clothes textures are a
@@ -234,6 +240,35 @@ mod tests {
         let weights = [[1.0, 0.0, 0.0, 0.0], [0.9, 0.1, 0.0, 0.0], [0.3, 0.7, 0.0, 0.0], [1.0, 0.0, 0.0, 0.0]];
         let head = [false, true];
         assert_eq!(head_triangles(&[0, 1, 2, 0, 1, 3], &joints, &weights, &head), vec![0, 1, 2]);
+    }
+
+    #[test]
+    fn every_race_look_unchanged() {
+        let brown = [0.45, 0.3, 0.2];
+        let cloth = [0.45, 0.4, 0.3];
+        let rows: [(&str, &str, Look); 14] = [
+            ("human_player", "human", Look { scale: 1.0, skin: [0.9, 0.72, 0.6], hair: brown, clothes: cloth }),
+            ("elf_player", "elf", Look { scale: 1.02, skin: [0.95, 0.85, 0.75], hair: [0.9, 0.85, 0.6], clothes: [0.3, 0.5, 0.3] }),
+            ("dwarf_player", "dwarf", Look { scale: 0.78, skin: [0.85, 0.65, 0.5], hair: [0.6, 0.3, 0.15], clothes: [0.5, 0.35, 0.25] }),
+            ("gnome_player", "gnome", Look { scale: 0.7, skin: [0.9, 0.72, 0.6], hair: [0.8, 0.8, 0.8], clothes: [0.6, 0.25, 0.25] }),
+            ("halfling_player", "halfling", Look { scale: 0.72, skin: [0.9, 0.7, 0.55], hair: [0.5, 0.3, 0.15], clothes: [0.4, 0.5, 0.25] }),
+            ("northman_player", "northman", Look { scale: 1.12, skin: [0.95, 0.8, 0.7], hair: [0.85, 0.7, 0.4], clothes: [0.35, 0.35, 0.5] }),
+            ("fenx_player", "fenx", Look { scale: 0.92, skin: [0.85, 0.5, 0.2], hair: [0.95, 0.9, 0.85], clothes: [0.35, 0.45, 0.25] }),
+            ("fireborn_player", "fireborn", Look { scale: 1.0, skin: [0.95, 0.4, 0.15], hair: [1.0, 0.75, 0.2], clothes: [0.6, 0.2, 0.1] }),
+            ("quetzalcoatl_player", "quetzalcoatl", Look { scale: 1.1, skin: [0.3, 0.6, 0.35], hair: [0.9, 0.3, 0.2], clothes: [0.8, 0.7, 0.2] }),
+            ("serpentman_player", "serpentfolk", Look { scale: 1.0, skin: [0.45, 0.6, 0.3], hair: [0.2, 0.3, 0.15], clothes: [0.5, 0.45, 0.3] }),
+            ("troll_player", "troll", Look { scale: 1.3, skin: [0.45, 0.55, 0.45], hair: [0.2, 0.2, 0.2], clothes: [0.4, 0.3, 0.2] }),
+            ("wraith_player", "wraith", Look { scale: 1.0, skin: [0.8, 0.82, 0.88], hair: [0.9, 0.9, 0.95], clothes: [0.25, 0.25, 0.3] }),
+            ("pl_dragon", "fire hatchling", Look { scale: 0.95, skin: [0.75, 0.15, 0.1], hair: [0.3, 0.1, 0.05], clothes: [0.9, 0.6, 0.1] }),
+            ("pl_half_orc", "half orc", Look { scale: 1.06, skin: [0.5, 0.58, 0.4], hair: [0.15, 0.15, 0.15], clothes: brown }),
+        ];
+        for (arch, name, look) in rows {
+            assert_eq!(look_for_race(arch), look, "{arch}");
+            assert_eq!(look_for_race(name), look, "{name}");
+        }
+        let human = rows[0].2;
+        assert_eq!(look_for_race(""), human);
+        assert_eq!(look_for_race("martian"), human);
     }
 
     #[test]
