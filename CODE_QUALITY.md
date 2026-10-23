@@ -99,7 +99,7 @@ denominator grew.
 - Measured: complexity 28 (threshold 10); length 72 (threshold 50); nesting 5 (threshold 4); arguments 10 (threshold 5)
 - Recommendation: Group its 10 system arguments into a `SystemParam` struct and move each clothing step (body, hair, hat, held items) into its own function, as `dress_robes` now is.
 
-### [ ] 🔴 Q7: complexity, length, arguments — crates/crossfir3d/src/input.rs:86 `send_moves`
+### [x] 🔴 Q7: complexity, length, arguments — crates/crossfir3d/src/input.rs:86 `send_moves`
 
 - Measured: complexity 17 (threshold 10); length 66 (threshold 50); arguments 14 (threshold 5)
 - Recommendation: Group the queries and resources into a `SystemParam` struct.

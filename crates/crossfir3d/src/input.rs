@@ -1,5 +1,6 @@
 //! Arrow keys to ncom move commands, and one-key actions.
 
+use bevy::ecs::system::SystemParam;
 use bevy::prelude::*;
 use cfproto::{ClientMsg, Inventory, SpellBook};
 
@@ -82,72 +83,114 @@ pub fn wants_step(held_secs: Option<f32>) -> bool {
 /// Directions are relative to the way the player faces, in every view: Up is forward,
 /// Left/Right turn 90°, Down turns round. The compass direction is fixed at key-down,
 /// so the turn does not bend a held walk.
-#[allow(clippy::too_many_arguments)]
-pub fn send_moves(
-    keys: Res<ButtonInput<KeyCode>>,
-    mode: Res<KeyMode>,
-    mut msgs: ResMut<Msgs>,
-    mut facing: ResMut<Facing>,
-    mut heading: ResMut<CameraHeading>,
-    comc: Res<LastComc>,
-    time: Res<Time>,
-    mut seq: ResMut<NcomSeq>,
-    mut wait: ResMut<MoveWait>,
-    mut door: ResMut<DoorExit>,
-    mut held: Local<Option<(f32, (i8, i8), Heading)>>, // (first step, screen dir, facing at key-down)
-    (bindings, pending): (Res<KeyBindings>, Res<PendingBind>),
-    session: Option<NonSend<Session>>,
-) {
+pub fn send_moves(mut p: MoveParams, mut held: Local<Option<Held>>, session: Option<NonSend<Session>>) {
     let Some(session) = session else { return };
-    if pending.waiting_key() {
+    if p.pending.waiting_key() {
         *held = None; // the next arrow after the bind key is a new tap
         return;
     }
-    let now = time.elapsed_secs();
-    if door.came_out && may_send(wait.0, comc.packet, now) {
-        // Out of the door, facing away from it, the camera behind.
-        door.new_map = false;
-        facing.0 = 5;
-        heading.0 = heading_of(5);
-        let packet = seq.next();
-        wait.0 = Some((packet, now));
-        session.send([ClientMsg::Ncom { packet, repeat: 0, command: door.out.unwrap_or("south").into() }]);
+    let now = p.time.elapsed_secs();
+    if p.door.came_out && may_send(p.wait.0, p.comc.packet, now) {
+        p.step_out(&session, now);
         return;
     }
-    // just_pressed too: a press and release in one frame (a very fast tap) still steps.
-    // An arrow a binding took no longer moves.
-    let key = |k| (keys.pressed(k) || keys.just_pressed(k)) && !key_taken(&bindings, &keys, k);
-    let screen = screen_dir(key(KeyCode::ArrowUp), key(KeyCode::ArrowDown), key(KeyCode::ArrowLeft), key(KeyCode::ArrowRight));
-    let (Some(screen), Mode::World) = (screen, mode.0) else {
+    let (Some(screen), Mode::World) = (p.arrow_screen(), p.mode.0) else {
         *held = None; // key released: the next press is a new tap
         return;
     };
-    // A new key combination locks the camera heading of this moment.
-    if held.is_none_or(|(_, s, _)| s != screen) {
-        *held = None;
-    }
-    let first = held.map(|(t, ..)| t);
-    if !may_send(wait.0, comc.packet, now) || !wants_step(first.map(|t| now - t)) {
-        return;
-    }
-    let (_, _, locked) = *held.get_or_insert((now, screen, heading_of(facing.0)));
+    let Some(locked) = p.held_heading(&mut held, screen, now) else { return };
     let command = compass(screen, locked);
-    let dir = dir_number(command).unwrap_or(facing.0);
-    if dir != facing.0 {
-        facing.0 = dir;
-        heading.0 = heading_of(dir);
+    let dir = dir_number(command).unwrap_or(p.facing.0);
+    if p.turn_to(dir) {
         return;
     }
-    // The door is in the south wall.
-    let command = match door.out {
-        Some(out) if command.starts_with("south") => out,
-        _ => command,
-    };
-    door.new_map = false;
-    msgs.0.close_box(); // walking away closes the parchment box
-    let packet = seq.next();
-    wait.0 = Some((packet, now));
-    session.send([ClientMsg::Ncom { packet, repeat: 0, command: command.into() }]);
+    p.send_step(&session, command, now);
+}
+
+/// A held arrow key: when its first step was sent, the screen direction, and the
+/// camera heading at key-down.
+#[derive(Clone, Copy)]
+pub struct Held {
+    at: f32,
+    screen: (i8, i8),
+    locked: Heading,
+}
+
+/// Everything `send_moves` reads or changes in a frame.
+#[derive(SystemParam)]
+pub struct MoveParams<'w> {
+    keys: Res<'w, ButtonInput<KeyCode>>,
+    mode: Res<'w, KeyMode>,
+    msgs: ResMut<'w, Msgs>,
+    facing: ResMut<'w, Facing>,
+    heading: ResMut<'w, CameraHeading>,
+    comc: Res<'w, LastComc>,
+    time: Res<'w, Time>,
+    seq: ResMut<'w, NcomSeq>,
+    wait: ResMut<'w, MoveWait>,
+    door: ResMut<'w, DoorExit>,
+    bindings: Res<'w, KeyBindings>,
+    pending: Res<'w, PendingBind>,
+}
+
+impl MoveParams<'_> {
+    /// Steps out of the door at once, facing away from it with the camera behind.
+    fn step_out(&mut self, session: &Session, now: f32) {
+        self.door.new_map = false;
+        self.facing.0 = 5;
+        self.heading.0 = heading_of(5);
+        let command = self.door.out.unwrap_or("south");
+        self.send_ncom(session, command, now);
+    }
+
+    /// The screen direction of the arrow keys held now; None when none is.
+    fn arrow_screen(&self) -> Option<(i8, i8)> {
+        // just_pressed too: a press and release in one frame (a very fast tap) still steps.
+        // An arrow a binding took no longer moves.
+        let key = |k| (self.keys.pressed(k) || self.keys.just_pressed(k)) && !key_taken(&self.bindings, &self.keys, k);
+        screen_dir(key(KeyCode::ArrowUp), key(KeyCode::ArrowDown), key(KeyCode::ArrowLeft), key(KeyCode::ArrowRight))
+    }
+
+    /// Resets `held` when the keys changed, then returns the camera heading locked for this
+    /// press if a step may be sent now (recording the press); None if it must wait.
+    fn held_heading(&self, held: &mut Option<Held>, screen: (i8, i8), now: f32) -> Option<Heading> {
+        // A new key combination locks the camera heading of this moment.
+        *held = held.filter(|h| h.screen == screen);
+        let first = held.map(|h| h.at);
+        if !may_send(self.wait.0, self.comc.packet, now) || !wants_step(first.map(|t| now - t)) {
+            return None;
+        }
+        Some(held.get_or_insert(Held { at: now, screen, locked: heading_of(self.facing.0) }).locked)
+    }
+
+    /// Sends one walking step, using the door's exit when the step is south, and closes the box.
+    fn send_step(&mut self, session: &Session, command: &'static str, now: f32) {
+        // The door is in the south wall.
+        let command = match self.door.out {
+            Some(out) if command.starts_with("south") => out,
+            _ => command,
+        };
+        self.door.new_map = false;
+        self.msgs.0.close_box(); // walking away closes the parchment box
+        self.send_ncom(session, command, now);
+    }
+
+    /// Turns the player and the camera to face `dir`; false if they already do.
+    fn turn_to(&mut self, dir: u8) -> bool {
+        if dir == self.facing.0 {
+            return false;
+        }
+        self.facing.0 = dir;
+        self.heading.0 = heading_of(dir);
+        true
+    }
+
+    /// Sends one move command and starts waiting for its comc.
+    fn send_ncom(&mut self, session: &Session, command: &str, now: f32) {
+        let packet = self.seq.next();
+        self.wait.0 = Some((packet, now));
+        session.send([ClientMsg::Ncom { packet, repeat: 0, command: command.into() }]);
+    }
 }
 
 fn act_key(key: KeyCode) -> KeyName {

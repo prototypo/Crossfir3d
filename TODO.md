@@ -27,7 +27,7 @@ Known problems left for later. Each line says what goes wrong and where to look.
 - [ ] Some committed model files are not used (Ranger outfits, Hair_Beard, Eyebrows, Floor_Brick, larger roofs, fences, some trees, several castle pieces): trim `PICK` in `scripts/pick_models.py` and re-run.
 - [ ] `scripts/get-models.sh` still holds unused wizard helpers (`ask_secret`, `write_env`, `set_secret`, ...).
 - [ ] `assets/models.txt` lists `guild_*` and `guild2*` twice (harmless).
-- [ ] Clippy: `walls.rs:11` operator precedence, `anim.rs` collapsible if, `input.rs` complex `Local` tuple in `send_moves` (a small named struct would also make the key-down lock testable).
+- [ ] Clippy: `walls.rs:11` operator precedence, `anim.rs` collapsible if.
 - [ ] Animation changes cut instead of blending (`player.stop_all()` then `play`).
 
 ## Not checked yet
