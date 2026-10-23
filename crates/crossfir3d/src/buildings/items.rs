@@ -164,12 +164,12 @@ pub const ITEM_KINDS: [&str; 19] = [
 
 const GRIP: [f32; 3] = [0.35, 0.2, 0.12];
 
-/// A ring of `n` small balls lying flat round the middle (chains, bands).
-fn hoop(radius: f32, n: usize, ball: f32, y: f32, z: f32, color: [f32; 3]) -> Vec<Part> {
+/// A ring of `n` small balls resting on the ground round the middle (chains, bands).
+fn hoop(radius: f32, n: usize, ball: f32, z: f32, color: [f32; 3]) -> Vec<Part> {
     (0..n)
         .map(|i| {
             let (sin, cos) = (i as f32 / n as f32 * std::f32::consts::TAU).sin_cos();
-            part(Shape::Ball(ball), [radius * cos, y, z + radius * sin], 0.0, [1.0; 3], Some(color))
+            part(Shape::Ball(ball), [radius * cos, ball, z + radius * sin], 0.0, [1.0; 3], Some(color))
         })
         .collect()
 }
@@ -221,14 +221,14 @@ fn bow(c: [f32; 3]) -> Vec<Part> {
 
 /// A gold band with a small stone set on it.
 fn ring(c: [f32; 3]) -> Vec<Part> {
-    let mut out = hoop(0.045, 12, 0.012, 0.012, 0.0, GOLD);
+    let mut out = hoop(0.045, 12, 0.012, 0.0, GOLD);
     out.push(ball(0.022, [0.05, 0.03, 0.0], [1.0; 3], c));
     out
 }
 
 /// A gold chain with a round gold plate and a stone on it.
 fn amulet(c: [f32; 3]) -> Vec<Part> {
-    let mut out = hoop(0.1, 20, 0.007, 0.007, -0.03, GOLD);
+    let mut out = hoop(0.1, 20, 0.007, -0.03, GOLD);
     out.push(cylinder(0.04, 0.012, [0.0, 0.006, 0.1], GOLD));
     out.push(ball(0.026, [0.0, 0.016, 0.1], [1.0, 0.6, 1.0], c));
     out
