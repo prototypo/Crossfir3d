@@ -124,9 +124,7 @@ fn horned_cap() -> Vec<Part> {
 
 /// Two bone horns on a bare head.
 fn bare_horns() -> Vec<Part> {
-    // Sunk into a bare head (the cap's horns stand on its leather), their roots inside the skull.
-    let on_head = |m: Mesh, side: f32| m.translated_by(Vec3::new(-side * 0.05, -0.07, 0.0));
-    [1.0, -1.0].map(|side| (on_head(mesh(&horn(side), false, Vec2::ONE), side), [0.85, 0.8, 0.65], Finish::Bone)).into()
+    [1.0, -1.0].map(|side| (mesh(&bare_horn(side), false, Vec2::ONE), [0.85, 0.8, 0.65], Finish::Bone)).into()
 }
 
 /// Two pointed cloth ears in colour `c`.
