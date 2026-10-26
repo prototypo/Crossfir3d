@@ -202,6 +202,11 @@ pub fn capture_bind_key(keys: Res<ButtonInput<KeyCode>>, time: Res<Time>, mut st
     }
 }
 
+/// The Crossfir3d server players connect to (TLS, through the gateway).
+const PLAY_SERVER: &str = "play.crossfir3d.org:13327";
+/// A developer's own server on this computer (plain TCP).
+const LOCAL_SERVER: &str = "localhost:13327";
+
 #[derive(Resource)]
 pub struct LoginForm {
     server: String,
@@ -220,7 +225,7 @@ impl Default for LoginForm {
     fn default() -> Self {
         let known = load_accounts(&default_accounts_path());
         LoginForm {
-            server: "localhost:13327".into(),
+            server: PLAY_SERVER.into(),
             account: known.first().map(|a| a.name.clone()).unwrap_or_default(),
             password: String::new(),
             new_account: false,
@@ -442,7 +447,8 @@ pub fn auto_login(mut commands: Commands) {
         quick_character: (!character.is_empty()).then(|| character.to_string()),
         create_if_missing: true,
     };
-    queue_connect(&mut commands, LoginForm::default().server, creds);
+    // Never the live server: test accounts and quick-created characters stay local.
+    queue_connect(&mut commands, LOCAL_SERVER.into(), creds);
 }
 
 #[derive(Resource, Default)]
