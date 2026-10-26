@@ -1,12 +1,19 @@
-//! TCP connection to a Crossfire server: a reader thread and a writer thread.
+//! TCP connection to a Crossfire server: a reader thread and a writer thread. Servers
+//! on this computer are plain TCP; any other server is TLS (a Crossfir3d gateway), its
+//! certificate checked against the usual web roots.
 
-use std::io;
-use std::net::{Shutdown, TcpStream, ToSocketAddrs};
+use std::io::{self, Read, Write};
+use std::net::{IpAddr, Shutdown, TcpStream, ToSocketAddrs};
 use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU32, Ordering};
 use std::sync::mpsc::{self, Receiver, RecvTimeoutError, Sender};
+use std::sync::{Arc, Mutex};
 use std::thread;
 use std::time::Duration;
+
+use rustls::{ClientConfig, ClientConnection, RootCertStore};
+use rustls_pki_types::pem::PemObject;
+use rustls_pki_types::{CertificateDer, ServerName};
 
 use cfproto::{ClientMsg, ServerMsg};
 
@@ -54,7 +61,7 @@ fn disconnect_reason(e: &io::Error) -> String {
 }
 
 /// Reader thread body: parses frames into events until the connection ends, then reports why.
-fn read_loop(mut reader: TcpStream, in_tx: Sender<NetEvent>, dump: Option<PathBuf>) {
+fn read_loop(mut reader: impl Read, in_tx: Sender<NetEvent>, dump: Option<PathBuf>) {
     let reason = loop {
         let payload = match cfproto::read_frame(&mut reader) {
             Ok(p) => p,
@@ -80,7 +87,7 @@ fn read_loop(mut reader: TcpStream, in_tx: Sender<NetEvent>, dump: Option<PathBu
 }
 
 /// Writer thread body: sends queued messages, and a Beat whenever the queue stays quiet.
-fn write_loop(mut writer: TcpStream, out_rx: Receiver<ClientMsg>) {
+fn write_loop(mut writer: impl Write, out_rx: Receiver<ClientMsg>) {
     loop {
         let msg = match out_rx.recv_timeout(BEAT_AFTER) {
             Ok(m) => m,
@@ -93,20 +100,127 @@ fn write_loop(mut writer: TcpStream, out_rx: Receiver<ClientMsg>) {
     }
 }
 
+/// The host part of `host:port` (without an IPv6 address's brackets).
+fn host_of(addr: &str) -> &str {
+    let host = addr.rsplit_once(':').map_or(addr, |(h, _)| h);
+    host.trim_start_matches('[').trim_end_matches(']')
+}
+
+/// A server on this computer (a developer's own) is plain TCP; anything else is TLS.
+fn is_local(addr: &str) -> bool {
+    let host = host_of(addr);
+    host.eq_ignore_ascii_case("localhost") || host.parse::<IpAddr>().is_ok_and(|ip| ip.is_loopback())
+}
+
+/// Trusts the usual web roots, plus the PEM certificates in CROSSFIR3D_CA (a test gateway's own).
+fn tls_config() -> io::Result<Arc<ClientConfig>> {
+    let mut roots = RootCertStore { roots: webpki_roots::TLS_SERVER_ROOTS.to_vec() };
+    if let Some(path) = std::env::var_os("CROSSFIR3D_CA") {
+        for cert in CertificateDer::pem_file_iter(&path).map_err(io::Error::other)? {
+            roots.add(cert.map_err(io::Error::other)?).map_err(io::Error::other)?;
+        }
+    }
+    let provider = Arc::new(rustls::crypto::ring::default_provider());
+    let config = ClientConfig::builder_with_provider(provider).with_safe_default_protocol_versions().map_err(io::Error::other)?;
+    Ok(Arc::new(config.with_root_certificates(roots).with_no_client_auth()))
+}
+
 /// Opens the server connection and starts its reader and writer threads.
 pub fn connect(addr: &str) -> io::Result<Net> {
-    let stream = open_stream(addr)?;
+    let tls = if is_local(addr) { None } else { Some(tls_config()?) };
+    connect_with(addr, tls)
+}
+
+fn connect_with(addr: &str, tls: Option<Arc<ClientConfig>>) -> io::Result<Net> {
+    let mut stream = open_stream(addr)?;
     stream.set_nodelay(true)?;
-    let reader = stream.try_clone()?;
-    let writer = stream.try_clone()?;
     let (tx, out_rx) = mpsc::channel::<ClientMsg>();
     let (in_tx, rx) = mpsc::channel();
     let dump = std::env::var_os("CROSSFIR3D_DUMP").map(PathBuf::from);
-
-    thread::spawn(move || read_loop(reader, in_tx, dump));
-    thread::spawn(move || write_loop(writer, out_rx));
-
+    match tls {
+        Some(config) => {
+            let conn = Arc::new(Mutex::new(handshake(addr, config, &mut stream)?));
+            let reader = TlsRead { conn: conn.clone(), sock: stream.try_clone()? };
+            let writer = TlsWrite { conn, sock: stream.try_clone()? };
+            thread::spawn(move || read_loop(reader, in_tx, dump));
+            thread::spawn(move || write_loop(writer, out_rx));
+        }
+        None => {
+            let (reader, writer) = (stream.try_clone()?, stream.try_clone()?);
+            thread::spawn(move || read_loop(reader, in_tx, dump));
+            thread::spawn(move || write_loop(writer, out_rx));
+        }
+    }
     Ok(Net { tx, rx, stream })
+}
+
+/// The TLS handshake, before the threads start; a silent server gives up like a connect.
+fn handshake(addr: &str, config: Arc<ClientConfig>, stream: &mut TcpStream) -> io::Result<ClientConnection> {
+    let name = ServerName::try_from(host_of(addr).to_string()).map_err(io::Error::other)?;
+    let mut conn = ClientConnection::new(config, name).map_err(io::Error::other)?;
+    stream.set_read_timeout(Some(CONNECT_TIMEOUT))?;
+    while conn.is_handshaking() {
+        conn.complete_io(stream)?;
+    }
+    stream.set_read_timeout(None)?;
+    Ok(conn)
+}
+
+fn locked(conn: &Mutex<ClientConnection>) -> std::sync::MutexGuard<'_, ClientConnection> {
+    conn.lock().unwrap_or_else(|e| e.into_inner())
+}
+
+/// The reading half of a TLS connection the writer thread shares. The socket is read
+/// without the lock held, so writing never waits for the server to say something.
+struct TlsRead {
+    conn: Arc<Mutex<ClientConnection>>,
+    sock: TcpStream,
+}
+
+impl Read for TlsRead {
+    fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
+        loop {
+            match locked(&self.conn).reader().read(buf) {
+                Err(e) if e.kind() == io::ErrorKind::WouldBlock => {}
+                r => return r,
+            }
+            // Small reads: their plaintext always fits rustls's buffer, emptied above.
+            let mut raw = [0u8; 4096];
+            let n = self.sock.read(&mut raw)?;
+            if n == 0 {
+                return Err(io::ErrorKind::UnexpectedEof.into());
+            }
+            let mut conn = locked(&self.conn);
+            let mut rest = &raw[..n];
+            while !rest.is_empty() {
+                conn.read_tls(&mut rest)?;
+                conn.process_new_packets().map_err(io::Error::other)?;
+            }
+            while conn.wants_write() {
+                conn.write_tls(&mut self.sock)?;
+            }
+        }
+    }
+}
+
+struct TlsWrite {
+    conn: Arc<Mutex<ClientConnection>>,
+    sock: TcpStream,
+}
+
+impl Write for TlsWrite {
+    fn write(&mut self, buf: &[u8]) -> io::Result<usize> {
+        let mut conn = locked(&self.conn);
+        let n = conn.writer().write(buf)?;
+        while conn.wants_write() {
+            conn.write_tls(&mut self.sock)?;
+        }
+        Ok(n)
+    }
+
+    fn flush(&mut self) -> io::Result<()> {
+        Ok(())
+    }
 }
 
 fn dump_packet(dir: &Path, payload: &[u8]) {
@@ -188,6 +302,65 @@ mod tests {
         });
         drop(connect(&addr).unwrap());
         assert!(server.join().unwrap(), "server did not see the connection close");
+    }
+
+    #[test]
+    fn only_this_computer_is_plain() {
+        for a in ["localhost:13327", "LOCALHOST:1", "127.0.0.1:13327", "[::1]:13327"] {
+            assert!(is_local(a), "{a}");
+        }
+        for a in ["play.example.org:13327", "192.168.1.5:13327", "[2001:db8::1]:13327", "localhost.example.org:1"] {
+            assert!(!is_local(a), "{a}");
+        }
+        assert_eq!(host_of("[2001:db8::1]:13327"), "2001:db8::1");
+    }
+
+    /// A TLS server on a free port with a certificate for "localhost"; the client config trusts it.
+    fn tls_server(serve: impl FnOnce(rustls::StreamOwned<rustls::ServerConnection, TcpStream>) + Send + 'static) -> (String, Arc<ClientConfig>) {
+        let cert = rcgen::generate_simple_self_signed(vec!["localhost".into()]).unwrap();
+        let der = cert.cert.der().clone();
+        let key = rustls_pki_types::PrivateKeyDer::try_from(cert.signing_key.serialize_der()).unwrap();
+        let provider = Arc::new(rustls::crypto::ring::default_provider());
+        let server = rustls::ServerConfig::builder_with_provider(provider.clone())
+            .with_safe_default_protocol_versions()
+            .unwrap()
+            .with_no_client_auth()
+            .with_single_cert(vec![der.clone()], key)
+            .unwrap();
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let port = listener.local_addr().unwrap().port();
+        std::thread::spawn(move || {
+            let (s, _) = listener.accept().unwrap();
+            let conn = rustls::ServerConnection::new(Arc::new(server)).unwrap();
+            serve(rustls::StreamOwned::new(conn, s));
+        });
+        let mut roots = RootCertStore::empty();
+        roots.add(der).unwrap();
+        let client = ClientConfig::builder_with_provider(provider).with_safe_default_protocol_versions().unwrap();
+        (format!("localhost:{port}"), Arc::new(client.with_root_certificates(roots).with_no_client_auth()))
+    }
+
+    #[test]
+    fn tls_both_ways() {
+        let (done_tx, done_rx) = mpsc::channel();
+        let (addr, config) = tls_server(move |mut s| {
+            cfproto::write_frame(&mut s, b"newmap").unwrap();
+            done_tx.send(cfproto::read_frame(&mut s).unwrap()).unwrap();
+            std::thread::sleep(Duration::from_secs(1));
+        });
+        let net = connect_with(&addr, Some(config)).unwrap();
+        let wait = Duration::from_secs(3);
+        // Writing while the reader thread waits for more must not block.
+        net.tx.send(ClientMsg::AskFace(7)).unwrap();
+        assert_eq!(done_rx.recv_timeout(wait).unwrap(), b"askface 7");
+        assert!(matches!(net.rx.recv_timeout(wait).unwrap(), NetEvent::Msg(ServerMsg::NewMap)));
+    }
+
+    #[test]
+    fn untrusted_certificate_is_refused() {
+        let (addr, _) = tls_server(|mut s| drop(cfproto::read_frame(&mut s)));
+        let err = connect_with(&addr, Some(tls_config().unwrap())).err().expect("refused");
+        assert!(err.to_string().to_lowercase().contains("certificate"), "{err}");
     }
 
     #[test]
