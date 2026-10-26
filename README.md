@@ -208,6 +208,9 @@ Wells and other one-square things stay in view when you stand on them.
   the character in Scorn if it does not exist; `:new` creates the account if it
   does not exist).
 - `CROSSFIR3D_COMMANDS="cmd1;cmd2"` sends game commands on entering the game.
+- `CROSSFIR3D_CA=file.pem` also trusts these certificates (a test gateway's own).
+  A server on this computer (`localhost`, `127.0.0.1`, `::1`) is plain TCP; any other
+  server is TLS (a Crossfir3d gateway), its certificate checked.
 - `CROSSFIR3D_SCREEN=newchar[:race_arch]` opens the new-character screen;
   `=inventory`, `=keys` or `=settings` opens that screen in game; `=top` starts in
   the top view.
