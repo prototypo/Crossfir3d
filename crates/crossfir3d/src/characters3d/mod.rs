@@ -88,11 +88,14 @@ impl Default for OwnLook {
     }
 }
 
-/// The new-character preview: the picture egui shows, and what is in it.
+/// The character preview: the picture egui shows, and what is in it.
 #[derive(Resource, Default)]
 pub struct Preview {
     pub image: Handle<Image>,
+    /// The Body chosen on the new-character screen.
     pub body: Body,
+    /// The race and Body of the character picked on the login screen.
+    pub picked: Option<(String, Body)>,
     shown: Option<(String, Body)>,
 }
 
@@ -454,33 +457,37 @@ struct PreviewParams<'w, 's> {
     bodies: Query<'w, 's, (Entity, &'static mut Transform), With<PreviewBody>>,
 }
 
-/// Shows the selected race and Body on the new-character screen, slowly turning.
+/// Shows the selected race and Body on the new-character screen, or the character
+/// picked on the login screen.
 fn update_preview(mut p: PreviewParams, session: Option<NonSend<Session>>) {
-    let creating = session.as_ref().is_some_and(|s| *s.login.state() == LoginState::Creating);
-    p.camera.is_active = creating;
-    let race = session.as_ref().and_then(|s| s.login.newchar.race.clone()).unwrap_or_default();
-    let want = creating.then(|| (race.clone(), p.preview.body));
+    let want = match &session {
+        Some(s) if *s.login.state() == LoginState::Creating => Some((s.login.newchar.race.clone().unwrap_or_default(), p.preview.body)),
+        Some(_) => None,
+        None => p.preview.picked.clone(),
+    };
+    p.camera.is_active = want.is_some();
     if p.preview.shown != want {
-        respawn_preview(&mut p, want.is_some(), &race);
+        respawn_preview(&mut p, want.clone());
         p.preview.shown = want;
     }
-    let turn = p.time.delta_secs() * 0.6;
+    // The login screen's pick stands still, facing the camera; the new character turns.
+    let turn = if session.is_some() { p.time.delta_secs() * 0.6 } else { 0.0 };
     for (_, mut t) in &mut p.bodies {
         t.rotate_y(turn);
     }
 }
 
-/// Despawns the preview body and, if `show`, spawns one for `race`.
-fn respawn_preview(p: &mut PreviewParams, show: bool, race: &str) {
+/// Despawns the preview body and spawns one for the wanted race and Body, if any.
+fn respawn_preview(p: &mut PreviewParams, want: Option<(String, Body)>) {
     for (e, _) in &p.bodies {
         p.commands.entity(e).despawn();
     }
-    if show {
+    if let Some((race, body)) = want {
         let at = Transform::from_translation(PREVIEW_AT);
         let load = |f: &str| p.server.load(GltfAssetLabel::Scene(0).from_asset(format!("models/{f}")));
-        let files = character_files(p.preview.body);
+        let files = character_files(body);
         let extra = (PreviewBody, RenderLayers::layer(PREVIEW_LAYER));
-        spawn_character(&mut p.commands, load, files, &look_for_race(race), Placement { at, parts: Visibility::Inherited, extra });
+        spawn_character(&mut p.commands, load, files, &look_for_race(&race), Placement { at, parts: Visibility::Inherited, extra });
     }
 }
 

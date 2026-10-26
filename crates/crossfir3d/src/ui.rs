@@ -2,14 +2,17 @@
 
 use bevy::ecs::system::SystemParam;
 use bevy::prelude::*;
-use bevy_egui::{egui, EguiContexts};
-use cfproto::ClientMsg;
+use bevy_egui::{egui, EguiContexts, EguiTextureHandle};
+use cfproto::{CharacterInfo, ClientMsg};
+use crossfir3d::accounts::{default_accounts_path, load_accounts, Account};
 use crossfir3d::login::{Creds, LoginFlow};
+use crossfir3d::races::{default_body_path, load_body, Body};
 
 use crossfir3d::modes::{command_line_allowed, Mode};
 
 use crossfir3d::keys::{shadowed, bind_question, parse_typed, save_bindings, default_keys_path, Binding, Combo, Typed};
 
+use crate::characters3d::Preview;
 use crate::input::{held_mods, key_name, key_taken};
 use crate::{KeyBindings, KeyMode, LastAction, Msgs, NcomSeq, PendingQuery, Session, Status};
 
@@ -18,12 +21,16 @@ pub const GOLD: egui::Color32 = egui::Color32::from_rgb(0xc9, 0xa2, 0x4a);
 
 /// A full-screen overlay window: no title bar, fixed in place, dark with a gold border.
 pub fn overlay_window(id: &str, screen: egui::Rect, margin: f32) -> egui::Window<'static> {
-    let frame = egui::Frame::new()
+    egui::Window::new(id.to_owned()).title_bar(false).resizable(false).movable(false).fixed_rect(screen).frame(overlay_frame(margin))
+}
+
+/// The overlay look: dark with a gold border.
+pub fn overlay_frame(margin: f32) -> egui::Frame {
+    egui::Frame::new()
         .fill(egui::Color32::from_rgba_unmultiplied(20, 22, 30, 238))
         .stroke(egui::Stroke::new(2.0, GOLD))
         .corner_radius(8.0)
-        .inner_margin(margin);
-    egui::Window::new(id.to_owned()).title_bar(false).resizable(false).movable(false).fixed_rect(screen).frame(frame)
+        .inner_margin(margin)
 }
 
 /// A typed `bind` waiting for its key, or a yes/no question waiting for its answer.
@@ -201,44 +208,137 @@ pub struct LoginForm {
     account: String,
     password: String,
     new_account: bool,
+    /// The accounts used on this machine, the last used first.
+    known: Vec<Account>,
+    /// Typing an account name instead of picking a known one.
+    typing: bool,
+    /// A remembered character to play at once; None shows the character list.
+    character: Option<String>,
 }
 
 impl Default for LoginForm {
     fn default() -> Self {
+        let known = load_accounts(&default_accounts_path());
         LoginForm {
             server: "localhost:13327".into(),
-            account: String::new(),
+            account: known.first().map(|a| a.name.clone()).unwrap_or_default(),
             password: String::new(),
             new_account: false,
+            typing: known.is_empty(),
+            character: None,
+            known,
         }
     }
 }
 
-/// The login form fields, the status line and the Settings window flag.
+impl LoginForm {
+    /// A login worked: the account is now a known one, with these characters.
+    pub fn remembered(&mut self, known: Vec<Account>) {
+        self.known = known;
+        self.typing = !self.known.iter().any(|a| a.name == self.account);
+        self.new_account = false;
+    }
+
+    fn characters(&self) -> &[CharacterInfo] {
+        let account = self.known.iter().find(|a| !self.typing && a.name == self.account);
+        account.map_or(&[], |a| &a.characters)
+    }
+
+    /// The race and Body of the picked character, for its picture.
+    fn picked_look(&self) -> Option<(String, Body)> {
+        let name = self.character.as_ref()?;
+        let c = self.characters().iter().find(|c| &c.name == name)?;
+        Some((c.race.clone(), load_body(&default_body_path(), name)))
+    }
+}
+
+/// The login form fields, the status line, the Settings window flag and the character picture.
 #[derive(SystemParam)]
 pub struct LoginState<'w> {
     form: ResMut<'w, LoginForm>,
     status: Res<'w, Status>,
     settings_open: ResMut<'w, crate::settings_ui::SettingsOpen>,
+    preview: ResMut<'w, Preview>,
+    images: Res<'w, Assets<Image>>,
+    server: Res<'w, AssetServer>,
 }
 
-/// Draws the login fields and buttons; returns whether Connect was clicked.
-fn login_form(ui: &mut egui::Ui, form: &mut LoginForm, status: &Status, settings_open: &mut crate::settings_ui::SettingsOpen) -> bool {
-    egui::Grid::new("login").num_columns(2).show(ui, |ui| {
+/// The known accounts to pick from, and a text box for another one; true when the account changed.
+fn account_field(ui: &mut egui::Ui, form: &mut LoginForm) -> bool {
+    let mut changed = false;
+    if !form.known.is_empty() {
+        let shown = if form.typing { "Another account".to_string() } else { form.account.clone() };
+        egui::ComboBox::from_id_salt("account").selected_text(shown).width(220.0).show_ui(ui, |ui| {
+            for name in form.known.iter().map(|a| a.name.clone()).collect::<Vec<_>>() {
+                if ui.selectable_label(!form.typing && form.account == name, &name).clicked() {
+                    (form.account, form.typing, changed) = (name, false, true);
+                }
+            }
+            if ui.selectable_label(form.typing, "Another account").clicked() {
+                form.account.clear();
+                (form.typing, changed) = (true, true);
+            }
+        });
+    }
+    if form.typing {
+        changed |= ui.add(egui::TextEdit::singleline(&mut form.account).desired_width(220.0)).changed();
+    }
+    changed
+}
+
+/// The chosen account's remembered characters; a click picks one to play at once,
+/// a double click also connects. Returns (picked changed, connect).
+fn character_picker(ui: &mut egui::Ui, form: &mut LoginForm) -> (bool, bool) {
+    let (mut changed, mut connect) = (false, false);
+    let chars = form.characters().to_vec();
+    if chars.is_empty() {
+        return (false, false);
+    }
+    ui.add_space(8.0);
+    ui.label(egui::RichText::new("Character").color(GOLD));
+    for c in &chars {
+        let text = format!("{} — {} {}, level {}", c.name, c.race, c.class, c.level);
+        let picked = form.character.as_ref() == Some(&c.name);
+        let row = ui.selectable_label(picked, text);
+        if row.clicked() {
+            form.character = (!picked).then(|| c.name.clone());
+            changed = true;
+        }
+        if row.double_clicked() {
+            form.character = Some(c.name.clone());
+            connect = true;
+        }
+    }
+    (changed, connect)
+}
+
+/// Draws the login fields and buttons; returns (picked character changed, connect clicked).
+fn login_form(ui: &mut egui::Ui, form: &mut LoginForm, status: &Status, settings_open: &mut crate::settings_ui::SettingsOpen) -> (bool, bool) {
+    let mut account_changed = false;
+    egui::Grid::new("login").num_columns(2).spacing([12.0, 8.0]).show(ui, |ui| {
         ui.label("Server");
-        ui.text_edit_singleline(&mut form.server);
+        ui.add(egui::TextEdit::singleline(&mut form.server).desired_width(220.0));
         ui.end_row();
         ui.label("Account");
-        ui.text_edit_singleline(&mut form.account);
+        ui.vertical(|ui| account_changed = account_field(ui, form));
         ui.end_row();
         ui.label("Password");
-        ui.add(egui::TextEdit::singleline(&mut form.password).password(true));
+        ui.add(egui::TextEdit::singleline(&mut form.password).password(true).desired_width(220.0));
         ui.end_row();
     });
-    ui.checkbox(&mut form.new_account, "New account");
-    let mut connect = false;
+    if account_changed {
+        form.character = None;
+    }
+    if form.typing {
+        ui.checkbox(&mut form.new_account, "New account");
+    } else {
+        form.new_account = false;
+    }
+    let (picked, mut connect) = character_picker(ui, form);
+    ui.add_space(8.0);
     ui.horizontal(|ui| {
-        connect = ui.button("Connect").clicked();
+        let label = if form.character.is_some() { "Play" } else { "Connect" };
+        connect |= ui.button(label).clicked() || ui.input(|i| i.key_pressed(egui::Key::Enter));
         if ui.button("Settings").clicked() {
             settings_open.0 = true;
         }
@@ -246,26 +346,57 @@ fn login_form(ui: &mut egui::Ui, form: &mut LoginForm, status: &Status, settings
     if !status.0.is_empty() {
         ui.label(&status.0);
     }
-    connect
+    (account_changed || picked, connect)
 }
 
-/// Draws the login window and starts the connection.
-pub fn login_screen(mut contexts: EguiContexts, mut st: LoginState, mut commands: Commands, session: Option<NonSend<Session>>) -> Result {
-    let LoginState { form, status, settings_open } = &mut st;
+/// Scorn, faded, filling the screen behind the login and character screens.
+fn backdrop(ctx: &egui::Context, picture: egui::TextureId, size: egui::Vec2) {
+    let screen = ctx.content_rect();
+    // Cover the screen: crop the picture's overhang, never stretch it.
+    let scale = (screen.width() / size.x).max(screen.height() / size.y);
+    let uv = egui::Rect::from_center_size(egui::pos2(0.5, 0.5), screen.size() / (size * scale));
+    // How faded: 255 is the full picture.
+    let tint = egui::Color32::from_gray(90);
+    ctx.layer_painter(egui::LayerId::background()).image(picture, screen, uv, tint);
+}
+
+/// Draws Scorn behind it all, the login window, and starts the connection.
+pub fn login_screen(mut contexts: EguiContexts, mut st: LoginState, mut commands: Commands, session: Option<NonSend<Session>>, mut scorn: Local<Option<Handle<Image>>>) -> Result {
+    let LoginState { form, status, settings_open, preview, images, server } = &mut st;
+    let scorn = scorn.get_or_insert_with(|| server.load("login/scorn.png")).clone();
+    let size = images.get(&scorn).map(|i| egui::vec2(i.width() as f32, i.height() as f32));
+    let backdrop_id = contexts.add_image(EguiTextureHandle::Weak(scorn.id()));
+    let picture = contexts.add_image(EguiTextureHandle::Weak(preview.image.id()));
+    let ctx = contexts.ctx_mut()?;
+    if let Some(size) = size {
+        backdrop(ctx, backdrop_id, size);
+    }
     // Connected: the character screens show instead.
     if settings_open.0 || session.is_some() {
         return Ok(());
     }
-    let mut connect = false;
-    egui::Window::new("Crossfir3d").collapsible(false).resizable(false).show(contexts.ctx_mut()?, |ui| {
-        connect = login_form(ui, form, status, settings_open);
+    let (mut changed, mut connect) = (false, false);
+    let window = egui::Window::new("Crossfir3d").title_bar(false).resizable(false).movable(false);
+    window.anchor(egui::Align2::CENTER_CENTER, [0.0, 0.0]).frame(overlay_frame(24.0)).show(ctx, |ui| {
+        ui.label(egui::RichText::new("CROSSFIR3D").color(GOLD).strong().size(20.0));
+        ui.add_space(12.0);
+        ui.horizontal_top(|ui| {
+            ui.vertical(|ui| (changed, connect) = login_form(ui, form, status, settings_open));
+            if preview.picked.is_some() {
+                ui.image((picture, egui::vec2(220.0, 220.0)));
+            }
+        });
     });
+    if changed {
+        preview.picked = form.picked_look();
+    }
     if connect {
         let creds = Creds {
             account: form.account.clone(),
             password: form.password.clone(),
             new_account: form.new_account,
-            quick_character: None,
+            quick_character: form.character.clone(),
+            create_if_missing: false,
         };
         queue_connect(&mut commands, form.server.clone(), creds);
     }
@@ -309,6 +440,7 @@ pub fn auto_login(mut commands: Commands) {
         new_account: rest.first() == Some(&"new"),
         // An empty character name stops at the character list.
         quick_character: (!character.is_empty()).then(|| character.to_string()),
+        create_if_missing: true,
     };
     queue_connect(&mut commands, LoginForm::default().server, creds);
 }

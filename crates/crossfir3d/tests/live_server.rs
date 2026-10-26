@@ -34,7 +34,7 @@ fn walk_one_step() {
     let net = connect("localhost:13327").expect("is the server running? scripts/server.sh run");
     let stamp = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_millis() % 1_000_000;
     let name = format!("walk{stamp}");
-    let creds = Creds { account: name.clone(), password: "testpw".into(), new_account: true, quick_character: Some(name) };
+    let creds = Creds { account: name.clone(), password: "testpw".into(), new_account: true, quick_character: Some(name), create_if_missing: true };
     let (mut flow, first) = LoginFlow::start(creds);
     for m in first {
         net.tx.send(m).unwrap();
@@ -77,7 +77,7 @@ fn quick_login(prefix: &str) -> (Net, LoginFlow) {
     let net = connect("localhost:13327").expect("is the server running? scripts/server.sh run");
     let stamp = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_millis() % 1_000_000;
     let name = format!("{prefix}{stamp}");
-    let creds = Creds { account: name.clone(), password: "testpw".into(), new_account: true, quick_character: Some(name) };
+    let creds = Creds { account: name.clone(), password: "testpw".into(), new_account: true, quick_character: Some(name), create_if_missing: true };
     let (flow, first) = LoginFlow::start(creds);
     for m in first {
         net.tx.send(m).unwrap();
@@ -158,7 +158,7 @@ fn start_creation(prefix: &str) -> (Net, LoginFlow, String) {
     let net = connect("localhost:13327").expect("is the server running? scripts/server.sh run");
     let stamp = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_millis() % 1_000_000;
     let name = format!("{prefix}{stamp}");
-    let creds = Creds { account: name.clone(), password: "testpw".into(), new_account: true, quick_character: None };
+    let creds = Creds { account: name.clone(), password: "testpw".into(), new_account: true, quick_character: None, create_if_missing: false };
     let (mut flow, first) = LoginFlow::start(creds);
     for m in first {
         net.tx.send(m).unwrap();

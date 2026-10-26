@@ -87,7 +87,9 @@ cargo run --release -p crossfir3d
 
 Download `Crossfir3d.dmg` (M-series Macs) or `Crossfir3d-windows.zip` (Windows) from the
 [releases](https://github.com/prototypo/Crossfir3d/releases). Type the server's
-address on the login screen.
+address on the login screen. The login screen remembers the accounts used on this
+computer and their characters (`~/Library/Application Support/Crossfir3d/accounts.txt`,
+never the password): pick a character there to play it at once.
 
 They are not signed, so the system warns the first time:
 
