@@ -324,6 +324,21 @@ fn horn(side: f32) -> Grid {
     tube(&path)
 }
 
+/// A horn for a bare head; `side` 1 is the left. It starts deep in the skull near the
+/// middle, so its thick end never shows, leaves the skull at the upper temple and curves
+/// out and up to the tip.
+fn bare_horn(side: f32) -> Grid {
+    let path: Vec<(Vec3, f32)> = (0..=16)
+        .map(|i| {
+            let s = i as f32 / 16.0;
+            let at = Vec3::new(side * (0.02 + 0.15 * s), 0.15 + 0.06 * s + 0.09 * s * s, -0.01 + 0.03 * s);
+            // Full width until it is out of the skull (about a third of the way), then to a point.
+            (at, 0.03 * ((1.0 - s) / 0.67).min(1.0) + 0.003)
+        })
+        .collect();
+    tube(&path)
+}
+
 /// A flat five-pointed star facing `out`, its top toward `up`.
 fn star(at: Vec3, out: Vec3, up: Vec3, size: f32) -> Mesh {
     let turn = Quat::from_mat3(&Mat3::from_cols(up.cross(out).normalize(), up.normalize(), out.normalize()));
@@ -431,6 +446,18 @@ mod tests {
             let h = horn(side);
             let (root, tip) = (centre(&h[0]), centre(h.last().unwrap()));
             assert!(tip.x * side > root.x * side + 0.08 && tip.y > root.y + 0.08);
+        }
+    }
+
+    #[test]
+    fn bare_horns_start_inside_the_skull() {
+        // The skull, roughly: a ball of radius 0.09 round (0, 0.12, 0) (eyes at z 0.097).
+        let inside = |p: &Vec3| p.distance(Vec3::new(0.0, 0.12, 0.0)) < 0.09;
+        for side in [1.0, -1.0] {
+            let h = bare_horn(side);
+            assert!(h[0].iter().all(inside), "the root ring is inside");
+            let tip = centre(h.last().unwrap());
+            assert!(!inside(&tip) && tip.x * side > 0.15 && tip.y > 0.28, "out and up: {tip}");
         }
     }
 

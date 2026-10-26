@@ -68,7 +68,9 @@ fn put_headwear(commands: &mut Commands, body: &Skeleton, root: Entity, outfit: 
     if let Some(wear) = wear
         && let Some(head) = body.find(root, "Head")
     {
-        crate::hat::put_on(stock.hat_kit(commands), head, wear, outfit.scale / bone_scale(head, &body.parents, &body.parts), ());
+        // Human-sized on the head bone: the body part above it already scales by the
+        // creature's size (outfit.scale here too would count it twice: tiny horns on an imp).
+        crate::hat::put_on(stock.hat_kit(commands), head, wear, 1.0 / bone_scale(head, &body.parents, &body.parts), ());
     }
 }
 
