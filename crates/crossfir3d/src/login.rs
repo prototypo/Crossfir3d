@@ -10,9 +10,11 @@ pub struct Creds {
     pub account: String,
     pub password: String,
     pub new_account: bool,
-    /// Developer login only (CROSSFIR3D_LOGIN): play this character, or quickly
-    /// create it (first race and class, all stats 12) if the account lacks it.
+    /// Play this character at once (picked on the login screen, or CROSSFIR3D_LOGIN).
     pub quick_character: Option<String>,
+    /// Developer login only: quickly create the quick character (first race and
+    /// class, all stats 12) if the account lacks it.
+    pub create_if_missing: bool,
 }
 
 #[derive(Debug, Clone, PartialEq)]
@@ -123,7 +125,7 @@ impl LoginFlow {
 
     /// A developer login's account creation was refused because the account is already there.
     fn account_exists(&self, command: &str, reason: &str) -> bool {
-        command == "accountnew" && reason.contains("already exists") && self.creds.quick_character.is_some()
+        command == "accountnew" && reason.contains("already exists") && self.creds.create_if_missing
     }
 
     /// The server accepted the setup: log in to the account, or create it.
@@ -144,7 +146,7 @@ impl LoginFlow {
         self.state = LoginState::Characters;
         match self.creds.quick_character.clone() {
             Some(q) if self.playing.is_empty() && chars.iter().any(|c| c.name == q) => self.play(&q),
-            Some(q) if self.playing.is_empty() => {
+            Some(q) if self.playing.is_empty() && self.creds.create_if_missing => {
                 self.newchar.name = q;
                 self.start_creating()
             }
@@ -155,7 +157,7 @@ impl LoginFlow {
     /// An answer to a new-character request: feed the form, and finish a quick create once the lists are in.
     fn on_reply(&mut self, kind: &str, data: &[u8]) -> Vec<ClientMsg> {
         let mut out = self.newchar.on_reply(kind, data);
-        let quick = self.creds.quick_character.is_some();
+        let quick = self.creds.create_if_missing && self.creds.quick_character.is_some();
         if quick && kind == "class_list" && self.newchar.race.is_some() {
             self.newchar.stats = [12; 7];
             out.extend(self.create());
@@ -207,6 +209,10 @@ impl LoginFlow {
         self.create_pending
     }
 
+    pub fn account(&self) -> &str {
+        &self.creds.account
+    }
+
     pub fn password(&self) -> &str {
         &self.creds.password
     }
@@ -244,7 +250,7 @@ mod tests {
     }
 
     fn creds(new_account: bool, quick: Option<&str>) -> Creds {
-        Creds { account: "acct".into(), password: "pw".into(), new_account, quick_character: quick.map(String::from) }
+        Creds { account: "acct".into(), password: "pw".into(), new_account, quick_character: quick.map(String::from), create_if_missing: quick.is_some() }
     }
 
     fn logged_in(quick: Option<&str>) -> LoginFlow {
@@ -439,6 +445,19 @@ mod tests {
         assert!(stats.iter().all(|(_, v)| *v == 12));
         f.on_message(&ServerMsg::AddmeSuccess);
         assert_eq!(f.state(), &LoginState::Playing);
+    }
+
+    #[test]
+    fn picked_character_that_is_gone_shows_the_list() {
+        let (mut f, _) = LoginFlow::start(Creds { create_if_missing: false, ..creds(false, Some("Bob")) });
+        f.on_message(&ServerMsg::Setup(vec![]));
+        assert!(f.on_message(&ServerMsg::AccountPlayers(vec![named("Ann")])).is_empty());
+        assert_eq!(f.state(), &LoginState::Characters);
+        // A new character from the list is the player's own form, not a quick create.
+        f.start_creating();
+        f.on_message(&ServerMsg::ReplyInfo { kind: "race_list".into(), data: b"|dwarf_player".to_vec() });
+        let out = f.on_message(&ServerMsg::ReplyInfo { kind: "class_list".into(), data: b"|wizard_class".to_vec() });
+        assert!(!out.iter().any(|m| matches!(m, ClientMsg::CreatePlayer { .. })));
     }
 
     #[test]

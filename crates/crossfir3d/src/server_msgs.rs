@@ -5,6 +5,7 @@ use crate::{
 };
 use bevy::prelude::*;
 use cfproto::ServerMsg;
+use crossfir3d::accounts::{default_accounts_path, load_accounts};
 use crossfir3d::clock::{is_time_reply, is_time_reply_line, parse_time_reply};
 use crossfir3d::login::LoginState;
 use crossfir3d::net::NetEvent;
@@ -35,6 +36,10 @@ pub(crate) fn advance_login(world: &mut World, msg: &ServerMsg) -> Option<bool> 
     let mut session = world.non_send_mut::<Session>();
     let out = session.login.on_message(msg);
     session.send(out);
+    if let ServerMsg::AccountPlayers(chars) = msg {
+        remember_account(world, chars);
+    }
+    let session = world.non_send::<Session>();
     match session.login.state() {
         LoginState::Failed(reason) => {
             let reason = reason.clone();
@@ -44,6 +49,16 @@ pub(crate) fn advance_login(world: &mut World, msg: &ServerMsg) -> Option<bool> 
         LoginState::Playing => Some(true),
         _ => Some(false),
     }
+}
+
+/// A login worked: the login screen offers this account and its characters next time.
+fn remember_account(world: &mut World, chars: &[cfproto::CharacterInfo]) {
+    let account = world.non_send::<Session>().login.account().to_string();
+    let path = default_accounts_path();
+    if let Err(e) = crossfir3d::accounts::remember_account(&path, &account, chars) {
+        warn!("could not save the account list: {e}");
+    }
+    world.resource_mut::<crate::ui::LoginForm>().remembered(load_accounts(&path));
 }
 
 /// Sends a message to the first group handler that wants it.
