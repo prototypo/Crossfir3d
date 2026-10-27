@@ -72,6 +72,12 @@ pub fn open_side(walls: &HashSet<(i32, i32)>, x: i32, y: i32) -> Option<(i32, i3
     [(0, 1), (1, 0), (-1, 0), (0, -1)].into_iter().find(|(dx, dy)| !walls.contains(&(x + dx, y + dy)))
 }
 
+/// The side of floor square (x, y) with a wall next to it (north first: where a wall
+/// clock hangs unturned); None when no wall touches it.
+pub fn wall_beside(walls: &HashSet<(i32, i32)>, x: i32, y: i32) -> Option<(i32, i32)> {
+    [(0, -1), (1, 0), (-1, 0), (0, 1)].into_iter().find(|(dx, dy)| walls.contains(&(x + dx, y + dy)))
+}
+
 /// The turn (radians about the up axis) that makes a thing built facing south face
 /// the open side `(dx, dy)` of its wall.
 pub fn facing((dx, dy): (i32, i32)) -> f32 {
@@ -81,6 +87,16 @@ pub fn facing((dx, dy): (i32, i32)) -> f32 {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_floor_square_finds_the_wall_beside_it() {
+        let walls: HashSet<(i32, i32)> = [(5, 4), (6, 5)].into();
+        assert_eq!(wall_beside(&walls, 5, 5), Some((0, -1)), "north wins");
+        assert_eq!(wall_beside(&walls, 5, 6), None);
+        assert_eq!(wall_beside(&walls, 7, 5), Some((-1, 0)));
+        // Facing away from a north wall is the model's own way round.
+        assert_eq!(facing((0, 1)), 0.0);
+    }
 
     #[test]
     fn lights_on_a_wall_move_to_its_open_side() {

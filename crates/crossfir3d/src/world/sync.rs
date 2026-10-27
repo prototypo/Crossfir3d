@@ -97,6 +97,15 @@ impl<'a> Square<'a> {
         // A brazier or torch on a wall square stands against the wall's open side.
         // It turns to face the room (a clock's dial; torches look the same either way).
         let hung = open_side(&frame.walls, x, y).filter(|_| !is_wall(name) && hangs_on_walls(name));
+        // A wall clock on a floor square hangs on a wall beside it, facing away; with no
+        // wall there it would float, so it is the standing clock instead.
+        let (name, beside) = match name.starts_with("wallclock") && !frame.walls.contains(&(x, y)) {
+            true => match wall_beside(&frame.walls, x, y) {
+                Some((dx, dy)) => (name, Some((-dx, -dy))),
+                None => ("clock.111", None),
+            },
+            false => (name, None),
+        };
         let tile = match hung {
             Some((dx, dy)) => tile + Vec3::new(dx as f32, 0.0, dy as f32) * 0.75,
             None => tile,
@@ -113,7 +122,7 @@ impl<'a> Square<'a> {
             h,
             shade: darkness as f32 / 255.0,
             tile,
-            turn: Quat::from_rotation_y(hung.map_or(0.0, facing)),
+            turn: Quat::from_rotation_y(hung.or(beside).map_or(0.0, facing)),
             image,
             size,
             mean,
