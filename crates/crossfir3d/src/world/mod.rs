@@ -20,7 +20,7 @@ use crossfir3d::buildings::{brick_pixels, doorstep, footprint, parts, wall_parts
 use crossfir3d::models::{all_loaded, Load, ModelMap, Visual};
 use crossfir3d::races::{classify_player_face, clothes_for_class, look_for_race, Body, Look, PlayerFace};
 use crossfir3d::terrain::{ground_height, is_wall};
-use crossfir3d::walls::{facing, hangs_on_walls, open_side, wall_masks};
+use crossfir3d::walls::{facing, hangs_on_walls, open_side, wall_beside, wall_masks};
 
 use crossfir3d::clock::{sun_pose, SunPose, FALLBACK_HOUR};
 use crossfir3d::settings::Quality;
