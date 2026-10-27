@@ -26,6 +26,8 @@ jobs:
       - uses: Swatinem/rust-cache@v2
       - name: Get the sounds
         run: git clone --depth 1 https://git.code.sf.net/p/crossfire/crossfire-sounds upstream/crossfire-sounds
+      - name: Network tests (TLS on this system)
+        run: cargo test -p crossfir3d --lib net::
       - name: Package
         run: scripts/package.sh
       - uses: actions/upload-artifact@v4
