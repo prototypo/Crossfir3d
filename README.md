@@ -86,8 +86,9 @@ cargo run --release -p crossfir3d
 ## Downloads (Mac and Windows)
 
 Download `Crossfir3d.dmg` (M-series Macs) or `Crossfir3d-windows.zip` (Windows) from the
-[releases](https://github.com/prototypo/Crossfir3d/releases). Type the server's
-address on the login screen. The login screen remembers the accounts used on this
+[releases](https://github.com/prototypo/Crossfir3d/releases). The login screen starts
+with the Crossfir3d server, `play.crossfir3d.org:13327`; type another address to play
+elsewhere (`localhost:13327` for your own). The login screen remembers the accounts used on this
 computer and their characters (`~/Library/Application Support/Crossfir3d/accounts.txt`,
 never the password): pick a character there to play it at once.
 
@@ -204,7 +205,7 @@ Wells and other one-square things stay in view when you stand on them.
 
 ## Developer switches
 
-- `CROSSFIR3D_LOGIN=account:password:character[:new]` logs in at start (creates
+- `CROSSFIR3D_LOGIN=account:password:character[:new]` logs in to `localhost:13327` at start (creates
   the character in Scorn if it does not exist; `:new` creates the account if it
   does not exist).
 - `CROSSFIR3D_COMMANDS="cmd1;cmd2"` sends game commands on entering the game.
