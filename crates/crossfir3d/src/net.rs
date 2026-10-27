@@ -1,7 +1,8 @@
-//! TCP connection to a Crossfire server: a reader thread and a writer thread. Servers
-//! on this computer are plain TCP; any other server is TLS (a Crossfir3d gateway), its
-//! certificate checked against the usual web roots.
+//! TCP connection to a Crossfire server: a reader thread and a writer thread. TLS (a
+//! Crossfir3d gateway, its certificate checked against the usual web roots) or plain
+//! TCP (a traditional Crossfire server), as the login screen says.
 
+use std::collections::HashSet;
 use std::io::{self, Read, Write};
 use std::net::{IpAddr, Shutdown, TcpStream, ToSocketAddrs};
 use std::path::{Path, PathBuf};
@@ -106,8 +107,8 @@ fn host_of(addr: &str) -> &str {
     host.trim_start_matches('[').trim_end_matches(']')
 }
 
-/// A server on this computer (a developer's own) is plain TCP; anything else is TLS.
-fn is_local(addr: &str) -> bool {
+/// A server on this computer (a developer's own): plain TCP unless the player says otherwise.
+pub fn is_local(addr: &str) -> bool {
     let host = host_of(addr);
     host.eq_ignore_ascii_case("localhost") || host.parse::<IpAddr>().is_ok_and(|ip| ip.is_loopback())
 }
@@ -125,10 +126,30 @@ fn tls_config() -> io::Result<Arc<ClientConfig>> {
     Ok(Arc::new(config.with_root_certificates(roots).with_no_client_auth()))
 }
 
-/// Opens the server connection and starts its reader and writer threads.
-pub fn connect(addr: &str) -> io::Result<Net> {
-    let tls = if is_local(addr) { None } else { Some(tls_config()?) };
+/// Opens the server connection (TLS or plain) and starts its reader and writer threads.
+pub fn connect(addr: &str, tls: bool) -> io::Result<Net> {
+    let tls = if tls { Some(tls_config()?) } else { None };
     connect_with(addr, tls)
+}
+
+/// The servers the player chose to reach without TLS (traditional Crossfire servers),
+/// one `host:port` per line; every other server starts as TLS.
+pub fn load_plain_servers(path: &Path) -> HashSet<String> {
+    std::fs::read_to_string(path).unwrap_or_default().lines().map(str::trim).filter(|l| !l.is_empty()).map(String::from).collect()
+}
+
+pub fn save_plain_servers(path: &Path, servers: &HashSet<String>) -> io::Result<()> {
+    let mut lines: Vec<&str> = servers.iter().map(String::as_str).collect();
+    lines.sort_unstable();
+    if let Some(dir) = path.parent() {
+        std::fs::create_dir_all(dir)?;
+    }
+    std::fs::write(path, lines.join("\n") + "\n")
+}
+
+/// Next to the settings.
+pub fn default_plain_servers_path() -> PathBuf {
+    crate::settings::data_dir().join("plain-servers.txt")
 }
 
 fn connect_with(addr: &str, tls: Option<Arc<ClientConfig>>) -> io::Result<Net> {
@@ -160,7 +181,10 @@ fn handshake(addr: &str, config: Arc<ClientConfig>, stream: &mut TcpStream) -> i
     let mut conn = ClientConnection::new(config, name).map_err(io::Error::other)?;
     stream.set_read_timeout(Some(CONNECT_TIMEOUT))?;
     while conn.is_handshaking() {
-        conn.complete_io(stream)?;
+        conn.complete_io(stream).map_err(|e| {
+            // A traditional server answers in plain text, which TLS cannot read.
+            io::Error::new(e.kind(), format!("{e}. A traditional Crossfire server needs Secure (TLS) off"))
+        })?;
     }
     stream.set_read_timeout(None)?;
     Ok(conn)
@@ -243,7 +267,7 @@ mod tests {
     fn unreachable_server_gives_up_quickly() {
         // 10.255.255.1 is a private address nobody answers on.
         let start = std::time::Instant::now();
-        assert!(connect("10.255.255.1:13327").is_err());
+        assert!(connect("10.255.255.1:13327", false).is_err());
         assert!(start.elapsed() < CONNECT_TIMEOUT + Duration::from_secs(2));
     }
 
@@ -255,7 +279,7 @@ mod tests {
             let (mut s, _) = listener.accept().unwrap();
             cfproto::write_frame(&mut s, b"version 1023 1030 x").unwrap();
         });
-        let net = connect(&addr).unwrap();
+        let net = connect(&addr, false).unwrap();
         let wait = Duration::from_secs(2);
         assert!(matches!(net.rx.recv_timeout(wait).unwrap(), NetEvent::Msg(ServerMsg::Version { .. })));
         assert!(matches!(net.rx.recv_timeout(wait).unwrap(), NetEvent::Disconnected(_)));
@@ -270,7 +294,7 @@ mod tests {
             cfproto::write_frame(&mut s, b"goodbye").unwrap();
             std::thread::sleep(Duration::from_secs(3)); // keep the socket open
         });
-        let net = connect(&addr).unwrap();
+        let net = connect(&addr, false).unwrap();
         let wait = Duration::from_secs(2);
         assert!(matches!(net.rx.recv_timeout(wait).unwrap(), NetEvent::Msg(ServerMsg::Goodbye)));
         assert!(matches!(net.rx.recv_timeout(wait).unwrap(), NetEvent::Disconnected(_)));
@@ -285,7 +309,7 @@ mod tests {
             cfproto::write_frame(&mut s, b"comc \x00").unwrap();
             cfproto::write_frame(&mut s, b"newmap").unwrap();
         });
-        let net = connect(&addr).unwrap();
+        let net = connect(&addr, false).unwrap();
         let wait = Duration::from_secs(2);
         assert!(matches!(net.rx.recv_timeout(wait).unwrap(), NetEvent::Msg(ServerMsg::NewMap)));
     }
@@ -300,8 +324,32 @@ mod tests {
             let mut buf = [0u8; 1];
             std::io::Read::read(&mut s, &mut buf).map(|n| n == 0).unwrap_or(false)
         });
-        drop(connect(&addr).unwrap());
+        drop(connect(&addr, false).unwrap());
         assert!(server.join().unwrap(), "server did not see the connection close");
+    }
+
+    #[test]
+    fn plain_servers_are_remembered() {
+        let path = std::env::temp_dir().join(format!("cf3d-plain-{}.txt", std::process::id()));
+        let _ = std::fs::remove_file(&path);
+        assert!(load_plain_servers(&path).is_empty());
+        let servers: HashSet<String> = ["old.example.org:13327".to_string(), "lan:13327".to_string()].into();
+        save_plain_servers(&path, &servers).unwrap();
+        assert_eq!(load_plain_servers(&path), servers);
+        let _ = std::fs::remove_file(&path);
+    }
+
+    #[test]
+    fn plain_tcp_to_a_traditional_server() {
+        let listener = TcpListener::bind("127.0.0.1:0").unwrap();
+        let addr = listener.local_addr().unwrap().to_string();
+        std::thread::spawn(move || {
+            let (mut s, _) = listener.accept().unwrap();
+            cfproto::write_frame(&mut s, b"newmap").unwrap();
+            std::thread::sleep(Duration::from_secs(1));
+        });
+        let net = connect(&addr, false).unwrap();
+        assert!(matches!(net.rx.recv_timeout(Duration::from_secs(2)).unwrap(), NetEvent::Msg(ServerMsg::NewMap)));
     }
 
     #[test]
@@ -371,7 +419,7 @@ mod tests {
             let (mut s, _) = listener.accept().unwrap();
             cfproto::read_frame(&mut s).unwrap()
         });
-        let net = connect(&addr).unwrap();
+        let net = connect(&addr, false).unwrap();
         net.tx.send(ClientMsg::AskFace(3)).unwrap();
         assert_eq!(server.join().unwrap(), b"askface 3");
     }

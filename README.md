@@ -88,7 +88,10 @@ cargo run --release -p crossfir3d
 Download `Crossfir3d.dmg` (M-series Macs) or `Crossfir3d-windows.zip` (Windows) from the
 [releases](https://github.com/prototypo/Crossfir3d/releases). The login screen starts
 with the Crossfir3d server, `play.crossfir3d.org:13327`; type another address to play
-elsewhere (`localhost:13327` for your own). The login screen remembers the accounts used on this
+elsewhere (`localhost:13327` for your own). **Secure (TLS)** is on for every server
+but your own computer, and the server's certificate is checked; turn it off for a
+traditional Crossfire server (the password is then sent unprotected). The choice is
+remembered per server (`plain-servers.txt` next to the settings). The login screen remembers the accounts used on this
 computer and their characters (`~/Library/Application Support/Crossfir3d/accounts.txt`,
 never the password): pick a character there to play it at once.
 
@@ -210,8 +213,6 @@ Wells and other one-square things stay in view when you stand on them.
   does not exist).
 - `CROSSFIR3D_COMMANDS="cmd1;cmd2"` sends game commands on entering the game.
 - `CROSSFIR3D_CA=file.pem` also trusts these certificates (a test gateway's own).
-  A server on this computer (`localhost`, `127.0.0.1`, `::1`) is plain TCP; any other
-  server is TLS (a Crossfir3d gateway), its certificate checked.
 - `CROSSFIR3D_SCREEN=newchar[:race_arch]` opens the new-character screen;
   `=inventory`, `=keys` or `=settings` opens that screen in game; `=top` starts in
   the top view.
