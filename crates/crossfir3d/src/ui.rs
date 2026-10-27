@@ -1,11 +1,14 @@
 //! egui screens: the login form and the in-game command line.
 
+use std::collections::HashSet;
+
 use bevy::ecs::system::SystemParam;
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts, EguiTextureHandle};
 use cfproto::{CharacterInfo, ClientMsg};
 use crossfir3d::accounts::{default_accounts_path, load_accounts, Account};
 use crossfir3d::login::{Creds, LoginFlow};
+use crossfir3d::net::{default_plain_servers_path, is_local, load_plain_servers, save_plain_servers};
 use crossfir3d::races::{default_body_path, load_body, Body};
 
 use crossfir3d::modes::{command_line_allowed, Mode};
@@ -210,6 +213,10 @@ const LOCAL_SERVER: &str = "localhost:13327";
 #[derive(Resource)]
 pub struct LoginForm {
     server: String,
+    /// Connect with TLS (a Crossfir3d gateway); off for a traditional Crossfire server.
+    tls: bool,
+    /// The servers the player chose to reach without TLS.
+    plain: HashSet<String>,
     account: String,
     password: String,
     new_account: bool,
@@ -224,8 +231,11 @@ pub struct LoginForm {
 impl Default for LoginForm {
     fn default() -> Self {
         let known = load_accounts(&default_accounts_path());
+        let plain = load_plain_servers(&default_plain_servers_path());
         LoginForm {
             server: PLAY_SERVER.into(),
+            tls: wants_tls(&plain, PLAY_SERVER),
+            plain,
             account: known.first().map(|a| a.name.clone()).unwrap_or_default(),
             password: String::new(),
             new_account: false,
@@ -236,7 +246,21 @@ impl Default for LoginForm {
     }
 }
 
+/// TLS unless the player chose plain for this server, or it is on this computer.
+fn wants_tls(plain: &HashSet<String>, server: &str) -> bool {
+    !plain.contains(server.trim()) && !is_local(server.trim())
+}
+
 impl LoginForm {
+    /// Remembers a plain choice for this server (a TLS one is the default), on Connect.
+    fn remember_tls(&mut self) {
+        let server = self.server.trim().to_string();
+        let changed = if self.tls || is_local(&server) { self.plain.remove(&server) } else { self.plain.insert(server) };
+        if changed && let Err(e) = save_plain_servers(&default_plain_servers_path(), &self.plain) {
+            warn!("could not save the plain servers: {e}");
+        }
+    }
+
     /// A login worked: the account is now a known one, with these characters.
     pub fn remembered(&mut self, known: Vec<Account>) {
         self.known = known;
@@ -322,7 +346,17 @@ fn login_form(ui: &mut egui::Ui, form: &mut LoginForm, status: &Status, settings
     let mut account_changed = false;
     egui::Grid::new("login").num_columns(2).spacing([12.0, 8.0]).show(ui, |ui| {
         ui.label("Server");
-        ui.add(egui::TextEdit::singleline(&mut form.server).desired_width(220.0));
+        if ui.add(egui::TextEdit::singleline(&mut form.server).desired_width(220.0)).changed() {
+            form.tls = wants_tls(&form.plain, &form.server);
+        }
+        ui.end_row();
+        ui.label("");
+        ui.vertical(|ui| {
+            ui.checkbox(&mut form.tls, "Secure (TLS)");
+            if !form.tls {
+                ui.label(egui::RichText::new("Not secure: the password is sent unprotected.").color(egui::Color32::from_rgb(0xe0, 0x80, 0x60)));
+            }
+        });
         ui.end_row();
         ui.label("Account");
         ui.vertical(|ui| account_changed = account_field(ui, form));
@@ -403,24 +437,25 @@ pub fn login_screen(mut contexts: EguiContexts, mut st: LoginState, mut commands
             quick_character: form.character.clone(),
             create_if_missing: false,
         };
-        queue_connect(&mut commands, form.server.clone(), creds);
+        form.remember_tls();
+        queue_connect(&mut commands, form.server.trim().to_string(), form.tls, creds);
     }
     Ok(())
 }
 
-fn queue_connect(commands: &mut Commands, server: String, creds: Creds) {
+fn queue_connect(commands: &mut Commands, server: String, tls: bool, creds: Creds) {
     commands.queue(move |world: &mut World| {
         // A second click while connected would leave the first character in the game.
         if world.get_non_send::<Session>().is_some() {
             return;
         }
-        connect(world, &server, creds)
+        connect(world, &server, tls, creds)
     });
 }
 
 /// Opens the connection and starts the login flow, or shows why it failed.
-fn connect(world: &mut World, server: &str, creds: Creds) {
-    match crossfir3d::net::connect(server) {
+fn connect(world: &mut World, server: &str, tls: bool, creds: Creds) {
+    match crossfir3d::net::connect(server, tls) {
         Ok(net) => {
             let (login, first) = LoginFlow::start(creds);
             world.resource_mut::<Status>().0 = "Connecting...".into();
@@ -448,7 +483,7 @@ pub fn auto_login(mut commands: Commands) {
         create_if_missing: true,
     };
     // Never the live server: test accounts and quick-created characters stay local.
-    queue_connect(&mut commands, LOCAL_SERVER.into(), creds);
+    queue_connect(&mut commands, LOCAL_SERVER.into(), false, creds);
 }
 
 #[derive(Resource, Default)]

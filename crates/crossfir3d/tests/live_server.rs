@@ -31,7 +31,7 @@ fn scrolled(msg: &ServerMsg) -> Option<(i8, i8)> {
 #[test]
 #[ignore]
 fn walk_one_step() {
-    let net = connect("localhost:13327").expect("is the server running? scripts/server.sh run");
+    let net = connect("localhost:13327", false).expect("is the server running? scripts/server.sh run");
     let stamp = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_millis() % 1_000_000;
     let name = format!("walk{stamp}");
     let creds = Creds { account: name.clone(), password: "testpw".into(), new_account: true, quick_character: Some(name), create_if_missing: true };
@@ -74,7 +74,7 @@ fn wait_for<T>(net: &Net, flow: &mut LoginFlow, what: &str, mut check: impl FnMu
 
 /// Logs in as a new account with a quick character and returns the connection and login flow.
 fn quick_login(prefix: &str) -> (Net, LoginFlow) {
-    let net = connect("localhost:13327").expect("is the server running? scripts/server.sh run");
+    let net = connect("localhost:13327", false).expect("is the server running? scripts/server.sh run");
     let stamp = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_millis() % 1_000_000;
     let name = format!("{prefix}{stamp}");
     let creds = Creds { account: name.clone(), password: "testpw".into(), new_account: true, quick_character: Some(name), create_if_missing: true };
@@ -129,7 +129,7 @@ fn pick_up_and_drop() {
 #[ignore]
 fn creation_data_parses() {
     use cfproto::newchar::{parse_arch_info, parse_newcharinfo, parse_starting_maps};
-    let net = connect("localhost:13327").expect("is the server running? scripts/server.sh run");
+    let net = connect("localhost:13327", false).expect("is the server running? scripts/server.sh run");
     net.tx.send(ClientMsg::Version).unwrap();
     net.tx.send(ClientMsg::Setup(vec![("loginmethod".into(), "2".into())])).unwrap();
     for q in ["newcharinfo", "race_list", "startingmap", "race_info dwarf_player", "class_info wizard_class"] {
@@ -155,7 +155,7 @@ fn creation_data_parses() {
 
 /// Logs in as a new account without a quick character, waits for the character list and starts creating; returns the connection, login flow and name.
 fn start_creation(prefix: &str) -> (Net, LoginFlow, String) {
-    let net = connect("localhost:13327").expect("is the server running? scripts/server.sh run");
+    let net = connect("localhost:13327", false).expect("is the server running? scripts/server.sh run");
     let stamp = SystemTime::now().duration_since(SystemTime::UNIX_EPOCH).unwrap().as_millis() % 1_000_000;
     let name = format!("{prefix}{stamp}");
     let creds = Creds { account: name.clone(), password: "testpw".into(), new_account: true, quick_character: None, create_if_missing: false };
