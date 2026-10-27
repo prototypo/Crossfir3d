@@ -30,6 +30,7 @@ Known problems left for later. Each line says what goes wrong and where to look.
 - [ ] `assets/models.txt` lists `guild_*` and `guild2*` twice (harmless).
 - [ ] Clippy: `walls.rs:11` operator precedence, `anim.rs` collapsible if.
 - [ ] Animation changes cut instead of blending (`player.stop_all()` then `play`).
+- [ ] Low priority: clocks show the client's local time, and the pendulum swings (`buildings/village.rs` `clock`, `wall_clock`: the hands and pendulum are fixed parts now).
 
 ## Not checked yet
 
