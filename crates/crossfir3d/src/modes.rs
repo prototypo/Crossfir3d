@@ -7,7 +7,7 @@ pub enum Mode {
     CommandLine,
     Inventory,
     Settings,
-    /// The key bindings screen (K).
+    /// The key bindings screen (O).
     Keys,
 }
 
@@ -19,12 +19,12 @@ pub enum KeyName {
     D,
     X,
     I,
-    L,
+    R,
     M,
     C,
     T,
-    K,
-    B,
+    O,
+    V,
     Space,
     Tab,
     Escape,
@@ -43,10 +43,10 @@ pub enum Act {
     CloseInventory,
     OpenSettings,
     CloseSettings,
-    /// K: the key bindings screen.
+    /// O: the key bindings screen.
     OpenKeys,
     CloseKeys,
-    /// B: the parchment box lists what is under the player.
+    /// V: the parchment box lists what is under the player.
     ShowGround,
     ToggleLog,
     ToggleMute,
@@ -71,7 +71,7 @@ pub fn act(mode: Mode, key: KeyName, box_open: bool) -> Act {
         Mode::CommandLine => Act::Nothing,
         Mode::Inventory => close_on(key, &[KeyName::I, KeyName::Escape], Act::CloseInventory),
         Mode::Settings => close_on(key, &[KeyName::Escape], Act::CloseSettings),
-        Mode::Keys => close_on(key, &[KeyName::K, KeyName::Escape], Act::CloseKeys),
+        Mode::Keys => close_on(key, &[KeyName::O, KeyName::Escape], Act::CloseKeys),
     }
 }
 
@@ -86,9 +86,9 @@ const WORLD_KEYS: &[(KeyName, Act)] = &[
     (KeyName::E, Act::Apply),
     (KeyName::G, Act::Get),
     (KeyName::I, Act::OpenInventory),
-    (KeyName::K, Act::OpenKeys),
-    (KeyName::B, Act::ShowGround),
-    (KeyName::L, Act::ToggleLog),
+    (KeyName::O, Act::OpenKeys),
+    (KeyName::V, Act::ShowGround),
+    (KeyName::R, Act::ToggleLog),
     (KeyName::M, Act::ToggleMute),
     (KeyName::C, Act::CameraBehind),
     (KeyName::T, Act::FaceNearest),
@@ -127,15 +127,15 @@ mod tests {
     use super::*;
 
     #[test]
-    fn b_shows_what_is_below() {
-        assert_eq!(act(Mode::World, KeyName::B, false), Act::ShowGround);
-        assert_eq!(act(Mode::Inventory, KeyName::B, false), Act::Nothing);
+    fn v_shows_what_is_below() {
+        assert_eq!(act(Mode::World, KeyName::V, false), Act::ShowGround);
+        assert_eq!(act(Mode::Inventory, KeyName::V, false), Act::Nothing);
     }
 
     #[test]
-    fn k_opens_and_closes_keys() {
-        assert_eq!(act(Mode::World, KeyName::K, false), Act::OpenKeys);
-        assert_eq!(act(Mode::Keys, KeyName::K, false), Act::CloseKeys);
+    fn o_opens_and_closes_keys() {
+        assert_eq!(act(Mode::World, KeyName::O, false), Act::OpenKeys);
+        assert_eq!(act(Mode::Keys, KeyName::O, false), Act::CloseKeys);
         assert_eq!(act(Mode::Keys, KeyName::Escape, false), Act::CloseKeys);
         assert_eq!(act(Mode::Keys, KeyName::A, false), Act::Nothing);
     }
@@ -211,7 +211,7 @@ mod tests {
     fn world_keys() {
         assert_eq!(act(Mode::World, KeyName::G, false), Act::Get);
         assert_eq!(act(Mode::World, KeyName::I, false), Act::OpenInventory);
-        assert_eq!(act(Mode::World, KeyName::L, false), Act::ToggleLog);
+        assert_eq!(act(Mode::World, KeyName::R, false), Act::ToggleLog);
         assert_eq!(act(Mode::World, KeyName::M, false), Act::ToggleMute);
         assert_eq!(act(Mode::World, KeyName::Enter, false), Act::OpenCommand);
         assert_eq!(act(Mode::World, KeyName::D, false), Act::Nothing); // D walks west
@@ -235,7 +235,7 @@ mod tests {
 
     #[test]
     fn inventory_swallows_world_keys() {
-        for k in [KeyName::E, KeyName::G, KeyName::M, KeyName::L, KeyName::Digit(1), KeyName::Enter] {
+        for k in [KeyName::E, KeyName::G, KeyName::M, KeyName::R, KeyName::Digit(1), KeyName::Enter] {
             assert_eq!(act(Mode::Inventory, k, false), Act::Nothing, "{k:?}");
         }
     }
@@ -247,7 +247,7 @@ mod tests {
             (Mode::Inventory, _) => Act::Nothing,
             (Mode::Settings, KeyName::Escape) => Act::CloseSettings,
             (Mode::Settings, _) => Act::Nothing,
-            (Mode::Keys, KeyName::K | KeyName::Escape) => Act::CloseKeys,
+            (Mode::Keys, KeyName::O | KeyName::Escape) => Act::CloseKeys,
             (Mode::Keys, _) => Act::Nothing,
             (Mode::World, KeyName::E | KeyName::Escape) if box_open => Act::CloseBox,
             (Mode::World, KeyName::Escape) => Act::OpenSettings,
@@ -255,9 +255,9 @@ mod tests {
             (Mode::World, KeyName::G) => Act::Get,
             (Mode::World, KeyName::Digit(n @ 1..=4)) => Act::Slot(n as usize - 1),
             (Mode::World, KeyName::I) => Act::OpenInventory,
-            (Mode::World, KeyName::K) => Act::OpenKeys,
-            (Mode::World, KeyName::B) => Act::ShowGround,
-            (Mode::World, KeyName::L) => Act::ToggleLog,
+            (Mode::World, KeyName::O) => Act::OpenKeys,
+            (Mode::World, KeyName::V) => Act::ShowGround,
+            (Mode::World, KeyName::R) => Act::ToggleLog,
             (Mode::World, KeyName::M) => Act::ToggleMute,
             (Mode::World, KeyName::C) => Act::CameraBehind,
             (Mode::World, KeyName::T) => Act::FaceNearest,
@@ -271,7 +271,7 @@ mod tests {
     #[test]
     fn every_key_in_every_mode_unchanged() {
         use KeyName::*;
-        let mut keys = vec![A, E, G, D, X, I, L, M, C, T, K, B, Space, Tab, Escape, Enter, Other];
+        let mut keys = vec![A, E, G, D, X, I, R, M, C, T, O, V, Space, Tab, Escape, Enter, Other];
         keys.extend((0..=9).map(Digit));
         for m in [Mode::World, Mode::CommandLine, Mode::Inventory, Mode::Settings, Mode::Keys] {
             for &k in &keys {

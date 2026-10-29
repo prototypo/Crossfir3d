@@ -148,12 +148,20 @@ const GAME_KEYS: &[(&str, &str)] = &[
     ("Down", "move"),
     ("Left", "move"),
     ("Right", "move"),
+    ("H", "move"),
+    ("J", "move"),
+    ("K", "move"),
+    ("L", "move"),
+    ("Y", "move"),
+    ("U", "move"),
+    ("B", "move"),
+    ("N", "move"),
     ("A", "apply"),
     ("E", "apply"),
     ("G", "get"),
     ("I", "inventory"),
-    ("B", "what is below"),
-    ("L", "log"),
+    ("V", "what is below"),
+    ("R", "log"),
     ("M", "mute"),
     ("C", "camera behind"),
     ("T", "face nearest"),
@@ -176,7 +184,7 @@ pub fn game_key(combo: &Combo) -> Option<&'static str> {
 
 /// Plain keys the game itself uses, with why they can't be bound.
 const GAME_RESERVED: [(&str, &str); 3] =
-    [("Escape", "Escape closes screens"), ("K", "K opens this screen"), ("Enter", "Enter opens the command box")];
+    [("Escape", "Escape closes screens"), ("O", "O opens this screen"), ("Enter", "Enter opens the command box")];
 
 /// Why an unmodified key is the game's own, if it is.
 fn game_reserved(key: &str) -> Option<&'static str> {
@@ -428,14 +436,14 @@ mod tests {
         assert_eq!(game_key(&Combo { mods: Mods::default(), key: "G".into() }), Some("get"));
         assert_eq!(game_key(&Combo { mods: Mods { shift: true, ..Default::default() }, key: "G".into() }), None);
         assert_eq!(game_key(&Combo { mods: Mods::default(), key: "D".into() }), None);
-        assert_eq!(game_key(&Combo { mods: Mods::default(), key: "B".into() }), Some("what is below"));
+        assert_eq!(game_key(&Combo { mods: Mods::default(), key: "V".into() }), Some("what is below"));
         assert_eq!(game_key(&Combo { mods: Mods::default(), key: "Up".into() }), Some("move"));
     }
 
     #[test]
     fn game_key_every_key() {
         let job = |k: &str| game_key(&combo(Mods::default(), k));
-        for k in ["Up", "Down", "Left", "Right"] {
+        for k in ["Up", "Down", "Left", "Right", "H", "J", "K", "L", "Y", "U", "B", "N"] {
             assert_eq!(job(k), Some("move"));
         }
         for k in ["1", "2", "3", "4"] {
@@ -446,8 +454,8 @@ mod tests {
             ("E", "apply"),
             ("G", "get"),
             ("I", "inventory"),
-            ("B", "what is below"),
-            ("L", "log"),
+            ("V", "what is below"),
+            ("R", "log"),
             ("M", "mute"),
             ("C", "camera behind"),
             ("T", "face nearest"),
@@ -458,7 +466,7 @@ mod tests {
         for (k, want) in rows {
             assert_eq!(job(k), Some(want));
         }
-        for k in ["D", "K", "Escape", "5", "g"] {
+        for k in ["D", "O", "Escape", "5", "g"] {
             assert_eq!(job(k), None);
         }
         let shift = Mods { shift: true, ..Default::default() };
@@ -474,8 +482,9 @@ mod tests {
         let plain = |k: &str| Combo { mods: Mods::default(), key: k.into() };
         let cmd = |k: &str| Combo { mods: Mods { cmd: true, ..Default::default() }, key: k.into() };
         assert!(reserved(&plain("Escape"), true).is_some());
-        assert!(reserved(&plain("K"), true).is_some());
-        assert!(reserved(&Combo { mods: Mods { shift: true, ..Default::default() }, key: "K".into() }, true).is_none());
+        assert!(reserved(&plain("O"), true).is_some());
+        assert!(reserved(&plain("K"), true).is_none());
+        assert!(reserved(&Combo { mods: Mods { shift: true, ..Default::default() }, key: "O".into() }, true).is_none());
         assert!(reserved(&cmd("Q"), true).is_some());
         assert!(reserved(&cmd("Q"), false).is_none());
         assert!(reserved(&Combo { mods: Mods { alt: true, ..Default::default() }, key: "F4".into() }, false).is_some());
@@ -486,14 +495,14 @@ mod tests {
         let m = |shift, alt, cmd| Mods { shift, alt, cmd, ..Default::default() };
         let (none, cmd, alt, cmd_shift) = (m(false, false, false), m(false, false, true), m(false, true, false), m(true, false, true));
         let esc = Some("Escape closes screens");
-        let k = Some("K opens this screen");
+        let k = Some("O opens this screen");
         let enter = Some("Enter opens the command box");
         let mac = Some("used by macOS");
         let sys = Some("used by the system");
         // (mods, key, expected on mac, expected elsewhere)
         let rows = [
             (none, "Escape", esc, esc),
-            (none, "K", k, k),
+            (none, "O", k, k),
             (none, "Enter", enter, enter),
             (none, "Q", None, None),
             (none, "Tab", None, None),

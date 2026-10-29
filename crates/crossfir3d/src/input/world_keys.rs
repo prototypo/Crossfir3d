@@ -126,8 +126,8 @@ impl WorldKeyParams<'_> {
     /// Acts that open or close the bindings screen; false for any other act.
     fn keys_act(&mut self, a: Act, key: KeyName, mods: Mods) -> bool {
         match a {
-            // shift+K and the like are picked as keys on the bindings screen, not closing it.
-            Act::CloseKeys if !mods.none() || (key == KeyName::K && self.keys_sel.typing) => {}
+            // shift+O and the like are picked as keys on the bindings screen, not closing it.
+            Act::CloseKeys if !mods.none() || (key == KeyName::O && self.keys_sel.typing) => {}
             Act::CloseKeys => {
                 self.keys_sel.reset();
                 self.mode.0 = Mode::World;

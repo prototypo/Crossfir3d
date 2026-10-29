@@ -161,14 +161,25 @@ fn draw_log(ctx: &egui::Context, msgs: &Messages, tall: bool, size: f32, fill: e
     egui::Area::new("log".into()).anchor(egui::Align2::LEFT_BOTTOM, [10.0, -10.0]).show(ctx, |ui| {
         egui::Frame::new().fill(fill).inner_margin(6.0).show(ui, |ui| {
             ui.set_max_width(42.0 * size);
+            // One log row: the font's row height plus the gap between labels.
+            let row = ui.fonts_mut(|f| f.row_height(&egui::FontId::proportional(size))) + ui.spacing().item_spacing.y;
+            let height = lines as f32 * row;
+            // One message can hold many lines (the message of the day), so count lines, not messages.
+            // Empty messages are skipped; a blank line inside a message is a space, so it takes a full row.
+            let rows: Vec<&str> = msgs.log.iter().map(|m| m.trim_end_matches('\n')).filter(|m| !m.is_empty())
+                .flat_map(|m| m.split('\n')).map(|l| if l.is_empty() { " " } else { l }).collect();
+            let skip = if tall { 0 } else { rows.len().saturating_sub(lines) };
             let show = |ui: &mut egui::Ui| {
-                let skip = if tall { 0 } else { msgs.log.len().saturating_sub(lines) };
-                for line in msgs.log.iter().skip(skip) {
+                // Always the full `lines` rows, so R shows a change even with few lines; text at the bottom.
+                // ponytail: a line too long for the box wraps, making the short box a row taller, the tall one scroll.
+                ui.add_space((height - (rows.len() - skip) as f32 * row).max(0.0));
+                for line in &rows[skip..] {
                     ui.label(styled(line, size, egui::Color32::from_gray(230), egui::Color32::WHITE));
                 }
             };
             if tall {
-                egui::ScrollArea::vertical().max_height(lines as f32 * size * 1.6).stick_to_bottom(true).show(ui, show);
+                // min_scrolled_height: else the area cuts itself to the space left on screen last frame.
+                egui::ScrollArea::vertical().max_height(height).min_scrolled_height(height).stick_to_bottom(true).show(ui, show);
             } else {
                 show(ui);
             }

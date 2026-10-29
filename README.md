@@ -36,7 +36,7 @@ the walls rise to meet it, and torchlight takes the place of the sun.
 
 ## Screens
 
-Inventory (**I**), key bindings (**K**) and settings (**Escape**) are overlays: they
+Inventory (**I**), key bindings (**O**) and settings (**Escape**) are overlays: they
 open over the game, which goes on behind them, darkened so the text is easy to read.
 Close them with the same key or **Escape**.
 
@@ -133,7 +133,9 @@ to choose race, class, rolled stats, and where to start (Scorn by default). The 
 The camera sits over your character's shoulder and turns to stay behind them. Arrow
 keys work relative to the way you face, in every view: Up takes a step forward; Left
 and Right turn you 90° and Down turns you round, without a step. Hold an arrow to turn,
-then walk that way. **Tab**
+then walk that way. The number pad and the old clients' vi keys walk by the compass
+instead: 8 or **K** north, 6 or **L** east, 2 or **J** south, 4 or **H** west, and 7 9 1 3
+or **Y** **U** **B** **N** for the diagonals. **Tab**
 turns a top view (north up) on and off; **C** goes back to the view behind you. Hold
 **F** to look at your character's face. **A** or **E** applies. The mouse wheel, a
 trackpad pinch, and two-finger scroll zoom (the top view has its own zoom). When a
@@ -150,12 +152,12 @@ The log in the bottom-left corner can be made easier to read in the Settings scr
 dark, in per cent).
 
 When you step onto things, the log names them ("You are standing on: a sack, a long
-sword, ..."). **B** shows the full list in the parchment box; the Settings screen's
+sword, ..."). **V** shows the full list in the parchment box; the Settings screen's
 "Show what is under me" opens it on every new square.
 
 ### Key bindings
 
-**K** opens the key bindings screen: a keyboard with your bound keys in yellow, and
+**O** opens the key bindings screen: a keyboard with your bound keys in yellow, and
 your spells and skills beside it. Pick a spell or skill, then pick keys (click them, or
 press the real combination, such as option + 6), and press **Bind**. A key bound with
 modifiers has a ring in each modifier's colour. Picking a key the game already uses
@@ -165,7 +167,7 @@ The old clients' commands also work in the command box (**Enter**): `bind cast b
 hands` (then press the key), `bind -g ...` for all your characters, `bind -e ...` to put
 the command in the box instead of sending it, `unbind` to list them, `unbind 2` to
 remove one, `unbind reset` to remove all. Bindings are saved in
-`~/Library/Application Support/Crossfir3d/keys.txt`. Escape, K and Enter alone can
+`~/Library/Application Support/Crossfir3d/keys.txt`. Escape, O and Enter alone can
 never be bound.
 
 Shops are one-storey houses with a painted sign and icon (JEWELS, BANK, MAGIC, ...).

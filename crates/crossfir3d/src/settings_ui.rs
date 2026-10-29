@@ -162,7 +162,7 @@ fn log_rows(ui: &mut egui::Ui, s: &mut Settings) {
     ui.end_row();
 
     ui.label("Show what is under me");
-    ui.checkbox(&mut s.ground_popup, "on every new square (B shows it any time)");
+    ui.checkbox(&mut s.ground_popup, "on every new square (V shows it any time)");
     ui.end_row();
 }
 

@@ -1,4 +1,4 @@
-//! The key bindings screen (K): a keyboard picture, the spells and skills, and buttons.
+//! The key bindings screen (O): a keyboard picture, the spells and skills, and buttons.
 
 use std::collections::HashMap;
 
@@ -259,7 +259,7 @@ fn pick_pressed_key(keys: &ButtonInput<KeyCode>, sel: &mut KeysSel) {
         && let Some(key) = keys.get_just_pressed().find_map(|k| key_name(*k))
     {
         let mods = held_mods(keys);
-        if !(mods.none() && matches!(key, "Escape" | "K")) {
+        if !(mods.none() && matches!(key, "Escape" | "O")) {
             sel.picked = Some(Combo { mods, key: key.into() });
         }
     }
@@ -293,7 +293,7 @@ fn build_picture<'a>(sel: &KeysSel, list: &'a [Binding], known: &Known) -> Pictu
 /// Draws the help line, the legend, the keyboard and the lists.
 fn draw_screen(ui: &mut egui::Ui, v: &View, out: &mut Out, screen: egui::Vec2) {
     ui.set_min_size(screen - egui::vec2(32.0, 32.0));
-    ui.label(egui::RichText::new("K or Esc: close · pick an action (or type a new command under OTHER), then keys (click them or press them) · also: bind / unbind in the command box").small());
+    ui.label(egui::RichText::new("O or Esc: close · pick an action (or type a new command under OTHER), then keys (click them or press them) · also: bind / unbind in the command box").small());
     ui.add_space(6.0);
     legend(ui);
     ui.add_space(8.0);
