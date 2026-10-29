@@ -44,6 +44,8 @@ Close them with the same key or **Escape**.
 |---|---|---|
 | ![Inventory](docs/images/3d-inventory.jpg) | ![Key bindings](docs/images/3d-keys.jpg) | ![Settings](docs/images/3d-settings.jpg) |
 
+All the keys, and how to bind your own: see [docs/keys.md](docs/keys.md).
+
 Every class has its own look: see [docs/classes.md](docs/classes.md).
 
 ## The Crossfire community
@@ -156,6 +158,8 @@ sword, ..."). **V** shows the full list in the parchment box; the Settings scree
 "Show what is under me" opens it on every new square.
 
 ### Key bindings
+
+The full list of keys and how to bind them is in [docs/keys.md](docs/keys.md).
 
 **O** opens the key bindings screen: a keyboard with your bound keys in yellow, and
 your spells and skills beside it. Pick a spell or skill, then pick keys (click them, or
