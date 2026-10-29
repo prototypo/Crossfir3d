@@ -144,14 +144,17 @@ fn draw_parchment(ctx: &egui::Context, text: &str) {
         });
 }
 
-/// Draws the red pop-up messages at the top centre.
+/// Draws the red combat messages on the right, under the quick slots, clear of the monster ahead.
 fn draw_popups(ctx: &egui::Context, msgs: &Messages) {
-    egui::Area::new("popups".into()).anchor(egui::Align2::CENTER_TOP, [0.0, 20.0]).show(ctx, |ui| {
-        for (text, _) in &msgs.popups {
-            egui::Frame::new().fill(egui::Color32::from_rgba_unmultiplied(120, 20, 20, 200)).inner_margin(6.0).show(ui, |ui| {
-                ui.label(styled(text, 14.0, egui::Color32::WHITE, egui::Color32::WHITE));
-            });
-        }
+    egui::Area::new("popups".into()).anchor(egui::Align2::RIGHT_TOP, [-10.0, SLOT_PX + 40.0]).show(ctx, |ui| {
+        ui.set_max_width(320.0);
+        ui.with_layout(egui::Layout::top_down(egui::Align::Max), |ui| {
+            for (text, _) in &msgs.popups {
+                egui::Frame::new().fill(egui::Color32::from_rgba_unmultiplied(120, 20, 20, 200)).inner_margin(6.0).show(ui, |ui| {
+                    ui.label(styled(text, 14.0, egui::Color32::WHITE, egui::Color32::WHITE));
+                });
+            }
+        });
     });
 }
 
