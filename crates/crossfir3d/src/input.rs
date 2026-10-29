@@ -82,7 +82,8 @@ pub fn wants_step(held_secs: Option<f32>) -> bool {
 /// `comc`, so holding a new direction turns, then walks.
 /// Directions are relative to the way the player faces, in every view: Up is forward,
 /// Left/Right turn 90°, Down turns round. The compass direction is fixed at key-down,
-/// so the turn does not bend a held walk.
+/// so the turn does not bend a held walk. The compass keys (number pad, vi keys) walk
+/// by the compass instead, as in the old clients.
 pub fn send_moves(mut p: MoveParams, mut held: Local<Option<Held>>, session: Option<NonSend<Session>>) {
     let Some(session) = session else { return };
     if p.pending.waiting_key() {
@@ -94,11 +95,11 @@ pub fn send_moves(mut p: MoveParams, mut held: Local<Option<Held>>, session: Opt
         p.step_out(&session, now);
         return;
     }
-    let (Some(screen), Mode::World) = (p.arrow_screen(), p.mode.0) else {
+    let (Some((screen, north_up)), Mode::World) = (p.walk_screen(), p.mode.0) else {
         *held = None; // key released: the next press is a new tap
         return;
     };
-    let Some(locked) = p.held_heading(&mut held, screen, now) else { return };
+    let Some(locked) = p.held_heading(&mut held, screen, north_up, now) else { return };
     let command = compass(screen, locked);
     let dir = dir_number(command).unwrap_or(p.facing.0);
     if p.turn_to(dir) {
@@ -108,13 +109,23 @@ pub fn send_moves(mut p: MoveParams, mut held: Local<Option<Held>>, session: Opt
 }
 
 /// A held arrow key: when its first step was sent, the screen direction, and the
-/// camera heading at key-down.
+/// camera heading at key-down (north for a compass key).
 #[derive(Clone, Copy)]
 pub struct Held {
     at: f32,
     screen: (i8, i8),
+    north_up: bool,
     locked: Heading,
 }
+
+/// Keys that walk by the compass, as in the old clients: the number pad and the vi keys.
+/// Each is a screen direction with north up.
+const COMPASS_KEYS: [(KeyCode, (i8, i8)); 16] = [
+    (KeyCode::Numpad8, (0, -1)), (KeyCode::Numpad9, (1, -1)), (KeyCode::Numpad6, (1, 0)), (KeyCode::Numpad3, (1, 1)),
+    (KeyCode::Numpad2, (0, 1)), (KeyCode::Numpad1, (-1, 1)), (KeyCode::Numpad4, (-1, 0)), (KeyCode::Numpad7, (-1, -1)),
+    (KeyCode::KeyK, (0, -1)), (KeyCode::KeyU, (1, -1)), (KeyCode::KeyL, (1, 0)), (KeyCode::KeyN, (1, 1)),
+    (KeyCode::KeyJ, (0, 1)), (KeyCode::KeyB, (-1, 1)), (KeyCode::KeyH, (-1, 0)), (KeyCode::KeyY, (-1, -1)),
+];
 
 /// Everything `send_moves` reads or changes in a frame.
 #[derive(SystemParam)]
@@ -143,24 +154,28 @@ impl MoveParams<'_> {
         self.send_ncom(session, command, now);
     }
 
-    /// The screen direction of the arrow keys held now; None when none is.
-    fn arrow_screen(&self) -> Option<(i8, i8)> {
+    /// The screen direction of the arrow keys held now, else of a compass key (north up:
+    /// true); None when none is.
+    fn walk_screen(&self) -> Option<((i8, i8), bool)> {
         // just_pressed too: a press and release in one frame (a very fast tap) still steps.
-        // An arrow a binding took no longer moves.
+        // A key a binding took no longer moves.
         let key = |k| (self.keys.pressed(k) || self.keys.just_pressed(k)) && !key_taken(&self.bindings, &self.keys, k);
-        screen_dir(key(KeyCode::ArrowUp), key(KeyCode::ArrowDown), key(KeyCode::ArrowLeft), key(KeyCode::ArrowRight))
+        let arrows = screen_dir(key(KeyCode::ArrowUp), key(KeyCode::ArrowDown), key(KeyCode::ArrowLeft), key(KeyCode::ArrowRight));
+        let compass = || COMPASS_KEYS.iter().find(|(k, _)| key(*k)).map(|(_, s)| (*s, true));
+        arrows.map(|s| (s, false)).or_else(compass)
     }
 
     /// Resets `held` when the keys changed, then returns the camera heading locked for this
     /// press if a step may be sent now (recording the press); None if it must wait.
-    fn held_heading(&self, held: &mut Option<Held>, screen: (i8, i8), now: f32) -> Option<Heading> {
+    fn held_heading(&self, held: &mut Option<Held>, screen: (i8, i8), north_up: bool, now: f32) -> Option<Heading> {
         // A new key combination locks the camera heading of this moment.
-        *held = held.filter(|h| h.screen == screen);
+        *held = held.filter(|h| h.screen == screen && h.north_up == north_up);
         let first = held.map(|h| h.at);
         if !may_send(self.wait.0, self.comc.packet, now) || !wants_step(first.map(|t| now - t)) {
             return None;
         }
-        Some(held.get_or_insert(Held { at: now, screen, locked: heading_of(self.facing.0) }).locked)
+        let locked = if north_up { 0 } else { heading_of(self.facing.0) };
+        Some(held.get_or_insert(Held { at: now, screen, north_up, locked }).locked)
     }
 
     /// Sends one walking step, using the door's exit when the step is south, and closes the box.
@@ -196,8 +211,8 @@ impl MoveParams<'_> {
 /// The keys that act in the world, with the `KeyName` each one stands for.
 const ACT_KEYS: [(KeyCode, KeyName); 20] = [
     (KeyCode::KeyA, KeyName::A), (KeyCode::KeyE, KeyName::E), (KeyCode::KeyG, KeyName::G), (KeyCode::KeyD, KeyName::D),
-    (KeyCode::KeyX, KeyName::X), (KeyCode::KeyI, KeyName::I), (KeyCode::KeyL, KeyName::L), (KeyCode::KeyM, KeyName::M),
-    (KeyCode::KeyC, KeyName::C), (KeyCode::KeyT, KeyName::T), (KeyCode::KeyK, KeyName::K), (KeyCode::KeyB, KeyName::B),
+    (KeyCode::KeyX, KeyName::X), (KeyCode::KeyI, KeyName::I), (KeyCode::KeyR, KeyName::R), (KeyCode::KeyM, KeyName::M),
+    (KeyCode::KeyC, KeyName::C), (KeyCode::KeyT, KeyName::T), (KeyCode::KeyO, KeyName::O), (KeyCode::KeyV, KeyName::V),
     (KeyCode::Space, KeyName::Space), (KeyCode::Tab, KeyName::Tab), (KeyCode::Escape, KeyName::Escape), (KeyCode::Enter, KeyName::Enter),
     (KeyCode::Digit1, KeyName::Digit(1)), (KeyCode::Digit2, KeyName::Digit(2)), (KeyCode::Digit3, KeyName::Digit(3)), (KeyCode::Digit4, KeyName::Digit(4)),
 ];
@@ -306,14 +321,28 @@ mod tests {
         use crossfir3d::modes::KeyName as N;
         let rows = [
             (KeyCode::KeyA, N::A), (KeyCode::KeyE, N::E), (KeyCode::KeyG, N::G), (KeyCode::KeyD, N::D),
-            (KeyCode::KeyX, N::X), (KeyCode::KeyI, N::I), (KeyCode::KeyL, N::L), (KeyCode::KeyM, N::M),
-            (KeyCode::KeyC, N::C), (KeyCode::KeyT, N::T), (KeyCode::KeyK, N::K), (KeyCode::KeyB, N::B),
+            (KeyCode::KeyX, N::X), (KeyCode::KeyI, N::I), (KeyCode::KeyR, N::R), (KeyCode::KeyM, N::M),
+            (KeyCode::KeyC, N::C), (KeyCode::KeyT, N::T), (KeyCode::KeyO, N::O), (KeyCode::KeyV, N::V),
             (KeyCode::Space, N::Space), (KeyCode::Tab, N::Tab), (KeyCode::Escape, N::Escape), (KeyCode::Enter, N::Enter),
             (KeyCode::Digit1, N::Digit(1)), (KeyCode::Digit2, N::Digit(2)), (KeyCode::Digit3, N::Digit(3)), (KeyCode::Digit4, N::Digit(4)),
-            (KeyCode::KeyZ, N::Other), (KeyCode::Digit5, N::Other), (KeyCode::Digit0, N::Other), (KeyCode::F1, N::Other),
+            (KeyCode::KeyZ, N::Other), (KeyCode::KeyK, N::Other), (KeyCode::KeyB, N::Other), (KeyCode::Digit5, N::Other), (KeyCode::Digit0, N::Other), (KeyCode::F1, N::Other),
         ];
         for (k, n) in rows {
             assert_eq!(super::act_key(k), n, "{k:?}");
+        }
+    }
+
+    #[test]
+    fn compass_keys_walk_by_the_compass() {
+        let dir = |k| super::COMPASS_KEYS.iter().find(|(c, _)| *c == k).map(|(_, s)| crossfir3d::camera::compass(*s, 0));
+        let rows = [
+            (KeyCode::KeyK, "north"), (KeyCode::KeyU, "northeast"), (KeyCode::KeyL, "east"), (KeyCode::KeyN, "southeast"),
+            (KeyCode::KeyJ, "south"), (KeyCode::KeyB, "southwest"), (KeyCode::KeyH, "west"), (KeyCode::KeyY, "northwest"),
+            (KeyCode::Numpad8, "north"), (KeyCode::Numpad9, "northeast"), (KeyCode::Numpad6, "east"), (KeyCode::Numpad3, "southeast"),
+            (KeyCode::Numpad2, "south"), (KeyCode::Numpad1, "southwest"), (KeyCode::Numpad4, "west"), (KeyCode::Numpad7, "northwest"),
+        ];
+        for (k, want) in rows {
+            assert_eq!(dir(k), Some(want), "{k:?}");
         }
     }
 
