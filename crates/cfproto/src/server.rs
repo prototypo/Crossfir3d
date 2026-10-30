@@ -14,6 +14,8 @@ pub struct CharacterInfo {
     pub class: String,
     pub level: u16,
     pub face: Option<u16>,
+    /// The picture's name, such as `ranger.151`.
+    pub face_name: String,
 }
 
 #[derive(Debug, PartialEq)]
@@ -62,6 +64,7 @@ const ACL_NAME: u8 = 1;
 const ACL_CLASS: u8 = 2;
 const ACL_RACE: u8 = 3;
 const ACL_LEVEL: u8 = 4;
+const ACL_FACE: u8 = 5;
 const ACL_FACE_NUM: u8 = 8;
 
 /// True the first time this text is seen: a newer server's unknown stat would
@@ -172,6 +175,7 @@ mod tests {
         b.extend_from_slice(&[7, 2, b'w', b'i', b'z', b'a', b'r', b'd']); // class
         b.extend_from_slice(&[3, 4, 0x00, 0x0c]); // level 12
         b.extend_from_slice(&[3, 8, 0x01, 0x02]); // face 258
+        b.extend_from_slice(&[5, 5, b'w', b'i', b'z', b'.']); // face name
         b.extend_from_slice(&[3, 7, b'x', b'y']); // map: skipped
         b.push(0);
         b.extend_from_slice(&[4, 1, b'B', b'o', b'b']);
@@ -179,7 +183,7 @@ mod tests {
         let ServerMsg::AccountPlayers(c) = p(&b) else { panic!() };
         assert_eq!(
             c[0],
-            CharacterInfo { name: "Ann".into(), race: "dwarf".into(), class: "wizard".into(), level: 12, face: Some(258) }
+            CharacterInfo { name: "Ann".into(), race: "dwarf".into(), class: "wizard".into(), level: 12, face: Some(258), face_name: "wiz.".into() }
         );
         assert_eq!(c[1].name, "Bob");
     }

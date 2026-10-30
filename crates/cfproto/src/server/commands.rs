@@ -1,7 +1,7 @@
 //! One parser per server command, looked up by name from `parse`.
 
 use super::{err, first_report, CharacterInfo, ParseError, Reader, ServerMsg};
-use super::{ACL_CLASS, ACL_FACE_NUM, ACL_LEVEL, ACL_NAME, ACL_RACE};
+use super::{ACL_CLASS, ACL_FACE, ACL_FACE_NUM, ACL_LEVEL, ACL_NAME, ACL_RACE};
 use crate::items::{parse_item2, parse_upditem};
 use crate::map2::parse_map2;
 use crate::spells::{parse_addspell, parse_updspell};
@@ -115,6 +115,7 @@ fn set_character_field(c: &mut CharacterInfo, kind: u8, field: &[u8]) {
         ACL_CLASS => c.class = text(),
         ACL_RACE => c.race = text(),
         ACL_LEVEL => c.level = short().unwrap_or(0),
+        ACL_FACE => c.face_name = text(),
         ACL_FACE_NUM => c.face = short(),
         _ => {}
     }

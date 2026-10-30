@@ -22,7 +22,7 @@ pub fn load_accounts(path: &Path) -> Vec<Account> {
             accounts.push(Account { name: name.to_string(), characters: vec![] });
         }
         if let (Some(c), Some(race), Some(class), Some(level)) = (f.next(), f.next(), f.next(), f.next()) {
-            let info = CharacterInfo { name: c.into(), race: race.into(), class: class.into(), level: level.parse().unwrap_or(0), face: None };
+            let info = CharacterInfo { name: c.into(), race: race.into(), class: class.into(), level: level.parse().unwrap_or(0), ..Default::default() };
             accounts.last_mut().expect("pushed above").characters.push(info);
         }
     }
@@ -60,7 +60,7 @@ mod tests {
     use super::*;
 
     fn ch(name: &str) -> CharacterInfo {
-        CharacterInfo { name: name.into(), race: "Human".into(), class: "Wizard".into(), level: 3, face: None }
+        CharacterInfo { name: name.into(), race: "Human".into(), class: "Wizard".into(), level: 3, ..Default::default() }
     }
 
     #[test]
