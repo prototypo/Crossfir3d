@@ -4,6 +4,7 @@
 use cfproto::{CharacterInfo, ClientMsg, ServerMsg};
 
 use crate::newchar::NewChar;
+use crate::races::{classify_player_face, PlayerFace};
 
 #[derive(Debug, Clone)]
 pub struct Creds {
@@ -141,7 +142,7 @@ impl LoginFlow {
 
     /// The account's character list arrived: show it, or quick-play or quick-create for a developer login.
     fn on_players(&mut self, chars: &[CharacterInfo]) -> Vec<ClientMsg> {
-        self.characters = chars.to_vec();
+        self.characters = chars.iter().cloned().map(with_class).collect();
         self.selected = None;
         self.state = LoginState::Characters;
         match self.creds.quick_character.clone() {
@@ -227,9 +228,27 @@ impl LoginFlow {
     }
 }
 
+/// The server never keeps a character's class, so it sends an empty one: take it from the
+/// character's picture ("ranger.151" is a ranger), as "Ranger".
+fn with_class(mut c: CharacterInfo) -> CharacterInfo {
+    if let (true, Some(PlayerFace::Class(arch))) = (c.class.is_empty(), classify_player_face(&c.face_name)) {
+        let name = arch.strip_suffix("_class").unwrap_or(arch);
+        c.class = name[..1].to_ascii_uppercase() + &name[1..];
+    }
+    c
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn empty_class_comes_from_the_picture() {
+        let c = |class: &str, face: &str| CharacterInfo { class: class.into(), face_name: face.into(), ..Default::default() };
+        assert_eq!(with_class(c("", "ranger.151")).class, "Ranger");
+        assert_eq!(with_class(c("Wizard", "ranger.151")).class, "Wizard");
+        assert_eq!(with_class(c("", "")).class, "");
+    }
 
     #[test]
     fn refused_play_goes_back_to_the_list_with_the_reason() {
