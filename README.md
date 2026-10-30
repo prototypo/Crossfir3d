@@ -7,7 +7,23 @@ adventure game, written in Rust. It plays on normal Crossfire servers (1.75.0 an
 newer): the same world, quests and players as every other Crossfire client, drawn in
 3D. Licence: GPLv2 or later.
 
-![The town square of Scorn in Crossfir3d](docs/images/3d-world.jpg)
+![A ranger with bow and quiver stands near a dungeon's corner: a wyvern behind bars with a lever beside them, a chest in the corner, rocks, a skeleton, a giant spider and an orc](docs/images/3d-archer.jpg)
+
+## The Crossfir3d server
+
+Crossfir3d has its own public server, `play.crossfir3d.org:13327`; the login screen
+starts with it. It runs the Crossfire server behind
+[Crossfir3d-server](https://github.com/prototypo/Crossfir3d-server), a gateway written in
+Rust that makes it safer:
+
+- **TLS.** Every connection is encrypted, so passwords cannot be read on the network.
+- **Stronger password storage.** New passwords are hashed with yescrypt, in place of
+  the old DES hash, which only counted the first 8 characters.
+- **Checks on every message,** a limit on password tries, and rate limits.
+
+Other Crossfire clients cannot connect to it, because they do not use TLS; nor can
+Crossfir3d 0.1.1 and older. Crossfir3d itself still plays on traditional Crossfire
+servers: untick **Secure (TLS)** on the login screen.
 
 ## Before and after
 
