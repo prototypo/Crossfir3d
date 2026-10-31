@@ -203,9 +203,12 @@ pub(super) fn tint_model(
         let Some(mut copy) = p.materials.get(&m.0).cloned() else { continue };
         let c = copy.base_color.to_linear();
         copy.base_color = LinearRgba::new(c.red * tint.red, c.green * tint.green, c.blue * tint.blue, c.alpha * tint.alpha).into();
-        // A see-through tint (a ghost) needs blending to show.
+        // A see-through tint (a ghost) needs blending to show. Only its near side
+        // draws, so its face does not show through from behind.
         if tint.alpha < 1.0 {
             copy.alpha_mode = AlphaMode::Blend;
+            copy.double_sided = false;
+            copy.cull_mode = Some(Face::Back);
         }
         if recolour && let Some(tex) = copy.base_color_texture.clone() {
             copy.base_color_texture = Some(grey_texture(&tex, &mut greys, &mut p.images));

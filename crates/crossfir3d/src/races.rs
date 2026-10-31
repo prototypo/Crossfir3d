@@ -64,7 +64,8 @@ pub struct BeastBody {
 /// The races that are not human-shaped, by arch. Other races use the people's body.
 const BEAST_BODIES: [(&str, BeastBody); 3] = [
     ("pl_dragon", BeastBody { file: "beasts/cute/YellowDragon.gltf", scale: 0.5, tint: [1.0, 0.5, 0.4], alpha: 1.0 }),
-    ("wraith_player", BeastBody { file: "beasts/cute/Ghost.gltf", scale: 0.4, tint: [0.8, 0.82, 0.88], alpha: 0.5 }),
+    // GhostShell is Ghost without the rear of its eyes and teeth, which would show through.
+    ("wraith_player", BeastBody { file: "beasts/cute/GhostShell.gltf", scale: 0.4, tint: [0.8, 0.82, 0.88], alpha: 0.5 }),
     ("fenx_player", BeastBody { file: "beasts/animals/Fox.gltf", scale: 0.3, tint: [1.0, 1.0, 1.0], alpha: 1.0 }),
 ];
 
