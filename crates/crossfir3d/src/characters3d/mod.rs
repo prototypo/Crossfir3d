@@ -15,7 +15,7 @@ use bevy::world_serialization::{WorldAsset, WorldAssetRoot, WorldInstanceReady};
 use crossfir3d::login::LoginState;
 use crossfir3d::anim::{clip_name, looping, Anim, AnimEvent, AnimState};
 use crossfir3d::held::{class_look, held, helmet, worn, Carry, ClassLook, Garb, Hand, Headwear};
-use crossfir3d::races::{default_body_path, head_triangles, load_body, look_for_race, tints, Body, Look};
+use crossfir3d::races::{beast_body, default_body_path, head_triangles, load_body, look_for_race, tints, Body, Look};
 use std::collections::HashMap;
 
 use bevy::mesh::skinning::SkinnedMesh;
@@ -80,11 +80,13 @@ pub struct OwnLook {
     pub body: Body,
     /// The look of the own character's class: worn or held items take its place.
     pub class: Option<ClassLook>,
+    /// The body of a race that is not human-shaped; it takes the place of the rest.
+    pub beast: Option<crossfir3d::races::BeastBody>,
 }
 
 impl Default for OwnLook {
     fn default() -> Self {
-        OwnLook { look: look_for_race("human"), body: Body::Regular, class: None }
+        OwnLook { look: look_for_race("human"), body: Body::Regular, class: None, beast: None }
     }
 }
 
@@ -225,15 +227,19 @@ pub struct BeastLook<'a> {
     pub file: &'a str,
     pub scale: f32,
     pub tint: [f32; 3],
+    /// How solid it is: 1 is solid, 0 cannot be seen.
+    pub alpha: f32,
+    /// The model's visibility: hidden until it has loaded, or shown at once.
+    pub parts: Visibility,
 }
 
 /// Spawns a beast standing at `at` from its scene: it plays its own idle and walk clips.
 pub fn spawn_beast(commands: &mut Commands, look: BeastLook, at: Transform, extra: impl Bundle) -> Entity {
-    let BeastLook { scene, file, scale, tint: [r, g, b] } = look;
+    let BeastLook { scene, file, scale, tint: [r, g, b], alpha, parts } = look;
     let beast = Beast { file: file.to_string(), walking: None };
     let root = commands.spawn((at, Visibility::default(), Character::default(), beast, extra)).id();
     let inner = Transform::from_scale(Vec3::splat(scale));
-    let e = commands.spawn((WorldAssetRoot(scene), inner, Visibility::Hidden, ModelTint(Color::srgb(r, g, b)), ChildOf(root))).id();
+    let e = commands.spawn((WorldAssetRoot(scene), inner, parts, ModelTint(Color::srgba(r, g, b, alpha)), ChildOf(root))).id();
     if [r, g, b] != [1.0; 3] {
         commands.entity(e).insert(Recolour);
     }
@@ -418,7 +424,7 @@ fn set_own_look(mut own: ResMut<OwnLook>, session: Option<NonSend<Session>>) {
     let listed = session.login.characters().iter().find(|c| c.name == name);
     let race = listed.map(|c| c.race.clone()).or_else(|| session.login.newchar.race.clone()).unwrap_or_default();
     let class = listed.map(|c| c.class.clone()).or_else(|| session.login.newchar.class.clone()).unwrap_or_default();
-    *own = OwnLook { look: look_for_race(&race), body: load_body(&default_body_path(), name), class: class_look(&class) };
+    *own = OwnLook { look: look_for_race(&race), body: load_body(&default_body_path(), name), class: class_look(&class), beast: beast_body(&race) };
 }
 
 /// Creates the camera and light that draw the character preview into its image.
@@ -455,6 +461,8 @@ struct PreviewParams<'w, 's> {
     preview: ResMut<'w, Preview>,
     camera: Single<'w, 's, &'static mut Camera, With<PreviewCamera>>,
     bodies: Query<'w, 's, (Entity, &'static mut Transform), With<PreviewBody>>,
+    children: Query<'w, 's, &'static Children>,
+    layered: Query<'w, 's, (), With<RenderLayers>>,
 }
 
 /// Shows the selected race and Body on the new-character screen, or the character
@@ -472,8 +480,12 @@ fn update_preview(mut p: PreviewParams, session: Option<NonSend<Session>>) {
     }
     // The login screen's pick stands still, facing the camera; the new character turns.
     let turn = if session.is_some() { p.time.delta_secs() * 0.6 } else { 0.0 };
-    for (_, mut t) in &mut p.bodies {
+    for (e, mut t) in &mut p.bodies {
         t.rotate_y(turn);
+        // A beast's scene has no bones to bind, so its parts join the preview layer here.
+        for part in p.children.iter_descendants(e).filter(|c| !p.layered.contains(*c)) {
+            p.commands.entity(part).try_insert(RenderLayers::layer(PREVIEW_LAYER));
+        }
     }
 }
 
@@ -484,6 +496,12 @@ fn respawn_preview(p: &mut PreviewParams, want: Option<(String, Body)>) {
     }
     if let Some((race, body)) = want {
         let at = Transform::from_translation(PREVIEW_AT);
+        if let Some(b) = beast_body(&race) {
+            let scene = p.server.load(GltfAssetLabel::Scene(0).from_asset(format!("models/{}", b.file)));
+            let look = BeastLook { scene, file: b.file, scale: b.scale, tint: b.tint, alpha: b.alpha, parts: Visibility::Inherited };
+            spawn_beast(&mut p.commands, look, at, (PreviewBody, RenderLayers::layer(PREVIEW_LAYER)));
+            return;
+        }
         let load = |f: &str| p.server.load(GltfAssetLabel::Scene(0).from_asset(format!("models/{f}")));
         let files = character_files(body);
         let extra = (PreviewBody, RenderLayers::layer(PREVIEW_LAYER));

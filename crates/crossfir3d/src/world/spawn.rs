@@ -60,11 +60,37 @@ fn mark_owner_or_class(sq: &Square, draw: &mut Draw, e: Entity, class: Option<Cl
     }
 }
 
+/// The body of a player whose race is not human-shaped.
+fn player_beast(sq: &Square, own: &OwnLook) -> Option<BeastBody> {
+    match classify_player_face(sq.name) {
+        _ if sq.own_tile => own.beast,
+        Some(PlayerFace::Race(race)) => beast_body(race),
+        _ => None,
+    }
+}
+
+/// Spawns a player whose race is not human-shaped; false if none, or its model failed.
+fn spawn_player_beast(sq: &Square, draw: &mut Draw, own: &OwnLook) -> bool {
+    let Some(b) = player_beast(sq, own).filter(|b| !draw.models.failed.contains(b.file)) else { return false };
+    let pos = sq.centre();
+    let scene = draw.models.scene(&draw.server, b.file);
+    let look = BeastLook { scene, file: b.file, scale: b.scale, tint: b.tint, alpha: b.alpha, parts: Visibility::Hidden };
+    let extra = (sq.tv(), Glide { target: pos }, Assembled(vec![b.file.to_string()]));
+    let e = spawn_beast(&mut draw.commands, look, Transform::from_translation(pos), extra);
+    if sq.own_tile {
+        draw.commands.entity(e).insert(OwnCharacter);
+    }
+    true
+}
+
 /// Spawns a gliding player or `person` creature as a 3D character; false if it is none
 /// or one of its body files failed to load.
 pub(super) fn spawn_person(sq: &Square, draw: &mut Draw, own: &OwnLook) -> bool {
     if !glides(sq.layer) {
         return false;
+    }
+    if spawn_player_beast(sq, draw, own) {
+        return true;
     }
     let Some((look, body, outfit)) = person_of(sq, &draw.models.map, own) else { return false };
     let class = class_of(sq, &draw.models.map, own);
@@ -100,7 +126,7 @@ pub(super) fn spawn_creature(sq: &Square, draw: &mut Draw) -> bool {
         Visual::Beast { file, scale, tint } if !draw.models.failed.contains(file) => {
             let (file, scale, tint) = (file.clone(), *scale, tint.unwrap_or([1.0; 3]));
             let scene = draw.models.scene(&draw.server, &file);
-            spawn_beast(&mut draw.commands, BeastLook { scene, file: &file, scale, tint }, at, (extra, Assembled(vec![file.clone()])));
+            spawn_beast(&mut draw.commands, BeastLook { scene, file: &file, scale, tint, alpha: 1.0, parts: Visibility::Hidden }, at, (extra, Assembled(vec![file.clone()])));
         }
         Visual::Monster { file, scale, tint } if !draw.models.failed.contains(file) => {
             let (file, scale, tint) = (file.clone(), *scale, tint.unwrap_or([1.0; 3]));

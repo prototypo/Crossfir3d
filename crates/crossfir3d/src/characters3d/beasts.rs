@@ -57,11 +57,12 @@ fn find_clips(g: &Gltf) -> Option<(Handle<AnimationClip>, Handle<AnimationClip>)
 pub(super) fn animate_beasts(
     mut commands: Commands,
     mut files: BeastFiles,
-    mut beasts: Query<(Entity, &mut Beast, &mut Transform, Option<&Glide>)>,
+    mut beasts: Query<(Entity, &mut Beast, &mut Transform, Option<&Glide>, Has<OwnCharacter>)>,
+    facing: Res<Facing>,
     children: Query<&Children>,
     mut players: Query<(Entity, &mut AnimationPlayer, Has<AnimationGraphHandle>)>,
 ) {
-    for (root, mut beast, mut t, glide) in &mut beasts {
+    for (root, mut beast, mut t, glide, own) in &mut beasts {
         let Some((graph, idle, walk)) = files.clips(&beast.file) else { continue };
         let Some(found) = children.iter_descendants(root).find(|e| players.contains(*e)) else { continue };
         let Ok((player_e, mut player, has_graph)) = players.get_mut(found) else { continue };
@@ -70,7 +71,10 @@ pub(super) fn animate_beasts(
         }
         let step = glide.map_or(Vec3::ZERO, |g| g.target - t.translation);
         let walking = step.length() > 0.02;
-        if walking {
+        // The own character faces the way the player last moved, even standing still.
+        if own {
+            t.rotation = facing_rotation(facing.0);
+        } else if walking {
             t.rotation = Quat::from_rotation_y(step.x.atan2(step.z));
         }
         if beast.walking != Some(walking) {

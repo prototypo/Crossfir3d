@@ -230,6 +230,7 @@ all sound). They are saved to
 clouds by day, a warm glow round the low sun at dawn and dusk, and stars at night.
 Wells and other one-square things stay in view when you stand on them.
 Squares you saw before but cannot see now stay dim until you leave the map.
+Fire hatchlings, wraiths and fenx have their own bodies (dragon, ghost, fox), which show no worn or held items.
 In game, the Pickup setting chooses what you pick up as you walk; the server keeps it with the character.
 
 ## Developer switches
