@@ -160,8 +160,10 @@ trackpad pinch, and two-finger scroll zoom (the top view has its own zoom). When
 wall or house is in the way, the camera moves closer.
 
 Walk into a monster to attack it (hold the arrow to keep attacking); **T** turns you to
-face the nearest one. **Space** fires your readied bow or wand the way you face (ready
-it from the inventory: **I**, select it, **E**); arrows and bolts fly as 3D arrows. When you are hit, the screen flashes red and the HP you lost
+face the nearest one. **Space** fires your prepared spell, or your readied bow or wand, the way you face (ready
+it from the inventory: **I**, select it, **E**). **Shift** with an arrow fires without a
+turn: Up forward, Left to your left; shift with a number pad or vi key fires by the
+compass. Arrows and bolts fly as 3D arrows. When you are hit, the screen flashes red and the HP you lost
 floats above you; "hit", "miss", and "killed!" float over the monster you attack, and
 it flashes red when hit. (The server sends no monster health or damage numbers.)
 

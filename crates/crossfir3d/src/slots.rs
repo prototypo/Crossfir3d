@@ -70,9 +70,12 @@ fn fire_item(item: &cfproto::Item, facing: u8, range: &str) -> Vec<String> {
     [ready, fire(facing)].concat()
 }
 
-/// Space: fire the readied bow, wand, rod, or horn the way the player faces. Empty if
-/// none is readied.
+/// Space and shift + direction: fire the prepared spell, else the readied bow, wand,
+/// rod, or horn, toward `facing`. Empty if neither is ready.
 pub fn fire_commands(inv: &Inventory, facing: u8, range: &str) -> Vec<String> {
+    if range.starts_with("Range: spell") {
+        return fire(facing);
+    }
     inv.carried().into_iter().find(|i| i.applied() && is_fired(i.kind)).map_or_else(Vec::new, |i| fire_item(i, facing, range))
 }
 
@@ -189,6 +192,8 @@ mod tests {
         let mut empty = Inventory::default();
         empty.player = 1;
         assert!(fire_commands(&empty, 3, "Range: nothing").is_empty());
+        assert_eq!(fire_commands(&empty, 3, "Range: spell (magic bullet)"), ["fire 3", "fire_stop"]);
+        assert_eq!(fire_commands(&inv, 3, "Range: spell (magic bullet)"), ["fire 3", "fire_stop"], "a readied bow leaves the spell prepared");
     }
 
     #[test]

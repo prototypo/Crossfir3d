@@ -22,7 +22,9 @@ the key to keep attacking.
 | **A** or **E** | Apply (use): open a door, pull a lever, go into a shop. **E** also closes the parchment box. |
 | **G** | Get what you stand on. |
 | **1** to **4** | Use quick slot 1 to 4. |
-| **Space** | Fire the readied bow or wand. |
+| **Space** | Fire the prepared spell, or the readied bow or wand, the way you face. |
+| **Shift** + an arrow | Fire without a turn: Up forward, Left to your left, Right to your right, Down behind you. |
+| **Shift** + **8 9 6 3 2 1 4 7** or **K U L N J B H Y** | Fire by the compass. |
 | **T** | Turn to face the nearest monster. |
 | **V** | Show what is below you in the parchment box. |
 | **R** | Make the log tall (20 lines) or short (5 lines). |
@@ -85,7 +87,8 @@ The old clients' commands work too. Press **Enter**, then type:
 ### Rules
 
 - A binding comes before a game key. If you bind **H**, H runs your command and no
-  longer walks west. The game asks first.
+  longer walks west. The game asks first. A binding on shift + a direction key takes
+  the place of firing that way, without asking.
 - **Escape**, **O** and **Enter** alone can never be bound: they are your way out.
 - Keys the system uses can not be bound either: command + Q, W, H, M, Tab or Space
   on a Mac; Alt + F4 or Tab on Windows and Linux.
