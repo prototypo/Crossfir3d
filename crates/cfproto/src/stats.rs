@@ -27,6 +27,7 @@ pub struct Stats {
     pub cha: i16,
     pub int: i16,
     pub pow: i16,
+    pub ac: i16,
     pub range: String,
     pub title: String,
     /// Known skills: stat code (140-189) to experience.
@@ -115,11 +116,12 @@ impl Stats {
 
     /// The 16-bit field a numeric stat code writes to, if it is one of the short stats.
     fn short_stat(&mut self, code: u8) -> Option<&mut i16> {
-        const CODES: [u8; 15] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 18, 22, 23, 24];
+        const CODES: [u8; 16] = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 18, 22, 23, 24, 14];
         let fields = [
             &mut self.hp, &mut self.max_hp, &mut self.sp, &mut self.max_sp, &mut self.str_,
             &mut self.int, &mut self.wis, &mut self.dex, &mut self.con, &mut self.cha,
             &mut self.level, &mut self.food, &mut self.pow, &mut self.grace, &mut self.max_grace,
+            &mut self.ac,
         ];
         fields.into_iter().zip(CODES).find(|(_, c)| *c == code).map(|(f, _)| f)
     }
@@ -231,6 +233,7 @@ mod tests {
             level: 22,
             food: 28,
             pow: 32,
+            ac: 0,
             grace: 33,
             max_grace: 34,
             exp: 5_000_000_000,
@@ -252,8 +255,10 @@ mod tests {
             (28, StatValue::Int(1234)),
             (12, StatValue::Int(2)),
             (21, StatValue::Text("Fighter".into())),
+            (14, StatValue::Int(-2)),
             (100, StatValue::Int(30)), // resistance: ignored
         ]);
+        assert_eq!(s.ac, -2);
         assert_eq!((s.hp, s.sp, s.grace, s.food, s.exp, s.level), (50, 7, 9, 999, 1234, 2));
         assert_eq!(s.title, "Fighter");
     }

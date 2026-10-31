@@ -237,8 +237,8 @@ fn stats_block(ui: &mut egui::Ui, st: &Stats) {
     ui.add_space(16.0);
     heading(ui, "STATS");
     ui.label(format!(
-        "Str {}  Dex {}  Con {}  Wis {}\nCha {}  Int {}  Pow {}\nLevel {}  Exp {}",
-        st.str_, st.dex, st.con, st.wis, st.cha, st.int, st.pow, st.level, st.exp
+        "Str {}  Dex {}  Con {}  Wis {}\nCha {}  Int {}  Pow {}\nLevel {}  Exp {}  AC {}",
+        st.str_, st.dex, st.con, st.wis, st.cha, st.int, st.pow, st.level, st.exp, st.ac
     ));
 }
 
