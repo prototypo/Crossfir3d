@@ -37,6 +37,22 @@ it, and press **E**.
 Each press fires one time. Hold **Shift** and the direction keys fire: they do not
 walk or turn you.
 
+## Quick slots
+
+The four slots at the top right of the screen hold an item or a spell.
+
+1. Press **I** to open the inventory.
+2. Select an item or a spell with the arrow keys.
+3. Press **1**, **2**, **3** or **4** to put it in that slot.
+4. Press **I** or **Escape** to close the inventory.
+
+In the game, press **1** to **4** to use the slot. A spell is cast and fired the way
+you face. A bow or wand is readied and fired. Any other item is applied. The slot does
+nothing, and its ring is grey, if the character no longer has the item or spell.
+
+Each character has its own slots, and they are saved at once. A slot cannot hold a
+typed command: to run a command with a key, see [Binding your own keys](#binding-your-own-keys).
+
 ## The camera
 
 | Key | What it does |
