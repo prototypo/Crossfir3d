@@ -206,6 +206,7 @@ fn misc(world: &mut World, msg: ServerMsg) {
             world.resource_mut::<audio::AudioQueue>().sounds.push((action, volume, x, y))
         }
         ServerMsg::Music(name) => world.resource_mut::<audio::AudioQueue>().music = Some(name),
+        ServerMsg::Pickup(mode) => world.insert_resource(crate::settings_ui::PickupMode(Some(mode))),
         ServerMsg::Unknown(name) => debug!("ignored server command {name}"),
         _ => {}
     }

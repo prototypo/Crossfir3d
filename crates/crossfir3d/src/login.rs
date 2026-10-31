@@ -62,6 +62,7 @@ impl LoginFlow {
             ("beat", "1"),
             ("faceset", "0"),
             ("spellmon", "1"),
+            ("want_pickup", "1"),
             ("sound2", "3"),
         ]
         .map(|(k, v)| (k.to_string(), v.to_string()));

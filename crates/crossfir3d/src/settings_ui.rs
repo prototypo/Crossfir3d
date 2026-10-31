@@ -3,16 +3,37 @@
 use bevy::ecs::system::SystemParam;
 use bevy::prelude::*;
 use bevy_egui::{egui, EguiContexts};
+use cfproto::ClientMsg;
 use crossfir3d::modes::Mode;
 use crossfir3d::settings::{AntiAlias, FrameRate, Quality, Settings, LOG_FONT_SIZES};
 
 use crate::graphics::CurrentSettings;
 use crate::ui::{overlay_window, GOLD};
-use crate::{AppState, KeyMode};
+use crate::{AppState, KeyMode, NcomSeq, Session};
 
 /// Settings opened from the login form (in game, `KeyMode::Settings` is used).
 #[derive(Resource, Default)]
 pub struct SettingsOpen(pub bool);
+
+/// The character's pickup mode, as the server last told us. The server keeps it with
+/// the character, so it is not in the settings file.
+// ponytail: the server does not report its reset to mode 0 on death; the old mode shows until the next login.
+#[derive(Resource, Default)]
+pub struct PickupMode(pub Option<u32>);
+
+/// The pickup modes offered: the server's number and what it does. Above 7, the number
+/// is the lowest value per weight to pick up.
+const PICKUP_MODES: [(u32, &str); 9] = [
+    (0, "Don't pick up"),
+    (1, "Pick up one item"),
+    (2, "Pick up one item and stop"),
+    (3, "Stop before picking up"),
+    (4, "Pick up all items"),
+    (5, "Pick up all items and stop"),
+    (6, "Pick up all magical items"),
+    (7, "Pick up all coins and gems"),
+    (10, "Pick up silver, gold, rings, wands, books, scrolls and artifacts"),
+];
 
 fn quality_row(ui: &mut egui::Ui, label: &str, value: &mut Quality) {
     ui.label(label);
@@ -33,6 +54,9 @@ pub struct SettingsParams<'w, 's> {
     mode: ResMut<'w, KeyMode>,
     open: ResMut<'w, SettingsOpen>,
     current: ResMut<'w, CurrentSettings>,
+    pickup: ResMut<'w, PickupMode>,
+    seq: ResMut<'w, NcomSeq>,
+    session: Option<NonSend<'w, Session>>,
 }
 
 /// Draws the settings window (in game or on the login screen), applies the changes and closes it on request.
@@ -49,13 +73,25 @@ pub fn settings_screen(mut p: SettingsParams) -> Result {
     }
 
     let mut s = p.current.0.clone();
-    let close = settings_window(p.contexts.ctx_mut()?, &mut s);
+    let before = p.pickup.0.filter(|_| in_game);
+    let mut pickup = before;
+    let close = settings_window(p.contexts.ctx_mut()?, &mut s, pickup.as_mut());
+    if pickup != before {
+        send_pickup(pickup, &mut p);
+    }
     apply_settings(s, close, in_game, &mut p);
     Ok(())
 }
 
+/// Tells the server the new pickup mode and remembers it.
+fn send_pickup(mode: Option<u32>, p: &mut SettingsParams) {
+    let (Some(m), Some(session)) = (mode, &p.session) else { return };
+    session.send([ClientMsg::Ncom { packet: p.seq.next(), repeat: 0, command: format!("pickup {m}") }]);
+    p.pickup.0 = mode;
+}
+
 /// Shows the full-screen settings window with its title, the scrolling grid and the buttons; returns whether Close was clicked.
-fn settings_window(ctx: &egui::Context, s: &mut Settings) -> bool {
+fn settings_window(ctx: &egui::Context, s: &mut Settings, pickup: Option<&mut u32>) -> bool {
     let screen = ctx.content_rect().shrink(24.0);
     let mut close = false;
     overlay_window("settings", screen, 20.0)
@@ -65,7 +101,7 @@ fn settings_window(ctx: &egui::Context, s: &mut Settings) -> bool {
             ui.label(egui::RichText::new("SETTINGS").color(GOLD).strong().size(18.0));
             ui.add_space(12.0);
             // Scrolls in a short window, so the buttons below always show.
-            egui::ScrollArea::vertical().max_height(ui.available_height() - 60.0).show(ui, |ui| settings_grid(ui, s));
+            egui::ScrollArea::vertical().max_height(ui.available_height() - 60.0).show(ui, |ui| settings_grid(ui, s, pickup));
             ui.add_space(16.0);
             close = bottom_buttons(ui, s);
         });
@@ -73,13 +109,16 @@ fn settings_window(ctx: &egui::Context, s: &mut Settings) -> bool {
 }
 
 /// Draws the two-column grid with every setting row.
-fn settings_grid(ui: &mut egui::Ui, s: &mut Settings) {
+fn settings_grid(ui: &mut egui::Ui, s: &mut Settings, pickup: Option<&mut u32>) {
     egui::Grid::new("settings-grid").num_columns(2).spacing([24.0, 12.0]).show(ui, |ui| {
         display_rows(ui, s);
         graphics_rows(ui, s);
         picture_rows(ui, s);
         sound_rows(ui, s);
         log_rows(ui, s);
+        if let Some(mode) = pickup {
+            pickup_row(ui, mode);
+        }
     });
 }
 
@@ -163,6 +202,21 @@ fn log_rows(ui: &mut egui::Ui, s: &mut Settings) {
 
     ui.label("Show what is under me");
     ui.checkbox(&mut s.ground_popup, "on every new square (V shows it any time)");
+    ui.end_row();
+}
+
+/// Draws the character's pickup mode; none is marked when it was set another way (`pickup +food`).
+fn pickup_row(ui: &mut egui::Ui, mode: &mut u32) {
+    ui.label("Pickup");
+    // Two columns, so all the modes fit without scrolling.
+    egui::Grid::new("pickup-modes").num_columns(2).show(ui, |ui| {
+        for (i, (m, name)) in PICKUP_MODES.into_iter().enumerate() {
+            ui.radio_value(mode, m, name);
+            if i % 2 == 1 {
+                ui.end_row();
+            }
+        }
+    });
     ui.end_row();
 }
 

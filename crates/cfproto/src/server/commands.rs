@@ -26,6 +26,7 @@ const COMMANDS: &[(&str, Parser)] = &[
     ("smooth", parse_smooth),
     ("comc", parse_comc),
     ("tick", parse_tick),
+    ("pickup", parse_pickup),
     ("item2", parse_item2_msg),
     ("upditem", parse_upditem_msg),
     ("delitem", parse_delitem),
@@ -192,6 +193,12 @@ fn parse_smooth(data: &[u8]) -> Result<ServerMsg, ParseError> {
 fn parse_comc(data: &[u8]) -> Result<ServerMsg, ParseError> {
     let mut r = Reader(data);
     Ok(ServerMsg::Comc { packet: r.u16()?, time_us: r.u32()? })
+}
+
+/// The character's pickup mode.
+fn parse_pickup(data: &[u8]) -> Result<ServerMsg, ParseError> {
+    let mut r = Reader(data);
+    Ok(ServerMsg::Pickup(r.u32()?))
 }
 
 /// The server tick number.
