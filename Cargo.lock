@@ -2287,7 +2287,7 @@ checksum = "f079e83a288787bcd14a6aea84cee5c87a67c5a3e660c30f557a3d24761b3527"
 
 [[package]]
 name = "cfproto"
-version = "0.1.6"
+version = "0.1.7"
 
 [[package]]
 name = "clipboard-win"
@@ -2537,7 +2537,7 @@ checksum = "a31eee39dddec8330830986fcd7625edb5a24ec90ea038215273bbc3adb08ac6"
 
 [[package]]
 name = "crossfir3d"
-version = "0.1.6"
+version = "0.1.7"
 dependencies = [
  "bevy",
  "bevy_egui",
