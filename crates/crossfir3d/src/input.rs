@@ -127,6 +127,27 @@ const COMPASS_KEYS: [(KeyCode, (i8, i8)); 16] = [
     (KeyCode::KeyJ, (0, 1)), (KeyCode::KeyB, (-1, 1)), (KeyCode::KeyH, (-1, 0)), (KeyCode::KeyY, (-1, -1)),
 ];
 
+/// Whether `code` walks now: it is held, shift (firing) is not, and no binding took it.
+fn walk_key(bindings: &KeyBindings, keys: &ButtonInput<KeyCode>, code: KeyCode) -> bool {
+    (keys.pressed(code) || keys.just_pressed(code)) && !shift_only(held_mods(keys)) && !key_taken(bindings, keys, code)
+}
+
+/// Whether shift is the only modifier held: an arrow or compass key then fires.
+pub fn shift_only(mods: Mods) -> bool {
+    mods == Mods { shift: true, ..Default::default() }
+}
+
+/// The direction shift + `code` fires when the player faces `facing`: arrows are
+/// relative to the facing (Up is forward), compass keys are by the compass.
+pub fn fire_dir(code: KeyCode, facing: u8) -> Option<u8> {
+    let arrow = screen_dir(code == KeyCode::ArrowUp, code == KeyCode::ArrowDown, code == KeyCode::ArrowLeft, code == KeyCode::ArrowRight);
+    let command = match arrow {
+        Some(screen) => compass(screen, heading_of(facing)),
+        None => compass(COMPASS_KEYS.iter().find(|(k, _)| *k == code)?.1, 0),
+    };
+    dir_number(command)
+}
+
 /// Everything `send_moves` reads or changes in a frame.
 #[derive(SystemParam)]
 pub struct MoveParams<'w> {
@@ -159,7 +180,7 @@ impl MoveParams<'_> {
     fn walk_screen(&self) -> Option<((i8, i8), bool)> {
         // just_pressed too: a press and release in one frame (a very fast tap) still steps.
         // A key a binding took no longer moves.
-        let key = |k| (self.keys.pressed(k) || self.keys.just_pressed(k)) && !key_taken(&self.bindings, &self.keys, k);
+        let key = |k| walk_key(&self.bindings, &self.keys, k);
         let arrows = screen_dir(key(KeyCode::ArrowUp), key(KeyCode::ArrowDown), key(KeyCode::ArrowLeft), key(KeyCode::ArrowRight));
         let compass = || COMPASS_KEYS.iter().find(|(k, _)| key(*k)).map(|(_, s)| (*s, true));
         arrows.map(|s| (s, false)).or_else(compass)
@@ -330,6 +351,30 @@ mod tests {
         for (k, n) in rows {
             assert_eq!(super::act_key(k), n, "{k:?}");
         }
+    }
+
+    #[test]
+    fn shift_fires_the_way_the_key_points() {
+        use super::fire_dir;
+        let (north, east) = (1, 3);
+        assert_eq!(fire_dir(KeyCode::ArrowUp, north), Some(1));
+        assert_eq!(fire_dir(KeyCode::ArrowLeft, north), Some(7));
+        assert_eq!(fire_dir(KeyCode::ArrowUp, east), Some(3), "Up is forward");
+        assert_eq!(fire_dir(KeyCode::ArrowRight, east), Some(5));
+        assert_eq!(fire_dir(KeyCode::ArrowDown, east), Some(7));
+        assert_eq!(fire_dir(KeyCode::KeyK, east), Some(1), "a compass key ignores the facing");
+        assert_eq!(fire_dir(KeyCode::Numpad3, east), Some(4));
+        assert_eq!(fire_dir(KeyCode::KeyG, east), None);
+    }
+
+    #[test]
+    fn shift_stops_an_arrow_walking() {
+        let b = crate::KeyBindings::default();
+        let mut keys = bevy::input::ButtonInput::<KeyCode>::default();
+        keys.press(KeyCode::ArrowUp);
+        assert!(super::walk_key(&b, &keys, KeyCode::ArrowUp));
+        keys.press(KeyCode::ShiftRight);
+        assert!(!super::walk_key(&b, &keys, KeyCode::ArrowUp));
     }
 
     #[test]

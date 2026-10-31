@@ -4,7 +4,7 @@ use bevy::ecs::system::SystemParam;
 use bevy::prelude::*;
 use cfproto::ClientMsg;
 
-use super::{act_key, binding_commands, held_mods, key_name, key_taken, CameraHeading, CameraView, Facing};
+use super::{act_key, binding_commands, fire_dir, held_mods, key_name, key_taken, shift_only, CameraHeading, CameraView, Facing};
 use crate::characters3d::PlayerAnimEvents;
 use crate::ui::{CommandLine, PendingBind};
 use crate::{known_skills, HudState, Inv, KeyBindings, KeyMode, LastAction, Msgs, NcomSeq, PlayerStats, Session, SkillNames, Slots, Spells, View, ViewSize};
@@ -67,6 +67,9 @@ impl WorldKeyParams<'_> {
     fn press(&mut self, session: &Session, code: KeyCode, mods: Mods) {
         if let Some(b) = self.bound(code, mods) {
             return self.run_binding(session, &b);
+        }
+        if self.mode.0 == Mode::World && shift_only(mods) && let Some(dir) = fire_dir(code, self.facing.0) {
+            return self.fire(session, dir);
         }
         let key = act_key(code);
         let a = act(self.mode.0, key, self.msgs.0.boxed.is_some());
@@ -156,19 +159,19 @@ impl WorldKeyParams<'_> {
                 self.heading.0 = heading_of(self.facing.0);
                 self.view.top = false;
             }
-            Act::Fire => self.fire(session),
+            Act::Fire => self.fire(session, self.facing.0),
             Act::FaceNearest => self.face_nearest(),
             Act::TopView => self.view.top = !self.view.top,
             _ => {}
         }
     }
 
-    /// Fire the readied bow or wand, or say there is nothing to fire.
-    fn fire(&mut self, session: &Session) {
-        let fire = fire_commands(&self.inv.0, self.facing.0, &self.stats.0.range);
+    /// Fire the prepared spell or readied bow or wand toward `dir`, or say there is nothing to fire.
+    fn fire(&mut self, session: &Session, dir: u8) {
+        let fire = fire_commands(&self.inv.0, dir, &self.stats.0.range);
         if fire.is_empty() {
             let now = self.time.elapsed_secs();
-            self.msgs.0.push((0, 0), "Nothing to fire: ready a bow or wand first (I, select it, E).", now, None);
+            self.msgs.0.push((0, 0), "Nothing to fire: prepare a spell, or ready a bow or wand (I, select it, E).", now, None);
         }
         for c in &fire {
             self.send(session, c);
