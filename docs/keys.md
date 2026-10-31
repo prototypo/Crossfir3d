@@ -67,6 +67,7 @@ typed command: to run a command with a key, see [Binding your own keys](#binding
 | Key | What it does |
 |---|---|
 | **I** | Inventory. **I** or **Escape** closes it. |
+| **X** | On the inventory screen, examine the selected item. In a shop, this also shows the price. |
 | **O** | Key bindings. **O** or **Escape** closes it. |
 | **Escape** | Settings. **Escape** closes it. |
 | **Enter** | The command box: type a game command, such as `say hello`. |
