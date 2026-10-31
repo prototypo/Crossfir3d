@@ -14,8 +14,6 @@ const INK: egui::Color32 = egui::Color32::from_rgb(0x2a, 0x22, 0x18);
 const SHORT_LOG: usize = 5;
 const SLOT_PX: f32 = 56.0;
 const TALL_LOG: usize = 20;
-/// Food is out of 999; show the bar only when it gets low.
-const FOOD_WARN: i16 = 200;
 
 fn bar(ui: &mut egui::Ui, value: i16, max: i16, color: egui::Color32, label: &str) {
     let frac = if max > 0 { (value.max(0) as f32 / max as f32).min(1.0) } else { 0.0 };
@@ -84,15 +82,13 @@ pub struct HudParams<'w> {
     settings: Res<'w, crate::graphics::CurrentSettings>,
 }
 
-/// Draws the HP, SP, grace and (when low) food bars at the top left.
+/// Draws the HP, SP, grace and food bars at the top left. Food is out of 999.
 fn draw_bars(ctx: &egui::Context, s: &Stats) {
     egui::Area::new("bars".into()).anchor(egui::Align2::LEFT_TOP, [10.0, 10.0]).show(ctx, |ui| {
         bar(ui, s.hp, s.max_hp, egui::Color32::from_rgb(0xd0, 0x30, 0x30), "HP");
         bar(ui, s.sp, s.max_sp, egui::Color32::from_rgb(0x30, 0x60, 0xf0), "SP");
         bar(ui, s.grace, s.max_grace, egui::Color32::from_rgb(0xc8, 0xc8, 0xc8), "Grace");
-        if s.food < FOOD_WARN {
-            bar(ui, s.food, 999, egui::Color32::from_rgb(0xc0, 0x80, 0x20), "Food");
-        }
+        bar(ui, s.food, 999, egui::Color32::from_rgb(0xc0, 0x80, 0x20), "Food");
     });
 }
 
