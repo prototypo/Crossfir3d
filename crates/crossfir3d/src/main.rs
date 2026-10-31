@@ -227,6 +227,7 @@ fn plugins_and_input(app: &mut App) -> &mut App {
 fn login_screens(app: &mut App) -> &mut App {
     app
         .init_resource::<settings_ui::SettingsOpen>()
+        .init_resource::<settings_ui::PickupMode>()
         .add_systems(
             EguiPrimaryContextPass,
             (ui::login_screen, characters_ui::characters_screen).run_if(in_state(AppState::Login)),

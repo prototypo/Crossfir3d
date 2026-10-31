@@ -39,6 +39,8 @@ pub enum ServerMsg {
     /// `time_us`: how long the command takes, in microseconds (server `MAX_TIME / speed`).
     Comc { packet: u16, time_us: u32 },
     Tick(u32),
+    /// The character's pickup mode.
+    Pickup(u32),
     /// Stat updates read before any unknown code (the rest of that packet is dropped).
     Stats(Vec<(u8, StatValue)>),
     Item2 { location: u32, items: Vec<Item> },
@@ -265,6 +267,7 @@ mod tests {
     #[test]
     fn parse_tick() {
         assert_eq!(p(b"tick \x00\x00\x01\x00"), ServerMsg::Tick(256));
+        assert_eq!(p(b"pickup \x00\x00\x00\x04"), ServerMsg::Pickup(4));
     }
 
     #[test]
