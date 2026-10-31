@@ -274,7 +274,8 @@ fn draw_window(ctx: &egui::Context, lists: &Lists, icons: &Icons, sel: &InvSel, 
     overlay_window("inventory", screen, 16.0)
         .show(ctx, |ui| {
             ui.set_min_size(screen.size() - egui::vec2(32.0, 32.0));
-            ui.label(egui::RichText::new("I or Esc: close · arrows: select · E apply · D drop · G get · X examine · 1-4 quick slot").small());
+            ui.label(egui::RichText::new("I or Esc: close · arrows: select · E apply · D drop · G get · X examine").small());
+            ui.label(egui::RichText::new("Quick slots: select an item or spell, then press 1-4 to put it in that slot. In the game, 1-4 uses it.").small());
             ui.add_space(8.0);
             ui.columns(3, |cols| draw_columns(cols, lists, icons, sel, stats))
         })
