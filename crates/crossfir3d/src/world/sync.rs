@@ -54,7 +54,7 @@ pub(super) struct Inputs<'w> {
     map_gen: Res<'w, MapGen>,
 }
 
-type Existing<'w, 's> = Query<'w, 's, (Entity, &'static mut TileVisual, Option<&'static mut Glide>, Has<Character>)>;
+type Existing<'w, 's> = Query<'w, 's, (Entity, &'static mut TileVisual, Option<&'static mut Glide>, Has<Character>, Has<OwnCharacter>)>;
 
 /// What the whole view says about each square: walls, ground heights, the player's square.
 struct Frame {
@@ -222,7 +222,7 @@ fn shows(tv: &TileVisual, (face, dark, join): (u16, u8, u8)) -> bool {
 /// Gliding things that left their tile are returned as orphans.
 fn sweep(existing: &Existing<'_, '_>, want: &mut Wanted, commands: &mut Commands, memory: impl Fn(i32, i32) -> bool) -> Vec<Entity> {
     let mut orphans = Vec::new();
-    for (entity, tv, _, _) in existing {
+    for (entity, tv, _, _, _) in existing {
         match want.get(&(tv.x, tv.y, tv.layer)) {
             Some(&entry) if shows(tv, entry) => {
                 want.remove(&(tv.x, tv.y, tv.layer));
@@ -235,22 +235,34 @@ fn sweep(existing: &Existing<'_, '_>, want: &mut Wanted, commands: &mut Commands
     orphans
 }
 
+/// Whether a thing that showed `old` may now show `new`; each is (picture name, own
+/// character). The own body is only ever the own: its look comes from the login, not
+/// the picture. Another 3D character needs the same body key, so two players who swap
+/// squares (a push) keep their looks.
+pub(super) fn may_reuse(map: &ModelMap, new: (&str, bool), old: (&str, bool), same_face: bool, character: bool) -> bool {
+    let key = body_key(map, new.0);
+    let same_body = character && (old.1 || key.is_some() && body_key(map, old.0) == key);
+    new.1 == old.1 && (same_face || same_body)
+}
+
 /// The orphan that is this square's creature one tile away (or its other frame).
 /// A 3D character keeps its body when only its picture changes (each turn and step
 /// frame), so it is never rebuilt, nor briefly built as someone else.
 fn find_orphan(sq: &Square, orphans: &[Entity], existing: &Existing<'_, '_>, models: &Models, faces: &Faces) -> Option<usize> {
-    let key = body_key(&models.map, sq.name);
     orphans.iter().position(|&e| {
-        existing.get(e).is_ok_and(|(_, tv, _, character)| {
-            let same_body = character && key.is_some() && body_key(&models.map, name_of(faces, tv.face)) == key;
-            (tv.face == sq.face || same_body) && tv.layer == sq.layer && (tv.x - sq.x).abs() <= 1 && (tv.y - sq.y).abs() <= 1
+        existing.get(e).is_ok_and(|(_, tv, _, character, own)| {
+            let old = (name_of(faces, tv.face), own);
+            may_reuse(&models.map, (sq.name, sq.own_tile), old, tv.face == sq.face, character)
+                && tv.layer == sq.layer
+                && (tv.x - sq.x).abs() <= 1
+                && (tv.y - sq.y).abs() <= 1
         })
     })
 }
 
 /// Moves an old entity to this square and points its glide at the new spot.
 fn retarget(sq: &Square, e: Entity, existing: &mut Existing<'_, '_>, models: &Models) {
-    let Ok((_, mut tv, glide, character)) = existing.get_mut(e) else { return };
+    let Ok((_, mut tv, glide, character, _)) = existing.get_mut(e) else { return };
     (tv.x, tv.y, tv.darkness, tv.face) = (sq.x, sq.y, sq.darkness, sq.face);
     if let Some(mut g) = glide {
         // 3D characters and built creatures (bees) stand in the middle of the square.

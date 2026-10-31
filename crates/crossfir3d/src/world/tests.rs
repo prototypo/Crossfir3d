@@ -12,6 +12,19 @@ fn the_picture_shows_only_if_the_model_fails() {
 }
 
 #[test]
+fn a_pushed_player_keeps_their_own_body() {
+    let map = ModelMap::default();
+    let reuse = |new, old, same_face| sync::may_reuse(&map, new, old, same_face, true);
+    assert!(reuse(("wizard.171", false), ("wizard.132", false), false), "a turn keeps the body");
+    assert!(!reuse(("ranger.171", false), ("wizard.171", false), false), "two classes do not share");
+    assert!(!reuse(("elf.171", false), ("dwarf_p.171", false), false), "two races do not share");
+    assert!(reuse(("dwarf_p.171", true), ("wizard.171", true), false), "the own body is always the own");
+    assert!(!reuse(("wizard.171", false), ("wizard.171", true), true), "no one else takes the own body");
+    assert!(!reuse(("wizard.171", true), ("wizard.171", false), true), "the own takes no one else's body");
+    assert!(sync::may_reuse(&map, ("arrow.111", false), ("arrow.111", false), true, false), "a flying thing keeps its entity");
+}
+
+#[test]
 fn leaving_the_game_forgets_face_pictures() {
     use bevy::ecs::system::RunSystemOnce;
     let mut world = World::new();
