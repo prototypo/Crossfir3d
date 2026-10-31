@@ -229,6 +229,7 @@ all sound). They are saved to
 (`CROSSFIR3D_HOUR=14` forces an hour, for screenshots): a blue sky with drifting
 clouds by day, a warm glow round the low sun at dawn and dusk, and stars at night.
 Wells and other one-square things stay in view when you stand on them.
+Squares you saw before but cannot see now stay dim until you leave the map.
 
 ## Developer switches
 
