@@ -312,11 +312,12 @@ pub(super) fn spawn_plain(sq: &Square, draw: &mut Draw, material: Handle<Standar
     }
 }
 
-/// Pictures that share a 3D body: every player picture, or one creature's frames.
+/// Pictures that share a 3D body: a player's pictures of one race or class, or one
+/// creature's frames.
 pub(super) fn body_key<'a>(map: &ModelMap, name: &'a str) -> Option<&'a str> {
-    match map.lookup(name) {
-        _ if classify_player_face(name).is_some() => Some("player"),
-        Visual::Person { .. } | Visual::Monster { .. } | Visual::Beast { .. } => name.split('.').next(),
+    match (classify_player_face(name), map.lookup(name)) {
+        (Some(PlayerFace::Race(arch) | PlayerFace::Class(arch)), _) => Some(arch),
+        (None, Visual::Person { .. } | Visual::Monster { .. } | Visual::Beast { .. }) => name.split('.').next(),
         _ => None,
     }
 }
