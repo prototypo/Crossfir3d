@@ -18,7 +18,7 @@ use bevy::render::render_resource::{Extent3d, TextureDimension, TextureFormat};
 use bevy::world_serialization::{WorldAsset, WorldAssetRoot, WorldInstanceReady};
 use crossfir3d::buildings::{brick_pixels, doorstep, footprint, parts, wall_parts, wave_pixels, Part, Shape, BRICK_TILE, WAVE_TILE};
 use crossfir3d::models::{all_loaded, Load, ModelMap, Visual};
-use crossfir3d::races::{classify_player_face, clothes_for_class, look_for_race, Body, Look, PlayerFace};
+use crossfir3d::races::{beast_body, BeastBody, classify_player_face, clothes_for_class, look_for_race, Body, Look, PlayerFace};
 use crossfir3d::terrain::{ground_height, is_wall};
 use crossfir3d::walls::{facing, hangs_on_walls, open_side, wall_beside, wall_masks};
 

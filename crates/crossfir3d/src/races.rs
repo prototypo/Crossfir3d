@@ -51,13 +51,41 @@ const LOOKS: [(&str, Look); 13] = [
     ("pl_half_orc", look(1.06, [0.5, 0.58, 0.4], [0.15, 0.15, 0.15], BROWN)),
 ];
 
+/// A body that is not human-shaped: its model file, scale and tint.
+#[derive(Clone, Copy, Debug, PartialEq)]
+pub struct BeastBody {
+    pub file: &'static str,
+    pub scale: f32,
+    pub tint: [f32; 3],
+    /// How solid it is: 1 is solid, 0 cannot be seen.
+    pub alpha: f32,
+}
+
+/// The races that are not human-shaped, by arch. Other races use the people's body.
+const BEAST_BODIES: [(&str, BeastBody); 3] = [
+    ("pl_dragon", BeastBody { file: "beasts/cute/YellowDragon.gltf", scale: 0.5, tint: [1.0, 0.5, 0.4], alpha: 1.0 }),
+    ("wraith_player", BeastBody { file: "beasts/cute/Ghost.gltf", scale: 0.4, tint: [0.8, 0.82, 0.88], alpha: 0.5 }),
+    ("fenx_player", BeastBody { file: "beasts/animals/Fox.gltf", scale: 0.3, tint: [1.0, 1.0, 1.0], alpha: 1.0 }),
+];
+
+/// The arch of a race arch ("dwarf_player") or display name ("dwarf"). Unknown: human.
+fn race_arch(race: &str) -> &'static str {
+    RACES.iter().find(|(a, n)| *a == race || *n == race).map_or("human_player", |(a, _)| *a)
+}
+
+/// The race's body if it is not human-shaped; takes an arch or a display name.
+pub fn beast_body(race: &str) -> Option<BeastBody> {
+    let arch = race_arch(race);
+    BEAST_BODIES.iter().find(|(a, _)| *a == arch).map(|(_, b)| *b)
+}
+
 const fn look(scale: f32, skin: [f32; 3], hair: [f32; 3], clothes: [f32; 3]) -> Look {
     Look { scale, skin, hair, clothes }
 }
 
 /// Accepts a race arch ("dwarf_player") or display name ("dwarf"). Unknown: human.
 pub fn look_for_race(race: &str) -> Look {
-    let arch = RACES.iter().find(|(a, n)| *a == race || *n == race).map_or("human_player", |(a, _)| *a);
+    let arch = race_arch(race);
     LOOKS.iter().find(|(a, _)| *a == arch).map_or(look(1.0, [0.9, 0.72, 0.6], BROWN, CLOTH), |(_, l)| *l)
 }
 
@@ -283,6 +311,15 @@ mod tests {
         let human = rows[0].2;
         assert_eq!(look_for_race(""), human);
         assert_eq!(look_for_race("martian"), human);
+    }
+
+    #[test]
+    fn beast_bodies_by_arch_or_name() {
+        assert_eq!(beast_body("fire hatchling"), beast_body("pl_dragon"));
+        assert!(beast_body("fire hatchling").is_some() && beast_body("wraith").is_some() && beast_body("fenx").is_some());
+        assert_eq!(beast_body("troll"), None);
+        assert_eq!(beast_body("human"), None);
+        assert_eq!(beast_body("no such race"), None);
     }
 
     #[test]
