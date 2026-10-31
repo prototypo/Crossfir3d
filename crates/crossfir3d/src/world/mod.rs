@@ -55,6 +55,8 @@ const STATUE_STONE: [f32; 3] = [0.7, 0.7, 0.68];
 const STONE_SHADE: f32 = 0.35;
 /// Map memory: how far from the player squares seen before are still drawn.
 const MEMORY_SQUARES: i32 = 40;
+/// Map memory: how bright remembered squares are, 0 (black) ..= 255 (fully lit).
+const MEMORY_LIGHT: u8 = 90;
 /// Street lamps: how bright the lamp box looks, and the light it sheds (lumens, squares).
 const LAMP_GLOW: f32 = 4.0;
 const LAMP_LUMENS: f32 = 60_000.0;
@@ -88,7 +90,6 @@ impl Plugin for WorldPlugin {
             .init_resource::<Textures>()
             .init_resource::<Solid>()
             .init_resource::<Doorstep>()
-            .init_resource::<MapGen>()
             .init_resource::<DoorExit>()
             .init_resource::<Indoors>()
             .insert_resource(Models::load())
@@ -215,10 +216,6 @@ struct Span(i32, i32, i32, i32);
 /// has them on one of its squares (a shop's entrance row, say).
 #[derive(Component)]
 struct Door(Vec3);
-
-/// Counts `newmap`s, so map memory forgets the last map.
-#[derive(Resource, Default)]
-pub struct MapGen(pub u32);
 
 /// The doorstep the player is shown at now, if they are in a house.
 #[derive(Resource, Default)]

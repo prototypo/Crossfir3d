@@ -85,7 +85,10 @@ fn map_view(world: &mut World, msg: ServerMsg, playing: bool) -> Option<ServerMs
     match msg {
         ServerMsg::Setup(opts) => set_mapsize(world, &opts),
         ServerMsg::Map2(items) => {
-            world.resource_mut::<View>().0.apply(&items);
+            let &ViewSize(w, h) = world.resource::<ViewSize>();
+            let mut view = world.resource_mut::<View>();
+            view.0.apply(&items);
+            view.0.remember_outside(w, h);
             if playing && *world.resource::<State<AppState>>().get() == AppState::Login {
                 world.resource_mut::<NextState<AppState>>().set(AppState::InGame);
             }
@@ -93,7 +96,6 @@ fn map_view(world: &mut World, msg: ServerMsg, playing: bool) -> Option<ServerMs
         ServerMsg::NewMap => {
             world.resource_mut::<View>().0.clear();
             world.resource_mut::<input::DoorExit>().new_map = true;
-            world.resource_mut::<crate::world::MapGen>().0 += 1;
             // A new map after dying is the respawn.
             world.resource_mut::<characters3d::PlayerAnimEvents>().0.push(crossfir3d::anim::AnimEvent::Revived);
         }

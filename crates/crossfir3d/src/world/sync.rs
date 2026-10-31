@@ -5,17 +5,24 @@ use super::*;
 /// What should be on screen, keyed by (world x, world y, layer): face, darkness, join.
 type Wanted = HashMap<(i32, i32, u8), (u16, u8, u8)>;
 
-/// Lists the picture to show on each square from the view.
-fn wanted(view: &View, faces: &Faces, textures: &Textures) -> Wanted {
+/// Lists the picture to show on each square: remembered squares dim, then the view.
+fn wanted(view: &View, faces: &Faces, textures: &Textures, player: (i32, i32)) -> Wanted {
     let mut out = Wanted::new();
-    for ((vx, vy), cell) in view.0.cells() {
-        let (wx, wy) = view.0.world(vx, vy);
-        for (layer, raw) in cell.layers.iter().enumerate() {
+    let mut add = |(wx, wy): (i32, i32), layers: &[u16], darkness: u8| {
+        for (layer, raw) in layers.iter().enumerate() {
             let face = faces.0.resolve(*raw);
             if face != 0 && textures.images.contains_key(&face) {
-                out.insert((wx, wy, layer as u8), (face, cell.darkness, 0));
+                out.insert((wx, wy, layer as u8), (face, darkness, 0));
             }
         }
+    };
+    for ((wx, wy), cell) in view.0.remembered() {
+        if (wx - player.0).abs().max((wy - player.1).abs()) <= MEMORY_SQUARES {
+            add((wx, wy), &cell.layers, MEMORY_LIGHT);
+        }
+    }
+    for ((vx, vy), cell) in view.0.cells() {
+        add(view.0.world(vx, vy), &cell.layers, cell.darkness);
     }
     out
 }
@@ -51,7 +58,6 @@ pub(super) struct Inputs<'w> {
     faces: Res<'w, Faces>,
     view_size: Res<'w, ViewSize>,
     own: Res<'w, OwnLook>,
-    map_gen: Res<'w, MapGen>,
 }
 
 type Existing<'w, 's> = Query<'w, 's, (Entity, &'static mut TileVisual, Option<&'static mut Glide>, Has<Character>, Has<OwnCharacter>)>;
@@ -196,21 +202,13 @@ fn ground_heights(want: &Wanted, faces: &Faces) -> HashMap<(i32, i32), f32> {
 /// What to show now and the facts about the view; also sets which squares are solid.
 fn plan(input: &Inputs, draw: &Draw, solid: &mut Solid) -> (Wanted, Frame) {
     // ponytail: full diff per change; incremental dirty cells if profiling says so.
-    let mut want = wanted(&input.view, &input.faces, &draw.textures);
+    let mut want = wanted(&input.view, &input.faces, &draw.textures, player_square(input));
     let walls = wall_set(&want, &input.faces, &draw.models);
     let joins = wall_masks(&walls);
     solid.0 = walls.clone();
     mark_solid(&mut want, &joins, input, draw, &mut solid.0);
     let heights = ground_heights(&want, &input.faces);
     (want, Frame { walls, heights, player: player_square(input) })
-}
-
-/// Map memory: still things outside the server's view stay as last seen, up to
-/// MEMORY_SQUARES away.
-fn remembered(input: &Inputs, player: (i32, i32), new_map: bool, x: i32, y: i32) -> bool {
-    let (x0, y0) = input.view.0.world(0, 0);
-    let in_view = (x0..x0 + input.view_size.0 as i32).contains(&x) && (y0..y0 + input.view_size.1 as i32).contains(&y);
-    !new_map && !in_view && (x - player.0).abs().max((y - player.1).abs()) <= MEMORY_SQUARES
 }
 
 /// Whether an existing entity already shows what is wanted: same face, darkness and join.
@@ -220,7 +218,7 @@ fn shows(tv: &TileVisual, (face, dark, join): (u16, u8, u8)) -> bool {
 
 /// Keeps what is unchanged (dropping it from `want`) and despawns what is gone.
 /// Gliding things that left their tile are returned as orphans.
-fn sweep(existing: &Existing<'_, '_>, want: &mut Wanted, commands: &mut Commands, memory: impl Fn(i32, i32) -> bool) -> Vec<Entity> {
+fn sweep(existing: &Existing<'_, '_>, want: &mut Wanted, commands: &mut Commands) -> Vec<Entity> {
     let mut orphans = Vec::new();
     for (entity, tv, _, _, _) in existing {
         match want.get(&(tv.x, tv.y, tv.layer)) {
@@ -228,7 +226,6 @@ fn sweep(existing: &Existing<'_, '_>, want: &mut Wanted, commands: &mut Commands
                 want.remove(&(tv.x, tv.y, tv.layer));
             }
             _ if glides(tv.layer) => orphans.push(entity),
-            None if memory(tv.x, tv.y) => {}
             _ => commands.entity(entity).despawn(),
         }
     }
@@ -317,16 +314,12 @@ fn place(sq: &Square, draw: &mut Draw, own: &OwnLook) {
 }
 
 /// Brings the drawn squares in line with the view, reusing or despawning old ones.
-pub(super) fn sync_visuals(mut draw: Draw, input: Inputs, mut existing: Existing, mut solid: ResMut<Solid>, mut seen_gen: Local<u32>) {
+pub(super) fn sync_visuals(mut draw: Draw, input: Inputs, mut existing: Existing, mut solid: ResMut<Solid>) {
     if !input.view.is_changed() && !draw.textures.is_changed() {
         return;
     }
-    // A new map: forget the last one's squares (the square numbers carry on).
-    let new_map = *seen_gen != input.map_gen.0;
-    *seen_gen = input.map_gen.0;
     let (mut want, frame) = plan(&input, &draw, &mut solid);
-    let memory = |x, y| remembered(&input, frame.player, new_map, x, y);
-    let mut orphans = sweep(&existing, &mut want, &mut draw.commands, memory);
+    let mut orphans = sweep(&existing, &mut want, &mut draw.commands);
     for (key, val) in want {
         let Some(shown) = draw.textures.images.get(&val.0).cloned() else { continue };
         let sq = Square::new(key, val, name_of(&input.faces, val.0), shown, &frame);
