@@ -30,6 +30,13 @@ the key to keep attacking.
 | **R** | Make the log tall (20 lines) or short (5 lines). |
 | **M** | Sound on or off. |
 
+To prepare a spell, press **Enter** and type `cast magic bullet`. Then fire it with
+**Space** or **Shift** + a direction key. To ready a bow or wand, press **I**, select
+it, and press **E**.
+
+Each press fires one time. Hold **Shift** and the direction keys fire: they do not
+walk or turn you.
+
 ## The camera
 
 | Key | What it does |
